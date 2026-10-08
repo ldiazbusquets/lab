@@ -17,7 +17,7 @@
 <style>
   :root {
     --bg: #000; --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64;
-    --line: rgba(255,255,255,.12); --acc: #5B9FE0; --lock: #FF5A4E; --acid: #D4FF3A;
+    --line: rgba(255,255,255,.12); --acc: #5B9FE0; --lock: #FF5A4E; --acid: #5B9FE0; --acid-hi: #A9CDF2;
     --g: clamp(20px, 5vw, 72px); --max: 1180px;
     --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   }
@@ -50,7 +50,7 @@
   .ws a.on b { color: #000; }
   nav .mid { position: absolute; left: 50%; transform: translateX(-50%); font: 600 .72rem var(--mono); letter-spacing: .12em; color: var(--ink); }
   nav .mod { font: 500 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); padding-right: 12px; border-right: 1px solid rgba(255,255,255,.12); }
-  nav .mod b { color: var(--acid); font-weight: 700; }
+  nav .mod b { color: var(--acid-hi); font-weight: 700; }
   @media (max-width: 1000px) { nav .mid, nav .mod { display: none; } }
   @media (max-width: 560px) { .ws a { padding: 0 7px; } .ws a span, .ws a { font-size: 0; gap: 0; } .ws a b { font-size: .7rem; } .mark span { display: none; } nav .back { padding: 8px 12px; } }
   .back { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none;
@@ -58,7 +58,7 @@
   .back:hover { background: rgba(255,255,255,.12); }
 
   /* ---------- surveillance feed hero ---------- */
-  .feed { position: relative; height: max(100svh, 640px); overflow: hidden; background: #07090c; cursor: none; }
+  .feed { position: relative; height: max(100svh, 640px); overflow: hidden; background: #07090c; cursor: crosshair; }
   .feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   #scene { filter: contrast(1.08) brightness(.92); }
   .feed::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
@@ -124,6 +124,9 @@
   .tbody .ps1, .tin .ps1 { color: var(--acc); }
   .tbody .dim { color: var(--dim); } .tbody .hi { color: #fff; } .tbody .ok { color: #9BE09B; } .tbody .warn { color: #E0A84E; } .tbody .err { color: #FF5A4E; }
   .tbody a { color: var(--acc); }
+  .nf { display: flex; align-items: center; gap: 28px; margin: 4px 0 2px; white-space: pre-wrap; }
+  .nf .orb { width: 170px; height: 170px; flex: none; }
+  @media (max-width: 560px) { .nf { flex-direction: column; align-items: flex-start; gap: 10px; } .nf .orb { width: 120px; height: 120px; } }
   .tin { display: flex; gap: 10px; padding: 4px 16px 14px; }
   .tin input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: #fff; font: inherit; caret-color: var(--acc); padding: 0; }
   .tin input:focus-visible { outline: 0; }
@@ -133,7 +136,7 @@
   .chips button:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
 
   /* Marathon-style graphic details */
-  .ticker { background: var(--acid); color: #000; overflow: hidden; border-block: 1px solid #000; }
+  .ticker { background: var(--acid); color: #04070b; overflow: hidden; border-block: 1px solid #000; }
   .tk { display: inline-flex; align-items: center; gap: 18px; white-space: nowrap; padding: 9px 0; animation: tick 38s linear infinite; }
   .tk span { font: 800 .82rem "Archivo", sans-serif; font-stretch: 125%; letter-spacing: .06em; text-transform: uppercase; }
   .tk i { font: 700 .8rem var(--mono); font-style: normal; }
@@ -142,9 +145,9 @@
   .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
   .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acid); letter-spacing: -.01em; }
   .seclab .nm { color: var(--ink); }
-  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(212,255,58,.55) 0 2px, transparent 2px 7px); }
+  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(91,159,224,.55) 0 2px, transparent 2px 7px); }
   .card .idx { position: absolute; right: 20px; bottom: 50px; font: 800 4.6rem/1 "Archivo", sans-serif; font-stretch: 125%; color: rgba(255,255,255,.04); pointer-events: none; transition: color .3s; }
-  .card:hover .idx { color: rgba(212,255,58,.14); }
+  .card:hover .idx { color: rgba(91,159,224,.16); }
   .card .bc { display: block; width: 74px; height: 12px; margin-top: 18px; opacity: .45;
     background: repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 3px, #fff 3px 5px, transparent 5px 6px, #fff 6px 7px, transparent 7px 10px); }
   .card::before { transition: border-color .3s; }
@@ -401,7 +404,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   /* ---------- classes: what the detector can name ---------- */
   var GROUP = { person: 'p', bicycle: 'v', car: 'v', motorcycle: 'v', airplane: 'v', bus: 'v', train: 'v', truck: 'v', boat: 'v',
     bird: 'a', cat: 'a', dog: 'a', horse: 'a', sheep: 'a', cow: 'a', elephant: 'a', bear: 'a', zebra: 'a', giraffe: 'a' };
-  var GCOL = { p: ACC, v: '235,238,242', a: '212,255,58', o: '224,168,78' };
+  var GCOL = { p: ACC, v: '235,238,242', a: '186,160,255', o: '224,168,78' };
   var CODE = { person: 'PER', bicycle: 'BIK', car: 'CAR', motorcycle: 'MOT', airplane: 'AIR', bus: 'BUS', train: 'TRN', truck: 'TRK', boat: 'BOA',
     bird: 'BRD', cat: 'CAT', dog: 'DOG', horse: 'HRS', sheep: 'SHP', cow: 'COW', 'traffic light': 'SIG', 'stop sign': 'SGN',
     backpack: 'BAG', handbag: 'BAG', suitcase: 'LUG', umbrella: 'UMB', 'cell phone': 'PHN', bench: 'BNC' };
@@ -475,7 +478,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     cur = i; video = vids[i]; shownAt = T;
     video.currentTime = 0;
     if (!paused) { var p = video.play(); if (p && p.catch) p.catch(function () {}); }
-    computeCrop(); tracks = []; lock = null; faces = [];
+    computeCrop(); tracks = []; lock = null; faces = []; shown = [];
     var f = FEEDS[i];
     camName.textContent = f.cam; camPlace.textContent = f.place;
     feedNo.textContent = 'FEED ' + pad(i + 1, 2) + '/' + pad(FEEDS.length, 2);
@@ -618,11 +621,17 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   function glitchFaces(dt) {
     var a = Math.min(1, dt * 10);
     faces = faces.filter(function (f) { return T - f.seen < .6; });
-    if (!faces.length) return;
+    faces.forEach(function (f) { for (var i = 0; i < 4; i++) f.vb[i] += (f.tb[i] - f.vb[i]) * a; f.real = true; });
+    /* every tracked person also gets their head area scrambled, so small or turned faces the face model misses stay hidden */
+    var heads = tracks.filter(function (t) { return t.cls === 'person' && t.hits >= 2 && t.b && (t.b[3] - t.b[1]) > 26; }).map(function (t) {
+      var v = t.vb, hw = v[2] * .5, hh = Math.min(v[3] * .17, hw * 1.3);
+      return { vb: [v[0] + (v[2] - hw) / 2, v[1] + v[3] * .005, hw, hh] };
+    }).filter(function (h) { return !faces.some(function (f) { return iou(f.vb, h.vb) > .05; }); });
+    shown = faces.concat(heads);
+    if (!shown.length) return;
     var seed = Math.floor(T * 12);
-    faces.forEach(function (f, fi) {
-      for (var i = 0; i < 4; i++) f.vb[i] += (f.tb[i] - f.vb[i]) * a;
-      var b = toScreen(f.vb), pw = (b[2] - b[0]) * .22;
+    shown.forEach(function (f, fi) {
+      var b = toScreen(f.vb), pw = (b[2] - b[0]) * (f.real ? .22 : .08);
       var x0 = Math.max(0, Math.floor((b[0] - pw) * S)), y0 = Math.max(0, Math.floor((b[1] - pw) * S));
       var x1 = Math.min(sc.width, Math.ceil((b[2] + pw) * S)), y1 = Math.min(sc.height, Math.ceil((b[3] + pw * .5) * S));
       var w = x1 - x0, h = y1 - y0;
@@ -647,14 +656,15 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       f.b = b;
     });
   }
+  var shown = [];
   function drawFaceTags() {
-    faces.forEach(function (f) {
+    shown.forEach(function (f) {
       if (!f.b) return;
       var b = f.b, h = b[3] - b[1];
       if (h < 12) return;
       hx.strokeStyle = 'rgba(120,220,255,.85)'; hx.lineWidth = 1; hx.setLineDash([2, 2]);
       hx.strokeRect(b[0] - 3, b[1] - 3, b[2] - b[0] + 6, b[3] - b[1] + 6); hx.setLineDash([]);
-      if (h > 22) { hx.font = '600 9px "JetBrains Mono", ui-monospace, monospace'; hx.fillStyle = 'rgba(120,220,255,.95)'; hx.fillText('FACE // OBSCURED', b[0] - 3, b[3] + 14); }
+      if (h > 22 && f.real) { hx.font = '600 9px "JetBrains Mono", ui-monospace, monospace'; hx.fillStyle = 'rgba(120,220,255,.95)'; hx.fillText('FACE // OBSCURED', b[0] - 3, b[3] + 14); }
     });
   }
 
@@ -886,13 +896,6 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   var MODS = [].map.call(document.querySelectorAll('.card'), function (c) {
     return { id: c.querySelector('.top span:last-child').textContent, cat: c.querySelector('.top span').textContent, name: c.querySelector('h3').textContent, status: c.querySelector('.foot i, .foot b') ? c.querySelector('.foot i, .foot b').textContent : '' };
   });
-  var LOGO = [
-    '██╗     ██████╗ ██████╗ ',
-    '██║     ██╔══██╗██╔══██╗',
-    '██║     ██║  ██║██████╔╝',
-    '██║     ██║  ██║██╔══██╗',
-    '███████╗██████╔╝██████╔╝',
-    '╚══════╝╚═════╝ ╚═════╝ '];
   function uptime() { var s = Math.floor((Date.now() - t0) / 1000); return Math.floor(s / 60) + 'm ' + (s % 60) + 's'; }
   function browser() { var u = navigator.userAgent; return /Edg\//.test(u) ? 'Edge' : /Chrome\//.test(u) ? 'Chrome' : /Firefox\//.test(u) ? 'Firefox' : /Safari\//.test(u) ? 'Safari' : 'Unknown'; }
   var C = {
@@ -941,10 +944,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '<span style="color:var(--acc)">Screen</span>   ' + screen.width + 'x' + screen.height,
         '<span style="color:var(--acc)">Uptime</span>   ' + uptime(),
         '<span style="color:var(--acc)">Theme</span>    black, always'];
-      var narrow = out.clientWidth < 560, rows = [];
-      if (narrow) return '<span style="color:var(--acc)">' + LOGO.join('\n') + '</span>\n\n' + info.join('\n');
-      for (var i = 0; i < Math.max(LOGO.length, info.length); i++) rows.push('<span style="color:var(--acc)">' + (LOGO[i] || '                        ') + '</span>    ' + (info[i] || ''));
-      return rows.join('\n');
+      setTimeout(startOrbs, 0);
+      return '<div class="nf"><canvas class="orb" aria-hidden="true"></canvas><div class="nfi">' + info.join('\n') + '</div></div>';
     },
     next: function () { var f = window.ldbNextFeed && window.ldbNextFeed(); return f ? '<span class="ok">switching to ' + f.cam + ' ' + esc(f.place) + '</span>' : '<span class="dim">no other feed ready yet</span>'; },
     thermal: function () { if (window.ldbSetMode) window.ldbSetMode('thermal'); return '<span class="ok">sensor mode set to THERMAL</span>  <span class="dim">(type "track" to look)</span>'; },
@@ -961,6 +962,44 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     rm: function () { return '<span class="err">rm: permission denied. Nice try.</span>'; }
   };
   C.cd = function () { return '<span class="dim">You are already where the interesting things are.</span>'; };
+  /* neofetch logo: a sphere of white nodes (points spread evenly over a ball) turning slowly */
+  var orbs = [], orbRunning = false, PTS = (function () {
+    var n = 360, p = [], ga = Math.PI * (3 - Math.sqrt(5));
+    for (var i = 0; i < n; i++) { var y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = ga * i; p.push([Math.cos(th) * r, y, Math.sin(th) * r]); }
+    return p;
+  })();
+  function startOrbs() {
+    out.querySelectorAll('canvas.orb:not([data-on])').forEach(function (c) {
+      c.setAttribute('data-on', '1');
+      var dpr = Math.min(window.devicePixelRatio || 1, 2), size = c.clientWidth || 150;
+      c.width = size * dpr; c.height = size * dpr;
+      orbs.push({ c: c, x: c.getContext('2d'), s: size, dpr: dpr, rot: Math.random() * 6 });
+    });
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { orbs.forEach(function (o) { drawOrb(o); }); return; }
+    if (!orbRunning) { orbRunning = true; var last = performance.now(); requestAnimationFrame(function tick(now) {
+      var dt = Math.min(.05, (now - last) / 1000); last = now;
+      orbs = orbs.filter(function (o) { return o.c.isConnected; });
+      if (!orbs.length) { orbRunning = false; return; }
+      orbs.forEach(function (o) { o.rot += .38 * dt; drawOrb(o); });   /* rotation accumulates, so it never jumps */
+      requestAnimationFrame(tick);
+    }); }
+  }
+  function drawOrb(o) {
+    var x = o.x, s = o.s, R = s * .42, cx = s / 2, cy = s / 2, tilt = .38, cr = Math.cos(o.rot), sr = Math.sin(o.rot), ct = Math.cos(tilt), st = Math.sin(tilt);
+    x.setTransform(o.dpr, 0, 0, o.dpr, 0, 0); x.clearRect(0, 0, s, s);
+    var pr = PTS.map(function (p) {
+      var X = p[0] * cr + p[2] * sr, Z = -p[0] * sr + p[2] * cr, Y = p[1];
+      var Y2 = Y * ct - Z * st, Z2 = Y * st + Z * ct, k = 2.6 / (2.6 + Z2);
+      return [cx + X * R * k, cy + Y2 * R * k, Z2];
+    }).sort(function (a, b) { return b[2] - a[2]; });
+    pr.forEach(function (p) {
+      var d = (1 - p[2]) / 2;                                  /* 0 at the back, 1 at the front */
+      x.fillStyle = 'rgba(255,255,255,' + (.12 + d * .8).toFixed(3) + ')';
+      x.beginPath(); x.arc(p[0], p[1], .5 + d * 1.1, 0, 6.283); x.fill();
+    });
+  }
+
   function run(line) {
     var raw = line.trim(); if (!raw) { echo(''); return; }
     hist.push(raw); hi = hist.length;
