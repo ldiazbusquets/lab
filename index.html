@@ -182,6 +182,8 @@
   .card .foot { margin-top: auto; padding-top: 22px; display: flex; justify-content: space-between; align-items: center;
     font: 500 .66rem var(--mono); color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
   .card .foot i { font-style: normal; color: #E0A84E; }
+  .card .foot b { color: #9BE09B; font-weight: 700; } .card .foot b::before { content: "\25CF  "; }
+  .card .foot b + span { color: var(--acc); }
   .card .foot i::before { content: "\25CF  "; }
   .card[hidden] { display: none; }
 
@@ -265,8 +267,8 @@
 </section>
 
 <div class="ticker" aria-hidden="true"><div class="tk">
-  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 04</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
-  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 04</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
+  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 05</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
+  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 05</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
 </div></div>
 
 <section class="wrap termwrap" id="shell" aria-label="Terminal">
@@ -284,47 +286,52 @@
 
 <main class="projects" id="mods">
   <section class="wrap" aria-label="Projects">
-    <div class="seclab"><span class="idx">03</span><span class="nm">Modules</span><span class="rule"></span><span class="code">MOD-01 / MOD-04</span></div>
+    <div class="seclab"><span class="idx">03</span><span class="nm">Modules</span><span class="rule"></span><span class="code">AI infrastructure track</span></div>
     <div class="sec-head">
       <h2>Modules <span>in the lab.</span></h2>
       <div class="filters" role="group" aria-label="Filter projects">
         <button type="button" data-f="all" aria-pressed="true">All</button>
-        <button type="button" data-f="ml" aria-pressed="false">Machine learning</button>
-        <button type="button" data-f="dl" aria-pressed="false">Deep learning</button>
-        <button type="button" data-f="games" aria-pressed="false">Games</button>
-        <button type="button" data-f="tools" aria-pressed="false">Tools</button>
+        <button type="button" data-f="infra" aria-pressed="false">AI infrastructure</button>
+        <button type="button" data-f="live" aria-pressed="false">Live now</button>
       </div>
     </div>
 
     <div class="grid">
-      <!-- To add a project: copy one card, change data-cat and the text.
-           Once it is live, change the <div class="card"> to <a class="card" href="your-page.html"> and the status to "Live". -->
-      <div class="card corners" data-cat="ml">
-        <div class="top"><span>Machine learning</span><span>MOD-01</span></div>
+      <!-- AI infrastructure track. When a module goes live: change its <div class="card"> to <a class="card" href="page.html">,
+           add "live" to data-cat, and change the status to <b>Live</b>. -->
+      <a class="card corners" data-cat="infra live" href="llm.html">
+        <div class="top"><span>AI infrastructure</span><span>MOD-01</span></div>
         <span class="haz"></span><span class="idx">01</span>
-        <h3>Coming soon</h3>
-        <p>A first machine learning experiment.</p>
-        <div class="foot"><i>In development</i><span class="bc"></span></div>
-      </div>
-      <div class="card corners" data-cat="dl">
-        <div class="top"><span>Deep learning</span><span>MOD-02</span></div>
+        <h3>How an LLM works</h3>
+        <p>Tokens, embeddings, attention and next-token prediction, running in a real mini transformer you can type into.</p>
+        <div class="foot"><b>Live</b><span>Open &rarr;</span></div>
+      </a>
+      <div class="card corners" data-cat="infra">
+        <div class="top"><span>AI infrastructure</span><span>MOD-02</span></div>
         <span class="haz"></span><span class="idx">02</span>
-        <h3>Coming soon</h3>
-        <p>A neural network you can watch learn.</p>
+        <h3>How models learn</h3>
+        <p>A tiny neural network training live on the page: watch the error fall as it adjusts its weights.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
       </div>
-      <div class="card corners" data-cat="games">
-        <div class="top"><span>Games</span><span>MOD-03</span></div>
+      <div class="card corners" data-cat="infra">
+        <div class="top"><span>AI infrastructure</span><span>MOD-03</span></div>
         <span class="haz"></span><span class="idx">03</span>
-        <h3>Coming soon</h3>
-        <p>A game against an AI opponent.</p>
+        <h3>How models are served</h3>
+        <p>Why AI needs GPUs, how much memory a model takes, and what each answer costs to run.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
       </div>
-      <div class="card corners" data-cat="tools">
-        <div class="top"><span>Tools</span><span>MOD-04</span></div>
+      <div class="card corners" data-cat="infra">
+        <div class="top"><span>AI infrastructure</span><span>MOD-04</span></div>
         <span class="haz"></span><span class="idx">04</span>
-        <h3>Coming soon</h3>
-        <p>A small AI tool for everyday use.</p>
+        <h3>How AI looks things up</h3>
+        <p>Embeddings and retrieval (RAG), the technique behind chatting with your own documents.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      <div class="card corners" data-cat="infra">
+        <div class="top"><span>AI infrastructure</span><span>MOD-05</span></div>
+        <span class="haz"></span><span class="idx">05</span>
+        <h3>How agents work</h3>
+        <p>Models that use tools and take steps, tied to my LADON and HERETIC research agents.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
       </div>
     </div>
@@ -358,7 +365,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   btns.forEach(function (b) {
     b.addEventListener('click', function () {
       btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      cards.forEach(function (c) { c.hidden = !(b.dataset.f === 'all' || c.dataset.cat === b.dataset.f); });
+      cards.forEach(function (c) { c.hidden = !(b.dataset.f === 'all' || c.dataset.cat.split(' ').indexOf(b.dataset.f) >= 0); });
     });
   });
 })();
@@ -1071,7 +1078,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '<span style="color:var(--acc)">Kernel</span>   6.10-ldb',
         '<span style="color:var(--acc)">WM</span>       ldb-tile (tiling)',
         '<span style="color:var(--acc)">Tracker</span>  LDB-Track v0.5',
-        '<span style="color:var(--acc)">Modules</span>  ' + MODS.length + ' (in development)',
+        '<span style="color:var(--acc)">Modules</span>  ' + MODS.length + ' (' + MODS.filter(function (m) { return /live/i.test(m.status); }).length + ' live)',
         '<span style="color:var(--acc)">Browser</span>  ' + browser(),
         '<span style="color:var(--acc)">Screen</span>   ' + screen.width + 'x' + screen.height,
         '<span style="color:var(--acc)">Uptime</span>   ' + uptime(),

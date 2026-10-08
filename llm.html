@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How an LLM works | LDB Lab</title>
+<meta name="description" content="A real, very small transformer running in your browser, shown step by step: tokens, embeddings, attention, next-token prediction and generation.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="How an LLM works | LDB Lab">
+<meta property="og:description" content="A real, very small transformer running in your browser, shown step by step.">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000; --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --acc-hi: #A9CDF2; --warm: #E0A84E; --lock: #FF5A4E;
+    --g: clamp(20px, 5vw, 72px); --max: 1180px;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: clip;
+    font: 400 1.0625rem/1.65 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px);
+    background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--g); }
+  b, strong { font-weight: 700; color: #fff; }
+
+  /* status bar */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.6);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  nav .left, nav .right { display: flex; align-items: center; gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  .ws { display: flex; gap: 4px; margin-left: 6px; }
+  .ws a { display: flex; align-items: center; justify-content: center; min-width: 30px; height: 28px; padding: 0 8px; font: 700 .68rem var(--mono); text-decoration: none;
+    color: var(--soft); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+  .ws a:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ws a.on { background: var(--acc); border-color: var(--acc); color: #000; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+    padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); transition: background .2s; color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 760px) { .ws, nav .right .btn.main { display: none; } }
+
+  /* header */
+  header { padding: clamp(120px, 18vh, 170px) 0 40px; }
+  .eyebrow { font: 500 .76rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 16px; }
+  h1 { font: 800 clamp(2.6rem, 7vw, 5.4rem)/.98 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.02em; margin: 0; }
+  .lede { font: 300 clamp(1.1rem, 1.9vw, 1.35rem)/1.55 "Urbanist", sans-serif; color: #D3D6DB; max-width: 760px; margin: 22px 0 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .specs span { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); border: 1px solid var(--line); padding: 7px 11px; }
+  .specs span b { color: var(--acc-hi); }
+  .status { font: 500 .72rem var(--mono); letter-spacing: .06em; color: var(--soft); margin-top: 16px; }
+  .status.err { color: var(--lock); }
+
+  /* prompt box (sticky) */
+  .prompt { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .prompt .row { display: flex; gap: 10px; align-items: center; }
+  .prompt label { font: 700 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+  .prompt input { flex: 1; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .95rem var(--mono); padding: 10px 12px; }
+  .prompt input:focus { outline: none; border-color: var(--acc); }
+  .ex { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .ex button, .ctl button { font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); background: transparent;
+    border: 1px solid var(--line); padding: 6px 10px; cursor: pointer; }
+  .ex button:hover, .ctl button:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ctl button.primary { color: #000; background: var(--acc); border-color: var(--acc); }
+
+  /* steps */
+  .step { padding: clamp(64px, 9vw, 110px) 0 0; scroll-margin-top: 150px; }
+  .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+  .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acc); }
+  .seclab .nm { color: var(--ink); }
+  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(91,159,224,.5) 0 2px, transparent 2px 7px); }
+  h2 { font: 400 clamp(1.7rem, 3.4vw, 2.5rem)/1.12 "Urbanist", sans-serif; margin: 0 0 14px; }
+  h2 span { color: var(--soft); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .explain p { color: #C9CDD3; margin: 0 0 14px; font-size: 1rem; }
+  .explain .k { font: 700 .66rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 6px; }
+  .panel { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 18px; }
+  .panel + .panel { margin-top: 14px; }
+  .corners::before, .corners::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--acc); }
+  .corners::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .corners::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .ph span:last-child { color: var(--dim); font-weight: 500; }
+
+  /* tokens */
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; font: 500 .86rem var(--mono); }
+  .chip { position: relative; padding: 4px 6px 16px; border: 1px solid rgba(255,255,255,.14); white-space: pre; cursor: pointer; transition: border-color .15s, background .15s; }
+  .chip i { position: absolute; left: 6px; bottom: 2px; font: 500 .56rem var(--mono); font-style: normal; color: var(--dim); }
+  .chip:hover, .chip.sel { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chip.sel i { color: var(--acc-hi); }
+  .chip .sp { color: var(--dim); }
+  .c0 { background: rgba(91,159,224,.10); } .c1 { background: rgba(224,168,78,.10); } .c2 { background: rgba(186,160,255,.10); } .c3 { background: rgba(120,200,160,.10); }
+
+  /* embeddings */
+  .vec { display: grid; grid-template-columns: repeat(32, 1fr); gap: 2px; margin-top: 8px; }
+  .vec div { aspect-ratio: 1; }
+  .near { display: flex; flex-wrap: wrap; gap: 6px; font: 500 .8rem var(--mono); margin-top: 10px; }
+  .near span { border: 1px solid var(--line); padding: 3px 7px; white-space: pre; }
+  .near span em { font-style: normal; color: var(--dim); margin-left: 6px; font-size: .7rem; }
+  canvas { display: block; width: 100%; }
+  #mapc { height: 340px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* attention */
+  .ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+  .ctl .lab { font: 700 .64rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-right: 4px; }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: #000; border-color: var(--ink); }
+  .att-row { display: flex; flex-wrap: wrap; gap: 3px; font: 500 .86rem var(--mono); }
+  .att-row span { padding: 3px 5px; white-space: pre; border: 1px solid transparent; cursor: pointer; }
+  .att-row span.q { border-color: var(--lock); }
+  #attc { height: 300px; margin-top: 14px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* prediction */
+  .bars { font: 500 .82rem var(--mono); }
+  .bar { display: grid; grid-template-columns: 110px 1fr 58px; gap: 10px; align-items: center; margin: 4px 0; }
+  .bar .t { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .bar .b { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .bar .b i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .25s; }
+  .bar .p { text-align: right; color: var(--soft); }
+  .slider { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; font: 600 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+  .slider input { flex: 1; accent-color: var(--acc); }
+  .slider b { min-width: 34px; text-align: right; }
+
+  /* generation */
+  .gen { font: 500 1rem/1.7 var(--mono); white-space: pre-wrap; word-break: break-word; min-height: 140px; color: #D7DCE2; }
+  .gen .new { color: #fff; background: rgba(91,159,224,.16); border-bottom: 1px solid var(--acc); }
+  .gen .new.hot { animation: pop .6s ease-out; }
+  @keyframes pop { from { background: rgba(91,159,224,.6); } }
+  .genlog { font: 500 .72rem/1.6 var(--mono); color: var(--soft); margin-top: 12px; max-height: 120px; overflow: auto; }
+
+  /* scale table */
+  table.scale { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.scale th, table.scale td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.scale th { font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  table.scale td:first-child { color: #fff; font-weight: 600; }
+  table.scale tr.me td { background: rgba(91,159,224,.07); }
+  .tblwrap { overflow-x: auto; }
+  .fine { font-size: .82rem; color: var(--dim); margin-top: 12px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 110px; padding: 36px 0 48px; color: var(--dim); font-size: .85rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: var(--soft); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .gen .new.hot { animation: none; } }
+</style>
+</head>
+<body>
+
+<nav><div class="in">
+  <div class="left">
+    <a class="mark" href="./">LDB<span>/LAB</span></a>
+    <div class="ws" aria-label="Steps">
+      <a href="#s1" data-s="s1">1</a><a href="#s2" data-s="s2">2</a><a href="#s3" data-s="s3">3</a>
+      <a href="#s4" data-s="s4">4</a><a href="#s5" data-s="s5">5</a><a href="#s6" data-s="s6">6</a>
+    </div>
+  </div>
+  <div class="right">
+    <a class="btn" href="./">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<header class="wrap">
+  <p class="eyebrow">// MOD-01 &middot; AI infrastructure track</p>
+  <h1>How an LLM works</h1>
+  <p class="lede">A large language model does one thing, over and over: it guesses the next piece of text. This page runs a real transformer in your browser, the same design behind ChatGPT and Claude, just tiny, so you can watch every step on any sentence you type.</p>
+  <div class="specs" id="specs">
+    <span>Params <b id="spParams">...</b></span><span>Layers <b>4</b></span><span>Attention heads <b>4 per layer</b></span>
+    <span>Vocabulary <b>512 pieces</b></span><span>Context <b>64 pieces</b></span><span>Trained on <b>Shakespeare</b></span>
+  </div>
+  <div class="status" id="status">Loading the model (about 2 MB)...</div>
+</header>
+
+<div class="prompt"><div class="wrap">
+  <div class="row"><label for="txt">Your text</label><input id="txt" type="text" value="ROMEO: What light through yonder window" maxlength="220" spellcheck="false" autocomplete="off"></div>
+  <div class="ex" aria-label="Examples">
+    <button type="button" data-t="ROMEO: What light through yonder window">Romeo</button>
+    <button type="button" data-t="KING HENRY: My lords, the">King Henry</button>
+    <button type="button" data-t="To be, or not to be">To be</button>
+    <button type="button" data-t="First Citizen: We are">Citizen</button>
+    <button type="button" data-t="The market fell today because">Modern text</button>
+  </div>
+</div></div>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="step" id="s1">
+    <div class="seclab"><span class="idx">01</span><span class="nm">Tokens</span><span class="rule"></span><span>Text to pieces</span></div>
+    <h2>A model never sees letters or words. <span>It sees numbered pieces.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>GPT-4o's tokenizer</span><span id="gptCount"></span></div>
+          <div class="chips" id="gptChips"></div>
+        </div>
+        <div class="panel corners">
+          <div class="ph"><span>This page's mini model</span><span id="miniCount"></span></div>
+          <div class="chips" id="miniChips"></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Before anything else, text is cut into <b>tokens</b>: common words stay whole, rarer words are split into pieces, and spaces usually ride along at the front of a word. Each token is really just an ID number from a fixed list, its <b>vocabulary</b>.</p>
+        <p>The top panel is the real tokenizer used by GPT-4o, with about 200,000 pieces in its vocabulary. The bottom one belongs to the small model on this page, which learned only 512 pieces from Shakespeare, so it splits most words into smaller bits.</p>
+        <p class="k">Why it matters</p>
+        <p>Models are priced, limited and measured in tokens, not words. A rough rule for English with big tokenizers is about three quarters of a word per token. Try a long or unusual word and watch it break apart.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="s2">
+    <div class="seclab"><span class="idx">02</span><span class="nm">Embeddings</span><span class="rule"></span><span>Pieces to numbers</span></div>
+    <h2>Every token becomes a list of numbers <span>that places it in a space of meaning.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Token <span id="embTok" style="color:#fff;text-transform:none"></span> as 128 numbers</span><span>Click a token above</span></div>
+          <div class="vec" id="vec"></div>
+          <div class="near" id="near"></div>
+        </div>
+        <div class="panel corners">
+          <div class="ph"><span>All 512 tokens, flattened to a map</span><span id="mapHint">Hover to read</span></div>
+          <canvas id="mapc" aria-label="Map of the model's 512 tokens"></canvas>
+        </div>
+      </div>
+      <div class="explain">
+        <p>The ID is looked up in a table, and each token gets an <b>embedding</b>: a list of numbers (128 here, thousands in large models). Each square in the strip is one of those numbers, blue for positive and amber for negative.</p>
+        <p>Nobody chooses these numbers. They are learned during training, and tokens used in similar ways end up with similar lists. The chips under the strip are the tokens this model considers closest.</p>
+        <p class="k">The map</p>
+        <p>The map squeezes all 128 dimensions down to two so we can look at them. A lot of detail is lost, but you can still see clusters: punctuation in one area, capitals in another. Your sentence's tokens are highlighted.</p>
+        <p>The model also adds a second learned list for each <b>position</b> (1st, 2nd, 3rd...), otherwise it could not tell "dog bites man" from "man bites dog".</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="s3">
+    <div class="seclab"><span class="idx">03</span><span class="nm">Attention</span><span class="rule"></span><span>Tokens read each other</span></div>
+    <h2>Each token looks back at earlier tokens <span>and decides which ones matter.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ctl" id="layerCtl"><span class="lab">Layer</span></div>
+          <div class="ctl" id="headCtl"><span class="lab">Head</span></div>
+          <div class="att-row" id="attRow"></div>
+          <canvas id="attc" aria-label="Attention matrix"></canvas>
+        </div>
+      </div>
+      <div class="explain">
+        <p>This is the step that made transformers work. For every token, the model asks: <b>which earlier tokens should I pay attention to?</b> It scores every earlier token, turns the scores into percentages, and blends their information together.</p>
+        <p>Click a token in the row. The earlier tokens light up in proportion to how much attention it pays them. These are the model's actual numbers for your text, not an illustration.</p>
+        <p class="k">The grid</p>
+        <p>Rows are the token doing the looking and columns are the tokens being looked at. The empty upper half is deliberate: a token is never allowed to see tokens that come after it, because when generating text those do not exist yet.</p>
+        <p class="k">Layers and heads</p>
+        <p>This happens in 4 <b>heads</b> at once, each free to look for something different, and the whole thing repeats through 4 <b>layers</b>, each building on the last. Large models use dozens of layers and heads.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="s4">
+    <div class="seclab"><span class="idx">04</span><span class="nm">Prediction</span><span class="rule"></span><span>The next token</span></div>
+    <h2>The output is not a word. <span>It is a probability for every token in the vocabulary.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Top 10 guesses for what comes after your text</span><span id="entropy"></span></div>
+          <div class="bars" id="bars"></div>
+          <div class="slider"><span>Temperature</span><input id="temp" type="range" min="0.1" max="2" step="0.05" value="0.8" aria-label="Temperature"><b id="tempv">0.80</b></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>After the last layer, the model produces one score for each of its 512 tokens. A function called <b>softmax</b> turns those scores into probabilities that add up to 100%. The bars show the ten most likely next tokens.</p>
+        <p class="k">Temperature</p>
+        <p>Temperature reshapes those probabilities before one is picked. Low temperature sharpens them, so the model almost always takes its top guess: safe and repetitive. High temperature flattens them, giving long shots a chance: more creative and more nonsense. Drag the slider and watch the bars change.</p>
+        <p>Note what this means: the model never "knows" the answer. It always produces a spread of possibilities, and something else decides which one to use.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="s5">
+    <div class="seclab"><span class="idx">05</span><span class="nm">Generation</span><span class="rule"></span><span>The loop</span></div>
+    <h2>Writing is just this, repeated: <span>predict, pick, append, predict again.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ctl">
+            <button type="button" class="primary" id="g1">Add one token</button>
+            <button type="button" id="g40">Write 40 tokens</button>
+            <button type="button" id="gReset">Start over</button>
+          </div>
+          <div class="gen" id="gen"></div>
+          <div class="genlog" id="genlog"></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>To write, the model predicts the next token, one is picked using the temperature from step 4, it is added to the end, and the whole longer text goes back in to predict the token after that. Every chatbot reply is this loop running very fast.</p>
+        <p>Each highlighted piece was added by the model. The log underneath shows what it picked and how likely that pick was.</p>
+        <p class="k">Context window</p>
+        <p>This model can only read its last 64 tokens. Once the text is longer, the oldest tokens fall out of view and it simply forgets them. Large models have context windows of hundreds of thousands of tokens or more, which is why they can follow a whole document.</p>
+        <p>Because it learned only from Shakespeare, it writes in that style, mostly with real words and convincing formatting but little meaning. That gap is exactly what scale closes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 6 -->
+  <section class="step" id="s6">
+    <div class="seclab"><span class="idx">06</span><span class="nm">Scale</span><span class="rule"></span><span>From this to a chatbot</span></div>
+    <h2>Same recipe, <span>vastly more of everything.</span></h2>
+    <div class="cols">
+      <div class="panel corners tblwrap">
+        <table class="scale">
+          <thead><tr><th>Model</th><th>Parameters</th><th>Context</th><th>Training text</th></tr></thead>
+          <tbody>
+            <tr class="me"><td>This page</td><td id="tblParams">about 0.9 million</td><td>64 tokens</td><td>about 0.5 million tokens (Shakespeare)</td></tr>
+            <tr><td>GPT-2 (2019)</td><td>1.5 billion</td><td>1,024 tokens</td><td>about 40 GB of web text</td></tr>
+            <tr><td>GPT-3 (2020)</td><td>175 billion</td><td>2,048 tokens</td><td>about 300 billion tokens</td></tr>
+            <tr><td>Today's frontier models</td><td>Usually not disclosed</td><td>Hundreds of thousands to over a million tokens</td><td>Trillions of tokens</td></tr>
+          </tbody>
+        </table>
+        <p class="fine">GPT-2 and GPT-3 figures are from their published papers. Companies generally no longer publish parameter counts for their largest models.</p>
+      </div>
+      <div class="explain">
+        <p>Everything on this page, tokens, embeddings, attention, next-token prediction and the loop, is how the big models work too. What changes is size: more parameters to store patterns, far more text to learn from, and longer context.</p>
+        <p class="k">What turns it into an assistant</p>
+        <p>A model trained only to continue text is not yet a helpful assistant. Chatbots go through further training on examples of good conversations and on human feedback about which answers are better, which teaches them to follow instructions and answer questions instead of just carrying on writing.</p>
+        <p class="k">Where the cost goes</p>
+        <p>Every one of those billions of parameters is used for every token generated. That is why running these models takes specialised chips and why answers are priced per token. That is the subject of a later module on how models are served.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT I LEARNED: Luis, write a short section here in your own words when you are ready, for example:
+  <section class="step" id="notes">
+    <div class="seclab"><span class="idx">07</span><span class="nm">What I learned</span><span class="rule"></span></div>
+    <div class="explain"><p>...</p></div>
+  </section>
+  -->
+
+</main>
+
+<footer><div class="wrap">
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; MOD-01</span>
+  <span>Training text: Tiny Shakespeare from Andrej Karpathy's char-rnn. GPT-4o tokenizer: <a href="https://github.com/dqbd/tiktoken">js-tiktoken</a> (MIT).</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</div></footer>
+
+<script src="llm/tiktoken-o200k.js" defer></script>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var status = $('status'), txt = $('txt');
+  var M = null, W = {}, CFG = null, vocab = [], rank = {}, idx = {};
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  function show(t) {                                              /* make spaces and line breaks visible */
+    return Array.from(t).map(function (c) { return c === '\n' ? '<span class="sp">↵</span>' : c === ' ' ? '<span class="sp">·</span>' : esc(c); }).join('');
+  }
+
+  /* ---------- load the model ---------- */
+  function half(u) {                                              /* float16 -> float32 */
+    var s = (u & 0x8000) ? -1 : 1, e = (u >> 10) & 0x1f, f = u & 0x3ff;
+    if (e === 0) return s * Math.pow(2, -14) * (f / 1024);
+    if (e === 31) return f ? NaN : s * Infinity;
+    return s * Math.pow(2, e - 15) * (1 + f / 1024);
+  }
+  Promise.all([fetch('llm/model.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }),
+               fetch('llm/weights.bin').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })]).then(function (r) {
+    M = r[0]; CFG = M.config; var raw = new Uint16Array(r[1]), all = new Float32Array(raw.length);
+    for (var i = 0; i < raw.length; i++) all[i] = half(raw[i]);
+    M.tensors.forEach(function (t) { var n = t.shape.reduce(function (a, b) { return a * b; }, 1); W[t.name] = all.subarray(t.offset, t.offset + n); });
+    vocab = M.vocab; vocab.forEach(function (t, i) { idx[t] = i; }); M.merges.forEach(function (m, i) { rank[m[0] + '\u0000' + m[1]] = i; });
+    $('spParams').textContent = (CFG.params / 1e6).toFixed(2) + 'M';
+    $('tblParams').textContent = 'about ' + (CFG.params / 1e6).toFixed(1) + ' million';
+    status.textContent = 'Model loaded: ' + CFG.params.toLocaleString() + ' parameters, running in your browser.';
+    buildMap(); update();
+  }).catch(function () { status.textContent = 'The model files could not be loaded. Check that the llm folder is uploaded next to this page.'; status.classList.add('err'); });
+
+  /* ---------- the mini tokenizer: same rules it was trained with ---------- */
+  var PAT = / ?[A-Za-z]+| ?[0-9]+| ?[^A-Za-z0-9\s]+|\n|\s+(?!\S)|\s+/g;
+  function encode(text) {
+    var out = [], m, chunks = text.match(PAT) || [];
+    chunks.forEach(function (w) {
+      var s = Array.from(w).filter(function (c) { return c in idx; });
+      while (s.length > 1) {
+        var best = 1e9, bi = -1;
+        for (var i = 0; i < s.length - 1; i++) { var r = rank[s[i] + '\u0000' + s[i + 1]]; if (r !== undefined && r < best) { best = r; bi = i; } }
+        if (bi < 0) break;
+        s.splice(bi, 2, s[bi] + s[bi + 1]);
+      }
+      s.forEach(function (t) { out.push(idx[t]); });
+    });
+    return out;
+  }
+
+  /* ---------- the transformer, written out by hand ---------- */
+  function layerNorm(x, g, b, D) {
+    var y = new Float32Array(x.length);
+    for (var o = 0; o < x.length; o += D) {
+      var m = 0, v = 0, i;
+      for (i = 0; i < D; i++) m += x[o + i]; m /= D;
+      for (i = 0; i < D; i++) { var d = x[o + i] - m; v += d * d; } v /= D;
+      var s = 1 / Math.sqrt(v + 1e-5);
+      for (i = 0; i < D; i++) y[o + i] = (x[o + i] - m) * s * g[i] + b[i];
+    }
+    return y;
+  }
+  function matmul(x, T, Din, w, b, Dout) {                       /* x [T, Din] @ w [Din, Dout] + b */
+    var y = new Float32Array(T * Dout);
+    for (var t = 0; t < T; t++) {
+      var yo = t * Dout, xo = t * Din;
+      for (var j = 0; j < Dout; j++) y[yo + j] = b[j];
+      for (var i = 0; i < Din; i++) { var xv = x[xo + i], wo = i * Dout; if (xv === 0) continue; for (j = 0; j < Dout; j++) y[yo + j] += xv * w[wo + j]; }
+    }
+    return y;
+  }
+  function gelu(x) { return 0.5 * x * (1 + Math.tanh(0.7978845608 * (x + 0.044715 * x * x * x))); }
+  function forward(ids) {
+    var D = CFG.dim, H = CFG.heads, hd = D / H, T = ids.length, L = CFG.layers, V = CFG.vocab;
+    var h = new Float32Array(T * D), atts = [];
+    for (var t = 0; t < T; t++) for (var i = 0; i < D; i++) h[t * D + i] = W.wte[ids[t] * D + i] + W.wpe[t * D + i];
+    for (var l = 0; l < L; l++) {
+      var p = 'h' + l + '.';
+      var a = layerNorm(h, W[p + 'ln1.g'], W[p + 'ln1.b'], D);
+      var qkv = matmul(a, T, D, W[p + 'qkv.w'], W[p + 'qkv.b'], 3 * D);
+      var y = new Float32Array(T * D), la = [];
+      for (var hh = 0; hh < H; hh++) {
+        var A = new Float32Array(T * T);
+        for (var q = 0; q < T; q++) {
+          var mx = -1e30, sc = new Float32Array(q + 1);
+          for (var k = 0; k <= q; k++) {
+            var s = 0;
+            for (var d2 = 0; d2 < hd; d2++) s += qkv[q * 3 * D + hh * hd + d2] * qkv[k * 3 * D + D + hh * hd + d2];
+            s /= Math.sqrt(hd); sc[k] = s; if (s > mx) mx = s;
+          }
+          var sum = 0; for (k = 0; k <= q; k++) { sc[k] = Math.exp(sc[k] - mx); sum += sc[k]; }
+          for (k = 0; k <= q; k++) {
+            var w = sc[k] / sum; A[q * T + k] = w;
+            for (d2 = 0; d2 < hd; d2++) y[q * D + hh * hd + d2] += w * qkv[k * 3 * D + 2 * D + hh * hd + d2];
+          }
+        }
+        la.push(A);
+      }
+      atts.push(la);
+      var pr = matmul(y, T, D, W[p + 'proj.w'], W[p + 'proj.b'], D);
+      for (i = 0; i < h.length; i++) h[i] += pr[i];
+      a = layerNorm(h, W[p + 'ln2.g'], W[p + 'ln2.b'], D);
+      var f = matmul(a, T, D, W[p + 'fc.w'], W[p + 'fc.b'], 4 * D);
+      for (i = 0; i < f.length; i++) f[i] = gelu(f[i]);
+      var o = matmul(f, T, 4 * D, W[p + 'out.w'], W[p + 'out.b'], D);
+      for (i = 0; i < h.length; i++) h[i] += o[i];
+    }
+    h = layerNorm(h, W['lnf.g'], W['lnf.b'], D);
+    var last = h.subarray((T - 1) * D, T * D), logits = new Float32Array(V);   /* output uses the embedding table again */
+    for (var v = 0; v < V; v++) { var s2 = 0; for (i = 0; i < D; i++) s2 += last[i] * W.wte[v * D + i]; logits[v] = s2; }
+    return { logits: logits, att: atts };
+  }
+  function softmax(lg, temp) {
+    var mx = -1e30, out = new Float32Array(lg.length), s = 0, i;
+    for (i = 0; i < lg.length; i++) if (lg[i] / temp > mx) mx = lg[i] / temp;
+    for (i = 0; i < lg.length; i++) { out[i] = Math.exp(lg[i] / temp - mx); s += out[i]; }
+    for (i = 0; i < lg.length; i++) out[i] /= s;
+    return out;
+  }
+  window.__ldbForward = function (t) { return forward(encode(t)); };   /* used for testing */
+  window.__ldbEncode = encode;
+
+  /* ---------- state ---------- */
+  var ids = [], sel = 0, layer = 0, head = -1, qTok = -1, res = null, temp = .8, ctxIds = [];
+  function update() {
+    if (!M) return;
+    ids = encode(txt.value);
+    if (!ids.length) ids = encode(' ');
+    ctxIds = ids.slice(-CFG.ctx);
+    res = forward(ctxIds);
+    if (sel >= ids.length) sel = ids.length - 1;
+    if (qTok < 0 || qTok >= ctxIds.length) qTok = ctxIds.length - 1;
+    renderTokens(); renderEmb(); drawMap(); renderAtt(); renderBars(); resetGen();
+  }
+  var ut; txt.addEventListener('input', function () { clearTimeout(ut); ut = setTimeout(update, 120); });
+  document.querySelectorAll('.ex button').forEach(function (b) { b.addEventListener('click', function () { txt.value = b.dataset.t; sel = 0; qTok = -1; update(); }); });
+
+  /* ---------- step 1 ---------- */
+  function renderTokens() {
+    var tk = window.GPTTokenizer;
+    if (tk) {
+      var g = tk.encode(txt.value);
+      $('gptChips').innerHTML = g.map(function (id, i) { return '<span class="chip c' + (i % 4) + '">' + show(tk.decode([id])) + '<i>' + id + '</i></span>'; }).join('');
+      $('gptCount').textContent = g.length + ' tokens';
+    } else { $('gptChips').innerHTML = '<span style="color:var(--dim);font-size:.8rem">Loading the GPT-4o tokenizer...</span>'; }
+    $('miniChips').innerHTML = ids.map(function (id, i) { return '<span class="chip c' + (i % 4) + (i === sel ? ' sel' : '') + '" data-i="' + i + '">' + show(vocab[id]) + '<i>' + id + '</i></span>'; }).join('');
+    $('miniCount').textContent = ids.length + ' tokens';
+    $('miniChips').querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { sel = +c.dataset.i; renderTokens(); renderEmb(); drawMap(); }); });
+  }
+  window.addEventListener('load', function () { if (M) renderTokens(); });
+
+  /* ---------- step 2 ---------- */
+  function vecOf(id) { return W.wte.subarray(id * CFG.dim, (id + 1) * CFG.dim); }
+  function renderEmb() {
+    var id = ids[sel], v = vecOf(id), mx = 0, i;
+    for (i = 0; i < v.length; i++) mx = Math.max(mx, Math.abs(v[i]));
+    $('embTok').textContent = '"' + vocab[id].replace(/\n/g, '↵') + '"';
+    $('vec').innerHTML = Array.from(v).map(function (x) {
+      var a = Math.min(1, Math.abs(x) / mx), c = x >= 0 ? '91,159,224' : '224,168,78';
+      return '<div title="' + x.toFixed(3) + '" style="background:rgba(' + c + ',' + (.08 + a * .92).toFixed(2) + ')"></div>';
+    }).join('');
+    var nv = Math.sqrt(v.reduce(function (s, x) { return s + x * x; }, 0)), sims = [];
+    for (var j = 0; j < CFG.vocab; j++) {
+      if (j === id) continue;
+      var u = vecOf(j), dot = 0, nu = 0;
+      for (i = 0; i < u.length; i++) { dot += u[i] * v[i]; nu += u[i] * u[i]; }
+      sims.push([j, dot / (Math.sqrt(nu) * nv)]);
+    }
+    sims.sort(function (a, b) { return b[1] - a[1]; });
+    $('near').innerHTML = '<span style="border:0;color:var(--dim);padding-left:0">Closest:</span>' + sims.slice(0, 8).map(function (s) { return '<span>' + show(vocab[s[0]]) + '<em>' + s[1].toFixed(2) + '</em></span>'; }).join('');
+  }
+  var mc = $('mapc'), mx2 = mc.getContext('2d'), mapHover = -1, mapPts = [];
+  function buildMap() {
+    mc.addEventListener('mousemove', function (e) {
+      var r = mc.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, best = -1, bd = 14;
+      mapPts.forEach(function (p, i) { var d = Math.hypot(p[0] - x, p[1] - y); if (d < bd) { bd = d; best = i; } });
+      if (best !== mapHover) { mapHover = best; drawMap(); }
+    });
+    mc.addEventListener('mouseleave', function () { mapHover = -1; drawMap(); });
+    addEventListener('resize', drawMap);
+  }
+  function drawMap() {
+    if (!M) return;
+    var dpr = Math.min(devicePixelRatio || 1, 2), w = mc.clientWidth, h = mc.clientHeight;
+    mc.width = w * dpr; mc.height = h * dpr; mx2.setTransform(dpr, 0, 0, dpr, 0, 0); mx2.clearRect(0, 0, w, h);
+    var pad = 18; mapPts = M.map.map(function (p) { return [pad + p[0] * (w - pad * 2), pad + (1 - p[1]) * (h - pad * 2)]; });
+    var mine = {}; ids.forEach(function (id) { mine[id] = true; });
+    mx2.font = '500 10px "JetBrains Mono", monospace';
+    mapPts.forEach(function (p, i) { if (mine[i]) return; mx2.fillStyle = 'rgba(255,255,255,.28)'; mx2.fillRect(p[0] - 1, p[1] - 1, 2, 2); });
+    ids.forEach(function (id, k) {
+      var p = mapPts[id], on = k === sel;
+      mx2.fillStyle = on ? '#FF5A4E' : '#5B9FE0'; mx2.beginPath(); mx2.arc(p[0], p[1], on ? 4.5 : 3, 0, 6.283); mx2.fill();
+      mx2.fillStyle = on ? '#fff' : 'rgba(169,205,242,.9)'; mx2.fillText(vocab[id].replace(/\n/g, '↵'), p[0] + 6, p[1] - 5);
+    });
+    if (mapHover >= 0) {
+      var q = mapPts[mapHover], t = '"' + vocab[mapHover].replace(/\n/g, '↵') + '"  #' + mapHover;
+      mx2.fillStyle = 'rgba(0,0,0,.8)'; var tw = mx2.measureText(t).width + 10; mx2.fillRect(q[0] + 8, q[1] - 18, tw, 16);
+      mx2.fillStyle = '#fff'; mx2.fillText(t, q[0] + 13, q[1] - 6);
+      mx2.strokeStyle = '#fff'; mx2.beginPath(); mx2.arc(q[0], q[1], 5, 0, 6.283); mx2.stroke();
+    }
+  }
+
+  /* ---------- step 3 ---------- */
+  (function () {
+    var lc = $('layerCtl'), hc = $('headCtl');
+    for (var l = 0; l < 4; l++) lc.insertAdjacentHTML('beforeend', '<button type="button" data-l="' + l + '" aria-pressed="' + (l === 0) + '">' + (l + 1) + '</button>');
+    hc.insertAdjacentHTML('beforeend', '<button type="button" data-h="-1" aria-pressed="true">All</button>');
+    for (var hh = 0; hh < 4; hh++) hc.insertAdjacentHTML('beforeend', '<button type="button" data-h="' + hh + '" aria-pressed="false">' + (hh + 1) + '</button>');
+    lc.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; layer = +b.dataset.l; lc.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); renderAtt(); });
+    hc.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; head = +b.dataset.h; hc.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); renderAtt(); });
+  })();
+  function attOf() {
+    var T = ctxIds.length, A = res.att[layer];
+    if (head >= 0) return A[head];
+    var avg = new Float32Array(T * T);
+    A.forEach(function (m) { for (var i = 0; i < avg.length; i++) avg[i] += m[i] / A.length; });
+    return avg;
+  }
+  var ac = $('attc'), ax = ac.getContext('2d');
+  function renderAtt() {
+    if (!res) return;
+    var T = ctxIds.length, A = attOf(), row = $('attRow'), mx = 0, k;
+    for (k = 0; k <= qTok; k++) mx = Math.max(mx, A[qTok * T + k]);
+    row.innerHTML = ctxIds.map(function (id, i) {
+      var w = i <= qTok ? A[qTok * T + i] / (mx || 1) : 0;
+      return '<span data-i="' + i + '" class="' + (i === qTok ? 'q' : '') + '" style="background:rgba(91,159,224,' + (w * .85).toFixed(2) + ');' + (i > qTok ? 'opacity:.3' : '') + '" title="' + (i <= qTok ? (A[qTok * T + i] * 100).toFixed(1) + '%' : 'not visible yet') + '">' + show(vocab[id]) + '</span>';
+    }).join('');
+    row.querySelectorAll('span[data-i]').forEach(function (s) { s.addEventListener('click', function () { qTok = +s.dataset.i; renderAtt(); }); });
+    /* matrix */
+    var dpr = Math.min(devicePixelRatio || 1, 2), w = ac.clientWidth, h = ac.clientHeight, n = T;
+    ac.width = w * dpr; ac.height = h * dpr; ax.setTransform(dpr, 0, 0, dpr, 0, 0); ax.clearRect(0, 0, w, h);
+    var cell = Math.min((w - 20) / n, (h - 20) / n), ox = (w - cell * n) / 2, oy = (h - cell * n) / 2;
+    for (var q = 0; q < n; q++) for (k = 0; k < n; k++) {
+      if (k > q) { ax.fillStyle = 'rgba(255,255,255,.025)'; }
+      else { var v = Math.sqrt(A[q * T + k]); ax.fillStyle = 'rgba(91,159,224,' + (.06 + v * .94).toFixed(3) + ')'; }
+      ax.fillRect(ox + k * cell + .5, oy + q * cell + .5, Math.max(1, cell - 1), Math.max(1, cell - 1));
+    }
+    ax.strokeStyle = '#FF5A4E'; ax.lineWidth = 1.5; ax.strokeRect(ox, oy + qTok * cell, cell * n, cell);
+    ax.font = '500 9px "JetBrains Mono", monospace'; ax.fillStyle = 'rgba(255,255,255,.4)';
+    ax.fillText('looked at →', ox, oy - 6);
+  }
+
+  /* ---------- step 4 ---------- */
+  function renderBars() {
+    if (!res) return;
+    var p = softmax(res.logits, temp), order = Array.from(p.keys()).sort(function (a, b) { return p[b] - p[a]; }).slice(0, 10), top = p[order[0]];
+    $('bars').innerHTML = order.map(function (i) {
+      return '<div class="bar"><span class="t">' + show(vocab[i]) + '</span><span class="b"><i style="width:' + (p[i] / top * 100).toFixed(1) + '%"></i></span><span class="p">' + (p[i] * 100).toFixed(1) + '%</span></div>';
+    }).join('');
+    var H = 0; for (var i = 0; i < p.length; i++) if (p[i] > 0) H -= p[i] * Math.log2(p[i]);
+    $('entropy').textContent = 'about ' + Math.max(1, Math.round(Math.pow(2, H))) + ' plausible choices';
+  }
+  $('temp').addEventListener('input', function () { temp = +this.value; $('tempv').textContent = temp.toFixed(2); renderBars(); });
+
+  /* ---------- step 5 ---------- */
+  var gen = [], genStart = 0, running = false;
+  function resetGen() { gen = ids.slice(); genStart = gen.length; $('genlog').innerHTML = ''; drawGen(-1); }
+  function drawGen(hot) {
+    $('gen').innerHTML = gen.map(function (id, i) {
+      var t = esc(vocab[id]);
+      return i >= genStart ? '<span class="new' + (i === hot ? ' hot' : '') + '">' + t + '</span>' : t;
+    }).join('');
+  }
+  function sample(p) { var r = Math.random(), c = 0; for (var i = 0; i < p.length; i++) { c += p[i]; if (r <= c) return i; } return p.length - 1; }
+  function stepGen() {
+    var r = forward(gen.slice(-CFG.ctx)), p = softmax(r.logits, temp), t = sample(p);
+    gen.push(t); drawGen(gen.length - 1);
+    var lg = $('genlog');
+    lg.insertAdjacentHTML('afterbegin', '<div>+ "' + esc(vocab[t]).replace(/\n/g, '↵') + '"  picked with ' + (p[t] * 100).toFixed(1) + '% probability' + (gen.length > CFG.ctx ? '  (reading only the last 64 tokens)' : '') + '</div>');
+  }
+  $('g1').addEventListener('click', function () { if (M && !running) stepGen(); });
+  $('g40').addEventListener('click', function () {
+    if (!M || running) return; running = true; var n = 0;
+    (function go() { stepGen(); if (++n < 40) setTimeout(go, reduce ? 0 : 70); else running = false; })();
+  });
+  $('gReset').addEventListener('click', function () { if (!running) resetGen(); });
+
+  /* ---------- step rail follows the scroll ---------- */
+  var ws = document.querySelectorAll('.ws a');
+  function spy() {
+    var cur = '', y = innerHeight * .45;
+    ['s1', 's2', 's3', 's4', 's5', 's6'].forEach(function (id) { if ($(id).getBoundingClientRect().top < y) cur = id; });
+    ws.forEach(function (a) { a.classList.toggle('on', a.dataset.s === cur); });
+  }
+  addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
+</body>
+</html>
