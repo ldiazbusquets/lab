@@ -611,7 +611,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     });
   }
   function findFaces(src) {
-    var people = tracks.filter(function (t) { return t.cls === 'person' && t.m && t.tb[3] >= 36; })
+    var people = tracks.filter(function (t) { return t.cls === 'person' && t.m && t.tb[3] >= 36 && t.hits >= 3 && t.s >= .45; })   /* only well-established people */
       .sort(function (a, b) { return b.tb[3] - a.tb[3]; }).slice(0, touch ? 4 : 10);
     var chain = Promise.resolve(), found = 0;
     people.forEach(function (t) {
@@ -643,10 +643,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   var detOnce = false, regionMs = 0;
   function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
   /* download a model with a progress readout */
-  var dlPct = -1;
+  var dlPct = -1, detFailed = false;
   function fetchModel(url) {
     return fetch(url).then(function (r) {
-      if (!r.ok) throw new Error(url);
+      if (!r.ok) throw new Error(url + ' not found (' + r.status + ')');
       var total = +r.headers.get('content-length') || 0;
       if (!r.body || !total) return r.arrayBuffer();
       var rd = r.body.getReader(), got = 0, parts = [];
@@ -671,8 +671,12 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       detLoop();
       return fetchModel('models/face.onnx').then(function (b) { return ort.InferenceSession.create(b, { executionProviders: ['wasm'] }); })
         .then(function (f) { faceNet = f; log('SYS', 'face model online, faces will be blurred'); })
-        .catch(function () { log('ERR', 'face model could not load'); });
-    }).catch(function () { dlPct = -1; log('ERR', 'detector could not load, showing feed without tracking'); });
+        .catch(function (e) { log('ERR', /not found/.test(String(e && e.message)) ? 'missing models/face.onnx' : 'face model could not load'); });
+    }).catch(function (e) {
+      dlPct = -1; detFailed = true;
+      var m = String(e && e.message || e);
+      log('ERR', /not found/.test(m) ? 'missing ' + m.split(' ')[0] + ', upload the models folder' : /ort/.test(m) || !window.ort ? 'could not load ONNX Runtime from the CDN' : 'detector failed: ' + m.slice(0, 60));
+    });
   }
 
   /* ---------- drawing helpers ---------- */
@@ -729,7 +733,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     hx.strokeStyle = 'rgba(' + LOCK + ',.35)'; hx.setLineDash([3, 4]); hx.beginPath(); hx.moveTo(b[2] + 4, b[1]); hx.lineTo(ix, iy + ih / 2); hx.stroke(); hx.setLineDash([]);
   }
 
-  /* faces: frosted glass over each face found, following the person between face checks */
+  /* faces: Vigil-style digital static over each face found, following the person between face checks */
   var gl = document.createElement('canvas'), glx = gl.getContext('2d'), shown = [];
   function blurFaces() {
     shown = [];
@@ -745,21 +749,34 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       var x1 = Math.min(sc.width, Math.ceil((b[2] + pw) * S)), y1 = Math.min(sc.height, Math.ceil((b[3] + ph) * S));
       var w = x1 - x0, h = y1 - y0;
       if (w < 3 || h < 3) return;
-      /* blur by shrinking hard and scaling back up smoothly */
+      /* Vigil-style: the face dissolves into flickering white digital static, re-scrambled every frame */
       var gw = Math.max(2, Math.round(w / 6)), gh = Math.max(2, Math.round(h / 6));
-      gl.width = gw; gl.height = gh; glx.imageSmoothingEnabled = true; glx.imageSmoothingQuality = 'high';
-      glx.drawImage(sc, x0, y0, w, h, 0, 0, gw, gh);
-      var rad = Math.min(w, h) * .28;
-      sx.save();
-      sx.beginPath(); if (sx.roundRect) sx.roundRect(x0, y0, w, h, rad); else sx.rect(x0, y0, w, h); sx.clip();
-      sx.imageSmoothingEnabled = true; sx.imageSmoothingQuality = 'high';
-      sx.drawImage(gl, 0, 0, gw, gh, x0, y0, w, h);
-      sx.fillStyle = 'rgba(230,236,242,.16)'; sx.fillRect(x0, y0, w, h);                     /* frosted haze */
-      var g = sx.createLinearGradient(0, y0, 0, y0 + h); g.addColorStop(0, 'rgba(255,255,255,.22)'); g.addColorStop(.45, 'rgba(255,255,255,0)');
-      sx.fillStyle = g; sx.fillRect(x0, y0, w, h);                                              /* glass highlight */
-      sx.restore();
-      sx.save(); sx.strokeStyle = 'rgba(255,255,255,.45)'; sx.lineWidth = .75;
-      sx.beginPath(); if (sx.roundRect) sx.roundRect(x0 + .5, y0 + .5, w - 1, h - 1, rad); else sx.rect(x0 + .5, y0 + .5, w - 1, h - 1); sx.stroke(); sx.restore();
+      gl.width = gw; gl.height = gh; glx.imageSmoothingEnabled = true;
+      glx.drawImage(sc, x0, y0, w, h, 0, 0, gw, gh);                                             /* soft base so nothing sharp shows through */
+      var cells = glx.getImageData(0, 0, gw, gh).data;
+      var bs = Math.max(2, Math.round(Math.min(w, h) / (5 + Math.floor(Math.random() * 3))));      /* block size jitters every frame */
+      var cols = Math.ceil(w / bs), rows = Math.ceil(h / bs);
+      for (var ry = 0; ry < rows; ry++) for (var cx2 = 0; cx2 < cols; cx2++) {
+        var ex = Math.min(cx2, cols - 1 - cx2), ey = Math.min(ry, rows - 1 - ry);
+        if ((ex === 0 || ey === 0) && Math.random() < .45) continue;                              /* ragged, dissolving edge */
+        var sxp = Math.min(gw - 1, Math.floor((cx2 * bs + (Math.random() - .5) * bs * 1.6) / w * gw)), syp = Math.min(gh - 1, Math.max(0, Math.floor(ry * bs / h * gh)));
+        var k = (Math.max(0, syp) * gw + Math.max(0, sxp)) * 4, L = cells[k] * .3 + cells[k + 1] * .59 + cells[k + 2] * .11;
+        var v = Math.min(255, L * .55 + 95 + Math.random() * 90);                                 /* washed toward white, flickering */
+        if (Math.random() < .12) v = 250;                                                          /* sparks of pure white */
+        sx.fillStyle = 'rgba(' + (v | 0) + ',' + (v | 0) + ',' + (v | 0) + ',' + (.82 + Math.random() * .18).toFixed(2) + ')';
+        sx.fillRect(x0 + cx2 * bs, y0 + ry * bs, Math.min(bs, w - cx2 * bs), Math.min(bs, h - ry * bs));
+      }
+      /* fine static over the blocks */
+      for (var n = 0, nn = Math.round(w * h / 18); n < nn; n++) {
+        var g2 = Math.random() < .5 ? 255 : 40;
+        sx.fillStyle = 'rgba(' + g2 + ',' + g2 + ',' + g2 + ',.35)';
+        sx.fillRect(x0 + Math.random() * w, y0 + Math.random() * h, 1, 1);
+      }
+      /* horizontal tearing: slices jump sideways */
+      for (var t2 = 0; t2 < 3; t2++) {
+        var yy = y0 + Math.floor(Math.random() * h), sh2 = Math.max(1, Math.floor(h * (.06 + Math.random() * .1))), off = Math.round((Math.random() - .5) * w * .6);
+        sx.drawImage(sc, x0, yy, w, sh2, x0 + off, yy, w, sh2);
+      }
     });
   }
 
@@ -868,7 +885,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       }
       drawInset(lock, k);
     }
-    if (!model) { hx.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; tag(W / 2 - 110, H / 2, dlPct >= 0 ? 'DOWNLOADING DETECTOR ' + dlPct + '%' : 'INITIALIZING DETECTOR...', 'rgba(0,0,0,.7)', '#fff'); }
+    if (!model) { hx.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; tag(W / 2 - 110, H / 2, detFailed ? 'DETECTOR OFFLINE' : dlPct >= 0 ? 'DOWNLOADING DETECTOR ' + dlPct + '%' : 'INITIALIZING DETECTOR...', 'rgba(0,0,0,.7)', detFailed ? '#FF5A4E' : '#fff'); }
     drawAxes();
     if (mouse.in && !touch) drawCursor(hover);
     if (hover && mouse.down) { lock = hover; lockSince = T; manual = true; log('LOCK', 'manual lock on ' + label(lock) + ' (' + lock.cls + ')'); }
