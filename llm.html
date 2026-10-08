@@ -50,7 +50,7 @@
   @media (max-width: 760px) { .ws, nav .right .btn.main { display: none; } }
 
   /* header */
-  header { padding: clamp(120px, 18vh, 170px) 0 40px; }
+  header.wrap { padding-top: clamp(120px, 18vh, 170px); padding-bottom: 40px; }
   .eyebrow { font: 500 .76rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 16px; }
   h1 { font: 800 clamp(2.6rem, 7vw, 5.4rem)/.98 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.02em; margin: 0; }
   .lede { font: 300 clamp(1.1rem, 1.9vw, 1.35rem)/1.55 "Urbanist", sans-serif; color: #D3D6DB; max-width: 760px; margin: 22px 0 0; }
@@ -74,7 +74,9 @@
   .ctl button.primary { color: #000; background: var(--acc); border-color: var(--acc); }
 
   /* steps */
-  .step { padding: clamp(64px, 9vw, 110px) 0 0; scroll-margin-top: 150px; }
+  .step { padding: clamp(64px, 9vw, 110px) 0 0; }
+  /* step buttons: each step lands with its label 32px below the sticky text bar (--stick is measured by script) */
+  .step { scroll-margin-top: calc(var(--stick, 210px) + 32px - clamp(64px, 9vw, 110px)); }
   .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
   .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acc); }
   .seclab .nm { color: var(--ink); }
@@ -642,6 +644,11 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     ws.forEach(function (a) { a.classList.toggle('on', a.dataset.s === cur); });
   }
   addEventListener('scroll', spy, { passive: true }); spy();
+  function measureStick() {                                       /* height of the top bar plus the sticky text bar */
+    var pr = document.querySelector('.prompt');
+    document.documentElement.style.setProperty('--stick', (60 + pr.offsetHeight) + 'px');
+  }
+  measureStick(); addEventListener('resize', measureStick);
 })();
 </script>
 </body>
