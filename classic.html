@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classic machine learning | LDB Lab</title>
+<meta name="description" content="Decision trees, nearest neighbours, k-means clustering and random forests, trained live in your browser on example loan applicants.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="Classic machine learning | LDB Lab">
+<meta property="og:description" content="Decision trees, nearest neighbours and clustering, hands on.">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000; --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --acc-hi: #A9CDF2; --warm: #E0A84E; --lock: #FF5A4E;
+    --g: clamp(20px, 5vw, 72px); --max: 1180px;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: clip;
+    font: 400 1.0625rem/1.65 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px);
+    background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--g); }
+  b, strong { font-weight: 700; color: #fff; }
+
+  /* status bar */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.6);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  nav .left, nav .right { display: flex; align-items: center; gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  .ws { display: flex; gap: 4px; margin-left: 6px; }
+  .ws a { display: flex; align-items: center; justify-content: center; min-width: 30px; height: 28px; padding: 0 8px; font: 700 .68rem var(--mono); text-decoration: none;
+    color: var(--soft); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+  .ws a:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ws a.on { background: var(--acc); border-color: var(--acc); color: #000; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+    padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); transition: background .2s; color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 760px) { .ws, nav .right .btn.main { display: none; } }
+
+  /* header */
+  header.wrap { padding-top: clamp(120px, 18vh, 170px); padding-bottom: 40px; }
+  .eyebrow { font: 500 .76rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 16px; }
+  h1 { font: 800 clamp(2.6rem, 7vw, 5.4rem)/.98 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.02em; margin: 0; }
+  .lede { font: 300 clamp(1.1rem, 1.9vw, 1.35rem)/1.55 "Urbanist", sans-serif; color: #D3D6DB; max-width: 760px; margin: 22px 0 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .specs span { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); border: 1px solid var(--line); padding: 7px 11px; }
+  .specs span b { color: var(--acc-hi); }
+  .status { font: 500 .72rem var(--mono); letter-spacing: .06em; color: var(--soft); margin-top: 16px; }
+  .status.err { color: var(--lock); }
+
+  /* prompt box (sticky) */
+  .prompt { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .prompt .row { display: flex; gap: 10px; align-items: center; }
+  .prompt label { font: 700 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+  .prompt input { flex: 1; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .95rem var(--mono); padding: 10px 12px; }
+  .prompt input:focus { outline: none; border-color: var(--acc); }
+  .ex { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .ex button, .ctl button { font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); background: transparent;
+    border: 1px solid var(--line); padding: 6px 10px; cursor: pointer; }
+  .ex button:hover, .ctl button:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ctl button.primary { color: #000; background: var(--acc); border-color: var(--acc); }
+
+  /* steps */
+  .step { padding: clamp(64px, 9vw, 110px) 0 0; }
+  /* step buttons: each step lands with its label 32px below the sticky text bar (--stick is measured by script) */
+  .step { scroll-margin-top: calc(var(--stick, 210px) + 32px - clamp(64px, 9vw, 110px)); }
+  .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+  .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acc); }
+  .seclab .nm { color: var(--ink); }
+  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(91,159,224,.5) 0 2px, transparent 2px 7px); }
+  h2 { font: 400 clamp(1.7rem, 3.4vw, 2.5rem)/1.12 "Urbanist", sans-serif; margin: 0 0 14px; }
+  h2 span { color: var(--soft); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .explain p { color: #C9CDD3; margin: 0 0 14px; font-size: 1rem; }
+  .explain .k { font: 700 .66rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 6px; }
+  .panel { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 18px; }
+  .panel + .panel { margin-top: 14px; }
+  .corners::before, .corners::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--acc); }
+  .corners::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .corners::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .ph span:last-child { color: var(--dim); font-weight: 500; }
+
+  /* tokens */
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; font: 500 .86rem var(--mono); }
+  .chip { position: relative; padding: 4px 6px 16px; border: 1px solid rgba(255,255,255,.14); white-space: pre; cursor: pointer; transition: border-color .15s, background .15s; }
+  .chip i { position: absolute; left: 6px; bottom: 2px; font: 500 .56rem var(--mono); font-style: normal; color: var(--dim); }
+  .chip:hover, .chip.sel { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chip.sel i { color: var(--acc-hi); }
+  .chip .sp { color: var(--dim); }
+  .c0 { background: rgba(91,159,224,.10); } .c1 { background: rgba(224,168,78,.10); } .c2 { background: rgba(186,160,255,.10); } .c3 { background: rgba(120,200,160,.10); }
+
+  /* embeddings */
+  .vec { display: grid; grid-template-columns: repeat(32, 1fr); gap: 2px; margin-top: 8px; }
+  .vec div { aspect-ratio: 1; }
+  .near { display: flex; flex-wrap: wrap; gap: 6px; font: 500 .8rem var(--mono); margin-top: 10px; }
+  .near span { border: 1px solid var(--line); padding: 3px 7px; white-space: pre; }
+  .near span em { font-style: normal; color: var(--dim); margin-left: 6px; font-size: .7rem; }
+  canvas { display: block; width: 100%; }
+  #mapc { height: 340px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* attention */
+  .ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+  .ctl .lab { font: 700 .64rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-right: 4px; }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: #000; border-color: var(--ink); }
+  .att-row { display: flex; flex-wrap: wrap; gap: 3px; font: 500 .86rem var(--mono); }
+  .att-row span { padding: 3px 5px; white-space: pre; border: 1px solid transparent; cursor: pointer; }
+  .att-row span.q { border-color: var(--lock); }
+  #attc { height: 300px; margin-top: 14px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* prediction */
+  .bars { font: 500 .82rem var(--mono); }
+  .bar { display: grid; grid-template-columns: 110px 1fr 58px; gap: 10px; align-items: center; margin: 4px 0; }
+  .bar .t { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .bar .b { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .bar .b i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .25s; }
+  .bar .p { text-align: right; color: var(--soft); }
+  .slider { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; font: 600 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+  .slider input { flex: 1; accent-color: var(--acc); }
+  .slider b { min-width: 34px; text-align: right; }
+
+  /* generation */
+  .gen { font: 500 1rem/1.7 var(--mono); white-space: pre-wrap; word-break: break-word; min-height: 140px; color: #D7DCE2; }
+  .gen .new { color: #fff; background: rgba(91,159,224,.16); border-bottom: 1px solid var(--acc); }
+  .gen .new.hot { animation: pop .6s ease-out; }
+  @keyframes pop { from { background: rgba(91,159,224,.6); } }
+  .genlog { font: 500 .72rem/1.6 var(--mono); color: var(--soft); margin-top: 12px; max-height: 120px; overflow: auto; }
+
+  /* scale table */
+  table.scale { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.scale th, table.scale td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.scale th { font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  table.scale td:first-child { color: #fff; font-weight: 600; }
+  table.scale tr.me td { background: rgba(91,159,224,.07); }
+  .tblwrap { overflow-x: auto; }
+  .fine { font-size: .82rem; color: var(--dim); margin-top: 12px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 110px; padding: 36px 0 48px; color: var(--dim); font-size: .85rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: var(--soft); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .gen .new.hot { animation: none; } }
+
+  /* learn.html: no sticky bar, so steps land 32px under the 60px status bar */
+  .step { scroll-margin-top: calc(92px - clamp(64px, 9vw, 110px)); }
+  canvas.plot { height: 320px; background: #040608; border: 1px solid rgba(255,255,255,.06); cursor: default; }
+  canvas.plot.sq { height: 300px; }
+  canvas.plot.short { height: 150px; margin-top: 12px; }
+  #c2 { cursor: crosshair; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo canvas.plot.sq { height: 240px; }
+  @media (max-width: 520px) { .duo { grid-template-columns: 1fr; } .slider b { min-width: 60px; } }
+  .slider span { min-width: 92px; }
+  .slider b { min-width: 60px; }
+  .fine a { color: var(--acc-hi); }
+  /* classic.html */
+  canvas.plot.tall { height: 380px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 500 .68rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .legend i.ok { background: rgb(91,159,224); } .legend i.bad { background: rgb(255,104,90); } .legend i.hol { border: 1.5px solid #ddd; }
+  ol.rules { list-style: none; margin: 0; padding: 0; font: 500 .8rem/1.5 var(--mono); }
+  ol.rules li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #C9CDD3; }
+  ol.rules li span { flex: 1 1 220px; }
+  ol.rules em { font-style: normal; color: var(--dim); font-size: .72rem; }
+  ol.rules li.more { color: var(--dim); }
+  b.appr { color: rgb(120,180,240); } b.deny { color: rgb(255,120,105); }
+  ol.rules b { text-transform: uppercase; font-size: .72rem; letter-spacing: .1em; }
+  .bar.top .b i { background: var(--acc-hi); } .bar.top .t { color: #fff; }
+  .bar.base .b i { background: #444a52; } .bar.base .t, .bar.base .p { color: var(--dim); }
+  #score5 .bar { grid-template-columns: 150px 1fr 58px; margin: 10px 0; }
+  @media (max-width: 520px) { #score5 .bar { grid-template-columns: 120px 1fr 52px; } }
+  #c3 { cursor: crosshair; }
+</style>
+<body>
+
+<nav><div class="in">
+  <div class="left">
+    <a class="mark" href="./">LDB<span>/LAB</span></a>
+    <div class="ws" aria-label="Steps">
+      <a href="#s1" data-s="s1">1</a><a href="#s2" data-s="s2">2</a><a href="#s3" data-s="s3">3</a>
+      <a href="#s4" data-s="s4">4</a><a href="#s5" data-s="s5">5</a>
+    </div>
+  </div>
+  <div class="right">
+    <a class="btn" href="./">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<header class="wrap">
+  <p class="eyebrow">// MOD-02 &middot; Machine learning foundations</p>
+  <h1>Classic machine learning</h1>
+  <p class="lede">Before chatbots, machine learning was already approving loans, flagging fraud and sorting customers, and it still does most of that work today. This page trains the classic methods live on a set of loan applicants, so you can see exactly how each one decides.</p>
+  <div class="specs">
+    <span>Steps <b>5</b></span><span>Methods <b>4</b></span><span>Runs <b>entirely in your browser</b></span><span>Data <b>generated example</b></span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="step" id="s1">
+    <div class="seclab"><span class="idx">01</span><span class="nm">Learning from examples</span><span class="rule"></span><span>Features and labels</span></div>
+    <h2>Show a model past loans and how they turned out. <span>It learns to judge new ones.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Past loan applicants</span><span id="hov1">Hover a dot</span></div>
+          <canvas id="c1" class="plot tall" aria-label="Scatter plot of applicants by credit score and debt-to-income ratio"></canvas>
+          <div class="legend"><span><i class="ok"></i>Repaid</span><span><i class="bad"></i>Defaulted</span><span class="tst"><i class="hol"></i>Test set (hidden from training)</span></div>
+          <div class="ctl" style="margin-top:12px"><button type="button" id="lab1" aria-pressed="true">Labels on</button><button type="button" id="tst1" aria-pressed="false">Show test set</button><button type="button" class="newdata">New data</button></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Each dot is a past applicant, placed by two facts the lender knew at the time: their <b>credit score</b> (across) and their <b>debt-to-income ratio</b>, the share of monthly income already going to debt payments (up).</p>
+        <p>Those inputs are called <b>features</b>. What actually happened, repaid or defaulted, is the <b>label</b>. Learning from labelled examples like this is called <b>supervised learning</b>, and it is how most business AI works.</p>
+        <p class="k">The test set</p>
+        <p>Some applicants are held back and never shown to the models. Turn on <b>Show test set</b> to see them. Every score on this page is measured on those unseen people, because, as module 01 showed, doing well on data you trained on proves very little.</p>
+        <p class="fine">Applicants are generated example data, not real people. Real credit models use many more features.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="s2">
+    <div class="seclab"><span class="idx">02</span><span class="nm">Decision trees</span><span class="rule"></span><span>Twenty questions</span></div>
+    <h2>A decision tree asks yes-or-no questions, <span>one after another.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Tree splitting the applicants</span><span id="acc2"></span></div>
+          <canvas id="c2" class="plot tall" aria-label="Applicants divided into approve and deny regions by a decision tree"></canvas>
+          <div class="slider"><span>Depth</span><input id="dep" type="range" min="1" max="9" step="1" value="2" aria-label="Tree depth (number of questions)"><b id="depv"></b></div>
+          <div class="ph" style="margin-top:16px"><span>The rules it learned</span><span id="nrules"></span></div>
+          <ol class="rules" id="rules2"></ol>
+        </div>
+      </div>
+      <div class="explain">
+        <p>The tree looks for the single question that best separates repaid from defaulted, such as "is the credit score below 640?". Then it does the same again inside each half, and again, building a flowchart.</p>
+        <p>The <b>depth</b> is how many questions it may ask in a row. Shaded blue areas get approved; red areas get denied. Below the chart are the exact rules, in plain language.</p>
+        <p class="k">Watch the score</p>
+        <p>Raise the depth and the tree starts carving tiny boxes around individual dots. Training accuracy keeps climbing, but test accuracy stops improving and usually drops. It is the same overfitting you saw in module 01.</p>
+        <p class="k">Why lenders like trees</p>
+        <p>Every decision can be explained as a short list of rules. That matters: in the US, a lender that turns someone down must tell them the specific reasons.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="s3">
+    <div class="seclab"><span class="idx">03</span><span class="nm">Nearest neighbours</span><span class="rule"></span><span>Judged by the company you keep</span></div>
+    <h2>Find the most similar past applicants, <span>and go with what happened to them.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Click to place a new applicant</span><span id="acc3"></span></div>
+          <canvas id="c3" class="plot tall" aria-label="Nearest neighbour decision regions; click to place an applicant"></canvas>
+          <div class="slider"><span>Neighbours</span><input id="kk" type="range" min="1" max="41" step="2" value="9" aria-label="Number of neighbours (k)"><b id="kkv"></b></div>
+          <div class="status" id="st3">Click anywhere on the chart to place a new applicant.</div>
+        </div>
+      </div>
+      <div class="explain">
+        <p><b>Nearest neighbours</b> barely learns anything up front. When a new applicant arrives, it finds the past applicants most similar to them and lets them vote. If most of the 9 closest people repaid, approve.</p>
+        <p>Click the chart to drop in an applicant and see who their neighbours are. The shading shows what it would decide anywhere on the map.</p>
+        <p class="k">Choosing how many neighbours</p>
+        <p>With 1 neighbour, the map turns patchy: one unlucky dot can flip a whole area. With 41 it gets smooth but starts ignoring real patterns. Somewhere in between scores best on the test set.</p>
+        <p class="k">A practical catch</p>
+        <p>"Similar" needs a sense of distance. A credit score runs into the hundreds while debt-to-income is a percentage, so the inputs have to be rescaled to the same range first, or the score would drown out everything else. This page does that for you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="s4">
+    <div class="seclab"><span class="idx">04</span><span class="nm">Clustering</span><span class="rule"></span><span>No labels at all</span></div>
+    <h2>Sometimes there is no right answer to learn from. <span>Clustering finds the groups on its own.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Brokerage clients</span><span id="it4"></span></div>
+          <div class="ctl">
+            <button type="button" class="primary" id="run4">Run</button>
+            <button type="button" id="step4">One step</button>
+            <button type="button" id="seed4">New start</button>
+          </div>
+          <canvas id="c4" class="plot tall" aria-label="Clients grouped into clusters by k-means"></canvas>
+          <div class="slider"><span>Groups</span><input id="kc" type="range" min="2" max="6" step="1" value="3" aria-label="Number of groups (k)"><b id="kcv"></b></div>
+          <canvas id="c4b" class="plot short" aria-label="Spread within groups for each number of groups"></canvas>
+        </div>
+      </div>
+      <div class="explain">
+        <p>These are example brokerage clients, placed by how often they trade (across) and how large their account is (up). Nobody has labelled them. The goal is just to find natural groups, called <b>unsupervised learning</b>.</p>
+        <p><b>k-means</b> drops in a few group centres (the crosses), then repeats two moves: give every client to the nearest centre, then move each centre to the middle of its clients. Press <b>One step</b> to watch each move, or <b>Run</b>.</p>
+        <p class="k">How many groups?</p>
+        <p>You choose. The chart below shows how tightly packed the groups are for each choice. It always improves with more groups, so look for the <b>elbow</b>, where adding another stops helping much.</p>
+        <p>Press <b>New start</b> a few times with 4 or 5 groups: different starting spots can settle on different answers. Real tools run it many times and keep the best.</p>
+        <p class="k">Where it is used</p>
+        <p>Customer segmentation: deciding which clients get which service model, which products to pitch, and which accounts look unusual.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="s5">
+    <div class="seclab"><span class="idx">05</span><span class="nm">Head to head</span><span class="rule"></span><span>Same data, four methods</span></div>
+    <h2>Which method wins? <span>It depends on the data, so you test them.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Accuracy on the unseen test applicants</span><span class="ctl" style="margin:0"><button type="button" class="newdata">New data</button></span></div>
+          <div class="bars" id="score5"></div>
+          <p class="fine">Retrained in your browser each time. "Always approve" is the baseline: what you would score by not using a model at all.</p>
+        </div>
+        <div class="panel corners tblwrap">
+          <table class="scale">
+            <thead><tr><th>Method</th><th>How it decides</th><th>Easy to explain?</th></tr></thead>
+            <tbody>
+              <tr><td>Logistic regression</td><td>Draws one straight dividing line, fitted with gradient descent from module 01</td><td>Yes: a weight per feature</td></tr>
+              <tr><td>Decision tree</td><td>A flowchart of yes-or-no questions</td><td>Yes: a short list of rules</td></tr>
+              <tr><td>Random forest</td><td>Hundreds of slightly different trees vote</td><td>Partly: needs extra tools</td></tr>
+              <tr><td>Nearest neighbours</td><td>Copies the outcome of the most similar past cases</td><td>Partly: "people like you"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="explain">
+        <p>The bars show each method's accuracy on the test applicants, using sensible settings. Press <b>New data</b> to draw a fresh set of applicants and run the contest again; the order shifts from run to run.</p>
+        <p class="k">What the industry uses</p>
+        <p>For data in rows and columns, like loan files, transactions and account records, the strongest methods today are still built from trees: <b>random forests</b> and their stronger cousin, <b>gradient-boosted trees</b>. Deep learning wins on images, sound and language; trees usually win on spreadsheets.</p>
+        <p>On this small example, with only two features and a fairly straight boundary, simple logistic regression often comes out on top. Trees pull ahead on real files with dozens of features that interact in messy ways.</p>
+        <p class="k">The trade-off</p>
+        <p>The most accurate model is not always the one a bank can use. Regulators expect lenders to explain decisions and show they are fair, so a slightly weaker model that can be explained often beats a stronger black box.</p>
+        <p>Next in the course, neural networks: the method that powers images, language and everything else in the Generative AI track.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT I LEARNED: Luis, write a short section here in your own words when you are ready, for example:
+  <section class="step" id="notes">
+    <div class="seclab"><span class="idx">06</span><span class="nm">What I learned</span><span class="rule"></span></div>
+    <div class="explain"><p>...</p></div>
+  </section>
+  -->
+
+</main>
+
+<footer><div class="wrap">
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; MOD-02</span>
+  <span>Previous: <a href="learn.html">How models learn</a> &nbsp;&middot;&nbsp; Next live module: <a href="llm.html">How an LLM works</a></span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</div></footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var OK = '91,159,224', BAD = '255,104,90', FONT = '500 10px "JetBrains Mono", ui-monospace, monospace';
+  var PAL = ['91,159,224', '224,168,78', '186,150,255', '120,205,160', '255,120,170', '110,215,225'];
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function gauss(r) { var u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function setup(c) {
+    var dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth, h = c.clientHeight, x = c.getContext('2d');
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); return { x: x, w: w, h: h };
+  }
+
+  /* ---------- the applicants: x[0] = credit score (500..850), x[1] = debt-to-income (0..60%), both scaled to 0..1 ---------- */
+  var SC = [500, 850], DT = [0, 60], train = [], test = [], dseed = 11;
+  function fmtS(v) { return Math.round(SC[0] + v * (SC[1] - SC[0])); }
+  function fmtD(v) { return Math.round(DT[0] + v * (DT[1] - DT[0])) + '%'; }
+  function makeLoans() {
+    var r = rng(dseed++), all = [];
+    for (var i = 0; i < 420; i++) {
+      var s = clamp(.56 + gauss(r) * .2, .02, .98), d = clamp(.42 + gauss(r) * .2, .02, .98);
+      var risk = 5.2 * (.5 - s) + 4 * (d - .5) + (d > .78 ? 2.4 : 0) + (s < .22 ? 1.6 : 0) - 0;
+      all.push({ x: [s, d], y: r() < 1 / (1 + Math.exp(-1.5 * risk)) ? 1 : 0 });             /* y = 1 means defaulted */
+    }
+    train = all.slice(0, 180); test = all.slice(180);
+  }
+  function acc(pred, set) { var k = 0; set.forEach(function (p) { if ((pred(p.x) >= .5 ? 1 : 0) === p.y) k++; }); return k / set.length; }
+  function pct(v) { return Math.round(v * 100) + '%'; }
+
+  /* shared plot frame for the applicant charts */
+  function frame(c) {
+    var o = setup(c), padL = 54, padB = 30, padT = 10, padR = 12;
+    o.PW = o.w - padL - padR; o.PH = o.h - padT - padB;
+    o.X = function (v) { return padL + v * o.PW; }; o.Y = function (v) { return padT + (1 - v) * o.PH; };
+    o.inv = function (px, py) { return [(px - padL) / o.PW, 1 - (py - padT) / o.PH]; };
+    o.axes = function () {
+      var x = o.x; x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(padL, padT); x.lineTo(padL, o.h - padB); x.lineTo(o.w - padR, o.h - padB); x.stroke();
+      x.font = FONT; x.fillStyle = 'rgba(255,255,255,.45)';
+      [600, 700, 800].forEach(function (s) { var v = (s - SC[0]) / (SC[1] - SC[0]); x.fillText(s, o.X(v) - 10, o.h - padB + 14); });
+      [20, 40].forEach(function (d) { var v = d / DT[1]; x.fillText(d + '%', 24, o.Y(v) + 3); });
+      x.fillText('credit score →', o.w - padR - 100, o.h - 4);
+      x.save(); x.translate(12, padT + o.PH / 2 + 50); x.rotate(-Math.PI / 2); x.fillText('debt-to-income →', 0, 0); x.restore();
+    };
+    o.clip = function () { o.x.save(); o.x.beginPath(); o.x.rect(padL, padT, o.PW, o.PH); o.x.clip(); };
+    return o;
+  }
+  function dots(o, set, opts) {
+    var x = o.x; opts = opts || {};
+    set.forEach(function (p) {
+      var col = opts.nolabel ? '230,233,238' : (p.y ? BAD : OK);
+      x.beginPath(); x.arc(o.X(p.x[0]), o.Y(p.x[1]), opts.r || 3.2, 0, 6.283);
+      if (opts.hollow) { x.strokeStyle = 'rgba(' + col + ',.9)'; x.lineWidth = 1.3; x.stroke(); }
+      else { x.fillStyle = 'rgba(' + col + ',.92)'; x.fill(); }
+    });
+  }
+
+  /* ---------- step 1 ---------- */
+  var showLab = true, showTest = false, hov = null;
+  function draw1() {
+    var o = frame($('c1')); o.axes();
+    dots(o, train, { nolabel: !showLab });
+    if (showTest) dots(o, test, { hollow: true, nolabel: !showLab });
+    if (hov) { o.x.strokeStyle = '#fff'; o.x.lineWidth = 1.5; o.x.beginPath(); o.x.arc(o.X(hov.x[0]), o.Y(hov.x[1]), 7, 0, 6.283); o.x.stroke(); }
+    document.querySelector('.legend .tst').style.visibility = showTest ? 'visible' : 'hidden';
+  }
+  $('lab1').addEventListener('click', function () { showLab = !showLab; this.setAttribute('aria-pressed', showLab); this.textContent = showLab ? 'Labels on' : 'Labels off'; draw1(); });
+  $('tst1').addEventListener('click', function () { showTest = !showTest; this.setAttribute('aria-pressed', showTest); this.textContent = showTest ? 'Hide test set' : 'Show test set'; draw1(); });
+  $('c1').addEventListener('mousemove', function (e) {
+    var r = this.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    var W = r.width, H = r.height, PW = W - 66, PH = H - 40, best = null, bd = 144;
+    train.concat(showTest ? test : []).forEach(function (p) {
+      var dx = 54 + p.x[0] * PW - mx, dy = 10 + (1 - p.x[1]) * PH - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = p; }
+    });
+    if (best !== hov) {
+      hov = best;
+      $('hov1').textContent = hov ? 'Score ' + fmtS(hov.x[0]) + ' · DTI ' + fmtD(hov.x[1]) + ' · ' + (showLab ? (hov.y ? 'defaulted' : 'repaid') : 'label hidden') + (test.indexOf(hov) >= 0 ? ' · test' : '') : 'Hover a dot';
+      draw1();
+    }
+  });
+  $('c1').addEventListener('mouseleave', function () { hov = null; $('hov1').textContent = 'Hover a dot'; draw1(); });
+
+  /* ---------- decision tree (CART, Gini impurity) ---------- */
+  function gini(k, n) { if (!n) return 0; var p = k / n; return 2 * p * (1 - p); }
+  function grow(D, depth, maxD, minLeaf, r) {
+    var n = D.length, k = 0; D.forEach(function (p) { k += p.y; });
+    var node = { leaf: true, n: n, k: k, p: n ? k / n : 0 };
+    if (depth >= maxD || n < 2 * minLeaf || k === 0 || k === n) return node;
+    var best = null, feats = r ? [r() < .5 ? 0 : 1] : [0, 1];
+    feats.forEach(function (f) {
+      var S = D.slice().sort(function (a, b) { return a.x[f] - b.x[f]; }), kl = 0;
+      for (var i = 1; i < n; i++) {
+        kl += S[i - 1].y;
+        if (i < minLeaf || n - i < minLeaf || S[i - 1].x[f] === S[i].x[f]) continue;
+        var g = (i * gini(kl, i) + (n - i) * gini(k - kl, n - i)) / n;
+        if (!best || g < best.g) best = { g: g, f: f, t: (S[i - 1].x[f] + S[i].x[f]) / 2 };
+      }
+    });
+    if (!best || best.g >= gini(k, n) - 1e-9) return node;
+    node.leaf = false; node.f = best.f; node.t = best.t;
+    node.l = grow(D.filter(function (p) { return p.x[best.f] < best.t; }), depth + 1, maxD, minLeaf, r);
+    node.r = grow(D.filter(function (p) { return p.x[best.f] >= best.t; }), depth + 1, maxD, minLeaf, r);
+    return node;
+  }
+  function treePred(node) { return function (x) { var t = node; while (!t.leaf) t = x[t.f] < t.t ? t.l : t.r; return t.p; }; }
+  function leaves(node, box, out) {
+    if (node.leaf) { out.push({ box: box, n: node.n, k: node.k, p: node.p }); return out; }
+    var a = box.slice(), b = box.slice();
+    if (node.f === 0) { a[1] = Math.min(a[1], node.t); b[0] = Math.max(b[0], node.t); } else { a[3] = Math.min(a[3], node.t); b[2] = Math.max(b[2], node.t); }
+    leaves(node.l, a, out); leaves(node.r, b, out); return out;
+  }
+  var tree = null;
+  function upd2() {
+    var d = +$('dep').value; $('depv').textContent = d;
+    tree = grow(train, 0, d, 2); var pred = treePred(tree);
+    var o = frame($('c2')), x = o.x, L = leaves(tree, [0, 1, 0, 1], []);
+    o.clip();
+    L.forEach(function (l) {
+      var b = l.box, bad = l.p >= .5, a = .07 + .22 * Math.abs(l.p - .5) * 2;
+      x.fillStyle = 'rgba(' + (bad ? BAD : OK) + ',' + a.toFixed(3) + ')';
+      x.fillRect(o.X(b[0]), o.Y(b[3]), o.X(b[1]) - o.X(b[0]), o.Y(b[2]) - o.Y(b[3]));
+      x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 1; x.strokeRect(o.X(b[0]) + .5, o.Y(b[3]) + .5, o.X(b[1]) - o.X(b[0]) - 1, o.Y(b[2]) - o.Y(b[3]) - 1);
+    });
+    x.restore(); o.axes(); dots(o, train);
+    $('acc2').textContent = 'train ' + pct(acc(pred, train)) + ' · test ' + pct(acc(pred, test));
+    /* rules in plain language */
+    L.sort(function (a, b) { return b.n - a.n; });
+    var html = L.slice(0, 6).map(function (l) {
+      var b = l.box, c = [];
+      if (b[0] > 0) c.push('score ≥ ' + fmtS(b[0])); if (b[1] < 1) c.push('score < ' + fmtS(b[1]));
+      if (b[2] > 0) c.push('DTI ≥ ' + fmtD(b[2])); if (b[3] < 1) c.push('DTI < ' + fmtD(b[3]));
+      var bad = l.p >= .5;
+      return '<li><span>' + (c.length ? 'If ' + c.join(' and ') : 'Everyone') + '</span> <b class="' + (bad ? 'deny' : 'appr') + '">' + (bad ? 'deny' : 'approve') + '</b> <em>' + l.k + ' of ' + l.n + ' defaulted</em></li>';
+    }).join('');
+    $('rules2').innerHTML = html + (L.length > 6 ? '<li class="more">+ ' + (L.length - 6) + ' smaller rules</li>' : '');
+    $('nrules').textContent = L.length + (L.length === 1 ? ' rule' : ' rules');
+  }
+  $('dep').addEventListener('input', upd2);
+
+  /* ---------- nearest neighbours ---------- */
+  function knnPred(k, set) {
+    return function (x) {
+      var d = set.map(function (p) { var a = p.x[0] - x[0], b = p.x[1] - x[1]; return [a * a + b * b, p]; });
+      d.sort(function (a, b) { return a[0] - b[0]; }); var s = 0; for (var i = 0; i < k; i++) s += d[i][1].y; return s / k;
+    };
+  }
+  function nearest(k, x) {
+    return train.map(function (p) { var a = p.x[0] - x[0], b = p.x[1] - x[1]; return [a * a + b * b, p]; }).sort(function (a, b) { return a[0] - b[0]; }).slice(0, k).map(function (d) { return d[1]; });
+  }
+  var probe = null, knnImg = null, knnK = -1;
+  function upd3() {
+    var k = +$('kk').value; $('kkv').textContent = k;
+    var pred = knnPred(k, train), o = frame($('c3')), x = o.x, G = 64;
+    if (knnK !== k) { knnImg = []; for (var j = 0; j < G; j++) for (var i = 0; i < G; i++) knnImg.push(pred([(i + .5) / G, (j + .5) / G])); knnK = k; $('acc3').textContent = 'test accuracy ' + pct(acc(pred, test)); }
+    o.clip();
+    for (j = 0; j < G; j++) for (i = 0; i < G; i++) {
+      var p = knnImg[j * G + i], bad = p >= .5, a = .05 + .2 * Math.abs(p - .5) * 2;
+      x.fillStyle = 'rgba(' + (bad ? BAD : OK) + ',' + a.toFixed(3) + ')';
+      x.fillRect(o.X(i / G), o.Y((j + 1) / G), o.PW / G + .6, o.PH / G + .6);
+    }
+    x.restore(); o.axes(); dots(o, train);
+    if (probe) {
+      var nb = nearest(k, probe), bad2 = 0, px = o.X(probe[0]), py = o.Y(probe[1]);
+      x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 1;
+      nb.forEach(function (p) { bad2 += p.y; x.beginPath(); x.moveTo(px, py); x.lineTo(o.X(p.x[0]), o.Y(p.x[1])); x.stroke(); });
+      nb.forEach(function (p) { x.beginPath(); x.arc(o.X(p.x[0]), o.Y(p.x[1]), 5.5, 0, 6.283); x.strokeStyle = '#fff'; x.stroke(); });
+      x.fillStyle = '#fff'; x.beginPath(); x.moveTo(px, py - 8); x.lineTo(px + 8, py); x.lineTo(px, py + 8); x.lineTo(px - 8, py); x.closePath(); x.fill();
+      var deny = bad2 / k >= .5;
+      $('st3').innerHTML = 'Applicant: score ' + fmtS(probe[0]) + ', DTI ' + fmtD(probe[1]) + '. ' + (k - bad2) + ' of ' + k + ' neighbours repaid, so <b class="' + (deny ? 'deny' : 'appr') + '">' + (deny ? 'deny' : 'approve') + '</b>.';
+    }
+  }
+  $('kk').addEventListener('input', upd3);
+  $('c3').addEventListener('click', function (e) {
+    var r = this.getBoundingClientRect(), v = [(e.clientX - r.left - 54) / (r.width - 66), 1 - (e.clientY - r.top - 10) / (r.height - 40)];
+    if (v[0] < 0 || v[0] > 1 || v[1] < 0 || v[1] > 1) return; probe = v; upd3();
+  });
+
+  /* ---------- k-means on brokerage clients ---------- */
+  var cl = [], cent = [], asg = [], phase = 0, iter = 0, kTimer = null, cseed = 5, iseed = 101;
+  function makeClients() {
+    var r = rng(cseed++), G = [[.12, .82, .07], [.8, .5, .09], [.18, .22, .08], [.5, .58, .07], [.62, .16, .06]]; cl = [];
+    G.forEach(function (g, gi) { var m = [44, 38, 46, 30, 20][gi]; for (var i = 0; i < m; i++) cl.push([clamp(g[0] + gauss(r) * g[2], .02, .98), clamp(g[1] + gauss(r) * g[2] * 1.1, .02, .98)]); });
+  }
+  function initK(k, r) {                                                         /* random starting centres (k-means++ style) */
+    var c = [cl[Math.floor(r() * cl.length)].slice()];
+    while (c.length < k) {
+      var d = cl.map(function (p) { return Math.min.apply(null, c.map(function (q) { var a = p[0] - q[0], b = p[1] - q[1]; return a * a + b * b; })); });
+      var s = d.reduce(function (a, b) { return a + b; }, 0), t = r() * s, i = 0; while (i < d.length - 1 && (t -= d[i]) > 0) i++; c.push(cl[i].slice());
+    }
+    return c;
+  }
+  function assign(c) { return cl.map(function (p) { var bi = 0, bd = 9; c.forEach(function (q, i) { var a = p[0] - q[0], b = p[1] - q[1], d = a * a + b * b; if (d < bd) { bd = d; bi = i; } }); return bi; }); }
+  function update(c, a) { return c.map(function (q, i) { var sx = 0, sy = 0, n = 0; cl.forEach(function (p, j) { if (a[j] === i) { sx += p[0]; sy += p[1]; n++; } }); return n ? [sx / n, sy / n] : q.slice(); }); }
+  function inertia(c, a) { var s = 0; cl.forEach(function (p, j) { var q = c[a[j]], x = p[0] - q[0], y = p[1] - q[1]; s += x * x + y * y; }); return s; }
+  function kmeans(k, r) { var c = initK(k, r), a; for (var t = 0; t < 50; t++) { a = assign(c); var n = update(c, a), mv = 0; n.forEach(function (q, i) { mv += Math.abs(q[0] - c[i][0]) + Math.abs(q[1] - c[i][1]); }); c = n; if (mv < 1e-9) break; } return inertia(c, assign(c)); }
+  function reset4() { stop4(); var k = +$('kc').value; $('kcv').textContent = k; cent = initK(k, rng(iseed)); asg = null; phase = 0; iter = 0; draw4(); elbow(); }
+  function step4() {
+    if (phase === 0) { var a = assign(cent), same = asg && a.every(function (v, i) { return v === asg[i]; }); asg = a; phase = 1; if (same && iter > 0) { draw4(true); return false; } }
+    else { cent = update(cent, asg); phase = 0; iter++; }
+    draw4(); return true;
+  }
+  function stop4() { if (kTimer) { clearInterval(kTimer); kTimer = null; } $('run4').textContent = 'Run'; }
+  function draw4(done) {
+    var c = $('c4'), o = setup(c), x = o.x, pad = 34, PW = o.w - pad - 12, PH = o.h - pad - 10;
+    var X = function (v) { return pad + v * PW; }, Y = function (v) { return 10 + (1 - v) * PH; };
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.beginPath(); x.moveTo(pad, 10); x.lineTo(pad, o.h - pad + 10); x.lineTo(o.w - 12, o.h - pad + 10); x.stroke();
+    x.font = FONT; x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText('trades per month →', o.w - 140, o.h - 6);
+    x.save(); x.translate(12, 120); x.rotate(-Math.PI / 2); x.fillText('account size →', 0, 0); x.restore();
+    if (asg) { x.lineWidth = 1; cl.forEach(function (p, j) { var q = cent[asg[j]]; x.strokeStyle = 'rgba(' + PAL[asg[j]] + ',.16)'; x.beginPath(); x.moveTo(X(p[0]), Y(p[1])); x.lineTo(X(q[0]), Y(q[1])); x.stroke(); }); }
+    cl.forEach(function (p, j) { x.fillStyle = asg ? 'rgba(' + PAL[asg[j]] + ',.95)' : 'rgba(230,233,238,.85)'; x.beginPath(); x.arc(X(p[0]), Y(p[1]), 3.2, 0, 6.283); x.fill(); });
+    cent.forEach(function (q, i) {
+      var cx = X(q[0]), cy = Y(q[1]); x.strokeStyle = '#000'; x.lineWidth = 6; x.beginPath(); x.moveTo(cx - 8, cy - 8); x.lineTo(cx + 8, cy + 8); x.moveTo(cx + 8, cy - 8); x.lineTo(cx - 8, cy + 8); x.stroke();
+      x.strokeStyle = 'rgb(' + PAL[i] + ')'; x.lineWidth = 3; x.stroke();
+    });
+    var msg = !asg ? 'Start: centres placed, clients not yet assigned' : done ? 'Settled after ' + iter + ' rounds: nobody changed group' : phase === 1 ? 'Round ' + (iter + 1) + ': clients joined their nearest centre' : 'Round ' + iter + ': centres moved to the middle of their group';
+    $('it4').textContent = msg;
+  }
+  function elbow() {
+    var c = $('c4b'), o = setup(c), x = o.x, v = [], k = +$('kc').value;
+    for (var kk = 1; kk <= 8; kk++) { var best = 1e9; for (var t = 0; t < 6; t++) best = Math.min(best, kmeans(kk, rng(900 + kk * 17 + t))); v.push(best); }
+    var mx = v[0], X = function (i) { return 30 + i / 7 * (o.w - 46); }, Y = function (s) { return 10 + (1 - s / mx) * (o.h - 36); };
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.beginPath(); x.moveTo(26, 6); x.lineTo(26, o.h - 24); x.lineTo(o.w - 8, o.h - 24); x.stroke();
+    x.font = FONT; x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText('spread', 2, 12); x.fillText('groups →', o.w - 66, o.h - 6);
+    x.strokeStyle = 'rgb(' + PAL[0] + ')'; x.lineWidth = 2; x.beginPath(); v.forEach(function (s, i) { if (i) x.lineTo(X(i), Y(s)); else x.moveTo(X(i), Y(s)); }); x.stroke();
+    v.forEach(function (s, i) { x.fillStyle = i + 1 === k ? '#fff' : 'rgba(255,255,255,.4)'; x.beginPath(); x.arc(X(i), Y(s), i + 1 === k ? 4.5 : 2.5, 0, 6.283); x.fill(); x.fillText(i + 1, X(i) - 3, o.h - 10); });
+  }
+  $('kc').addEventListener('input', reset4);
+  $('seed4').addEventListener('click', function () { iseed++; reset4(); });
+  $('step4').addEventListener('click', function () { stop4(); step4(); });
+  $('run4').addEventListener('click', function () {
+    if (kTimer) { stop4(); return; }
+    if ($('it4').textContent.indexOf('Settled') === 0) { iseed++; reset4(); }
+    this.textContent = 'Pause';
+    kTimer = setInterval(function () { if (!step4() || iter > 60) stop4(); }, reduce ? 0 : 420);
+  });
+
+  /* ---------- step 5: head to head ---------- */
+  function logistic(set) {
+    var w = [0, 0, 0];
+    for (var t = 0; t < 1500; t++) {
+      var g = [0, 0, 0];
+      set.forEach(function (p) { var z = w[0] + w[1] * (p.x[0] - .5) * 4 + w[2] * (p.x[1] - .5) * 4, e = 1 / (1 + Math.exp(-z)) - p.y; g[0] += e; g[1] += e * (p.x[0] - .5) * 4; g[2] += e * (p.x[1] - .5) * 4; });
+      for (var i = 0; i < 3; i++) w[i] -= .5 * g[i] / set.length;
+    }
+    return function (x) { return 1 / (1 + Math.exp(-(w[0] + w[1] * (x[0] - .5) * 4 + w[2] * (x[1] - .5) * 4))); };
+  }
+  function forest(set, n) {
+    var r = rng(77), trees = [];
+    for (var t = 0; t < n; t++) { var b = []; for (var i = 0; i < set.length; i++) b.push(set[Math.floor(r() * set.length)]); trees.push(treePred(grow(b, 0, 7, 2, r))); }
+    return function (x) { var s = 0; trees.forEach(function (f) { s += f(x) >= .5 ? 1 : 0; }); return s / trees.length; };
+  }
+  function upd5() {
+    var rows = [
+      ['Always approve', function () { return 0; }, 'base'],
+      ['Logistic regression', logistic(train)],
+      ['Decision tree', treePred(grow(train, 0, 4, 4))],
+      ['Random forest', forest(train, 120)],
+      ['Nearest neighbours', knnPred(15, train)]
+    ];
+    var sc = rows.map(function (r) { return acc(r[1], test); }), top = Math.max.apply(null, sc.slice(1));
+    $('score5').innerHTML = rows.map(function (r, i) {
+      return '<div class="bar' + (r[2] ? ' base' : sc[i] === top ? ' top' : '') + '"><span class="t">' + r[0] + '</span><span class="b"><i style="width:' + (sc[i] * 100).toFixed(1) + '%"></i></span><span class="p">' + (sc[i] * 100).toFixed(1) + '%</span></div>';
+    }).join('');
+  }
+
+  /* ---------- start ---------- */
+  function all() { draw1(); upd2(); knnK = -1; upd3(); upd5(); }
+  document.querySelectorAll('.newdata').forEach(function (b) { b.addEventListener('click', function () { makeLoans(); probe = null; hov = null; $('st3').textContent = 'Click anywhere on the chart to place a new applicant.'; all(); }); });
+  makeLoans(); makeClients(); all(); reset4();
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { draw1(); upd2(); upd3(); draw4(); elbow(); }, 120); });
+
+  /* step rail follows the scroll */
+  var ws = document.querySelectorAll('.ws a');
+  function spy() {
+    var cur = '', y = innerHeight * .45;
+    ['s1', 's2', 's3', 's4', 's5'].forEach(function (id) { if ($(id).getBoundingClientRect().top < y) cur = id; });
+    ws.forEach(function (a) { a.classList.toggle('on', a.dataset.s === cur); });
+  }
+  addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
+</body>
+</html>
