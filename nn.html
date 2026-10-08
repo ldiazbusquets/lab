@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neural networks | LDB Lab</title>
+<meta name="description" content="Build and train a neural network in your browser: neurons, activation functions, a network playground and backpropagation with every number shown.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="Neural networks | LDB Lab">
+<meta property="og:description" content="Neurons, layers and backpropagation, hands on.">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000; --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --acc-hi: #A9CDF2; --warm: #E0A84E; --lock: #FF5A4E;
+    --g: clamp(20px, 5vw, 72px); --max: 1180px;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: clip;
+    font: 400 1.0625rem/1.65 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px);
+    background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--g); }
+  b, strong { font-weight: 700; color: #fff; }
+
+  /* status bar */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.6);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  nav .left, nav .right { display: flex; align-items: center; gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  .ws { display: flex; gap: 4px; margin-left: 6px; }
+  .ws a { display: flex; align-items: center; justify-content: center; min-width: 30px; height: 28px; padding: 0 8px; font: 700 .68rem var(--mono); text-decoration: none;
+    color: var(--soft); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+  .ws a:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ws a.on { background: var(--acc); border-color: var(--acc); color: #000; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+    padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); transition: background .2s; color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 760px) { .ws, nav .right .btn.main { display: none; } }
+
+  /* header */
+  header.wrap { padding-top: clamp(120px, 18vh, 170px); padding-bottom: 40px; }
+  .eyebrow { font: 500 .76rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 16px; }
+  h1 { font: 800 clamp(2.6rem, 7vw, 5.4rem)/.98 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.02em; margin: 0; }
+  .lede { font: 300 clamp(1.1rem, 1.9vw, 1.35rem)/1.55 "Urbanist", sans-serif; color: #D3D6DB; max-width: 760px; margin: 22px 0 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .specs span { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); border: 1px solid var(--line); padding: 7px 11px; }
+  .specs span b { color: var(--acc-hi); }
+  .status { font: 500 .72rem var(--mono); letter-spacing: .06em; color: var(--soft); margin-top: 16px; }
+  .status.err { color: var(--lock); }
+
+  /* prompt box (sticky) */
+  .prompt { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .prompt .row { display: flex; gap: 10px; align-items: center; }
+  .prompt label { font: 700 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+  .prompt input { flex: 1; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .95rem var(--mono); padding: 10px 12px; }
+  .prompt input:focus { outline: none; border-color: var(--acc); }
+  .ex { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .ex button, .ctl button { font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); background: transparent;
+    border: 1px solid var(--line); padding: 6px 10px; cursor: pointer; }
+  .ex button:hover, .ctl button:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ctl button.primary { color: #000; background: var(--acc); border-color: var(--acc); }
+
+  /* steps */
+  .step { padding: clamp(64px, 9vw, 110px) 0 0; }
+  /* step buttons: each step lands with its label 32px below the sticky text bar (--stick is measured by script) */
+  .step { scroll-margin-top: calc(var(--stick, 210px) + 32px - clamp(64px, 9vw, 110px)); }
+  .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+  .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acc); }
+  .seclab .nm { color: var(--ink); }
+  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(91,159,224,.5) 0 2px, transparent 2px 7px); }
+  h2 { font: 400 clamp(1.7rem, 3.4vw, 2.5rem)/1.12 "Urbanist", sans-serif; margin: 0 0 14px; }
+  h2 span { color: var(--soft); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .explain p { color: #C9CDD3; margin: 0 0 14px; font-size: 1rem; }
+  .explain .k { font: 700 .66rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 6px; }
+  .panel { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 18px; }
+  .panel + .panel { margin-top: 14px; }
+  .corners::before, .corners::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--acc); }
+  .corners::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .corners::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .ph span:last-child { color: var(--dim); font-weight: 500; }
+
+  /* tokens */
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; font: 500 .86rem var(--mono); }
+  .chip { position: relative; padding: 4px 6px 16px; border: 1px solid rgba(255,255,255,.14); white-space: pre; cursor: pointer; transition: border-color .15s, background .15s; }
+  .chip i { position: absolute; left: 6px; bottom: 2px; font: 500 .56rem var(--mono); font-style: normal; color: var(--dim); }
+  .chip:hover, .chip.sel { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chip.sel i { color: var(--acc-hi); }
+  .chip .sp { color: var(--dim); }
+  .c0 { background: rgba(91,159,224,.10); } .c1 { background: rgba(224,168,78,.10); } .c2 { background: rgba(186,160,255,.10); } .c3 { background: rgba(120,200,160,.10); }
+
+  /* embeddings */
+  .vec { display: grid; grid-template-columns: repeat(32, 1fr); gap: 2px; margin-top: 8px; }
+  .vec div { aspect-ratio: 1; }
+  .near { display: flex; flex-wrap: wrap; gap: 6px; font: 500 .8rem var(--mono); margin-top: 10px; }
+  .near span { border: 1px solid var(--line); padding: 3px 7px; white-space: pre; }
+  .near span em { font-style: normal; color: var(--dim); margin-left: 6px; font-size: .7rem; }
+  canvas { display: block; width: 100%; }
+  #mapc { height: 340px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* attention */
+  .ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+  .ctl .lab { font: 700 .64rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-right: 4px; }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: #000; border-color: var(--ink); }
+  .att-row { display: flex; flex-wrap: wrap; gap: 3px; font: 500 .86rem var(--mono); }
+  .att-row span { padding: 3px 5px; white-space: pre; border: 1px solid transparent; cursor: pointer; }
+  .att-row span.q { border-color: var(--lock); }
+  #attc { height: 300px; margin-top: 14px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* prediction */
+  .bars { font: 500 .82rem var(--mono); }
+  .bar { display: grid; grid-template-columns: 110px 1fr 58px; gap: 10px; align-items: center; margin: 4px 0; }
+  .bar .t { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .bar .b { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .bar .b i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .25s; }
+  .bar .p { text-align: right; color: var(--soft); }
+  .slider { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; font: 600 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+  .slider input { flex: 1; accent-color: var(--acc); }
+  .slider b { min-width: 34px; text-align: right; }
+
+  /* generation */
+  .gen { font: 500 1rem/1.7 var(--mono); white-space: pre-wrap; word-break: break-word; min-height: 140px; color: #D7DCE2; }
+  .gen .new { color: #fff; background: rgba(91,159,224,.16); border-bottom: 1px solid var(--acc); }
+  .gen .new.hot { animation: pop .6s ease-out; }
+  @keyframes pop { from { background: rgba(91,159,224,.6); } }
+  .genlog { font: 500 .72rem/1.6 var(--mono); color: var(--soft); margin-top: 12px; max-height: 120px; overflow: auto; }
+
+  /* scale table */
+  table.scale { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.scale th, table.scale td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.scale th { font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  table.scale td:first-child { color: #fff; font-weight: 600; }
+  table.scale tr.me td { background: rgba(91,159,224,.07); }
+  .tblwrap { overflow-x: auto; }
+  .fine { font-size: .82rem; color: var(--dim); margin-top: 12px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 110px; padding: 36px 0 48px; color: var(--dim); font-size: .85rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: var(--soft); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .gen .new.hot { animation: none; } }
+
+  /* learn.html: no sticky bar, so steps land 32px under the 60px status bar */
+  .step { scroll-margin-top: calc(92px - clamp(64px, 9vw, 110px)); }
+  canvas.plot { height: 320px; background: #040608; border: 1px solid rgba(255,255,255,.06); cursor: default; }
+  canvas.plot.sq { height: 300px; }
+  canvas.plot.short { height: 150px; margin-top: 12px; }
+  #c2 { cursor: crosshair; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo canvas.plot.sq { height: 240px; }
+  @media (max-width: 520px) { .duo { grid-template-columns: 1fr; } .slider b { min-width: 60px; } }
+  .slider span { min-width: 92px; }
+  .slider b { min-width: 60px; }
+  .fine a { color: var(--acc-hi); }
+  /* shared with classic.html */
+  canvas.plot.tall { height: 380px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 500 .68rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .legend i.ok { background: rgb(91,159,224); } .legend i.bad { background: rgb(255,104,90); } .legend i.hol { border: 1.5px solid #ddd; }
+  ol.rules { list-style: none; margin: 0; padding: 0; font: 500 .8rem/1.5 var(--mono); }
+  ol.rules li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #C9CDD3; }
+  ol.rules li span { flex: 1 1 220px; }
+  ol.rules em { font-style: normal; color: var(--dim); font-size: .72rem; }
+  ol.rules li.more { color: var(--dim); }
+  b.appr { color: rgb(120,180,240); } b.deny { color: rgb(255,120,105); }
+  ol.rules b { text-transform: uppercase; font-size: .72rem; letter-spacing: .1em; }
+  .bar.top .b i { background: var(--acc-hi); } .bar.top .t { color: #fff; }
+  .bar.base .b i { background: #444a52; } .bar.base .t, .bar.base .p { color: var(--dim); }
+  #score5 .bar { grid-template-columns: 150px 1fr 58px; margin: 10px 0; }
+  @media (max-width: 520px) { #score5 .bar { grid-template-columns: 120px 1fr 52px; } }
+  #c3 { cursor: crosshair; }
+  /* nn.html */
+  .duo.wide { grid-template-columns: 1fr 1fr; }
+  canvas.plot.sqr { height: 280px; }
+  canvas.plot.sqr.solo { height: auto; aspect-ratio: 1; max-width: 460px; margin: 0 auto; }
+  canvas.plot.net { height: 400px; }
+  .pg { display: grid; grid-template-columns: 250px minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 1080px) { .pg { grid-template-columns: 1fr 1fr; } .pgc { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { .pg { grid-template-columns: 1fr; } canvas.plot.net { height: 320px; } .duo.wide { grid-template-columns: 1fr; } }
+  .pgc .ctl { margin-bottom: 10px; } .pgc .ctl .lab { width: 100%; margin-bottom: 2px; }
+  .pgc .slider { margin: 6px 0 12px; } .pgc .slider span { min-width: 64px; } .pgc .slider b { min-width: 18px; } .pgc .slider input { min-width: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+  .stats div { border: 1px solid var(--line); padding: 8px; }
+  .stats span { display: block; font: 600 .58rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stats b { font: 700 1.05rem var(--mono); }
+  .explain.two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 20px; }
+  @media (max-width: 900px) { .explain.two { grid-template-columns: 1fr; } }
+  .chain { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 4px 0; }
+  .chain .nd, .chain .ed { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: var(--mono); }
+  .chain .nd { flex: 0 0 auto; min-width: 92px; border: 1px solid rgba(255,255,255,.25); padding: 12px 8px; background: #0a0f14; transition: border-color .3s, background .3s; }
+  .chain .nd.hot { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chain .ed { flex: 1 1 0; min-width: 84px; padding: 0 6px; position: relative; }
+  .chain .ed::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed rgba(255,255,255,.3); z-index: -1; }
+  .chain i { font-style: normal; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .chain b { font-size: 1rem; color: #fff; margin: 3px 0; white-space: pre; }
+  .chain .ed b { background: var(--bg); padding: 0 4px; }
+  .chain em { font-style: normal; font-size: .64rem; color: var(--soft); min-height: 1em; }
+  .chain em.gr { color: var(--warm); }
+  #st4 { line-height: 1.6; min-height: 4.8em; }
+  .layers { display: flex; flex-direction: column; gap: 14px; }
+  .lay > span { display: block; font: 700 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 6px; }
+  .lay div { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lay canvas { width: 64px; height: 64px; border: 1px solid rgba(255,255,255,.18); }
+  #c1 { cursor: crosshair; }
+  .cols > div { min-width: 0; }
+  @media (max-width: 520px) { .chain .nd { min-width: 62px; padding: 10px 3px; } .chain .ed { min-width: 46px; padding: 0 2px; } .chain b { font-size: .8rem; } .chain em, .chain i { font-size: .52rem; letter-spacing: .04em; } }
+</style>
+<body>
+
+<nav><div class="in">
+  <div class="left">
+    <a class="mark" href="./">LDB<span>/LAB</span></a>
+    <div class="ws" aria-label="Steps">
+      <a href="#s1" data-s="s1">1</a><a href="#s2" data-s="s2">2</a><a href="#s3" data-s="s3">3</a>
+      <a href="#s4" data-s="s4">4</a><a href="#s5" data-s="s5">5</a>
+    </div>
+  </div>
+  <div class="right">
+    <a class="btn" href="./">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<header class="wrap">
+  <p class="eyebrow">// MOD-03 &middot; Deep learning</p>
+  <h1>Neural networks</h1>
+  <p class="lede">A neural network is a stack of very simple units, each one doing a little multiplication and addition. On their own they can only draw straight lines. Stacked in layers and trained together, they can learn almost any shape. Build one here and watch it learn.</p>
+  <div class="specs">
+    <span>Steps <b>5</b></span><span>Training <b>live in your browser</b></span><span>Data <b>generated example</b></span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="step" id="s1">
+    <div class="seclab"><span class="idx">01</span><span class="nm">One neuron</span><span class="rule"></span><span>Weigh, add, squash</span></div>
+    <h2>A neuron multiplies each input by a weight, adds them up, <span>and squashes the total into a yes or no.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>One neuron sorting two groups</span><span id="acc1"></span></div>
+          <div class="duo wide"><canvas id="c1" class="plot sqr" aria-label="Two groups of points and the neuron's dividing line"></canvas><canvas id="n1" class="plot sqr" aria-label="Diagram of the neuron with its current numbers"></canvas></div>
+          <div class="slider"><span>Weight 1</span><input id="w1" type="range" min="-6" max="6" step="0.05" value="1.5" aria-label="Weight on input 1"><b id="w1v"></b></div>
+          <div class="slider"><span>Weight 2</span><input id="w2" type="range" min="-6" max="6" step="0.05" value="-2" aria-label="Weight on input 2"><b id="w2v"></b></div>
+          <div class="slider"><span>Bias</span><input id="b1" type="range" min="-4" max="4" step="0.05" value="0.5" aria-label="Bias"><b id="b1v"></b></div>
+          <div class="ctl" style="margin-top:10px"><button type="button" class="primary" id="fit1">Let it learn</button><button type="button" id="rnd1">Scramble</button></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>The neuron takes two inputs (where a point sits across and up), multiplies each by a <b>weight</b>, adds a <b>bias</b>, then passes the total through a squashing function that turns it into a number between 0 and 1. Above 0.5 means blue, below means amber.</p>
+        <p>Move the sliders and watch the dividing line turn and slide. Hover a point to see the actual arithmetic on the right. Then press <b>Let it learn</b> and gradient descent, from module 01, finds the weights for you.</p>
+        <p class="k">You have seen this before</p>
+        <p>This single neuron is exactly the logistic regression from module 02. A neural network is what you get when you wire many of them together.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="s2">
+    <div class="seclab"><span class="idx">02</span><span class="nm">The limit</span><span class="rule"></span><span>Why one is not enough</span></div>
+    <h2>One neuron can only draw a straight line. <span>Most real problems are not straight.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>A pattern no straight line can split</span><span id="acc2"></span></div>
+          <canvas id="c2" class="plot sqr solo" aria-label="Checkerboard pattern with a single neuron's best attempt"></canvas>
+          <div class="ctl" style="margin-top:12px"><button type="button" class="primary" id="fit2">Train one neuron</button><button type="button" id="net2">Train a small network</button></div>
+        </div>
+        <div class="panel corners">
+          <div class="ph"><span>Squashing functions</span><span class="ctl" style="margin:0" id="actb"><button type="button" data-a="sig" aria-pressed="true">Sigmoid</button><button type="button" data-a="tanh" aria-pressed="false">Tanh</button><button type="button" data-a="relu" aria-pressed="false">ReLU</button></span></div>
+          <canvas id="c2b" class="plot short" aria-label="Chart of the selected activation function"></canvas>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Here blue sits in two opposite corners and amber in the other two. Press <b>Train one neuron</b>: however long it trains, it gets stuck around half right, because no single straight line separates them.</p>
+        <p>Now press <b>Train a small network</b>: four neurons in a hidden layer feeding one output. Each hidden neuron draws its own line, and the output neuron combines them into a shape. It solves the pattern in seconds.</p>
+        <p class="k">The bend matters</p>
+        <p>The squashing step is called the <b>activation function</b>. Without it, stacking neurons would just add straight lines into another straight line, however many layers you used. The bend is what lets layers build curves. Modern networks mostly use <b>ReLU</b>, which simply turns negatives into zero: cheap to compute and easy to train.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="s3">
+    <div class="seclab"><span class="idx">03</span><span class="nm">Build a network</span><span class="rule"></span><span>Playground</span></div>
+    <h2>Pick a shape, design a network, <span>and watch it learn.</span></h2>
+    <div class="panel corners">
+      <div class="pg">
+        <div class="pgc">
+          <div class="ctl"><span class="lab">Data</span><span id="dsb"><button type="button" data-d="circle" aria-pressed="true">Circle</button><button type="button" data-d="xor" aria-pressed="false">Corners</button><button type="button" data-d="moons" aria-pressed="false">Moons</button><button type="button" data-d="spiral" aria-pressed="false">Spiral</button></span></div>
+          <div class="slider"><span>Layers</span><input id="nl" type="range" min="1" max="3" step="1" value="2" aria-label="Hidden layers"><b id="nlv"></b></div>
+          <div class="slider"><span>Neurons</span><input id="nn" type="range" min="1" max="8" step="1" value="4" aria-label="Neurons per layer"><b id="nnv"></b></div>
+          <div class="ctl"><span class="lab">Activation</span><span id="acb"><button type="button" data-a="tanh" aria-pressed="true">Tanh</button><button type="button" data-a="relu" aria-pressed="false">ReLU</button></span></div>
+          <div class="ctl"><span class="lab">Step size</span><span id="lrb"><button type="button" data-l="0.001" aria-pressed="false">0.001</button><button type="button" data-l="0.01" aria-pressed="true">0.01</button><button type="button" data-l="0.03" aria-pressed="false">0.03</button><button type="button" data-l="0.3" aria-pressed="false">0.3</button></span></div>
+          <div class="ctl" style="margin-top:6px"><button type="button" class="primary" id="run3">Train</button><button type="button" id="reset3">Reset weights</button></div>
+          <div class="stats">
+            <div><span>Rounds</span><b id="ep3">0</b></div>
+            <div><span>Test accuracy</span><b id="acc3">-</b></div>
+            <div><span>Parameters</span><b id="par3">-</b></div>
+          </div>
+          <canvas id="c3c" class="plot short" aria-label="Training and test loss over time"></canvas>
+        </div>
+        <div class="pgn"><canvas id="c3n" class="plot net" aria-label="Network diagram; each neuron shows the pattern it responds to"></canvas></div>
+        <div class="pgo"><canvas id="c3" class="plot sqr solo" aria-label="Data and the network's decision"></canvas>
+          <p class="fine">Dots are training data; hollow squares are test data the network never trains on.</p></div>
+      </div>
+    </div>
+    <div class="explain two">
+      <p>The diagram is the network. Each small square is one neuron, painted with the pattern it responds to across the whole map. Lines are weights: blue pushes up, amber pushes down, thicker means stronger.</p>
+      <p>Try the spiral with 1 layer of 2 neurons: it cannot do it. Give it 3 layers of 6 and it can. Try a step size of 0.3 and watch training become jumpy. And look at the neurons: the first layer only learns straight edges, and later layers combine those edges into curves.</p>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="s4">
+    <div class="seclab"><span class="idx">04</span><span class="nm">Backpropagation</span><span class="rule"></span><span>Passing the blame backward</span></div>
+    <h2>How does each weight know which way to move? <span>The error is passed backward, layer by layer.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>A tiny network, every number shown</span><span id="lo4"></span></div>
+          <div class="chain" id="chain4"></div>
+          <div class="ctl" style="margin-top:14px">
+            <button type="button" class="primary" id="go4">1. Forward</button>
+            <button type="button" id="many4">Do 25 rounds</button>
+            <button type="button" id="rst4">Start over</button>
+          </div>
+          <div class="status" id="st4"></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>This network has one input, one hidden neuron and one output, with two weights and two biases. Its job: when the input is 1, answer 1.</p>
+        <p>Press the button to walk through one training round:</p>
+        <p><b>Forward:</b> the input flows through, and the network makes a guess. <b>Loss:</b> measure how wrong it is. <b>Backward:</b> starting at the output, work out how much each weight contributed to the error, using the chain rule from calculus. Each layer's share depends on the layer after it, so the blame flows backward. <b>Update:</b> nudge every weight against its gradient.</p>
+        <p class="k">Why it matters</p>
+        <p>This is <b>backpropagation</b>. It computes the gradient for every weight in one backward sweep, whether the network has 4 weights or 400 billion. It is what makes training deep networks possible at all.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="s5">
+    <div class="seclab"><span class="idx">05</span><span class="nm">Going deep</span><span class="rule"></span><span>From edges to ideas</span></div>
+    <h2>Each layer builds on the one before. <span>That is what "deep" learning means.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Inside your network from step 3</span><span id="sum5"></span></div>
+          <div id="layers5" class="layers"></div>
+        </div>
+        <div class="panel corners tblwrap">
+          <table class="scale">
+            <thead><tr><th>Network</th><th>Parameters</th></tr></thead>
+            <tbody>
+              <tr class="me"><td>Your playground network</td><td id="par5">-</td></tr>
+              <tr><td>The Lab's mini language model (<a href="llm.html">module 06</a>)</td><td>867,072</td></tr>
+              <tr><td>GPT-2 (2019)</td><td>1.5 billion</td></tr>
+              <tr><td>GPT-3 (2020)</td><td>175 billion</td></tr>
+              <tr><td>Llama 3.1, largest version (2024)</td><td>405 billion</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="explain">
+        <p>These are the neurons from the network you trained in step 3, layer by layer. The first layer can only split the map with straight edges. The next layer mixes those edges into corners and curves. The last layer assembles the final shape.</p>
+        <p>Real networks do the same thing at a vastly larger scale. In an image model, early layers detect edges, middle layers detect textures and parts, and late layers detect whole objects. In a language model, early layers handle spelling and grammar and later layers handle meaning.</p>
+        <p class="k">Same parts, more of them</p>
+        <p>Every model in the table is built from the units on this page: weights, sums, activation functions, trained by backpropagation and gradient descent. The difference is the number of parameters, the amount of data and the computing power, which is what the AI infrastructure track is about.</p>
+        <p>Next in the course: how networks see, in module 04.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT I LEARNED: Luis, write a short section here in your own words when you are ready, for example:
+  <section class="step" id="notes">
+    <div class="seclab"><span class="idx">06</span><span class="nm">What I learned</span><span class="rule"></span></div>
+    <div class="explain"><p>...</p></div>
+  </section>
+  -->
+
+</main>
+
+<footer><div class="wrap">
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; MOD-03</span>
+  <span>Previous: <a href="classic.html">Classic machine learning</a> &nbsp;&middot;&nbsp; Next live module: <a href="llm.html">How an LLM works</a></span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</div></footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var BLUE = [91, 159, 224], AMB = [224, 168, 78], FONT = '500 10px "JetBrains Mono", ui-monospace, monospace';
+  function rgb(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (a == null ? 1 : a) + ')'; }
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function gauss(r) { var u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function sig(z) { return 1 / (1 + Math.exp(-z)); }
+  function setup(c) {
+    var dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth, h = c.clientHeight, x = c.getContext('2d');
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); return { x: x, w: w, h: h };
+  }
+  /* colour for a probability: amber (0) .. dark (0.5) .. blue (1) */
+  function pcol(p, a) { var t = Math.abs(p - .5) * 2, c = p >= .5 ? BLUE : AMB; return [Math.round(8 + (c[0] - 8) * t * a), Math.round(11 + (c[1] - 11) * t * a), Math.round(15 + (c[2] - 15) * t * a)]; }
+  /* paint f(x,y) over [-1,1]^2 into a square area */
+  var heatC = document.createElement('canvas'), heatX = heatC.getContext('2d');
+  function heat(ctx, f, X0, Y0, S, G, a) {
+    G = G || 50; heatC.width = G; heatC.height = G; var img = heatX.createImageData(G, G);
+    for (var j = 0; j < G; j++) for (var i = 0; i < G; i++) {
+      var c = pcol(f([-1 + 2 * (i + .5) / G, 1 - 2 * (j + .5) / G]), a || .55), k = (j * G + i) * 4;
+      img.data[k] = c[0]; img.data[k + 1] = c[1]; img.data[k + 2] = c[2]; img.data[k + 3] = 255;
+    }
+    heatX.putImageData(img, 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(heatC, X0, Y0, S, S);
+  }
+  /* square plot area inside a canvas */
+  function sq(o, pad) { pad = pad || 8; var S = Math.min(o.w, o.h) - pad * 2; return { S: S, X0: (o.w - S) / 2, Y0: (o.h - S) / 2, X: function (v) { return (o.w - S) / 2 + (v + 1) / 2 * S; }, Y: function (v) { return (o.h - S) / 2 + (1 - (v + 1) / 2) * S; } }; }
+  function pts(ctx, A, set, hollow) {
+    set.forEach(function (p) {
+      var c = p.y ? BLUE : AMB, x = A.X(p.x[0]), y = A.Y(p.x[1]);
+      if (hollow) { ctx.strokeStyle = rgb(c, .95); ctx.lineWidth = 1.3; ctx.strokeRect(x - 3, y - 3, 6, 6); }
+      else { ctx.fillStyle = rgb(c); ctx.beginPath(); ctx.arc(x, y, 3.2, 0, 6.283); ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.stroke(); }
+    });
+  }
+  function accOf(f, set) { var k = 0; set.forEach(function (p) { if ((f(p.x) >= .5 ? 1 : 0) === p.y) k++; }); return k / set.length; }
+
+  /* ---------- datasets in [-1,1]^2 ---------- */
+  function dataset(kind, n, seed) {
+    var r = rng(seed), out = [];
+    for (var i = 0; i < n; i++) {
+      var x, y, c;
+      if (kind === 'blobs') { c = i % 2; x = (c ? .4 : -.35) + gauss(r) * .22; y = (c ? -.3 : .35) + gauss(r) * .22; }
+      else if (kind === 'circle') { c = i % 2; var rad = c ? r() * .45 : .62 + r() * .33, an = r() * 6.283; x = rad * Math.cos(an) + gauss(r) * .04; y = rad * Math.sin(an) + gauss(r) * .04; }
+      else if (kind === 'xor') { x = r() * 2 - 1; y = r() * 2 - 1; x += x > 0 ? .06 : -.06; y += y > 0 ? .06 : -.06; c = x * y > 0 ? 1 : 0; }
+      else if (kind === 'moons') { c = i % 2; var t = r() * Math.PI; x = c ? 1 - Math.cos(t) - .5 : Math.cos(t) - .5; y = c ? -Math.sin(t) + .25 : Math.sin(t) - .25; x = x * .62 + gauss(r) * .06; y = y * .8 + gauss(r) * .06; }
+      else { c = i % 2; var s = r(), a = s * 2.6 * Math.PI + (c ? Math.PI : 0), rr = .08 + s * .85; x = rr * Math.cos(a) + gauss(r) * .025; y = rr * Math.sin(a) + gauss(r) * .025; }
+      out.push({ x: [Math.max(-1, Math.min(1, x)), Math.max(-1, Math.min(1, y))], y: c });
+    }
+    return out;
+  }
+
+  /* ---------- a small multi-layer network with backpropagation and Adam ---------- */
+  function Net(sizes, act, seed) {
+    var r = rng(seed); this.sizes = sizes; this.act = act; this.W = []; this.b = []; this.m = []; this.v = []; this.t = 0;
+    for (var l = 1; l < sizes.length; l++) {
+      var W = [], sc = Math.sqrt((act === 'relu' ? 2 : 1) / sizes[l - 1]);
+      for (var j = 0; j < sizes[l]; j++) { var row = []; for (var i = 0; i < sizes[l - 1]; i++) row.push(gauss(r) * sc); W.push(row); }
+      this.W.push(W); this.b.push(new Array(sizes[l]).fill(act === 'relu' ? .05 : 0));
+    }
+    this.params = 0; for (l = 1; l < sizes.length; l++) this.params += sizes[l] * (sizes[l - 1] + 1);
+    var self = this; this.m = this.W.map(function (W) { return W.map(function (r) { return r.map(function () { return 0; }); }); }); this.v = JSON.parse(JSON.stringify(this.m));
+    this.mb = this.b.map(function (b) { return b.map(function () { return 0; }); }); this.vb = JSON.parse(JSON.stringify(this.mb));
+  }
+  Net.prototype.f = function (z) { return this.act === 'relu' ? (z > 0 ? z : 0) : Math.tanh(z); };
+  Net.prototype.forward = function (x) {
+    var A = [x], L = this.W.length;
+    for (var l = 0; l < L; l++) {
+      var W = this.W[l], b = this.b[l], a = A[l], out = new Array(W.length);
+      for (var j = 0; j < W.length; j++) { var z = b[j], row = W[j]; for (var i = 0; i < a.length; i++) z += row[i] * a[i]; out[j] = l === L - 1 ? sig(z) : this.f(z); }
+      A.push(out);
+    }
+    return A;
+  };
+  Net.prototype.p = function (x) { var A = this.forward(x); return A[A.length - 1][0]; };
+  Net.prototype.train = function (batch, lr) {
+    var L = this.W.length, gW = this.W.map(function (W) { return W.map(function (r) { return r.map(function () { return 0; }); }); }), gb = this.b.map(function (b) { return b.map(function () { return 0; }); }), self = this;
+    batch.forEach(function (s) {
+      var A = self.forward(s.x), d = [A[L][0] - s.y];
+      for (var l = L - 1; l >= 0; l--) {
+        var a = A[l], nd = l > 0 ? new Array(a.length).fill(0) : null;
+        for (var j = 0; j < d.length; j++) {
+          gb[l][j] += d[j];
+          for (var i = 0; i < a.length; i++) { gW[l][j][i] += d[j] * a[i]; if (nd) nd[i] += self.W[l][j][i] * d[j]; }
+        }
+        if (nd) for (i = 0; i < nd.length; i++) nd[i] *= self.act === 'relu' ? (a[i] > 0 ? 1 : 0) : 1 - a[i] * a[i];
+        d = nd;
+      }
+    });
+    this.t++; var b1 = .9, b2 = .999, n = batch.length, c1 = 1 - Math.pow(b1, this.t), c2 = 1 - Math.pow(b2, this.t);
+    for (var l = 0; l < L; l++) for (var j = 0; j < this.W[l].length; j++) {
+      for (var i = 0; i < this.W[l][j].length; i++) {
+        var g = gW[l][j][i] / n; this.m[l][j][i] = b1 * this.m[l][j][i] + (1 - b1) * g; this.v[l][j][i] = b2 * this.v[l][j][i] + (1 - b2) * g * g;
+        this.W[l][j][i] -= lr * (this.m[l][j][i] / c1) / (Math.sqrt(this.v[l][j][i] / c2) + 1e-8);
+      }
+      g = gb[l][j] / n; this.mb[l][j] = b1 * this.mb[l][j] + (1 - b1) * g; this.vb[l][j] = b2 * this.vb[l][j] + (1 - b2) * g * g;
+      this.b[l][j] -= lr * (this.mb[l][j] / c1) / (Math.sqrt(this.vb[l][j] / c2) + 1e-8);
+    }
+  };
+  function bce(net, set) { var s = 0; set.forEach(function (p) { var q = Math.min(1 - 1e-7, Math.max(1e-7, net.p(p.x))); s -= p.y ? Math.log(q) : Math.log(1 - q); }); return s / set.length; }
+  function epoch(net, set, lr, r, bs) {
+    var idx = set.map(function (_, i) { return i; });
+    for (var i = idx.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+    for (i = 0; i < idx.length; i += bs) net.train(idx.slice(i, i + bs).map(function (k) { return set[k]; }), lr);
+  }
+
+  /* ---------- step 1: one neuron ---------- */
+  var D1 = dataset('blobs', 120, 3), W1 = [1.5, -2, .5], hov1 = null, anim1 = null;
+  function p1(x) { return sig(W1[0] * x[0] + W1[1] * x[1] + W1[2]); }
+  function draw1() {
+    $('w1v').textContent = W1[0].toFixed(2); $('w2v').textContent = W1[1].toFixed(2); $('b1v').textContent = W1[2].toFixed(2);
+    var o = setup($('c1')), A = sq(o, 6); heat(o.x, p1, A.X0, A.Y0, A.S, 60);
+    /* the dividing line w1 x + w2 y + b = 0 */
+    o.x.save(); o.x.beginPath(); o.x.rect(A.X0, A.Y0, A.S, A.S); o.x.clip();
+    o.x.strokeStyle = '#fff'; o.x.lineWidth = 2; o.x.beginPath();
+    if (Math.abs(W1[1]) > 1e-6) { o.x.moveTo(A.X(-1), A.Y((-W1[2] + W1[0]) / W1[1])); o.x.lineTo(A.X(1), A.Y((-W1[2] - W1[0]) / W1[1])); }
+    else if (Math.abs(W1[0]) > 1e-6) { var xv = -W1[2] / W1[0]; o.x.moveTo(A.X(xv), A.Y(-1)); o.x.lineTo(A.X(xv), A.Y(1)); }
+    o.x.stroke(); o.x.restore();
+    pts(o.x, A, D1);
+    if (hov1) { o.x.strokeStyle = '#fff'; o.x.lineWidth = 1.5; o.x.beginPath(); o.x.arc(A.X(hov1.x[0]), A.Y(hov1.x[1]), 7, 0, 6.283); o.x.stroke(); }
+    $('acc1').textContent = 'accuracy ' + Math.round(accOf(p1, D1) * 100) + '%';
+    drawNeuron();
+  }
+  function drawNeuron() {
+    var o = setup($('n1')), x = o.x, w = o.w, h = o.h, p = hov1 || { x: [.5, -.3], y: 1 };
+    var z = W1[0] * p.x[0] + W1[1] * p.x[1] + W1[2], out = sig(z);
+    var ix = w * .14, nx = w * .56, ox = w * .88, y1 = h * .3, y2 = h * .62, ny = h * .46;
+    x.font = FONT; x.textAlign = 'center';
+    [[y1, W1[0], p.x[0], 'input 1'], [y2, W1[1], p.x[1], 'input 2']].forEach(function (e) {
+      x.strokeStyle = e[1] >= 0 ? rgb(BLUE) : rgb(AMB); x.lineWidth = 1 + Math.min(5, Math.abs(e[1])); x.beginPath(); x.moveTo(ix + 18, e[0]); x.lineTo(nx - 24, ny); x.stroke();
+      x.fillStyle = '#0c1117'; x.strokeStyle = 'rgba(255,255,255,.3)'; x.lineWidth = 1; x.beginPath(); x.arc(ix, e[0], 18, 0, 6.283); x.fill(); x.stroke();
+      x.fillStyle = '#fff'; x.fillText(e[2].toFixed(2), ix, e[0] + 4); x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText(e[3], ix, e[0] - 24);
+      x.fillStyle = 'rgba(255,255,255,.75)'; x.fillText('×' + e[1].toFixed(2), (ix + nx) / 2 - 2, (e[0] + ny) / 2 - 8);
+    });
+    x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(nx + 24, ny); x.lineTo(ox - 18, ny); x.stroke();
+    x.fillStyle = '#0c1117'; x.strokeStyle = '#fff'; x.beginPath(); x.arc(nx, ny, 24, 0, 6.283); x.fill(); x.stroke();
+    x.fillStyle = '#fff'; x.fillText('Σ ' + z.toFixed(2), nx, ny + 4);
+    x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText('+ bias ' + W1[2].toFixed(2), nx, ny + 42); x.fillText('squash', (nx + ox) / 2, ny - 8);
+    var c = out >= .5 ? BLUE : AMB; x.fillStyle = rgb(c, .25); x.strokeStyle = rgb(c); x.beginPath(); x.arc(ox, ny, 18, 0, 6.283); x.fill(); x.stroke();
+    x.fillStyle = '#fff'; x.fillText(out.toFixed(2), ox, ny + 4);
+    x.fillStyle = 'rgba(255,255,255,.55)'; x.fillText(hov1 ? 'this point' : 'hover a point', w / 2, h - 30);
+    x.fillStyle = rgb(c); x.fillText(out >= .5 ? '→ blue' : '→ amber', ox, ny + 34);
+    x.textAlign = 'start';
+  }
+  [['w1', 0], ['w2', 1], ['b1', 2]].forEach(function (s) { $(s[0]).addEventListener('input', function () { stop1(); W1[s[1]] = +this.value; draw1(); }); });
+  function sync1() { $('w1').value = W1[0]; $('w2').value = W1[1]; $('b1').value = W1[2]; }
+  function stop1() { if (anim1) { clearInterval(anim1); anim1 = null; } }
+  $('fit1').addEventListener('click', function () {
+    stop1(); var n = 0;
+    anim1 = setInterval(function () {
+      for (var k = 0; k < 8; k++) {
+        var g = [0, 0, 0]; D1.forEach(function (p) { var e = p1(p.x) - p.y; g[0] += e * p.x[0]; g[1] += e * p.x[1]; g[2] += e; });
+        for (var i = 0; i < 3; i++) W1[i] = Math.max(-6, Math.min(6, W1[i] - 1.2 * g[i] / D1.length));
+      }
+      sync1(); draw1(); if (++n > 60) stop1();
+    }, reduce ? 0 : 30);
+  });
+  $('rnd1').addEventListener('click', function () { stop1(); var r = Math.random; W1 = [(r() - .5) * 8, (r() - .5) * 8, (r() - .5) * 4]; sync1(); draw1(); });
+  $('c1').addEventListener('mousemove', function (e) {
+    var r = this.getBoundingClientRect(), S = Math.min(r.width, r.height) - 12, X0 = (r.width - S) / 2, Y0 = (r.height - S) / 2;
+    var mx = e.clientX - r.left, my = e.clientY - r.top, best = null, bd = 144;
+    D1.forEach(function (p) { var dx = X0 + (p.x[0] + 1) / 2 * S - mx, dy = Y0 + (1 - (p.x[1] + 1) / 2) * S - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = p; } });
+    if (best !== hov1) { hov1 = best; draw1(); }
+  });
+  $('c1').addEventListener('mouseleave', function () { hov1 = null; draw1(); });
+
+  /* ---------- step 2: the checkerboard ---------- */
+  var D2 = dataset('xor', 200, 9), m2 = null, mode2 = 'none', anim2 = null, act2 = 'sig';
+  function draw2() {
+    var o = setup($('c2')), A = sq(o, 6);
+    if (m2) heat(o.x, function (x) { return m2.p(x); }, A.X0, A.Y0, A.S, 60); else { o.x.fillStyle = '#05080b'; o.x.fillRect(A.X0, A.Y0, A.S, A.S); }
+    pts(o.x, A, D2);
+    $('acc2').textContent = m2 ? (mode2 === 'one' ? 'one neuron: ' : '4 hidden neurons: ') + Math.round(accOf(function (x) { return m2.p(x); }, D2) * 100) + '% right' : 'not trained yet';
+  }
+  function run2(sizes, mode) {
+    if (anim2) clearInterval(anim2); m2 = new Net(sizes, 'tanh', 4); mode2 = mode; var r = rng(5), n = 0;
+    anim2 = setInterval(function () { for (var k = 0; k < 3; k++) epoch(m2, D2, .03, r, 10); draw2(); if (++n > 70) { clearInterval(anim2); anim2 = null; } }, reduce ? 0 : 40);
+  }
+  $('fit2').addEventListener('click', function () { run2([2, 1], 'one'); });
+  $('net2').addEventListener('click', function () { run2([2, 4, 1], 'net'); });
+  function draw2b() {
+    var o = setup($('c2b')), x = o.x, f = act2 === 'sig' ? sig : act2 === 'tanh' ? Math.tanh : function (z) { return Math.max(0, z); };
+    var lo = act2 === 'relu' ? -1 : -1.1, hi = act2 === 'relu' ? 4 : 1.1;
+    var X = function (z) { return 30 + (z + 4) / 8 * (o.w - 40); }, Y = function (v) { return 8 + (1 - (v - lo) / (hi - lo)) * (o.h - 30); };
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 1; x.beginPath(); x.moveTo(X(-4), Y(0)); x.lineTo(X(4), Y(0)); x.moveTo(X(0), Y(lo)); x.lineTo(X(0), Y(hi)); x.stroke();
+    x.font = FONT; x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText('total in →', o.w - 80, o.h - 6); x.fillText('out', X(0) + 6, 16);
+    x.strokeStyle = rgb(BLUE); x.lineWidth = 2.5; x.beginPath();
+    for (var i = 0; i <= 160; i++) { var z = -4 + 8 * i / 160; if (i) x.lineTo(X(z), Y(f(z))); else x.moveTo(X(z), Y(f(z))); } x.stroke();
+    x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText(act2 === 'sig' ? 'squashes any total into 0..1' : act2 === 'tanh' ? 'squashes into -1..1, centred on 0' : 'negatives become 0, positives pass through', 40, o.h - 6);
+  }
+  document.querySelectorAll('#actb button').forEach(function (b) { b.addEventListener('click', function () { act2 = b.dataset.a; document.querySelectorAll('#actb button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); draw2b(); }); });
+
+  /* ---------- step 3: playground ---------- */
+  var ds = 'circle', act3 = 'tanh', lr3 = .01, net3, tr3, te3, ep3 = 0, hist3 = [], run3 = false, rr3 = rng(31), wseed = 1, last3 = 0;
+  function data3() { var all = dataset(ds, 360, { circle: 21, xor: 22, moons: 23, spiral: 24 }[ds]); tr3 = all.slice(0, 240); te3 = all.slice(240); }
+  function sizes3() { var s = [2]; for (var i = 0; i < +$('nl').value; i++) s.push(+$('nn').value); s.push(1); return s; }
+  function reset3() { net3 = new Net(sizes3(), act3, wseed++); ep3 = 0; hist3 = []; $('nlv').textContent = $('nl').value; $('nnv').textContent = $('nn').value; $('par3').textContent = net3.params; $('par5').textContent = net3.params.toLocaleString(); draw3(); }
+  function neuronFn(l, j) { return function (x) { var A = net3.forward(x), v = A[l][j]; return l === net3.W.length ? v : act3 === 'relu' ? Math.min(1, v / 2) * .5 + .5 : (v + 1) / 2; }; }
+  function draw3() {
+    var f = function (x) { return net3.p(x); };
+    var o = setup($('c3')), A = sq(o, 6); heat(o.x, f, A.X0, A.Y0, A.S, 50); pts(o.x, A, tr3); pts(o.x, A, te3, true);
+    $('ep3').textContent = ep3; $('acc3').textContent = Math.round(accOf(f, te3) * 100) + '%';
+    drawNet(); drawLoss(); drawLayers();
+  }
+  function drawNet() {
+    var o = setup($('c3n')), x = o.x, S = net3.sizes, cols = S.length, cell = Math.min(34, (o.h - 30) / Math.max.apply(null, S) - 8), pos = [];
+    for (var l = 0; l < cols; l++) {
+      var cx = 24 + l * (o.w - 48 - cell) / (cols - 1), n = S[l], tot = n * cell + (n - 1) * 8, y0 = (o.h - tot) / 2; pos.push([]);
+      for (var j = 0; j < n; j++) pos[l].push([cx, y0 + j * (cell + 8)]);
+    }
+    for (l = 0; l < net3.W.length; l++) for (j = 0; j < S[l + 1]; j++) for (var i = 0; i < S[l]; i++) {
+      var w = net3.W[l][j][i], a = pos[l][i], b = pos[l + 1][j];
+      x.strokeStyle = rgb(w >= 0 ? BLUE : AMB, Math.min(.9, .15 + Math.abs(w) * .25)); x.lineWidth = Math.min(5, .4 + Math.abs(w) * .9);
+      x.beginPath(); x.moveTo(a[0] + cell, a[1] + cell / 2); x.lineTo(b[0], b[1] + cell / 2); x.stroke();
+    }
+    for (l = 0; l < cols; l++) for (j = 0; j < S[l]; j++) {
+      var p = pos[l][j], fn = l === 0 ? (function (k) { return function (v) { return (v[k] + 1) / 2; }; })(j) : neuronFn(l, j);
+      heat(x, fn, p[0], p[1], cell, 18, .9); x.strokeStyle = l === cols - 1 ? '#fff' : 'rgba(255,255,255,.35)'; x.lineWidth = 1; x.strokeRect(p[0] + .5, p[1] + .5, cell - 1, cell - 1);
+    }
+    x.font = FONT; x.fillStyle = 'rgba(255,255,255,.45)'; x.textAlign = 'center';
+    for (l = 0; l < cols; l++) x.fillText(l === 0 ? 'inputs' : l === cols - 1 ? 'output' : 'layer ' + l, pos[l][0][0] + cell / 2, o.h - 6);
+    x.textAlign = 'start';
+  }
+  function drawLoss() {
+    var o = setup($('c3c')), x = o.x;
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 1; x.beginPath(); x.moveTo(26, 6); x.lineTo(26, o.h - 22); x.lineTo(o.w - 6, o.h - 22); x.stroke();
+    x.font = FONT; x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText('loss', 2, 12); x.fillText('rounds →', o.w - 66, o.h - 6);
+    if (hist3.length < 2) return;
+    var mx = Math.max(.75, Math.max.apply(null, hist3.map(function (h) { return Math.max(h[0], h[1]); })));
+    [[0, BLUE, 'train'], [1, AMB, 'test']].forEach(function (s, si) {
+      x.strokeStyle = rgb(s[1]); x.lineWidth = 2; x.beginPath();
+      hist3.forEach(function (h, i) { var X = 26 + i / (hist3.length - 1) * (o.w - 34), Y = 6 + (1 - Math.min(1, h[s[0]] / mx)) * (o.h - 30); if (i) x.lineTo(X, Y); else x.moveTo(X, Y); }); x.stroke();
+      x.fillStyle = rgb(s[1]); x.fillRect(o.w - 70, 10 + si * 13, 8, 3); x.fillStyle = 'rgba(255,255,255,.7)'; x.fillText(s[2], o.w - 58, 15 + si * 13);
+    });
+  }
+  function loop3(t) {
+    if (!run3) return;
+    if (t - last3 > (reduce ? 0 : 30)) {
+      last3 = t; for (var k = 0; k < 2; k++) { epoch(net3, tr3, lr3, rr3, 10); ep3++; }
+      if (ep3 % 4 === 0) { var a = bce(net3, tr3), b = bce(net3, te3); hist3.push([isFinite(a) ? a : 9, isFinite(b) ? b : 9]); if (hist3.length > 300) hist3 = hist3.filter(function (_, i) { return i % 2 === 0; }); }
+      draw3(); if (ep3 >= 2000) stop3();
+    }
+    requestAnimationFrame(loop3);
+  }
+  function stop3() { run3 = false; $('run3').textContent = 'Train'; }
+  $('run3').addEventListener('click', function () { if (run3) { stop3(); return; } run3 = true; this.textContent = 'Pause'; requestAnimationFrame(loop3); });
+  $('reset3').addEventListener('click', function () { reset3(); });
+  ['nl', 'nn'].forEach(function (id) { $(id).addEventListener('input', function () { reset3(); }); });
+  function group(sel, fn) { document.querySelectorAll(sel + ' button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll(sel + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); fn(b); }); }); }
+  group('#dsb', function (b) { ds = b.dataset.d; data3(); reset3(); });
+  group('#acb', function (b) { act3 = b.dataset.a; reset3(); });
+  group('#lrb', function (b) { lr3 = +b.dataset.l; });
+
+  /* ---------- step 5: the layers of the playground network ---------- */
+  function drawLayers() {
+    var box = $('layers5'), S = net3.sizes, html = '';
+    if (box.dataset.shape !== S.join('-')) {
+      for (var l = 1; l < S.length; l++) {
+        html += '<div class="lay"><span>' + (l === S.length - 1 ? 'Output' : 'Layer ' + l) + '</span><div>';
+        for (var j = 0; j < S[l]; j++) html += '<canvas data-l="' + l + '" data-j="' + j + '" aria-hidden="true"></canvas>';
+        html += '</div></div>';
+      }
+      box.innerHTML = html; box.dataset.shape = S.join('-');
+    }
+    box.querySelectorAll('canvas').forEach(function (c) { var o = setup(c); heat(o.x, neuronFn(+c.dataset.l, +c.dataset.j), 0, 0, o.w, 26, .95); });
+    $('sum5').textContent = ds + ' · ' + (S.length - 2) + (S.length - 2 === 1 ? ' layer' : ' layers') + ' · ' + Math.round(accOf(function (x) { return net3.p(x); }, te3) * 100) + '% test';
+  }
+
+  /* ---------- step 4: backpropagation, every number ---------- */
+  var B, ph4;
+  function rst4() { B = { x: 1, y: 1, w1: .5, b1: 0, w2: -.8, b2: .2, lr: .5, round: 0 }; ph4 = 0; render4(); }
+  function fwd4() { B.z1 = B.w1 * B.x + B.b1; B.h = Math.tanh(B.z1); B.z2 = B.w2 * B.h + B.b2; B.o = sig(B.z2); B.L = -Math.log(B.o); }
+  function back4() { B.dz2 = B.o - B.y; B.gw2 = B.dz2 * B.h; B.gb2 = B.dz2; B.dh = B.dz2 * B.w2; B.dz1 = B.dh * (1 - B.h * B.h); B.gw1 = B.dz1 * B.x; B.gb1 = B.dz1; }
+  function upd4() { B.w1 -= B.lr * B.gw1; B.b1 -= B.lr * B.gb1; B.w2 -= B.lr * B.gw2; B.b2 -= B.lr * B.gb2; B.round++; }
+  function n(v) { return (v >= 0 ? ' ' : '') + v.toFixed(3); }
+  function render4() {
+    var showF = ph4 >= 1, showB = ph4 >= 3;
+    function node(label, val, sub, cls) { return '<div class="nd ' + (cls || '') + '"><i>' + label + '</i><b>' + val + '</b><em>' + (sub || '') + '</em></div>'; }
+    function edge(name, w, g) { return '<div class="ed"><i>' + name + '</i><b>' + n(w) + '</b><em class="gr">' + (showB ? 'gradient ' + n(g) : '&nbsp;') + '</em></div>'; }
+    $('chain4').innerHTML =
+      node('input', B.x.toFixed(2), 'fixed') + edge('weight 1', B.w1, B.gw1) +
+      node('hidden', showF ? n(B.h) : '?', showF ? 'tanh(' + n(B.z1).trim() + ')' : 'bias ' + n(B.b1).trim(), ph4 === 1 ? 'hot' : '') + edge('weight 2', B.w2, B.gw2) +
+      node('output', showF ? n(B.o) : '?', showF ? 'target 1' : 'bias ' + n(B.b2).trim(), ph4 === 1 ? 'hot' : '');
+    $('lo4').textContent = ph4 >= 2 && B.L != null ? 'loss ' + B.L.toFixed(3) + ' · round ' + B.round : 'round ' + B.round;
+    var labels = ['1. Forward', '2. Measure the loss', '3. Backward', '4. Update', '1. Forward'];
+    $('go4').textContent = labels[ph4];
+    var M = [
+      function () { return 'Press Forward to send the input through the network.'; },
+      function () { return 'Forward pass: hidden = tanh(' + B.w1.toFixed(2) + ' \u00d7 1 + ' + B.b1.toFixed(2) + ') = ' + B.h.toFixed(3) + '. Output = sigmoid(' + B.w2.toFixed(2) + ' \u00d7 hidden + ' + B.b2.toFixed(2) + ') = ' + B.o.toFixed(3) + '. The target is 1.'; },
+      function () { return 'Loss = \u2212log(' + B.o.toFixed(3) + ') = ' + B.L.toFixed(3) + '. The closer the output gets to 1, the closer this gets to 0.'; },
+      function () { return 'Backward: the output is off by ' + B.dz2.toFixed(3) + '. Weight 2 gets blamed in proportion to what flowed through it (' + B.h.toFixed(3) + '). That blame is passed back through weight 2 and through the tanh bend to reach weight 1.'; },
+      function () { return 'Update: each weight moved a step against its gradient (step size ' + B.lr + '). Next round, the output will be closer to 1.'; }
+    ];
+    $('st4').textContent = M[ph4]();
+  }
+  $('go4').addEventListener('click', function () {
+    if (ph4 === 0 || ph4 === 4) { fwd4(); ph4 = 1; }
+    else if (ph4 === 1) ph4 = 2;
+    else if (ph4 === 2) { back4(); ph4 = 3; }
+    else { upd4(); ph4 = 4; }
+    render4();
+  });
+  $('many4').addEventListener('click', function () { for (var i = 0; i < 25; i++) { fwd4(); back4(); upd4(); } fwd4(); ph4 = 2; render4(); $('st4').textContent = 'After ' + B.round + ' rounds the output is ' + B.o.toFixed(3) + ' and the loss has fallen to ' + B.L.toFixed(3) + '. Every round repeated the same four steps.'; });
+  $('rst4').addEventListener('click', rst4);
+
+  /* ---------- start ---------- */
+  draw1(); draw2(); draw2b(); data3(); reset3(); rst4();
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { draw1(); draw2(); draw2b(); draw3(); }, 120); });
+  var ws = document.querySelectorAll('.ws a');
+  function spy() {
+    var cur = '', y = innerHeight * .45;
+    ['s1', 's2', 's3', 's4', 's5'].forEach(function (id) { if ($(id).getBoundingClientRect().top < y) cur = id; });
+    ws.forEach(function (a) { a.classList.toggle('on', a.dataset.s === cur); });
+  }
+  addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
+</body>
+</html>
