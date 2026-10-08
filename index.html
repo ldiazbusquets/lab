@@ -157,6 +157,10 @@
   /* ---------- projects ---------- */
   .projects { padding: clamp(72px, 10vw, 120px) 0 120px; }
   section[id], main[id] { scroll-margin-top: 70px; }
+  /* header buttons: each section lands with its label the same distance below the bar, as on the main site */
+  #shell, #mods { scroll-margin-top: calc(104px - clamp(72px, 10vw, 120px)); }
+  #feed { scroll-margin-top: 0; }
+  #mods { min-height: calc(100svh - 80px); }   /* enough room below for the last section to reach its spot on tall screens */
   .sec-head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 18px; margin-bottom: 28px; }
   .sec-head h2 { font: 400 clamp(1.8rem, 3.6vw, 2.6rem)/1.1 "Urbanist", sans-serif; margin: 0; }
   .sec-head h2 span { color: var(--soft); }
@@ -230,7 +234,7 @@
     <div id="clock">&nbsp;</div>
   </div>
   <div class="hud tr" aria-hidden="true">
-    <div><span class="hide-s">Model </span><b>LDB-Track v0.4</b> &nbsp;<span id="feedNo">FEED --/--</span></div>
+    <div><span class="hide-s">Model </span><b>LDB-Track v0.5</b> &nbsp;<span id="feedNo">FEED --/--</span></div>
     <div id="stats">&nbsp;</div>
   </div>
 
@@ -256,7 +260,7 @@
     <p class="eyebrow">// experiments in AI</p>
     <h1>The Lab<span class="cur"></span></h1>
     <p class="lede">Machine learning, deep learning, and the games and tools I build along the way. Everything here runs in your browser.</p>
-    <p class="disclaim" id="disclaim">Licensed stock footage. Detection runs live in your browser, and faces are obscured automatically.</p>
+    <p class="disclaim" id="disclaim">Licensed stock footage. Detection runs live in your browser, and faces are blurred automatically.</p>
   </div>
 </section>
 
@@ -361,21 +365,29 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 
 /* =====================================================================
    Live feeds: real recorded clips that rotate, with a real object
-   detector (COCO-SSD, running in the browser on TensorFlow.js) that
+   detector (YOLOX-tiny, running in the browser on ONNX Runtime) that
    finds, labels and tracks what is in each one.
 
    TO ADD OR CHANGE CLIPS: put the MP4 files in a folder named "feeds"
    in the lab repo and list them below. Missing files are skipped.
    ===================================================================== */
 var FEEDS = [
-  { src: 'feeds/street.mp4',  cam: 'CAM-07', place: 'Times Square, NYC' },
-  { src: 'feeds/highway.mp4', cam: 'CAM-12', place: 'Highway interchange' },
-  { src: 'feeds/airport.mp4', cam: 'CAM-21', place: 'Airport apron', secs: 8 },
-  { src: 'feeds/harbor.mp4',  cam: 'CAM-33', place: 'Container port' },
-  { src: 'feeds/park.mp4',    cam: 'CAM-40', place: 'City park' },
-  { src: 'feeds/station.mp4', cam: 'CAM-52', place: 'Regional rail platform' }
+  { src: 'feeds/street.mp4',  cam: 'CAM-07', place: 'Times Square, NYC', tiles: true,
+    classes: ['person', 'handbag', 'backpack', 'suitcase', 'umbrella', 'car', 'truck', 'bus', 'bicycle', 'motorcycle', 'traffic light'] },
+  { src: 'feeds/highway.mp4', cam: 'CAM-12', place: 'Highway interchange', tiles: true,
+    classes: ['car', 'truck', 'bus', 'motorcycle'] },
+  { src: 'feeds/airport.mp4', cam: 'CAM-21', place: 'Airport apron', secs: 8,
+    classes: ['airplane', 'truck', 'car', 'bus', 'person'] },
+  { src: 'feeds/harbor.mp4',  cam: 'CAM-33', place: 'Container port',
+    classes: ['boat', 'person', 'truck'] },
+  { src: 'feeds/park.mp4',    cam: 'CAM-40', place: 'City park',
+    classes: ['person', 'handbag', 'backpack', 'umbrella', 'bench', 'bicycle', 'dog', 'bird', 'cell phone'] },
+  { src: 'feeds/station.mp4', cam: 'CAM-52', place: 'Regional rail platform',
+    classes: ['train', 'person', 'bird', 'handbag', 'backpack', 'suitcase', 'bench', 'umbrella'] }
 ];
 var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set its own with secs) */
+/* tiles: true also scans two zoomed halves of the frame, for scenes with many small or distant objects.
+   classes: what each camera watches for, so one scene's objects are not mistaken for another's (like a real camera's detection zones). */
 
 (function () {
   var feed = document.getElementById('feed');
@@ -396,9 +408,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var now = performance.now();
     if (gap && logLast[type] && now - logLast[type] < gap) return;
     logLast[type] = now;
-    logLines.push('<div class="l t-' + type + '">[' + stamp() + '] ' + (type + '      ').slice(0, 7) + msg + '</div>');
-    if (logLines.length > 9) logLines.shift();
-    logEl.innerHTML = logLines.join('');
+    var el = document.createElement('div');                       /* add one line at a time so older lines do not re-animate */
+    el.className = 'l t-' + type; el.textContent = '[' + stamp() + '] ' + (type + '      ').slice(0, 7) + msg;
+    logEl.appendChild(el);
+    while (logEl.children.length > 9) logEl.removeChild(logEl.firstChild);
   }
 
   /* ---------- classes: what the detector can name ---------- */
@@ -478,7 +491,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     cur = i; video = vids[i]; shownAt = T;
     video.currentTime = 0;
     if (!paused) { var p = video.play(); if (p && p.catch) p.catch(function () {}); }
-    computeCrop(); tracks = []; lock = null; faces = []; shown = [];
+    computeCrop(); tracks = []; lock = null; shown = [];
     var f = FEEDS[i];
     camName.textContent = f.cam; camPlace.textContent = f.place;
     feedNo.textContent = 'FEED ' + pad(i + 1, 2) + '/' + pad(FEEDS.length, 2);
@@ -494,72 +507,172 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     sw = { to: n, t: 0 };
   }
 
-  /* ---------- detector ---------- */
-  var model = null, tracks = [], nextId = 101, infer = 0, detBusy = false, running = true;
+  /* ---------- detector: YOLOX-tiny (80 COCO classes) running on ONNX Runtime Web ---------- */
+  var model = null, faceNet = null, tracks = [], nextId = 101, infer = 0, detBusy = false, running = true, cycle = 0, backend = '';
+  var ORT = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/';
+  var COCO = ['person','bicycle','car','motorcycle','airplane','bus','train','truck','boat','traffic light','fire hydrant','stop sign','parking meter','bench','bird','cat','dog','horse','sheep','cow','elephant','bear','zebra','giraffe','backpack','umbrella','handbag','tie','suitcase','frisbee','skis','snowboard','sports ball','kite','baseball bat','baseball glove','skateboard','surfboard','tennis racket','bottle','wine glass','cup','fork','knife','spoon','bowl','banana','apple','sandwich','orange','broccoli','carrot','hot dog','pizza','donut','cake','chair','couch','potted plant','bed','dining table','toilet','tv','laptop','mouse','remote','keyboard','cell phone','microwave','oven','toaster','sink','refrigerator','book','clock','vase','scissors','teddy bear','hair drier','toothbrush'];
+  var SZ = 416, TH = .36;
+  var pc = document.createElement('canvas'); pc.width = pc.height = SZ; var pcx = pc.getContext('2d', { willReadFrequently: true });
+  var fc = document.createElement('canvas'); fc.width = 320; fc.height = 240; var fcx = fc.getContext('2d', { willReadFrequently: true });
+  /* anchor grid for decoding YOLOX output (strides 8, 16, 32) */
+  var GX = [], GY = [], GS = [];
+  [8, 16, 32].forEach(function (s) { var g = SZ / s; for (var y = 0; y < g; y++) for (var x = 0; x < g; x++) { GX.push(x); GY.push(y); GS.push(s); } });
+
   function iou(a, b) {
     var x0 = Math.max(a[0], b[0]), y0 = Math.max(a[1], b[1]), x1 = Math.min(a[0] + a[2], b[0] + b[2]), y1 = Math.min(a[1] + a[3], b[1] + b[3]);
     var i = Math.max(0, x1 - x0) * Math.max(0, y1 - y0); return i / (a[2] * a[3] + b[2] * b[3] - i || 1);
   }
-  function onDetections(preds, src) {
+  function inter(a, b) {
+    var x0 = Math.max(a[0], b[0]), y0 = Math.max(a[1], b[1]), x1 = Math.min(a[0] + a[2], b[0] + b[2]), y1 = Math.min(a[1] + a[3], b[1] + b[3]);
+    return Math.max(0, x1 - x0) * Math.max(0, y1 - y0);
+  }
+  /* run the detector on one region of the video (the whole frame, or a zoomed tile) */
+  function runRegion(src, rx, ry, rw, rh) {
+    var k = Math.min(SZ / rw, SZ / rh);
+    pcx.fillStyle = 'rgb(114,114,114)'; pcx.fillRect(0, 0, SZ, SZ);
+    pcx.drawImage(src, rx, ry, rw, rh, 0, 0, rw * k, rh * k);
+    var px = pcx.getImageData(0, 0, SZ, SZ).data, A = SZ * SZ, buf = new Float32Array(3 * A);
+    for (var i = 0, p = 0; i < A; i++, p += 4) { buf[i] = px[p + 2]; buf[A + i] = px[p + 1]; buf[2 * A + i] = px[p]; }   /* BGR, 0 to 255 */
+    return model.run({ images: new ort.Tensor('float32', buf, [1, 3, SZ, SZ]) }).then(function (o) {
+      var d = o.output.data, out = [];
+      for (var a = 0; a < GX.length; a++) {
+        var off = a * 85, obj = d[off + 4];
+        if (obj < TH) continue;
+        var bc = 0, bs = 0;
+        for (var c = 0; c < 80; c++) { var v = d[off + 5 + c]; if (v > bs) { bs = v; bc = c; } }
+        var sc = obj * bs; if (sc < TH) continue;
+        var cx = (d[off] + GX[a]) * GS[a], cy = (d[off + 1] + GY[a]) * GS[a], w = Math.exp(d[off + 2]) * GS[a], h = Math.exp(d[off + 3]) * GS[a];
+        out.push({ class: COCO[bc], score: sc, bbox: [rx + (cx - w / 2) / k, ry + (cy - h / 2) / k, w / k, h / k] });
+      }
+      return out;
+    });
+  }
+  /* merge overlapping boxes: drop duplicates, and drop partial boxes of an object already boxed whole */
+  function merge(dets) {
+    var keep = [];
+    dets.sort(function (a, b) { return b.score - a.score; }).forEach(function (d) {
+      var ad = d.bbox[2] * d.bbox[3], drop = false;
+      for (var j = 0; j < keep.length && !drop; j++) {
+        var k = keep[j], ak = k.bbox[2] * k.bbox[3], it = inter(d.bbox, k.bbox), u = it / (ad + ak - it || 1), same = d.class === k.class;
+        if (u > (same ? .45 : .75)) drop = true;
+        else if (same && it / ad > .8 && ad > .2 * ak) drop = true;                               /* d is a piece of k */
+        else if (same && it / ak > .8 && ak > .2 * ad) { keep[j] = d; drop = true; }             /* k is a piece of d: keep the whole */
+      }
+      if (!drop) keep.push(d);
+    });
+    return keep;
+  }
+  /* faces: look inside the head area of each person, which finds small faces far more reliably than scanning the whole frame */
+  function runFace(src, pb) {
+    var x = pb[0], y = pb[1], w = pb[2], h = pb[3], cw = Math.max(w * 1.1, h * .32 * 4 / 3), ch = cw * .75;
+    var rx = Math.max(0, x + w / 2 - cw / 2), ry = Math.max(0, y - h * .04), rw = Math.min(video.videoWidth - rx, cw), rh = Math.min(video.videoHeight - ry, ch);
+    if (rw < 8 || rh < 8) return Promise.resolve(null);
+    fcx.drawImage(src, rx, ry, rw, rh, 0, 0, 320, 240);
+    var px = fcx.getImageData(0, 0, 320, 240).data, A = 320 * 240, buf = new Float32Array(3 * A);
+    for (var i = 0, p = 0; i < A; i++, p += 4) { buf[i] = (px[p] - 127) / 128; buf[A + i] = (px[p + 1] - 127) / 128; buf[2 * A + i] = (px[p + 2] - 127) / 128; }
+    return faceNet.run({ input: new ort.Tensor('float32', buf, [1, 3, 240, 320]) }).then(function (o) {
+      var s = o.scores.data, b = o.boxes.data, best = null, bd = 1e9, tx = .5, ty = .3;
+      for (var a = 0; a < s.length / 2; a++) {
+        if (s[a * 2 + 1] < .7) continue;
+        var fx = (b[a * 4] + b[a * 4 + 2]) / 2, fy = (b[a * 4 + 1] + b[a * 4 + 3]) / 2, dd = (fx - tx) * (fx - tx) + (fy - ty) * (fy - ty);
+        if (dd < bd) { bd = dd; best = a; }                        /* the face nearest the top-centre belongs to this person */
+      }
+      if (best === null) return null;
+      var x0 = rx + b[best * 4] * rw, y0 = ry + b[best * 4 + 1] * rh, x1 = rx + b[best * 4 + 2] * rw, y1 = ry + b[best * 4 + 3] * rh;
+      var fw = x1 - x0, fh = y1 - y0, fcy = (y0 + y1) / 2 - y, fcx = (x0 + x1) / 2 - x;
+      /* sanity checks: a face must be head-sized and sit at the top of this person's box */
+      if (fw > w * .75 || fw < w * .1 || fh > h * .32 || fcy > h * .4 || fcx < -w * .1 || fcx > w * 1.1) return null;
+      return [x0, y0, fw, fh];
+    });
+  }
+  function onDetections(preds, src, tCap) {
     if (src !== video) return;                                   /* stale result from the previous feed */
     tracks.forEach(function (t) { t.m = false; });
     preds.slice().sort(function (a, b) { return b.score - a.score; }).forEach(function (p) {
       var best = null, bi = .2;
       tracks.forEach(function (t) { if (!t.m && t.cls === p.class) { var v = iou(t.tb, p.bbox); if (v > bi) { bi = v; best = t; } } });
       if (best) {
-        best.tb = p.bbox.slice(); best.s = p.score; best.m = true; best.miss = 0; best.hits++;
+        /* estimate velocity so the box keeps moving with the object between detections */
+        var dtc = tCap - best.tCap;
+        if (dtc > .04) {
+          var nvx = ((p.bbox[0] + p.bbox[2] / 2) - (best.tb[0] + best.tb[2] / 2)) / dtc, nvy = ((p.bbox[1] + p.bbox[3] / 2) - (best.tb[1] + best.tb[3] / 2)) / dtc;
+          var cap = Math.max(p.bbox[2], p.bbox[3]) * 3;          /* ignore jumps that are too big to be real motion */
+          nvx = Math.max(-cap, Math.min(cap, nvx)); nvy = Math.max(-cap, Math.min(cap, nvy));
+          best.vx = best.hits > 1 ? best.vx * .5 + nvx * .5 : nvx; best.vy = best.hits > 1 ? best.vy * .5 + nvy * .5 : nvy;
+        }
+        best.tb = p.bbox.slice(); best.tCap = tCap; best.s = p.score; best.m = true; best.miss = 0; best.hits++;
         if (best.hits === 3) log('DETECT', p.class + ' ' + label(best) + ' conf ' + p.score.toFixed(2), 300);
-      } else tracks.push({ id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), s: p.score, m: true, miss: 0, hits: 1, trail: [] });
+      } else tracks.push({ id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, vx: 0, vy: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] });
     });
     tracks.forEach(function (t) { if (!t.m) t.miss++; });
     tracks = tracks.filter(function (t) {
-      if (t.miss > 6) { if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
+      if (t.miss > 4) { if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
       return true;
     });
+  }
+  function findFaces(src) {
+    var people = tracks.filter(function (t) { return t.cls === 'person' && t.m && t.tb[3] >= 36; })
+      .sort(function (a, b) { return b.tb[3] - a.tb[3]; }).slice(0, touch ? 4 : 10);
+    var chain = Promise.resolve(), found = 0;
+    people.forEach(function (t) {
+      chain = chain.then(function () { return src === video ? runFace(src, t.tb) : null; }).then(function (f) {
+        if (!f) return;
+        var b = t.tb; t.face = { rel: [(f[0] - b[0]) / b[2], (f[1] - b[1]) / b[3], f[2] / b[2], f[3] / b[3]], seen: T }; found++;
+      });
+    });
+    return chain.then(function () { if (found) log('FACE', found + (found > 1 ? ' faces' : ' face') + ' found, blurred', 2500); });
   }
   function detLoop() {
     if (!model) return;
     if (!running || detBusy || sw || !video || video.readyState < 2 || (paused && tracks.length && detOnce)) { setTimeout(detLoop, 150); return; }
-    detBusy = true;
-    var src = video, t0 = performance.now();
-    model.detect(src, 40, .35).then(function (preds) {
+    detBusy = true; cycle++;
+    var src = video, t0 = performance.now(), W0 = src.videoWidth, H0 = src.videoHeight, all = [], tCap = T;
+    var regions = [[0, 0, W0, H0]];
+    if (FEEDS[cur].tiles && !touch && regionMs < 160) regions.push([0, 0, W0 * .58, H0], [W0 * .42, 0, W0 * .58, H0]);   /* zoomed halves catch small, distant objects */
+    var chain = Promise.resolve();
+    regions.forEach(function (r) { chain = chain.then(function () { return runRegion(src, r[0], r[1], r[2], r[3]).then(function (d) { all = all.concat(d); }); }); });
+    chain.then(function () {
       var ms = performance.now() - t0; infer = infer ? infer * .8 + ms * .2 : ms;
-      onDetections(preds, src);
-      var people = preds.some(function (p) { return p.class === 'person'; });
-      if (faceModel && people && (++faceTick % 2 === 0)) return faceModel.estimateFaces(src).then(function (fl) { onFaces(fl, src); }).catch(function () {});
-    }).then(function () { detBusy = false; detOnce = true; setTimeout(detLoop, touch ? 220 : 0); })
-      .catch(function () { detBusy = false; setTimeout(detLoop, 500); });
+      regionMs = regionMs ? regionMs * .7 + ms / regions.length * .3 : ms / regions.length;   /* slow device: tiles switch off */
+      var want = FEEDS[cur].classes;
+      onDetections(merge(want ? all.filter(function (d) { return want.indexOf(d.class) >= 0; }) : all), src, tCap);
+      if (faceNet && cycle % 2 === 0) return findFaces(src);
+    }).then(function () { detBusy = false; detOnce = true; setTimeout(detLoop, touch ? 200 : 0); })
+      .catch(function (e) { detBusy = false; setTimeout(detLoop, 600); });
   }
-  var detOnce = false;
-
-  /* ---------- faces: found by a second model and scrambled on screen ---------- */
-  var faceModel = null, faces = [], faceTick = 0;
-  function loadFaceModel() {
-    var ready = window.faceDetection ? Promise.resolve() : loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/face-detection@1.0.3/dist/face-detection.min.js');
-    ready.then(function () {
-      return faceDetection.createDetector(faceDetection.SupportedModels.MediaPipeFaceDetector, { runtime: 'tfjs', modelType: 'full', maxFaces: 25 });
-    }).then(function (m) { faceModel = m; log('SYS', 'face model online, faces will be obscured'); })
-      .catch(function () { log('ERR', 'face model could not load'); });
-  }
-  function onFaces(list, src) {
-    if (src !== video) return;
-    list.forEach(function (f) {
-      var bx = f.box, vb = [bx.xMin, bx.yMin, bx.width, bx.height], best = null, bi = .15;
-      faces.forEach(function (o) { var v = iou(o.tb, vb); if (v > bi) { bi = v; best = o; } });
-      if (best) { best.tb = vb; best.seen = T; }
-      else { faces.push({ vb: vb.slice(), tb: vb, seen: T }); log('FACE', 'face detected, obscuring identity', 1200); }
+  var detOnce = false, regionMs = 0;
+  function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+  /* download a model with a progress readout */
+  var dlPct = -1;
+  function fetchModel(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error(url);
+      var total = +r.headers.get('content-length') || 0;
+      if (!r.body || !total) return r.arrayBuffer();
+      var rd = r.body.getReader(), got = 0, parts = [];
+      function pump() { return rd.read().then(function (x) { if (x.done) return; parts.push(x.value); got += x.value.length; dlPct = Math.round(got / total * 100); return pump(); }); }
+      return pump().then(function () { var u = new Uint8Array(got), o = 0; parts.forEach(function (p) { u.set(p, o); o += p.length; }); return u.buffer; });
     });
   }
-  function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
   function loadModel() {
-    log('SYS', 'loading detector: SSD-MobileNet v2, 80 COCO classes');
-    var t0 = performance.now();
-    var ready = window.cocoSsd ? Promise.resolve() :
-      loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js').then(function () { return loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js'); });
-    ready.then(function () { return window.cocoSsd.load({ base: 'lite_mobilenet_v2' }); }).then(function (m) {
-      model = m; log('SYS', 'detector online in ' + Math.round(performance.now() - t0) + ' ms, backend ' + (window.tf && tf.getBackend ? tf.getBackend() : 'webgl'));
-      detLoop(); loadFaceModel();
-    }).catch(function () { log('ERR', 'detector could not load, showing feed without tracking'); });
+    log('SYS', 'loading detector: YOLOX-tiny, 80 COCO classes');
+    var t0 = performance.now(), eps = ('gpu' in navigator) ? ['webgpu', 'wasm'] : ['wasm'];
+    var lib = window.ort ? Promise.resolve() : loadScript(ORT + 'ort.min.js');
+    Promise.all([lib, fetchModel('models/yolox_tiny.onnx')]).then(function (r) {
+      ort.env.wasm.wasmPaths = ORT;
+      ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
+      var buf = r[1];
+      return ort.InferenceSession.create(buf, { executionProviders: eps, graphOptimizationLevel: 'all' })
+        .then(function (s) { backend = eps[0]; return s; })
+        .catch(function () { return ort.InferenceSession.create(buf, { executionProviders: ['wasm'] }).then(function (s) { backend = 'wasm'; return s; }); });
+    }).then(function (s) {
+      model = s; dlPct = -1;
+      log('SYS', 'detector online in ' + Math.round(performance.now() - t0) + ' ms, backend ' + backend);
+      detLoop();
+      return fetchModel('models/face.onnx').then(function (b) { return ort.InferenceSession.create(b, { executionProviders: ['wasm'] }); })
+        .then(function (f) { faceNet = f; log('SYS', 'face model online, faces will be blurred'); })
+        .catch(function () { log('ERR', 'face model could not load'); });
+    }).catch(function () { dlPct = -1; log('ERR', 'detector could not load, showing feed without tracking'); });
   }
 
   /* ---------- drawing helpers ---------- */
@@ -616,55 +729,37 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     hx.strokeStyle = 'rgba(' + LOCK + ',.35)'; hx.setLineDash([3, 4]); hx.beginPath(); hx.moveTo(b[2] + 4, b[1]); hx.lineTo(ix, iy + ih / 2); hx.stroke(); hx.setLineDash([]);
   }
 
-  /* scramble each face: blocks that swap places and shift colour, redrawn about 12 times a second */
-  function prng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-  function glitchFaces(dt) {
-    var a = Math.min(1, dt * 10);
-    faces = faces.filter(function (f) { return T - f.seen < .6; });
-    faces.forEach(function (f) { for (var i = 0; i < 4; i++) f.vb[i] += (f.tb[i] - f.vb[i]) * a; f.real = true; });
-    /* every tracked person also gets their head area scrambled, so small or turned faces the face model misses stay hidden */
-    var heads = tracks.filter(function (t) { return t.cls === 'person' && t.hits >= 2 && t.b && (t.b[3] - t.b[1]) > 26; }).map(function (t) {
-      var v = t.vb, hw = v[2] * .5, hh = Math.min(v[3] * .17, hw * 1.3);
-      return { vb: [v[0] + (v[2] - hw) / 2, v[1] + v[3] * .005, hw, hh] };
-    }).filter(function (h) { return !faces.some(function (f) { return iou(f.vb, h.vb) > .05; }); });
-    shown = faces.concat(heads);
-    if (!shown.length) return;
-    var seed = Math.floor(T * 12);
-    shown.forEach(function (f, fi) {
-      var b = toScreen(f.vb), pw = (b[2] - b[0]) * (f.real ? .22 : .08);
-      var x0 = Math.max(0, Math.floor((b[0] - pw) * S)), y0 = Math.max(0, Math.floor((b[1] - pw) * S));
-      var x1 = Math.min(sc.width, Math.ceil((b[2] + pw) * S)), y1 = Math.min(sc.height, Math.ceil((b[3] + pw * .5) * S));
+  /* faces: frosted glass over each face found, following the person between face checks */
+  var gl = document.createElement('canvas'), glx = gl.getContext('2d'), shown = [];
+  function blurFaces() {
+    shown = [];
+    tracks.forEach(function (t) {
+      if (!t.face || T - t.face.seen > 1.2 || !t.b || t.hits < 2) return;
+      var v = t.vb, r = t.face.rel;
+      var fb = toScreen([v[0] + r[0] * v[2], v[1] + r[1] * v[3], r[2] * v[2], r[3] * v[3]]);
+      shown.push(fb);
+    });
+    shown.forEach(function (b) {
+      var pw = (b[2] - b[0]) * .2, ph = (b[3] - b[1]) * .15;
+      var x0 = Math.max(0, Math.floor((b[0] - pw) * S)), y0 = Math.max(0, Math.floor((b[1] - ph) * S));
+      var x1 = Math.min(sc.width, Math.ceil((b[2] + pw) * S)), y1 = Math.min(sc.height, Math.ceil((b[3] + ph) * S));
       var w = x1 - x0, h = y1 - y0;
       if (w < 3 || h < 3) return;
-      var d = sx.getImageData(x0, y0, w, h).data, r = prng(seed * 977 + fi * 131);
-      var n = 4 + (seed % 3), bs = Math.max(2, Math.ceil(w / n)), cols = Math.ceil(w / bs), rows = Math.ceil(h / bs);
-      for (var ry = 0; ry < rows; ry++) for (var cx2 = 0; cx2 < cols; cx2++) {
-        var sx2 = cx2, sy2 = ry;
-        if (r() < .5) { sx2 = Math.floor(r() * cols); sy2 = Math.floor(r() * rows); }      /* swap with another block */
-        var px = Math.min(w - 1, sx2 * bs + (bs >> 1)), py = Math.min(h - 1, sy2 * bs + (bs >> 1)), k = (py * w + px) * 4;
-        var R = d[k], G = d[k + 1], B = d[k + 2], m = (ry + cx2 + seed) % 4;
-        if (m === 0) { R = R * .4; G = Math.min(255, G * .9 + 70); B = Math.min(255, B * .9 + 110); }   /* cyan shift */
-        else if (m === 2 && r() < .35) { R = G = B = 235; }                                          /* white flash */
-        sx.fillStyle = 'rgb(' + (R | 0) + ',' + (G | 0) + ',' + (B | 0) + ')';
-        sx.fillRect(x0 + cx2 * bs, y0 + ry * bs, Math.min(bs, w - cx2 * bs), Math.min(bs, h - ry * bs));
-      }
-      /* a couple of tearing slices */
-      for (var t2 = 0; t2 < 2; t2++) {
-        var yy = y0 + Math.floor(r() * h), sh = Math.max(1, Math.floor(h * .12)), off = Math.round((r() - .5) * w * .5);
-        sx.drawImage(sc, x0, yy, w, sh, x0 + off, yy, w, sh);
-      }
-      f.b = b;
-    });
-  }
-  var shown = [];
-  function drawFaceTags() {
-    shown.forEach(function (f) {
-      if (!f.b) return;
-      var b = f.b, h = b[3] - b[1];
-      if (h < 12) return;
-      hx.strokeStyle = 'rgba(120,220,255,.85)'; hx.lineWidth = 1; hx.setLineDash([2, 2]);
-      hx.strokeRect(b[0] - 3, b[1] - 3, b[2] - b[0] + 6, b[3] - b[1] + 6); hx.setLineDash([]);
-      if (h > 22 && f.real) { hx.font = '600 9px "JetBrains Mono", ui-monospace, monospace'; hx.fillStyle = 'rgba(120,220,255,.95)'; hx.fillText('FACE // OBSCURED', b[0] - 3, b[3] + 14); }
+      /* blur by shrinking hard and scaling back up smoothly */
+      var gw = Math.max(2, Math.round(w / 6)), gh = Math.max(2, Math.round(h / 6));
+      gl.width = gw; gl.height = gh; glx.imageSmoothingEnabled = true; glx.imageSmoothingQuality = 'high';
+      glx.drawImage(sc, x0, y0, w, h, 0, 0, gw, gh);
+      var rad = Math.min(w, h) * .28;
+      sx.save();
+      sx.beginPath(); if (sx.roundRect) sx.roundRect(x0, y0, w, h, rad); else sx.rect(x0, y0, w, h); sx.clip();
+      sx.imageSmoothingEnabled = true; sx.imageSmoothingQuality = 'high';
+      sx.drawImage(gl, 0, 0, gw, gh, x0, y0, w, h);
+      sx.fillStyle = 'rgba(230,236,242,.16)'; sx.fillRect(x0, y0, w, h);                     /* frosted haze */
+      var g = sx.createLinearGradient(0, y0, 0, y0 + h); g.addColorStop(0, 'rgba(255,255,255,.22)'); g.addColorStop(.45, 'rgba(255,255,255,0)');
+      sx.fillStyle = g; sx.fillRect(x0, y0, w, h);                                              /* glass highlight */
+      sx.restore();
+      sx.save(); sx.strokeStyle = 'rgba(255,255,255,.45)'; sx.lineWidth = .75;
+      sx.beginPath(); if (sx.roundRect) sx.roundRect(x0 + .5, y0 + .5, w - 1, h - 1, rad); else sx.rect(x0 + .5, y0 + .5, w - 1, h - 1); sx.stroke(); sx.restore();
     });
   }
 
@@ -720,7 +815,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   function drawHud(dt) {
     var a = Math.min(1, dt * 12);
     tracks.forEach(function (t) {
-      for (var i = 0; i < 4; i++) t.vb[i] += (t.tb[i] - t.vb[i]) * a;
+      var ahead = paused ? 0 : Math.min(1.2, T - (t.tCap || T)), tg = [t.tb[0] + (t.vx || 0) * ahead, t.tb[1] + (t.vy || 0) * ahead, t.tb[2], t.tb[3]];
+      for (var i = 0; i < 4; i++) t.vb[i] += (tg[i] - t.vb[i]) * a;
       t.b = toScreen(t.vb);
       t.tt = (t.tt || 0) + dt;
       if (t.tt > .2) { t.tt = 0; t.trail.push([t.vb[0] + t.vb[2] / 2, t.vb[1] + t.vb[3]]); if (t.trail.length > 18) t.trail.shift(); }
@@ -772,7 +868,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       }
       drawInset(lock, k);
     }
-    if (!model) { hx.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; tag(W / 2 - 90, H / 2, 'INITIALIZING DETECTOR...', 'rgba(0,0,0,.7)', '#fff'); }
+    if (!model) { hx.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; tag(W / 2 - 110, H / 2, dlPct >= 0 ? 'DOWNLOADING DETECTOR ' + dlPct + '%' : 'INITIALIZING DETECTOR...', 'rgba(0,0,0,.7)', '#fff'); }
     drawAxes();
     if (mouse.in && !touch) drawCursor(hover);
     if (hover && mouse.down) { lock = hover; lockSince = T; manual = true; log('LOCK', 'manual lock on ' + label(lock) + ' (' + lock.cls + ')'); }
@@ -808,7 +904,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var vis;
     if (sw) vis = drawSwitch(dt);
     else if (!video) vis = drawNoSignal();
-    else { drawVideo(); glitchFaces(dt); vis = drawHud(dt); drawFaceTags(); maybeSwitch(); }
+    else { drawVideo(); blurFaces(); vis = drawHud(dt); maybeSwitch(); }
     if (Math.floor(T / 6) !== Math.floor((T - dt) / 6) && video) log('SYS', 'frame ' + Math.round(T * 30) + '  objects ' + vis.length + '  ' + Math.round(fps) + ' fps' + (model ? '  inference ' + Math.round(infer) + ' ms' : ''));
     txtT += dt; if (txtT > .25) { txtT = 0; updateText(vis); }
   }
@@ -855,7 +951,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   /* ---------- start ---------- */
   resize();
   setPaused(paused);
-  log('SYS', 'LDB-Track v0.4 started, ' + FEEDS.length + ' feeds configured');
+  log('SYS', 'LDB-Track v0.5 started, ' + FEEDS.length + ' feeds configured');
   make(0);
   requestAnimationFrame(function (t) { last = t; loop(t); });
 
@@ -868,8 +964,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       '<span class="acc">LDB-LAB OS 0.4.0</span>  tty1',
       '',
       '[ <span class="ok">OK</span> ] mounting /dev/feeds (' + FEEDS.length + ' cameras)',
-      '[ <span class="ok">OK</span> ] starting tracker LDB-Track v0.4',
-      '[ <span class="ok">OK</span> ] fetching detector SSD-MobileNet v2',
+      '[ <span class="ok">OK</span> ] starting tracker LDB-Track v0.5',
+      '[ <span class="ok">OK</span> ] fetching detector YOLOX-tiny',
       '[ <span class="ok">OK</span> ] spatial grid online',
       '',
       '&gt; establishing feed ' + FEEDS[0].cam + ' ...',
@@ -926,7 +1022,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       var f = (a[0] || '').toLowerCase();
       if (f === 'about.txt') return 'I study finance at Bryant University and minor in Applied AI.\nOn my main site I show the finance tools I build. Here I show the AI side:\nmachine learning, deep learning, and small games and tools. Everything runs in your browser.';
       if (f === 'contact.txt') return 'site     <a href="/">ldiazbusquets.github.io</a>\ngithub   <a href="https://github.com/ldiazbusquets">github.com/ldiazbusquets</a>\n<span class="dim">Email and LinkedIn are on the contact section of the main site.</span>';
-      if (f === 'readme.md') return '# The Lab\nExperiments in AI. The feeds at the top are real stock footage; the detector that finds,\nlabels and tracks what is in them (SSD-MobileNet v2, 80 object classes) runs in your browser.\nA second model finds faces and scrambles them, so nobody in the footage can be identified.';
+      if (f === 'readme.md') return '# The Lab\nExperiments in AI. The feeds at the top are real stock footage; the detector that finds,\nlabels and tracks what is in them (YOLOX-tiny, 80 object classes) runs in your browser.\nA second model finds faces and blurs them, so nobody in the footage can be identified.\n\nModels: YOLOX-tiny by Megvii (Apache-2.0) and Ultra-Light-Fast face detector by Linzaer (MIT).\nSee models/NOTICE.txt.';
       return '<span class="err">cat: ' + esc(a[0] || '') + ': No such file</span>';
     },
     neofetch: function () {
@@ -938,7 +1034,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '<span style="color:var(--acc)">Shell</span>    ldb-sh',
         '<span style="color:var(--acc)">Kernel</span>   6.10-ldb',
         '<span style="color:var(--acc)">WM</span>       ldb-tile (tiling)',
-        '<span style="color:var(--acc)">Tracker</span>  LDB-Track v0.4',
+        '<span style="color:var(--acc)">Tracker</span>  LDB-Track v0.5',
         '<span style="color:var(--acc)">Modules</span>  ' + MODS.length + ' (in development)',
         '<span style="color:var(--acc)">Browser</span>  ' + browser(),
         '<span style="color:var(--acc)">Screen</span>   ' + screen.width + 'x' + screen.height,
