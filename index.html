@@ -374,7 +374,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 var FEEDS = [
   { src: 'feeds/street.mp4',  cam: 'CAM-07', place: 'Times Square, NYC', tiles: true,
     classes: ['person', 'handbag', 'backpack', 'suitcase', 'umbrella', 'car', 'truck', 'bus', 'bicycle', 'motorcycle', 'traffic light'] },
-  { src: 'feeds/highway.mp4', cam: 'CAM-12', place: 'Highway interchange', tiles: true,
+  { src: 'feeds/highway.mp4', cam: 'CAM-12', place: 'Highway interchange', tiles: 'grid',
     classes: ['car', 'truck', 'bus', 'motorcycle'] },
   { src: 'feeds/airport.mp4', cam: 'CAM-21', place: 'Airport apron', secs: 8,
     classes: ['airplane', 'truck', 'car', 'bus', 'person'] },
@@ -386,7 +386,8 @@ var FEEDS = [
     classes: ['train', 'person', 'bird', 'handbag', 'backpack', 'suitcase', 'bench', 'umbrella'] }
 ];
 var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set its own with secs) */
-/* tiles: true also scans two zoomed halves of the frame, for scenes with many small or distant objects.
+/* tiles: true also scans two zoomed halves of the frame, for scenes with many small or distant objects;
+   tiles: 'grid' scans six zoomed tiles, for very small objects like cars far away.
    classes: what each camera watches for, so one scene's objects are not mistaken for another's (like a real camera's detection zones). */
 
 (function () {
@@ -589,8 +590,20 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     if (src !== video) return;                                   /* stale result from the previous feed */
     tracks.forEach(function (t) { t.m = false; });
     preds.slice().sort(function (a, b) { return b.score - a.score; }).forEach(function (p) {
-      var best = null, bi = .2;
-      tracks.forEach(function (t) { if (!t.m && t.cls === p.class) { var v = iou(t.tb, p.bbox); if (v > bi) { bi = v; best = t; } } });
+      /* match each detection to a track: by overlap with where the track should be now, or failing that by distance,
+         so small fast objects (cars far away) keep their identity between detections */
+      var best = null, bi = .1, pc = [p.bbox[0] + p.bbox[2] / 2, p.bbox[1] + p.bbox[3] / 2];
+      tracks.forEach(function (t) {
+        if (t.m || t.cls !== p.class) return;
+        var dt0 = Math.min(1.5, tCap - t.tCap), pr = [t.tb[0] + (t.vx || 0) * dt0, t.tb[1] + (t.vy || 0) * dt0, t.tb[2], t.tb[3]];
+        var v = iou(pr, p.bbox);
+        if (v <= bi) {
+          var d = Math.hypot(pr[0] + pr[2] / 2 - pc[0], pr[1] + pr[3] / 2 - pc[1]), gate = Math.max(p.bbox[2], p.bbox[3]) * 1.6;
+          var sizeOk = p.bbox[2] < t.tb[2] * 2 && p.bbox[2] > t.tb[2] * .5;
+          if (d < gate && sizeOk) v = .1 + .09 * (1 - d / gate);           /* weaker than any real overlap */
+        }
+        if (v > bi) { bi = v; best = t; }
+      });
       if (best) {
         /* estimate velocity so the box keeps moving with the object between detections */
         var dtc = tCap - best.tCap;
@@ -606,7 +619,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     });
     tracks.forEach(function (t) { if (!t.m) t.miss++; });
     tracks = tracks.filter(function (t) {
-      if (t.miss > 4) { if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
+      if (t.miss > (t.tb[3] < 40 ? 7 : 4)) {                        /* small objects get a little longer before they are dropped */ if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
       return true;
     });
   }
@@ -628,7 +641,13 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     detBusy = true; cycle++;
     var src = video, t0 = performance.now(), W0 = src.videoWidth, H0 = src.videoHeight, all = [], tCap = T;
     var regions = [[0, 0, W0, H0]];
-    if (FEEDS[cur].tiles && !touch && regionMs < 160) regions.push([0, 0, W0 * .58, H0], [W0 * .42, 0, W0 * .58, H0]);   /* zoomed halves catch small, distant objects */
+    var tl = FEEDS[cur].tiles;
+    if (tl && !touch) {
+      if (tl === 'grid' && regionMs < 70) {                         /* 3 x 2 grid of zoomed tiles for very small objects */
+        var tw = W0 * .4, th = H0 * .55;
+        [0, H0 - th].forEach(function (y) { [0, (W0 - tw) / 2, W0 - tw].forEach(function (x) { regions.push([x, y, tw, th]); }); });
+      } else if (regionMs < 160) regions.push([0, 0, W0 * .58, H0], [W0 * .42, 0, W0 * .58, H0]);   /* zoomed halves */
+    }
     var chain = Promise.resolve();
     regions.forEach(function (r) { chain = chain.then(function () { return runRegion(src, r[0], r[1], r[2], r[3]).then(function (d) { all = all.concat(d); }); }); });
     chain.then(function () {
