@@ -185,7 +185,14 @@
   .card .foot b { color: #9BE09B; font-weight: 700; } .card .foot b::before { content: "\25CF  "; }
   .card .foot b + span { color: var(--acc); }
   .card .foot i::before { content: "\25CF  "; }
-  .card[hidden] { display: none; }
+  .card[hidden], .track[hidden] { display: none; }
+  .track + .track { margin-top: 44px; }
+  .trh { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 18px; padding-bottom: 12px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .trh .tn { font: 500 1.15rem "Urbanist", sans-serif; color: var(--ink); }
+  .trh .tn em { font: 700 .66rem var(--mono); font-style: normal; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-right: 12px; }
+  .trh .tp { display: flex; align-items: center; gap: 12px; font: 500 .66rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .trh .tprog { display: block; width: 120px; height: 4px; background: rgba(255,255,255,.08); }
+  .trh .tprog i { display: block; height: 100%; background: var(--acc); }
 
   footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--dim); font-size: .85rem; }
   footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
@@ -267,8 +274,8 @@
 </section>
 
 <div class="ticker" aria-hidden="true"><div class="tk">
-  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 05</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
-  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 05</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
+  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 14</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
+  <span>LDB-LAB</span><i>///</i><span>Live feeds</span><i>///</i><span>80 object classes</span><i>///</i><span>Modules 14</span><i>///</i><span>Build 0.4.0</span><i>///</i><span>Runs in your browser</span><i>///</i><em class="bc"></em><i>///</i>
 </div></div>
 
 <section class="wrap termwrap" id="shell" aria-label="Terminal">
@@ -286,53 +293,143 @@
 
 <main class="projects" id="mods">
   <section class="wrap" aria-label="Projects">
-    <div class="seclab"><span class="idx">03</span><span class="nm">Modules</span><span class="rule"></span><span class="code">AI infrastructure track</span></div>
+    <div class="seclab"><span class="idx">03</span><span class="nm">Modules</span><span class="rule"></span><span class="code">Course &middot; 5 tracks &middot; <span class="cnt"></span></span></div>
     <div class="sec-head">
-      <h2>Modules <span>in the lab.</span></h2>
+      <h2>The AI course, <span>from first principles to infrastructure.</span></h2>
       <div class="filters" role="group" aria-label="Filter projects">
         <button type="button" data-f="all" aria-pressed="true">All</button>
-        <button type="button" data-f="infra" aria-pressed="false">AI infrastructure</button>
+        <button type="button" data-f="t1" aria-pressed="false">ML foundations</button>
+        <button type="button" data-f="t2" aria-pressed="false">Deep learning</button>
+        <button type="button" data-f="t3" aria-pressed="false">Generative AI</button>
+        <button type="button" data-f="t4" aria-pressed="false">AI infrastructure</button>
+        <button type="button" data-f="t5" aria-pressed="false">Evaluation</button>
         <button type="button" data-f="live" aria-pressed="false">Live now</button>
       </div>
     </div>
 
-    <div class="grid">
-      <!-- AI infrastructure track. When a module goes live: change its <div class="card"> to <a class="card" href="page.html">,
-           add "live" to data-cat, and change the status to <b>Live</b>. -->
-      <a class="card corners" data-cat="infra live" href="llm.html">
-        <div class="top"><span>AI infrastructure</span><span>MOD-01</span></div>
+    <!-- Course tracks. When a module goes live: change its <div class="card"> to <a class="card" href="page.html">,
+         add "live" to data-cat, and change the status to <b>Live</b>. Track progress counts update by themselves. -->
+    <div class="track" data-track="t1">
+      <div class="trh"><span class="tn"><em>Track 1</em>ML foundations</span><span class="tp"><span class="tc"></span><span class="tprog"><i></i></span></span></div>
+      <div class="grid">
+      <a class="card corners" data-cat="t1 live" href="learn.html">
+        <div class="top"><span>ML foundations</span><span>MOD-01</span></div>
         <span class="haz"></span><span class="idx">01</span>
+        <h3>How models learn</h3>
+        <p>Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</p>
+        <div class="foot"><b>Live</b><span>Open &rarr;</span></div>
+      </a>
+      <div class="card corners" data-cat="t1">
+        <div class="top"><span>ML foundations</span><span>MOD-02</span></div>
+        <span class="haz"></span><span class="idx">02</span>
+        <h3>Classic machine learning</h3>
+        <p>Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      </div>
+    </div>
+    <div class="track" data-track="t2">
+      <div class="trh"><span class="tn"><em>Track 2</em>Deep learning</span><span class="tp"><span class="tc"></span><span class="tprog"><i></i></span></span></div>
+      <div class="grid">
+      <div class="card corners" data-cat="t2">
+        <div class="top"><span>Deep learning</span><span>MOD-03</span></div>
+        <span class="haz"></span><span class="idx">03</span>
+        <h3>Neural networks</h3>
+        <p>Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      <div class="card corners" data-cat="t2">
+        <div class="top"><span>Deep learning</span><span>MOD-04</span></div>
+        <span class="haz"></span><span class="idx">04</span>
+        <h3>Seeing with networks</h3>
+        <p>How image models find edges, then parts, then objects, the same kind of detector running in the feed above.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      <div class="card corners" data-cat="t2">
+        <div class="top"><span>Deep learning</span><span>MOD-05</span></div>
+        <span class="haz"></span><span class="idx">05</span>
+        <h3>Embeddings</h3>
+        <p>How words, images and documents become lists of numbers where similar things sit close together.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      </div>
+    </div>
+    <div class="track" data-track="t3">
+      <div class="trh"><span class="tn"><em>Track 3</em>Generative AI</span><span class="tp"><span class="tc"></span><span class="tprog"><i></i></span></span></div>
+      <div class="grid">
+      <a class="card corners" data-cat="t3 live" href="llm.html">
+        <div class="top"><span>Generative AI</span><span>MOD-06</span></div>
+        <span class="haz"></span><span class="idx">06</span>
         <h3>How an LLM works</h3>
         <p>Tokens, embeddings, attention and next-token prediction, running in a real mini transformer you can type into.</p>
         <div class="foot"><b>Live</b><span>Open &rarr;</span></div>
       </a>
-      <div class="card corners" data-cat="infra">
-        <div class="top"><span>AI infrastructure</span><span>MOD-02</span></div>
-        <span class="haz"></span><span class="idx">02</span>
-        <h3>How models learn</h3>
-        <p>A tiny neural network training live on the page: watch the error fall as it adjusts its weights.</p>
+      <div class="card corners" data-cat="t3">
+        <div class="top"><span>Generative AI</span><span>MOD-07</span></div>
+        <span class="haz"></span><span class="idx">07</span>
+        <h3>Diffusion</h3>
+        <p>How image generators start from pure noise and clean it up, one step at a time, into a picture.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
       </div>
-      <div class="card corners" data-cat="infra">
-        <div class="top"><span>AI infrastructure</span><span>MOD-03</span></div>
-        <span class="haz"></span><span class="idx">03</span>
+      <div class="card corners" data-cat="t3">
+        <div class="top"><span>Generative AI</span><span>MOD-08</span></div>
+        <span class="haz"></span><span class="idx">08</span>
+        <h3>From predictor to assistant</h3>
+        <p>Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      </div>
+    </div>
+    <div class="track" data-track="t4">
+      <div class="trh"><span class="tn"><em>Track 4</em>AI infrastructure</span><span class="tp"><span class="tc"></span><span class="tprog"><i></i></span></span></div>
+      <div class="grid">
+      <div class="card corners" data-cat="t4">
+        <div class="top"><span>AI infrastructure</span><span>MOD-09</span></div>
+        <span class="haz"></span><span class="idx">09</span>
+        <h3>Why AI runs on GPUs</h3>
+        <p>Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      <div class="card corners" data-cat="t4">
+        <div class="top"><span>AI infrastructure</span><span>MOD-10</span></div>
+        <span class="haz"></span><span class="idx">10</span>
+        <h3>Training at scale</h3>
+        <p>Splitting a model across thousands of chips, and what a frontier training run costs.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      <div class="card corners" data-cat="t4">
+        <div class="top"><span>AI infrastructure</span><span>MOD-11</span></div>
+        <span class="haz"></span><span class="idx">11</span>
         <h3>How models are served</h3>
-        <p>Why AI needs GPUs, how much memory a model takes, and what each answer costs to run.</p>
+        <p>Memory per model, batching, latency and what each answer costs to run.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
       </div>
-      <div class="card corners" data-cat="infra">
-        <div class="top"><span>AI infrastructure</span><span>MOD-04</span></div>
-        <span class="haz"></span><span class="idx">04</span>
+      <div class="card corners" data-cat="t4">
+        <div class="top"><span>AI infrastructure</span><span>MOD-12</span></div>
+        <span class="haz"></span><span class="idx">12</span>
         <h3>How AI looks things up</h3>
-        <p>Embeddings and retrieval (RAG), the technique behind chatting with your own documents.</p>
+        <p>Retrieval (RAG), the technique behind chatting with your own documents.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
       </div>
-      <div class="card corners" data-cat="infra">
-        <div class="top"><span>AI infrastructure</span><span>MOD-05</span></div>
-        <span class="haz"></span><span class="idx">05</span>
+      <div class="card corners" data-cat="t4">
+        <div class="top"><span>AI infrastructure</span><span>MOD-13</span></div>
+        <span class="haz"></span><span class="idx">13</span>
         <h3>How agents work</h3>
         <p>Models that use tools and take steps, tied to my LADON and HERETIC research agents.</p>
         <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
+      </div>
+    </div>
+    <div class="track" data-track="t5">
+      <div class="trh"><span class="tn"><em>Track 5</em>Evaluation &amp; trust</span><span class="tp"><span class="tc"></span><span class="tprog"><i></i></span></span></div>
+      <div class="grid">
+      <div class="card corners" data-cat="t5">
+        <div class="top"><span>Evaluation &amp; trust</span><span>MOD-14</span></div>
+        <span class="haz"></span><span class="idx">14</span>
+        <h3>Evaluation and failure</h3>
+        <p>Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</p>
+        <div class="foot"><i>In development</i><span class="bc"></span></div>
+      </div>
       </div>
     </div>
   </section>
@@ -366,8 +463,18 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     b.addEventListener('click', function () {
       btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
       cards.forEach(function (c) { c.hidden = !(b.dataset.f === 'all' || c.dataset.cat.split(' ').indexOf(b.dataset.f) >= 0); });
+      tracks.forEach(function (t) { t.hidden = !t.querySelector('.card:not([hidden])'); });
     });
   });
+  /* progress per track and overall, counted from the cards */
+  var tracks = document.querySelectorAll('.track'), all = 0, live = 0;
+  tracks.forEach(function (t) {
+    var c = t.querySelectorAll('.card'), l = t.querySelectorAll('.card[data-cat~="live"]');
+    all += c.length; live += l.length;
+    t.querySelector('.tc').textContent = l.length + ' / ' + c.length + ' live';
+    t.querySelector(".tprog i").style.width = (100 * l.length / c.length) + '%';
+  });
+  var cnt = document.querySelector('.cnt'); if (cnt) cnt.textContent = live + ' / ' + all + ' live';
 })();
 
 /* =====================================================================
@@ -1058,7 +1165,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       return '<span class="acc" style="color:var(--acc)">modules/</span>  about.txt  contact.txt  README.md';
     },
     modules: function () {
-      return MODS.map(function (m) { return '<span class="hi">' + esc(m.id) + '</span>  ' + esc((m.cat + '                ').slice(0, 17)) + esc((m.name + '                ').slice(0, 16)) + '<span class="warn">' + esc(m.status) + '</span>'; }).join('\n') +
+      return MODS.map(function (m) { return '<span class="hi">' + esc(m.id) + '</span>  ' + esc((m.cat + '                    ').slice(0, 20)) + esc((m.name + '                              ').slice(0, 30)) + '<span class="warn">' + esc(m.status) + '</span>'; }).join('\n') +
         '\n<span class="dim">' + MODS.length + ' modules. Scroll down to see them.</span>';
     },
     cat: function (a) {
