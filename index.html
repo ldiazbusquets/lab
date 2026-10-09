@@ -114,7 +114,7 @@
     transform-origin: 50% 50%; }
   .boot::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
   .boot::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.7)); }
-  .boot .bin { position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 520px); gap: clamp(24px, 5vw, 64px); align-items: center; padding: 0 clamp(20px, 5vw, 60px); width: 100%; max-width: 1040px; }
+  .boot .bin { position: relative; z-index: 1; display: grid; grid-template-columns: auto min(520px, 60vw); gap: clamp(24px, 5vw, 64px); align-items: center; justify-content: center; padding: 0 clamp(20px, 5vw, 60px); width: 100%; }
   .feed .boot canvas { position: static; inset: auto; width: clamp(160px, 24vw, 300px); height: clamp(160px, 24vw, 300px); display: block; }
   .boot .wm { font: 800 clamp(2.2rem, 5vw, 3.6rem)/1 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.01em; color: #fff; white-space: nowrap; }
   .boot .wm span { color: var(--acc); font: 500 clamp(.9rem, 1.6vw, 1.2rem) var(--mono); letter-spacing: .14em; margin-left: 12px; vertical-align: middle; }
@@ -131,7 +131,7 @@
   .boot .skip { position: absolute; z-index: 2; right: clamp(16px, 3vw, 32px); bottom: clamp(16px, 3vw, 28px); font: 600 .62rem var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); }
   .boot.off { animation: crt .55s cubic-bezier(.7,0,.3,1) forwards; }
   @keyframes crt { 0% { transform: scale(1, 1); filter: brightness(1); } 45% { transform: scale(1, .004); filter: brightness(3); } 75% { transform: scale(.3, .004); filter: brightness(4); opacity: 1; } 100% { transform: scale(0, 0); opacity: 0; } }
-  @media (max-width: 680px) { .boot .bin { grid-template-columns: 1fr; justify-items: start; } .feed .boot canvas { width: 130px; height: 130px; } .boot pre { min-height: 13.5em; } }
+  @media (max-width: 680px) { .boot .bin { grid-template-columns: minmax(0, 1fr); justify-items: start; } .feed .boot canvas { width: 130px; height: 130px; } .boot pre { min-height: 13.5em; } }
 
   /* interactive terminal */
   .termwrap { padding-top: clamp(72px, 10vw, 120px); }
@@ -806,7 +806,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   var detOnce = false, regionMs = 0;
   function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
   /* download a model with a progress readout */
-  var dlPct = -1, detFailed = false;
+  var dlPct = -1, detFailed = false, bootGate = null, bootRelease = null;
   function fetchModel(url) {
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error(url + ' not found (' + r.status + ')');
@@ -821,7 +821,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     log('SYS', 'loading detector: YOLOX-tiny, 80 COCO classes');
     var t0 = performance.now(), eps = ('gpu' in navigator) ? ['webgpu', 'wasm'] : ['wasm'];
     var lib = window.ort ? Promise.resolve() : loadScript(ORT + 'ort.min.js');
-    Promise.all([lib, fetchModel('models/yolox_tiny.onnx')]).then(function (r) {
+    Promise.all([lib, fetchModel('models/yolox_tiny.onnx')]).then(function (r) { return (bootGate || Promise.resolve()).then(function () { return r; }); }).then(function (r) {   /* heavy set-up waits for the boot screen */
       ort.env.wasm.wasmPaths = ORT;
       ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
       var buf = r[1];
@@ -1140,12 +1140,18 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var seen = false; try { seen = sessionStorage.getItem('ldb-boot') === '1'; sessionStorage.setItem('ldb-boot', '1'); } catch (e) {}
     if (seen || reduce) return;
     var el = document.getElementById('boot'), out = document.getElementById('bootTxt'), bar = document.getElementById('bootBar'), cv = document.getElementById('bootOrb');
+    var alive = true, timer;
+    bootGate = new Promise(function (r) { bootRelease = r; });
+    function close() { if (!alive) return; alive = false; el.classList.add('off'); setTimeout(function () { el.hidden = true; bootRelease(); }, 560); removeEventListener('keydown', skip); }
+    function skip() { try { k = total; render(); } catch (e) {} close(); }
+    el.addEventListener('click', skip); addEventListener('keydown', skip);
+    setTimeout(close, 7000);                                                         /* never let the boot screen hang */
     el.hidden = false; document.getElementById('bootWm').classList.add('glitch');
     /* a sphere of nodes that assembles itself, then turns */
     var dpr = Math.min(devicePixelRatio || 1, 2), sz = cv.clientWidth || 200, cx = cv.getContext('2d'), N = 420, ga = Math.PI * (3 - Math.sqrt(5)), P = [];
     cv.width = sz * dpr; cv.height = sz * dpr;
-    for (var i = 0; i < N; i++) { var y = 1 - i / (N - 1) * 2, r = Math.sqrt(1 - y * y), th = ga * i; P.push({ t: [Math.cos(th) * r, y, Math.sin(th) * r], s: [(Math.random() - .5) * 5, (Math.random() - .5) * 5, (Math.random() - .5) * 3], d: Math.random() * .5 }); }
-    var t0 = performance.now(), rot = 0, lastT = t0, alive = true;
+    for (var i = 0; i < N; i++) { var y = 1 - i / (N - 1) * 2, r = Math.sqrt(1 - y * y), th = ga * i; P.push({ t: [Math.cos(th) * r, y, Math.sin(th) * r], s: [(Math.random() - .5) * 2.6, (Math.random() - .5) * 2.6, (Math.random() - .5) * 2], d: Math.random() * .35 }); }
+    var t0 = performance.now(), rot = 0, lastT = t0;
     function orb(now) {
       if (!alive) return; var dt = Math.min(.05, (now - lastT) / 1000); lastT = now; rot += .45 * dt;
       var age = (now - t0) / 1000, R = sz * .4, c = sz / 2, cr = Math.cos(rot), sr = Math.sin(rot), tl = .38, ct = Math.cos(tl), st = Math.sin(tl);
@@ -1174,7 +1180,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       ['[ <span class="ok"> OK </span> ] ' + pad('modules', 10) + document.querySelectorAll('.card').length + ' course modules indexed', 1],
       ['', 0],
       ['&gt; opening feed <span class="acc">' + FEEDS[0].cam + '</span> · ' + FEEDS[0].place, 1]
-    ], k = 0, total = L.length, timer;
+    ], k = 0, total = L.length;
     function detLine() {
       if (model) return '[ <span class="ok"> OK </span> ] ' + pad('detector', 10) + 'YOLOX-tiny online';
       if (detFailed) return '[ <span class="wn">WARN</span> ] ' + pad('detector', 10) + 'offline, see the feed log';
@@ -1185,11 +1191,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       if (!alive) return; clearTimeout(timer); k = total; render(); document.getElementById('bootGrant').classList.add('on');
       setTimeout(close, 1000);
     }
-    function close() { if (!alive) return; alive = false; el.classList.add('off'); setTimeout(function () { el.hidden = true; }, 560); removeEventListener('keydown', skip); }
-    function skip() { k = total; render(); close(); }
-    setTimeout(function next() { k++; render(); if (k < total) timer = setTimeout(next, L[k - 1][1] ? 290 : 120); else setTimeout(finish, 350); }, 650);
+    setTimeout(function next() { if (!alive) return; k++; render(); if (k < total) timer = setTimeout(next, L[k - 1][1] ? 290 : 120); else setTimeout(finish, 350); }, 650);
     var live = setInterval(function () { if (!alive) { clearInterval(live); return; } if (k > 6) render(); }, 120);
-    el.addEventListener('click', skip); addEventListener('keydown', skip);
   })();
 })();
 
