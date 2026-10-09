@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retirement Simulator | LDB Lab Self-training</title>
+<meta name="description" content="Monte Carlo retirement planning with a self-training planner: it tests thousands of simulated lifetimes and learns how much stock to hold and when to trim spending.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Retirement Simulator | LDB Lab Self-training">
+<meta property="og:description" content="Monte Carlo retirement planning with a self-training planner: it tests thousands of simulated lifetimes and learns how much stock to hold and when to trim spending.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/montecarlo.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --crim: #2E5E8E; --bone: #EAF2FB; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: #000; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px); background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: #fff; }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #000; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(6,9,12,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: var(--acc); border-color: var(--acc); color: #000; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(6,9,12,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  svg.chart { width: 100%; display: block; }
+  .leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .leg i { display: inline-block; width: 14px; height: 3px; margin-right: 5px; vertical-align: 2px; }
+  .trainbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .status2 { font: 600 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-left: auto; }
+  .status2 b { color: #fff; }
+  .live { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--dim); margin-right: 6px; vertical-align: 0; }
+  .live.on { background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: pulse 1s steps(2) infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .h3 { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 8px; display: flex; justify-content: space-between; gap: 10px; }
+  .h3 span:last-child { color: var(--dim); font-weight: 500; }
+  .fld label { display: flex; justify-content: space-between; font: 700 .6rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 5px; gap: 8px; }
+  .fld label b { color: #fff; }
+  .fld input[type=range] { width: 100%; accent-color: var(--acc); }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .lessons { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: #C9CDD3; max-height: 260px; overflow-y: auto; }
+  .lessons div { border-left: 2px solid var(--lock); padding: 4px 0 4px 10px; }
+  .lessons div.good { border-color: var(--teal); }
+  .lessons b { color: #fff; font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .heat { display: grid; gap: 2px; font: 600 .62rem var(--mono); }
+  .heat span { padding: 6px 4px; text-align: center; color: #000; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .heat .hd { background: transparent; color: var(--soft); }
+  @media (prefers-reduced-motion: reduce) { .live.on { animation: none; } }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/TRAIN</span></a>
+  <div class="right">
+    <a class="btn" href="./#train">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Self-training 04 &middot; Monte Carlo + cross-entropy method</p>
+      <h1>Retirement Simulator</h1>
+    </div>
+    <div class="tools">
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="fields">
+          <div class="fld"><label for="age">Age now <b id="agev">22</b></label><input type="range" id="age" min="18" max="70" step="1" value="22"></div>
+          <div class="fld"><label for="ret">Retire at <b id="retv">65</b></label><input type="range" id="ret" min="40" max="75" step="1" value="65"></div>
+          <div class="fld"><label for="sav">Saved so far <b id="savv">$10,000</b></label><input type="range" id="sav" min="0" max="2000000" step="5000" value="10000"></div>
+          <div class="fld"><label for="con">Saving per year <b id="conv">$12,000</b></label><input type="range" id="con" min="0" max="100000" step="1000" value="12000"></div>
+          <div class="fld"><label for="spend">Spending in retirement, per year <b id="spendv">$60,000</b></label><input type="range" id="spend" min="10000" max="250000" step="5000" value="60000"></div>
+        </div>
+        <p class="note" style="margin-top:-4px">All amounts in today's dollars. Plans run to age 95.</p>
+        <div class="trainbar" style="margin-top:14px">
+          <button type="button" class="act primary" id="train">Train the planner</button>
+          <button type="button" class="act" id="reset">Start over</button>
+          <span class="status2"><span class="live" id="live"></span>Round <b id="it">0</b> &middot; <b id="paths">0</b> lifetimes simulated</span>
+        </div>
+        <div class="h3"><span>Wealth by age, 2,000 possible futures</span><span><span class="seg" id="pol" role="group" aria-label="Plan shown" style="display:inline-flex"><button type="button" data-k="learned" aria-pressed="true">Learned</button><button type="button" data-k="6040">60/40</button><button type="button" data-k="glide">Age-based</button></span></span></div>
+        <svg class="chart" id="fan" height="260" style="height:260px" aria-hidden="true"></svg>
+        <div class="leg" id="fanLeg"></div>
+        <div class="grid2" style="margin-top:6px">
+          <div><div class="h3"><span>Learning curve</span><span>success on new futures</span></div><svg class="chart" id="curve" height="190" style="height:190px" aria-hidden="true"></svg><div class="leg" id="curveLeg"></div></div>
+          <div><div class="h3"><span>Learned stock share</span><span>by age and how funded</span></div><div class="heat" id="heat"></div><p class="note">Funded: savings compared with what the rest of the plan needs.</p></div>
+        </div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Chance the money lasts to 95</span><span>2,000 test futures</span></div>
+        <div class="stat3"><div><span>Learned plan</span><b id="pL">-</b></div><div><span>60/40</span><b id="p6">-</b></div><div><span>Age-based</span><b id="pG">-</b></div></div>
+        <p class="why" id="verdict">Press Train. The planner starts with a random strategy and improves it by testing thousands of futures.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>The learned plan, in words</span><span id="score">-</span></div>
+        <p class="why" id="words" style="margin-top:0">-</p>
+        <div class="stat2"><div><span>Median wealth at 95</span><b id="med">-</b></div><div><span>Average spending cut</span><b id="cut">-</b></div></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Lessons from its mistakes</span><span>round by round</span></div>
+        <div class="lessons" id="lessons"><div class="good">No lessons yet.</div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">Monte Carlo</p><h3>Thousands of possible futures</h3><p>Instead of assuming a steady 7% a year, each future draws a random return for every year: mostly ordinary years, occasional crashes, bonds that wobble less. Running 2,000 lifetimes shows the whole range, from lucky to unlucky, and how often the money runs out.</p></div>
+    <div><p class="k">Self-training</p><h3>Cross-entropy method</h3><p>The planner's strategy is four numbers: how its stock share depends on age, how it depends on being ahead or behind, and how much it trims spending in bad times. Each round it tries 40 versions on the same 400 futures, keeps the best eight, and samples the next round around them.</p></div>
+    <div><p class="k">Fair comparison</p><h3>Judged on new futures</h3><p>Every score shown comes from 2,000 futures the planner never trained on, so it cannot win by memorising lucky paths. It is a simplified model: no taxes, fees, pensions or health costs. Use it to build intuition, not as financial advice.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Self-training</span>
+  <span>Simplified model. Not financial advice.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+/* shared helpers for the self-training pages */
+var $ = function (id) { return document.getElementById(id); };
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gaussR(R) { var u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+function sd(a) { var m = mean(a); return Math.sqrt(mean(a.map(function (x) { return (x - m) * (x - m); }))); }
+function fmtPct(x, d) { return (x >= 0 ? '+' : '') + (x * 100).toFixed(d == null ? 1 : d) + '%'; }
+function money(v, d) { var a = Math.abs(v); if (a < (d ? .005 : .5)) v = 0, a = 0; return (v < 0 ? '-$' : '$') + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(a).toLocaleString() : a.toFixed(d == null ? 0 : d)); }
+/* line chart into an <svg>: series = [{data:[y...] or [[x,y]...], color, width, dash, label}], opts = {log, yfmt, xlabels, bands:[{x0,x1,color}], zero, yMin, yMax} */
+function lineChart(svg, series, opts) {
+  opts = opts || {}; var W = Math.max(240, svg.clientWidth || 600), H = +(svg.getAttribute('height') || svg.clientHeight || 220) || 220, L = 52, R = 10, T = 10, B = 22;
+  var pts = series.map(function (s) { return s.data.map(function (d, i) { return Array.isArray(d) ? d : [i, d]; }); });
+  var xs = [], ys = []; pts.forEach(function (p) { p.forEach(function (q) { if (isFinite(q[1])) { xs.push(q[0]); ys.push(opts.log ? Math.log(Math.max(q[1], 1e-9)) : q[1]); } }); });
+  if (!xs.length) { svg.innerHTML = ''; return; }
+  var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = opts.yMin != null ? opts.yMin : Math.min.apply(null, ys), y1 = opts.yMax != null ? opts.yMax : Math.max.apply(null, ys);
+  if (opts.zero && !opts.log) { y0 = Math.min(y0, 0); y1 = Math.max(y1, 0); }
+  if (y1 - y0 < 1e-9) { y1 += 1; y0 -= 1; } var pad = (y1 - y0) * .06; y0 -= pad; y1 += pad; if (x1 === x0) x1 = x0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - R); }, Y = function (y) { var v = opts.log ? Math.log(Math.max(y, 1e-9)) : y; return T + (y1 - v) / (y1 - y0) * (H - T - B); };
+  var h = '';
+  (opts.bands || []).forEach(function (b) { h += '<rect x="' + X(b.x0).toFixed(1) + '" y="' + T + '" width="' + Math.max(0, X(b.x1) - X(b.x0)).toFixed(1) + '" height="' + (H - T - B) + '" fill="' + b.color + '"/>'; });
+  var ticks = []; if (opts.log) { [1e-3, .01, .1, .25, .5, 1, 2, 4, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7].forEach(function (t) { var l = Math.log(t); if (l >= y0 && l <= y1) ticks.push(t); }); }
+  else { var span = y1 - y0, st = Math.pow(10, Math.floor(Math.log10(span / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return span / s <= 6; })[0] || st * 10; for (var t = Math.ceil(y0 / st) * st; t <= y1; t += st) ticks.push(+t.toFixed(10)); }
+  var yf = opts.yfmt || function (v) { return Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : +v.toFixed(3); };
+  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#5E5E64" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
+  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#5E5E64" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
+  series.forEach(function (s, k) { var p = pts[k].filter(function (q) { return isFinite(q[1]); }); if (!p.length) return;
+    if (s.dots) { p.forEach(function (q) { h += '<circle cx="' + X(q[0]).toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="' + (s.r || 2.5) + '" fill="' + s.color + '"/>'; }); return; }
+    var d = p.map(function (q, i) { return (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ' ' + Y(q[1]).toFixed(1); }).join('');
+    h += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="' + (s.width || 1.8) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + ' stroke-linejoin="round"/>'; });
+  (opts.marks || []).forEach(function (m) { h += '<circle cx="' + X(m[0]).toFixed(1) + '" cy="' + Y(m[1]).toFixed(1) + '" r="3.5" fill="' + m[2] + '"/>'; });
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = h;
+}
+function legend(el, items) { el.innerHTML = items.map(function (it) { return '<span><i style="background:' + it[1] + (it[2] ? ';height:0;border-top:2px dashed ' + it[1] + ';background:none' : '') + '"></i>' + it[0] + '</span>'; }).join(''); }
+/* runs work in small slices each frame so the page stays responsive */
+function Loop(stepFn, onFrame) { var on = false, budget = 14, self = { start: function () { if (on) return; on = true; tick(); }, stop: function () { on = false; }, running: function () { return on; }, setBudget: function (ms) { budget = ms; } };
+  function tick() { if (!on) return; var t0 = performance.now(); do { if (stepFn() === false) { on = false; break; } } while (performance.now() - t0 < budget); onFrame && onFrame(); if (on) requestAnimationFrame(tick); } return self; }
+function tog(id, key, fn) { var el = $(id); el.addEventListener('click', function () { var on = el.getAttribute('aria-pressed') !== 'true'; el.setAttribute('aria-pressed', on); fn(on); store(key + id, on ? '1' : '0'); }); var s = store(key + id); if (s === '0' || s === '1') { el.setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+function seg(id, cb) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); cb(b.dataset.k); }); }); }
+function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.k === String(k)); }); }
+
+(function () {
+  var cfg = { age: 22, ret: 65, sav: 10000, con: 12000, spend: 60000 }, END = 95;
+  var R = rng(Date.now() & 0xffffffff), mu, sg, it, sims, curve = [], lessons = [], prev = null, TR, TE, show = 'learned', lastEval = null;
+  /* one future: real stock and bond returns for each year */
+  function future(Rg, n) { var s = new Float64Array(n), b = new Float64Array(n); for (var y = 0; y < n; y++) { var z1 = gaussR(Rg), z2 = gaussR(Rg); s[y] = Rg() < .08 ? -.25 + .1 * z1 : .075 + .16 * z1; b[y] = .015 + .06 * (.1 * z1 + .995 * z2); } return { s: s, b: b }; }
+  function sets() { var n = END - cfg.age + 1, a = rng(1001), c = rng(2002); TR = []; for (var i = 0; i < 400; i++) TR.push(future(a, n)); TE = []; for (i = 0; i < 2000; i++) TE.push(future(c, n)); }
+  function sig(x) { return 1 / (1 + Math.exp(-x)); }
+  function pvNeed(age) { var pv = 0, n = END - Math.max(age, cfg.ret) + 1; for (var k = 0; k < n; k++) pv += cfg.spend / Math.pow(1.03, k + Math.max(0, cfg.ret - age)); return pv; }
+  function pvCon(age) { var pv = 0; for (var k = 0; k < cfg.ret - age; k++) pv += cfg.con / Math.pow(1.03, k); return pv; }
+  var NEED = []; function needs() { NEED = []; for (var a = cfg.age; a <= END; a++) NEED.push([pvNeed(a), pvCon(a)]); }
+  /* policy: th = [a0, a1 (age), a2 (funded), g (spending guardrail)] or a named rule */
+  function share(th, age, F) { if (th === '6040') return .6; if (th === 'glide') return Math.max(.2, Math.min(.9, (110 - age) / 100)); return sig(th[0] + th[1] * (age - 60) / 30 + th[2] * (F - 1)); }
+  function spendOf(th, F) { if (typeof th === 'string') return cfg.spend; return cfg.spend * Math.max(.7, Math.min(1.3, 1 + Math.max(0, th[3]) * (F - 1))); }
+  function life(th, f, rec) { var W = cfg.sav, ok = true, cut = 0, years = 0, path = rec ? [W] : null, runout = null;
+    for (var y = 0, age = cfg.age; age < END; y++, age++) { var nd = NEED[y], F = (W + nd[1]) / Math.max(1, nd[0]), x = share(th, age, F);
+      if (age < cfg.ret) W += cfg.con; else { var sp = spendOf(th, F); W -= sp; cut += Math.max(0, 1 - sp / cfg.spend); years++; }
+      if (W < 0) { ok = false; runout = age; W = 0; if (rec) { while (path.length < END - cfg.age + 1) path.push(0); } break; }
+      W *= 1 + x * f.s[y] + (1 - x) * f.b[y]; if (rec) path.push(W); }
+    return { ok: ok, W: W, cut: years ? cut / years : 0, path: path, runout: runout }; }
+  function score(th, set) { var s = 0, c = 0; set.forEach(function (f) { var o = life(th, f); s += o.ok ? 1 : 0; c += o.cut; }); return { p: s / set.length, cut: c / set.length, v: s / set.length - .5 * c / set.length }; }
+  function reset() { mu = [0, 0, 0, .2]; sg = [1.5, 1.5, 1.5, .5]; it = 0; sims = 0; curve = []; lessons = []; prev = null; sets(); needs(); evaluate(); draw(); }
+  function evaluate() { lastEval = { L: score(mu, TE), S: score('6040', TE), G: score('glide', TE) }; curve.push([it, lastEval.L.p]); }
+  function round_() { var pop = [], k; for (k = 0; k < 40; k++) { var th = mu.map(function (m, i) { return m + sg[i] * gaussR(R); }); pop.push({ th: th, s: score(th, TR).v }); } sims += 40 * TR.length;
+    pop.sort(function (a, b) { return b.s - a.s; }); var el = pop.slice(0, 8), old = mu.slice();
+    for (var i = 0; i < 4; i++) { var m = mean(el.map(function (e) { return e.th[i]; })), d = sd(el.map(function (e) { return e.th[i]; })); mu[i] = .7 * m + .3 * mu[i]; sg[i] = Math.max(.05, .7 * d + .3 * sg[i]); }
+    it++; evaluate(); lesson(old); }
+  function lesson(old) { var L = lastEval.L, msgs = [];
+    if (prev && L.p - prev.p > .01) msgs.push({ good: true, t: 'Round ' + it + ': success on new futures rose to ' + Math.round(L.p * 100) + '%.' });
+    if (prev && prev.p - L.p > .01) msgs.push({ good: false, t: 'Round ' + it + ': a strategy that won on its 400 practice futures did worse on new ones (' + Math.round(L.p * 100) + '%). It was fitting luck; the next rounds average it out.' });
+    if (old[3] < .25 && mu[3] >= .25) msgs.push({ good: true, t: 'Round ' + it + ': it learned that trimming spending after bad years saves many plans that would otherwise run dry.' });
+    if (old[2] > -0.3 && mu[2] <= -0.3) msgs.push({ good: true, t: 'Round ' + it + ': it learned to take less risk once it is well ahead of what the plan needs: no point gambling a won game.' });
+    if (old[1] > -0.3 && mu[1] <= -0.3) msgs.push({ good: true, t: 'Round ' + it + ': it learned to own fewer stocks as it ages, when a crash leaves less time to recover.' });
+    msgs.forEach(function (m) { lessons.unshift(m); }); lessons = lessons.slice(0, 8); prev = L; }
+  function draw() {
+    var th = show === 'learned' ? mu : show, ages = [], P = [5, 25, 50, 75, 95], cols = [], n = END - cfg.age + 1;
+    var paths = TE.slice(0, 2000).map(function (f) { return life(th, f, true).path; });
+    var q = P.map(function () { return []; }); for (var y = 0; y < n; y++) { var v = paths.map(function (p) { return p[y] || 0; }).sort(function (a, b) { return a - b; }); P.forEach(function (pp, k) { q[k].push(v[Math.min(v.length - 1, Math.floor(pp / 100 * v.length))]); }); ages.push(cfg.age + y); }
+    var svg = $('fan'); lineChart(svg, [{ data: q[0].map(function (v, i) { return [ages[i], v]; }), color: 'rgba(91,159,224,.35)', width: 1 }, { data: q[4].map(function (v, i) { return [ages[i], v]; }), color: 'rgba(91,159,224,.35)', width: 1 }, { data: q[1].map(function (v, i) { return [ages[i], v]; }), color: 'rgba(91,159,224,.6)', width: 1 }, { data: q[3].map(function (v, i) { return [ages[i], v]; }), color: 'rgba(91,159,224,.6)', width: 1 }, { data: q[2].map(function (v, i) { return [ages[i], v]; }), color: '#EAF2FB', width: 2.2 }],
+      { yfmt: function (v) { return v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : '$' + Math.round(v / 1000) + 'k'; }, yMin: 0, yMax: Math.max(1, q[4].reduce(function (a, b) { return Math.max(a, b); }, 0)) * 1.02, bands: [{ x0: cfg.ret, x1: END, color: 'rgba(255,255,255,.03)' }], xlabels: [[cfg.age, 'age ' + cfg.age], [cfg.ret, 'retire ' + cfg.ret], [END, '95']] });
+    legend($('fanLeg'), [['median', '#EAF2FB'], ['middle half of futures', 'rgba(91,159,224,.6)'], ['5th to 95th percentile', 'rgba(91,159,224,.35)']]);
+    lineChart($('curve'), [{ data: curve.map(function (c) { return [c[0], lastEval.S.p]; }), color: '#D4AF37', dash: '4 4', width: 1.3 }, { data: curve.map(function (c) { return [c[0], lastEval.G.p]; }), color: '#C266B2', dash: '4 4', width: 1.3 }, { data: curve, color: '#5B9FE0', width: 2.2 }], { yMin: Math.max(0, Math.min.apply(null, curve.map(function (c) { return c[1]; }).concat([lastEval.S.p, lastEval.G.p])) - .05), yMax: 1, yfmt: function (v) { return Math.round(v * 100) + '%'; } });
+    legend($('curveLeg'), [['learned', '#5B9FE0'], ['60/40', '#D4AF37', 1], ['age-based', '#C266B2', 1]]);
+    var h = '<span class="hd"></span>' + [.6, .9, 1.2, 1.6].map(function (F) { return '<span class="hd">' + Math.round(F * 100) + '%</span>'; }).join('');
+    [25, 40, 55, 65, 75, 85].forEach(function (a) { h += '<span class="hd" style="text-align:left">age ' + a + '</span>'; [.6, .9, 1.2, 1.6].forEach(function (F) { var x = share(mu, a, F), c = Math.round(40 + x * 180); h += '<span style="background:rgb(' + (40 + Math.round(x * 51)) + ',' + (60 + Math.round(x * 99)) + ',' + c + ');color:' + (x > .5 ? '#000' : '#ddd') + '">' + Math.round(x * 100) + '%</span>'; }); });
+    $('heat').style.gridTemplateColumns = '1.1fr repeat(4, 1fr)'; $('heat').innerHTML = h;
+    var E = lastEval; $('pL').textContent = Math.round(E.L.p * 100) + '%'; $('p6').textContent = Math.round(E.S.p * 100) + '%'; $('pG').textContent = Math.round(E.G.p * 100) + '%'; $('pL').className = E.L.p >= Math.max(E.S.p, E.G.p) ? 'pos' : '';
+    $('it').textContent = it; $('paths').textContent = sims.toLocaleString();
+    var fin = TE.map(function (f) { return life(mu, f).W; }).sort(function (a, b) { return a - b; }); $('med').textContent = money(fin[1000]); $('cut').textContent = Math.round(E.L.cut * 100) + '%';
+    $('score').textContent = 'score ' + E.L.v.toFixed(3);
+    var young = share(mu, 30, 1), old = share(mu, 80, 1), ahead = share(mu, 70, 1.5), behind = share(mu, 70, .7), g = Math.max(0, mu[3]);
+    $('words').textContent = 'Holds about ' + Math.round(young * 100) + '% in stocks at 30 and ' + Math.round(old * 100) + '% at 80. At 70 it holds ' + Math.round(ahead * 100) + '% when well ahead of plan and ' + Math.round(behind * 100) + '% when behind. ' + (g > .05 ? 'In retirement it trims spending by ' + g.toFixed(1) + '% for every 1% it falls behind plan (and raises it when ahead), never moving more than 30%.' : 'It keeps spending fixed no matter what.');
+    $('verdict').textContent = !it ? 'Press Train. The planner starts with a random strategy and improves it by testing thousands of futures.' : E.L.p >= Math.max(E.S.p, E.G.p) ? 'The learned plan now lasts more often than both standard rules, mostly by adjusting risk and spending to how the plan is going.' : 'Not yet better than the standard rules. A few more rounds usually get there.';
+    if (E.S.p > .995 && E.G.p > .995) $('verdict').textContent = 'Every plan succeeds with these numbers: savings comfortably cover the spending. Raise the spending or retire earlier to see the strategies differ.';
+    if (E.S.p < .05 && E.G.p < .05 && E.L.p < .05) $('verdict').textContent = 'No strategy can fund this: the spending is too high for the savings. Lower the spending, save more or retire later.';
+    $('lessons').innerHTML = lessons.length ? lessons.map(function (l) { return '<div class="' + (l.good ? 'good' : '') + '">' + l.t + '</div>'; }).join('') : '<div class="good">No lessons yet.</div>';
+  }
+  var loop = Loop(function () { round_(); if (it >= 60) return false; }, draw), running = false;
+  function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : (it >= 60 ? 'Train more' : 'Train the planner'); $('live').classList.toggle('on', on); if (on) { if (it >= 60) it = 0; loop.setBudget(10); loop.start(); } else loop.stop(); }
+  $('train').addEventListener('click', function () { setRun(!running); });
+  var _draw = draw; draw = function () { _draw(); if (running && !loop.running()) setRun(false); };
+  $('reset').addEventListener('click', function () { setRun(false); reset(); });
+  seg('pol', function (k) { show = k; draw(); });
+  function bind(id, key, f) { $(id).addEventListener('input', function () { cfg[key] = +this.value; $(id + 'v').textContent = f(+this.value); if (cfg.ret <= cfg.age) { cfg.ret = cfg.age + 1; } setRun(false); reset(); }); }
+  bind('age', 'age', function (v) { return v; }); bind('ret', 'ret', function (v) { return v; }); bind('sav', 'sav', function (v) { return money(v); }); bind('con', 'con', function (v) { return money(v); }); bind('spend', 'spend', function (v) { return money(v); });
+  tog('anTog', 'ldb-mc-', function (on) { document.body.classList.toggle('noan', !on); });
+  addEventListener('resize', function () { if (TE) draw(); });
+  reset();
+  window.__mc = { train: function (n) { for (var i = 0; i < n; i++) round_(); draw(); return { it: it, L: lastEval.L, S: lastEval.S, G: lastEval.G, mu: mu }; } };
+})();
+
+</script>
+</body>
+</html>

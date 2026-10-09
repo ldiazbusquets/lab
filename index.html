@@ -5,10 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lab | Luis Diaz Busquets</title>
 <meta name="description" content="AI experiments, demos and games by Luis Diaz Busquets.">
-<meta name="theme-color" content="#000000">
-<meta property="og:title" content="LDB Lab">
-<meta property="og:description" content="AI experiments, demos and games.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Lab | Luis Diaz Busquets">
+<meta property="og:description" content="AI experiments, demos and games by Luis Diaz Busquets.">
 <meta property="og:url" content="https://ldiazbusquets.github.io/lab/">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
+<meta name="theme-color" content="#000000">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -179,7 +186,7 @@
   /* header buttons: each section lands with its label the same distance below the bar, as on the main site */
   #shell, #mods { scroll-margin-top: calc(104px - clamp(72px, 10vw, 120px)); }
   #feed { scroll-margin-top: 0; }
-  #arcade { scroll-margin-top: 104px; }
+  #arcade, #train { scroll-margin-top: 104px; }
   #mods { min-height: calc(100svh - 80px); }   /* enough room below for the last section to reach its spot on tall screens */
   .sec-head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 18px; margin-bottom: 28px; }
   .sec-head h2 { font: 400 clamp(1.8rem, 3.6vw, 2.6rem)/1.1 "Urbanist", sans-serif; margin: 0; }
@@ -248,6 +255,7 @@
       <a href="#shell" data-ws="shell"><b>2</b>term</a>
       <a href="#mods" data-ws="mods"><b>3</b>mods</a>
       <a href="#arcade" data-ws="arcade"><b>4</b>arcade</a>
+      <a href="#train" data-ws="train"><b>5</b>train</a>
     </div>
   </div>
   <div class="mid" id="barclock" aria-hidden="true"></div>
@@ -322,7 +330,7 @@
     <div class="tin"><label class="ps1" for="tcmd">luis@ldb-lab:~$</label><input id="tcmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
   </div>
   <div class="chips" aria-label="Try a command">
-    <button type="button" data-c="help">help</button><button type="button" data-c="whoami">whoami</button><button type="button" data-c="ls modules">ls modules</button><button type="button" data-c="arcade">arcade</button>
+    <button type="button" data-c="help">help</button><button type="button" data-c="whoami">whoami</button><button type="button" data-c="ls modules">ls modules</button><button type="button" data-c="arcade">arcade</button><button type="button" data-c="train">train</button>
     <button type="button" data-c="neofetch">neofetch</button><button type="button" data-c="thermal">thermal</button><button type="button" data-c="clear">clear</button>
   </div>
 </section>
@@ -470,7 +478,7 @@
     </div>
   </section>
   <section class="wrap arcade" id="arcade" aria-label="Arcade">
-    <div class="seclab"><span class="idx">04</span><span class="nm">Arcade</span><span class="rule"></span><span class="code">5 games &middot; the maths switched on &middot; play chips only</span></div>
+    <div class="seclab"><span class="idx">04</span><span class="nm">Arcade</span><span class="rule"></span><span class="code">10 games and tools &middot; the maths switched on &middot; play money only</span></div>
     <div class="sec-head">
       <h2>The arcade, <span>where the odds are on screen.</span></h2>
     </div>
@@ -510,12 +518,91 @@
         <p>One shared deck, one card per turn: numbers give extra moves, skips cost the turn, +2 and +4 revive lost pieces, and Reverse swaps sides.</p>
         <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
       </a>
+      <a class="card corners" href="market-maker.html">
+        <div class="top"><span>Arcade</span><span>GAME-06</span></div>
+        <span class="haz"></span><span class="idx">06</span>
+        <h3>Market Maker</h3>
+        <p>Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value, break-even and profit-maximising quotes.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+      <a class="card corners" href="kelly.html">
+        <div class="top"><span>Arcade</span><span>GAME-07</span></div>
+        <span class="haz"></span><span class="idx">07</span>
+        <h3>Kelly Challenge</h3>
+        <p>The $25, 60% coin experiment most finance pros fail. Bet sizing, a ghost Kelly bettor and 2,000 simulated players.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+      <a class="card corners" href="minesweeper.html">
+        <div class="top"><span>Arcade</span><span>GAME-08</span></div>
+        <span class="haz"></span><span class="idx">08</span>
+        <h3>Minesweeper</h3>
+        <p>The exact chance of a mine under every square, a solver to watch, and the logic behind each move.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+      <a class="card corners" href="connect4.html">
+        <div class="top"><span>Arcade</span><span>GAME-09</span></div>
+        <span class="haz"></span><span class="idx">09</span>
+        <h3>Connect Four</h3>
+        <p>A solved game: every column labelled win, draw or loss once it can be searched to the end.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+      <a class="card corners" href="options.html">
+        <div class="top"><span>Arcade</span><span>TOOL-01</span></div>
+        <span class="haz"></span><span class="idx">10</span>
+        <h3>Options Builder</h3>
+        <p>Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+    </div>
+  </section>
+  <section class="wrap arcade" id="train" aria-label="Self-training">
+    <div class="seclab"><span class="idx">05</span><span class="nm">Self-training</span><span class="rule"></span><span class="code">5 agents &middot; learning from their own mistakes &middot; simulated data</span></div>
+    <div class="sec-head">
+      <h2>Self-training, <span>AI that learns from its mistakes.</span></h2>
+    </div>
+    <div class="grid">
+      <a class="card corners" href="trader.html">
+        <div class="top"><span>Self-training</span><span>AGENT-01</span></div>
+        <span class="haz"></span><span class="idx">01</span>
+        <h3>Market Trader</h3>
+        <p>A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear moods, judged on 40 years it never saw.</p>
+        <div class="foot"><b>Live</b><span>Train &rarr;</span></div>
+      </a>
+      <a class="card corners" href="daytrader.html">
+        <div class="top"><span>Self-training</span><span>AGENT-02</span></div>
+        <span class="haz"></span><span class="idx">02</span>
+        <h3>Day Trader</h3>
+        <p>A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.</p>
+        <div class="foot"><b>Live</b><span>Train &rarr;</span></div>
+      </a>
+      <a class="card corners" href="betting.html">
+        <div class="top"><span>Self-training</span><span>AGENT-03</span></div>
+        <span class="haz"></span><span class="idx">03</span>
+        <h3>Sports Bettor</h3>
+        <p>Learns the strength of 20 clubs from every result and bets with fractional Kelly only when it beats the bookmaker.</p>
+        <div class="foot"><b>Live</b><span>Train &rarr;</span></div>
+      </a>
+      <a class="card corners" href="montecarlo.html">
+        <div class="top"><span>Self-training</span><span>AGENT-04</span></div>
+        <span class="haz"></span><span class="idx">04</span>
+        <h3>Retirement Simulator</h3>
+        <p>Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</p>
+        <div class="foot"><b>Live</b><span>Train &rarr;</span></div>
+      </a>
+      <a class="card corners" href="landlord.html">
+        <div class="top"><span>Self-training</span><span>AGENT-05</span></div>
+        <span class="haz"></span><span class="idx">05</span>
+        <h3>Landlord</h3>
+        <p>A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.</p>
+        <div class="foot"><b>Live</b><span>Train &rarr;</span></div>
+      </a>
     </div>
   </section>
 </main>
 
 <footer><div class="wrap">
   <span>&copy; <span id="yr"></span> Luis Diaz Busquets</span>
+  <span>No cookies, no tracking. Game settings stay in your browser.</span>
   <span><a href="/">Main site</a> &nbsp;&middot;&nbsp; <a href="https://github.com/ldiazbusquets">GitHub</a></span>
 </div></footer>
 
@@ -529,7 +616,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   tick(); setInterval(tick, 1000);
   function spy() {
     var y = innerHeight * .4, cur = 'feed';
-    ['feed', 'shell', 'mods', 'arcade'].forEach(function (id) { var el = document.getElementById(id); if (el && el.getBoundingClientRect().top < y) cur = id; });
+    ['feed', 'shell', 'mods', 'arcade', 'train'].forEach(function (id) { var el = document.getElementById(id); if (el && el.getBoundingClientRect().top < y) cur = id; });
     ws.forEach(function (a) { a.classList.toggle('on', a.dataset.ws === cur); });
   }
   addEventListener('scroll', spy, { passive: true }); spy();
@@ -1265,6 +1352,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '  whoami          who runs this lab',
         '  ls [modules]    list files, or the lab modules',
         '  arcade          list the arcade games',
+        '  train           list the self-training agents',
         '  cat <file>      read about.txt, contact.txt or README.md',
         '  neofetch        system summary',
         '  thermal         switch the camera feed to thermal',
@@ -1283,6 +1371,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     arcade: function () {
       var G = [].map.call(document.querySelectorAll('#arcade .card'), function (c) { return [c.querySelector('.top span:last-child').textContent, c.querySelector('h3').textContent, c.getAttribute('href')]; });
       return G.map(function (g) { return '<span class="hi">' + esc(g[0]) + '</span>  ' + (g[2] ? '<a href="' + g[2] + '">' + esc(g[1]) + '</a>' : esc(g[1])); }).join('\n') + '\n<span class="dim">' + G.length + ' games. Play chips only.</span>';
+    },
+    train: function () {
+      var G = [].map.call(document.querySelectorAll('#train .card'), function (c) { return [c.querySelector('.top span:last-child').textContent, c.querySelector('h3').textContent, c.getAttribute('href')]; });
+      return G.map(function (g) { return '<span class="hi">' + esc(g[0]) + '</span>  <a href="' + g[2] + '">' + esc(g[1]) + '</a>'; }).join('\n') + '\n<span class="dim">' + G.length + ' agents. Press Train on any page and watch them learn.</span>';
     },
     modules: function () {
       return MODS.map(function (m) { return '<span class="hi">' + esc(m.id) + '</span>  ' + esc((m.cat + '                    ').slice(0, 20)) + esc((m.name + '                              ').slice(0, 30)) + '<span class="warn">' + esc(m.status) + '</span>'; }).join('\n') +

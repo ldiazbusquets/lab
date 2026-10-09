@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Options Builder | LDB Lab Arcade</title>
+<meta name="description" content="Build option strategies leg by leg and see the payoff at expiry and today, Black-Scholes prices, the Greeks, breakevens and the chance of profit.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Options Builder | LDB Lab Arcade">
+<meta property="og:description" content="Build option strategies leg by leg and see the payoff at expiry and today, Black-Scholes prices, the Greeks, breakevens and the chance of profit.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/options.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #C8323A; --crim: #8E1F27; --bone: #EDE3CF; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: radial-gradient(ellipse 60% 50% at 12% 0%, rgba(70,150,160,.16), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(142,31,39,.10), transparent 70%), #030304; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,.25) 4px, transparent 6px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: var(--bone); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #F3EBDC; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(8,8,10,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: linear-gradient(#C8323A, #8E1F27); border-color: #C8323A; color: #F3EBDC; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(8,8,10,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .fld label { display: flex; justify-content: space-between; font: 700 .6rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 5px; }
+  .fld label b { color: var(--bone); }
+  .fld input[type=range] { width: 100%; accent-color: var(--acc); }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+  .presets button { background: transparent; border: 1px solid var(--line); color: #ddd; font: 600 .62rem var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+  .presets button:hover, .presets button.on { border-color: var(--bone); color: #fff; background: rgba(237,227,207,.06); }
+  table.legs { width: 100%; border-collapse: collapse; font: 600 .74rem var(--mono); }
+  table.legs th { text-align: left; font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  table.legs td { padding: 5px 4px; border-bottom: 1px solid rgba(255,255,255,.05); color: #ddd; white-space: nowrap; }
+  table.legs select, table.legs input { background: #0b0b0d; border: 1px solid var(--line); color: #fff; font: 600 .74rem var(--mono); padding: 5px 6px; border-radius: 5px; width: 100%; min-width: 0; }
+  table.legs input { width: 74px; } table.legs input.q { width: 52px; }
+  table.legs .x { background: transparent; border: 1px solid var(--line); color: var(--soft); border-radius: 5px; cursor: pointer; width: 28px; height: 28px; }
+  .tblw { overflow-x: auto; }
+  svg.pay { width: 100%; height: 320px; display: block; margin-top: 14px; touch-action: none; }
+  .leg2 { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .leg2 i { display: inline-block; width: 14px; height: 3px; margin-right: 5px; vertical-align: 2px; }
+  .greeks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .greeks div { border: 1px solid var(--line); padding: 7px; text-align: center; }
+  .greeks span { display: block; font: 600 .54rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .greeks b { font: 700 .9rem var(--mono); color: #fff; }
+  .gl { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/ARCADE</span></a>
+  <div class="right">
+    <a class="btn" href="./#arcade">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Arcade tool &middot; Options desk</p>
+      <h1>Options Builder</h1>
+    </div>
+    <div class="tools">
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="inputs">
+          <div class="fld"><label for="S">Stock price <b id="Sv">$100</b></label><input type="range" id="S" min="20" max="400" step="1" value="100"></div>
+          <div class="fld"><label for="vol">Volatility <b id="volv">25%</b></label><input type="range" id="vol" min="5" max="120" step="1" value="25"></div>
+          <div class="fld"><label for="days">Days to expiry <b id="daysv">30</b></label><input type="range" id="days" min="1" max="365" step="1" value="30"></div>
+          <div class="fld"><label for="rate">Interest rate <b id="ratev">4.0%</b></label><input type="range" id="rate" min="0" max="10" step="0.25" value="4"></div>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="tblw"><table class="legs"><thead><tr><th>Side</th><th>Type</th><th>Qty</th><th>Strike</th><th>Price</th><th>Delta</th><th></th></tr></thead><tbody id="legs"></tbody></table></div>
+        <div class="controls" style="margin-top:10px"><button type="button" class="act" id="addC">+ Call</button><button type="button" class="act" id="addP">+ Put</button><button type="button" class="act" id="addS">+ 100 shares</button><span class="note">One contract = 100 shares. Prices from Black-Scholes.</span></div>
+        <svg class="pay" id="pay" aria-label="Profit and loss chart"></svg>
+        <div class="leg2"><span><i style="background:#EDE3CF"></i>at expiry</span><span><i style="background:#6FCFC3"></i>today</span><span><i style="background:#D4AF37"></i>halfway to expiry</span><span><i style="background:#C8323A"></i>stock price now</span><span>drag across the chart to read values</span></div>
+        <div class="fld" style="margin-top:16px"><label for="view">Your view: expected yearly return of the stock <b id="viewv">same as the market (4%)</b></label><input type="range" id="view" min="-60" max="60" step="1" value="4"></div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>The trade</span><span id="cost">-</span></div>
+        <div class="stat2"><div><span>Max profit</span><b id="maxP">-</b></div><div><span>Max loss</span><b id="maxL">-</b></div><div><span>Breakeven at expiry</span><b id="be">-</b></div><div><span>Chance of profit</span><b id="pop">-</b></div></div>
+        <p class="why" id="tWhy"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Greeks</span><span>whole position</span></div>
+        <div class="greeks"><div><span>Delta</span><b id="gD">-</b></div><div><span>Gamma</span><b id="gG">-</b></div><div><span>Theta/day</span><b id="gT">-</b></div><div><span>Vega</span><b id="gV">-</b></div><div><span>Rho</span><b id="gR">-</b></div></div>
+        <p class="gl" id="gWhy"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Your view vs the market</span><span id="evTag">-</span></div>
+        <div class="stat2"><div><span>Expected P&amp;L, market view</span><b id="evM">-</b></div><div><span>Expected P&amp;L, your view</span><b id="evU">-</b></div></div>
+        <p class="why" id="evWhy">Options are priced so that, under the market's own assumptions, the expected profit is about zero. An edge only appears when your view of the stock differs from the market's.</p>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">Black-Scholes</p><h3>What an option is worth</h3><p>Each price comes from the Black-Scholes formula: the stock price, strike, time left, interest rate and volatility. Volatility matters most. Raise it and every option gets more expensive, because big moves become more likely and an option's loss is capped while its gain is not.</p></div>
+    <div><p class="k">The Greeks</p><h3>How the price moves</h3><p>Delta is the dollar change for a $1 move in the stock. Gamma is how fast delta changes. Theta is the value lost each day to time decay. Vega is the change for one point of volatility. Rho is the change for one point of interest rates.</p></div>
+    <div><p class="k">Expiry vs today</p><h3>Why the lines differ</h3><p>The white line is the payoff on the last day, when only the stock price matters. The teal line is what the position is worth right now, still carrying time value. As expiry approaches, the curve bends toward the white line: that drift is theta.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Arcade</span>
+  <span>Educational tool. Not investment advice.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function N(x) { var t = 1 / (1 + .2316419 * Math.abs(x)), d = .3989423 * Math.exp(-x * x / 2), p = d * t * (.3193815 + t * (-.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return x > 0 ? 1 - p : p; }
+  function n(x) { return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI); }
+  /* Black-Scholes price and Greeks for one option, per share */
+  function bs(type, S, K, T, r, v) {
+    if (T <= 1e-6) { var iv = type === 'C' ? Math.max(0, S - K) : Math.max(0, K - S); return { p: iv, d: type === 'C' ? (S > K ? 1 : 0) : (S < K ? -1 : 0), g: 0, t: 0, v: 0, r: 0 }; }
+    var sq = Math.sqrt(T), d1 = (Math.log(S / K) + (r + v * v / 2) * T) / (v * sq), d2 = d1 - v * sq, df = Math.exp(-r * T);
+    if (type === 'C') return { p: S * N(d1) - K * df * N(d2), d: N(d1), g: n(d1) / (S * v * sq), t: (-S * n(d1) * v / (2 * sq) - r * K * df * N(d2)) / 365, v: S * n(d1) * sq / 100, r: K * T * df * N(d2) / 100 };
+    return { p: K * df * N(-d2) - S * N(-d1), d: N(d1) - 1, g: n(d1) / (S * v * sq), t: (-S * n(d1) * v / (2 * sq) + r * K * df * N(-d2)) / 365, v: S * n(d1) * sq / 100, r: -K * T * df * N(-d2) / 100 };
+  }
+  var S0 = 100, vol = .25, days = 30, rate = .04, view = .04, legs = [], cross = null;
+  function R5(x) { return Math.round(x / 5) * 5; }
+  function R1(x) { return Math.round(x); }
+  var PRE = {
+    'Long call': function (S) { return [['B', 'C', 1, R1(S)]]; }, 'Long put': function (S) { return [['B', 'P', 1, R1(S)]]; },
+    'Covered call': function (S) { return [['B', 'S', 1, 0], ['S', 'C', 1, R1(S * 1.05)]]; }, 'Protective put': function (S) { return [['B', 'S', 1, 0], ['B', 'P', 1, R1(S * .95)]]; },
+    'Bull call spread': function (S) { return [['B', 'C', 1, R1(S)], ['S', 'C', 1, R1(S * 1.08)]]; }, 'Bear put spread': function (S) { return [['B', 'P', 1, R1(S)], ['S', 'P', 1, R1(S * .92)]]; },
+    'Straddle': function (S) { return [['B', 'C', 1, R1(S)], ['B', 'P', 1, R1(S)]]; }, 'Strangle': function (S) { return [['B', 'C', 1, R1(S * 1.06)], ['B', 'P', 1, R1(S * .94)]]; },
+    'Short straddle': function (S) { return [['S', 'C', 1, R1(S)], ['S', 'P', 1, R1(S)]]; },
+    'Iron condor': function (S) { return [['S', 'P', 1, R1(S * .94)], ['B', 'P', 1, R1(S * .88)], ['S', 'C', 1, R1(S * 1.06)], ['B', 'C', 1, R1(S * 1.12)]]; },
+    'Butterfly': function (S) { return [['B', 'C', 1, R1(S * .94)], ['S', 'C', 2, R1(S)], ['B', 'C', 1, R1(S * 1.06)]]; },
+    'Collar': function (S) { return [['B', 'S', 1, 0], ['B', 'P', 1, R1(S * .93)], ['S', 'C', 1, R1(S * 1.07)]]; } };
+  function preset(name) { legs = PRE[name](S0).map(function (l) { return { side: l[0], type: l[1], q: l[2], K: l[3] }; }); document.querySelectorAll('#presets button').forEach(function (b) { b.classList.toggle('on', b.textContent === name); }); store('ldb-opt-preset', name); table(); draw(); }
+  function legVal(l, S, T, sig) { var m = l.side === 'B' ? 1 : -1; if (l.type === 'S') return { p: S, d: 1, g: 0, t: 0, v: 0, r: 0, m: m * l.q * 100 }; var o = bs(l.type, S, l.K, T, rate, sig); o.m = m * l.q * 100; return o; }
+  function cost() { return legs.reduce(function (a, l) { var o = legVal(l, S0, days / 365, vol); return a + o.m * o.p; }, 0); }
+  function value(S, T) { return legs.reduce(function (a, l) { var o = legVal(l, S, Math.max(T, 0), vol); return a + o.m * o.p; }, 0); }
+  function pnl(S, T) { return value(S, T) - cost(); }
+  /* expected P&L and chance of profit at expiry, stock lognormal with drift mu */
+  function dist(mu) { var T = days / 365, s = vol * Math.sqrt(T), m = Math.log(S0) + (mu - vol * vol / 2) * T, ev = 0, pp = 0, tot = 0;
+    for (var i = -400; i <= 400; i++) { var z = i / 80, w = n(z), S = Math.exp(m + s * z), v = pnl(S, 0); ev += w * v; if (v > 0) pp += w; tot += w; }
+    return { ev: ev / tot * Math.exp(-rate * T), pop: pp / tot }; }
+  function table() { $('legs').innerHTML = legs.map(function (l, i) { var o = legVal(l, S0, days / 365, vol);
+    return '<tr><td><select data-i="' + i + '" data-k="side"><option value="B"' + (l.side === 'B' ? ' selected' : '') + '>Buy</option><option value="S"' + (l.side === 'S' ? ' selected' : '') + '>Sell</option></select></td>' +
+      '<td><select data-i="' + i + '" data-k="type"><option value="C"' + (l.type === 'C' ? ' selected' : '') + '>Call</option><option value="P"' + (l.type === 'P' ? ' selected' : '') + '>Put</option><option value="S"' + (l.type === 'S' ? ' selected' : '') + '>Stock</option></select></td>' +
+      '<td><input class="q" type="number" min="1" max="50" step="1" data-i="' + i + '" data-k="q" value="' + l.q + '"></td>' +
+      '<td>' + (l.type === 'S' ? '-' : '<input type="number" step="1" min="1" data-i="' + i + '" data-k="K" value="' + l.K + '">') + '</td>' +
+      '<td>$' + o.p.toFixed(2) + '</td><td>' + (o.d * (l.side === 'B' ? 1 : -1) * l.q * (l.type === 'S' ? 100 : 100)).toFixed(0) + '</td><td><button type="button" class="x" data-del="' + i + '" aria-label="Remove leg">&times;</button></td></tr>'; }).join('');
+  }
+  $('legs').addEventListener('change', function (e) { var t = e.target, i = +t.dataset.i, k = t.dataset.k; if (isNaN(i)) return; var v = t.value; legs[i][k] = k === 'q' ? Math.max(1, Math.min(50, +v | 0)) : k === 'K' ? Math.max(1, +v) : v; if (k === 'type' && v !== 'S' && !legs[i].K) legs[i].K = R1(S0); clearPreset(); table(); draw(); });
+  $('legs').addEventListener('click', function (e) { var d = e.target.closest('[data-del]'); if (d) { legs.splice(+d.dataset.del, 1); clearPreset(); table(); draw(); } });
+  function clearPreset() { document.querySelectorAll('#presets button').forEach(function (b) { b.classList.remove('on'); }); }
+  $('addC').addEventListener('click', function () { legs.push({ side: 'B', type: 'C', q: 1, K: R1(S0) }); clearPreset(); table(); draw(); });
+  $('addP').addEventListener('click', function () { legs.push({ side: 'B', type: 'P', q: 1, K: R1(S0) }); clearPreset(); table(); draw(); });
+  $('addS').addEventListener('click', function () { legs.push({ side: 'B', type: 'S', q: 1, K: 0 }); clearPreset(); table(); draw(); });
+  function money(v, d) { if (Math.abs(v) < (d ? .005 : .5)) v = 0; var a = Math.abs(v); return (v < 0 ? '-$' : '$') + (a >= 1e4 ? Math.round(a).toLocaleString() : a.toFixed(d == null ? 0 : d)); }
+  function draw() {
+    var svg = $('pay'), W = Math.max(300, svg.clientWidth || 700), H = 320, lo = S0 * .55, hi = S0 * 1.45, T = days / 365, pts = 160, ex = [], now = [], mid = [];
+    for (var i = 0; i <= pts; i++) { var S = lo + (hi - lo) * i / pts; ex.push([S, pnl(S, 0)]); now.push([S, pnl(S, T)]); mid.push([S, pnl(S, T / 2)]); }
+    var all = ex.concat(now, mid).map(function (p) { return p[1]; }), mn = Math.min.apply(null, all), mx = Math.max.apply(null, all), pad = (mx - mn) * .1 || 50; mn -= pad; mx += pad;
+    var X = function (S) { return 46 + (S - lo) / (hi - lo) * (W - 56); }, Y = function (v) { return 10 + (mx - v) / (mx - mn) * (H - 34); };
+    var path = function (arr) { return arr.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(''); };
+    var h = '';
+    /* profit and loss zones */
+    h += '<rect x="46" y="' + Y(mx) + '" width="' + (W - 56) + '" height="' + Math.max(0, Y(0) - Y(mx)) + '" fill="rgba(111,207,195,.05)"/><rect x="46" y="' + Y(0) + '" width="' + (W - 56) + '" height="' + Math.max(0, Y(mn) - Y(0)) + '" fill="rgba(200,50,58,.06)"/>';
+    var step = Math.pow(10, Math.floor(Math.log10((mx - mn) / 4))), sv = [1, 2, 5].map(function (m) { return m * step; }).filter(function (s) { return (mx - mn) / s <= 8; })[0] || step * 10;
+    for (var v = Math.ceil(mn / sv) * sv; v <= mx; v += sv) h += '<line x1="46" x2="' + (W - 10) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + (Math.abs(v) < 1e-9 ? 'rgba(255,255,255,.35)' : 'rgba(255,255,255,.06)') + '"/><text x="42" y="' + (Y(v) + 3) + '" fill="#5E5E64" font-size="10" text-anchor="end" font-family="JetBrains Mono">' + money(v) + '</text>';
+    var xs = Math.pow(10, Math.floor(Math.log10((hi - lo) / 5))); xs = [1, 2, 5, 10].map(function (m) { return m * xs; }).filter(function (s) { return (hi - lo) / s <= 8; })[0];
+    for (var x = Math.ceil(lo / xs) * xs; x <= hi; x += xs) h += '<text x="' + X(x) + '" y="' + (H - 6) + '" fill="#5E5E64" font-size="10" text-anchor="middle" font-family="JetBrains Mono">$' + Math.round(x) + '</text>';
+    h += '<line x1="' + X(S0) + '" x2="' + X(S0) + '" y1="6" y2="' + (H - 22) + '" stroke="#C8323A" stroke-dasharray="4 3"/>';
+    h += '<path d="' + path(mid) + '" fill="none" stroke="#D4AF37" stroke-width="1.5"/><path d="' + path(now) + '" fill="none" stroke="#6FCFC3" stroke-width="2"/><path d="' + path(ex) + '" fill="none" stroke="#EDE3CF" stroke-width="2.5"/>';
+    if (cross != null) { var cs = lo + (hi - lo) * cross, ce = pnl(cs, 0), cn = pnl(cs, T); h += '<line x1="' + X(cs) + '" x2="' + X(cs) + '" y1="6" y2="' + (H - 22) + '" stroke="rgba(255,255,255,.5)"/><circle cx="' + X(cs) + '" cy="' + Y(ce) + '" r="4" fill="#EDE3CF"/><circle cx="' + X(cs) + '" cy="' + Y(cn) + '" r="4" fill="#6FCFC3"/>';
+      var tx = Math.min(W - 170, X(cs) + 8); h += '<rect x="' + tx + '" y="10" width="160" height="50" fill="rgba(0,0,0,.8)" stroke="rgba(255,255,255,.15)"/><text x="' + (tx + 8) + '" y="26" fill="#fff" font-size="11" font-family="JetBrains Mono">stock $' + cs.toFixed(2) + '</text><text x="' + (tx + 8) + '" y="40" fill="#EDE3CF" font-size="11" font-family="JetBrains Mono">expiry ' + money(ce) + '</text><text x="' + (tx + 8) + '" y="54" fill="#6FCFC3" font-size="11" font-family="JetBrains Mono">today ' + money(cn) + '</text>'; }
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = h;
+    analysis(ex);
+  }
+  function analysis(ex) {
+    var c = cost(), T = days / 365; $('cost').textContent = legs.length ? (c >= 0 ? 'costs ' + money(c) : 'collects ' + money(-c)) : '-';
+    /* max profit/loss over a wide range, flag unlimited when the slope at the edges is non-zero */
+    var far = [S0 * .001, S0 * 10], vals = ex.map(function (p) { return p[1]; }).concat([pnl(far[0], 0), pnl(far[1], 0)]), upSlope = pnl(S0 * 10, 0) - pnl(S0 * 9, 0), dnSlope = pnl(S0 * .002, 0) - pnl(S0 * .001, 0);
+    var mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+    $('maxP').textContent = upSlope > 1e-6 ? 'Unlimited' : money(mx); $('maxL').textContent = upSlope < -1e-6 ? 'Unlimited' : money(mn); $('maxL').className = 'neg'; $('maxP').className = 'pos';
+    var bes = []; for (var i = 1; i < ex.length; i++) if ((ex[i - 1][1] < 0) !== (ex[i][1] < 0)) { var a = ex[i - 1], b = ex[i]; bes.push(a[0] + (b[0] - a[0]) * (-a[1]) / (b[1] - a[1])); }
+    $('be').textContent = bes.length ? bes.map(function (x) { return '$' + x.toFixed(2); }).join(' / ') : 'none in range';
+    var dm = dist(rate), du = dist(view); $('pop').textContent = Math.round(dm.pop * 100) + '%';
+    $('evM').textContent = money(dm.ev); $('evU').textContent = money(du.ev); $('evU').className = du.ev >= 0 ? 'pos' : 'neg'; $('evTag').textContent = 'stock drift ' + Math.round(view * 100) + '%/yr';
+    $('evWhy').textContent = Math.abs(view - rate) < .005 ? 'With your view equal to the market’s, the expected profit is about zero (stock legs also earn the interest rate): options are priced fairly under those assumptions.' : 'If the stock really drifts ' + Math.round(view * 100) + '% a year, this position expects ' + money(du.ev) + ' and profits ' + Math.round(du.pop * 100) + '% of the time. That edge comes from disagreeing with the market, not from the option itself.';
+    var G = { d: 0, g: 0, t: 0, v: 0, r: 0 }; legs.forEach(function (l) { var o = legVal(l, S0, T, vol); G.d += o.d * o.m; G.g += o.g * o.m; G.t += o.t * o.m; G.v += o.v * o.m; G.r += o.r * o.m; });
+    $('gD').textContent = G.d.toFixed(0); $('gG').textContent = G.g.toFixed(2); $('gT').textContent = money(G.t, 2); $('gV').textContent = money(G.v, 2); $('gR').textContent = money(G.r, 2);
+    $('gWhy').textContent = 'A $1 rise in the stock changes the position by about ' + money(G.d, 0) + '. ' + (G.t > 0 ? 'Time decay earns about ' + money(G.t, 2) + ' a day.' : 'Time decay costs about ' + money(-G.t, 2) + ' a day.') + ' One point of volatility is worth ' + money(G.v, 2) + '.';
+    var shape = $('tWhy'); shape.textContent = legs.length ? (c >= 0 ? 'You pay ' + money(c) + ' up front.' : 'You collect ' + money(-c) + ' up front, which is the most you can make if nothing moves.') + ' Chance of finishing in profit at expiry, under market pricing: ' + Math.round(dm.pop * 100) + '%.' : 'Add a leg or pick a strategy.';
+  }
+  function sync() { S0 = +$('S').value; vol = +$('vol').value / 100; days = +$('days').value; rate = +$('rate').value / 100; view = +$('view').value / 100;
+    $('Sv').textContent = '$' + S0; $('volv').textContent = Math.round(vol * 100) + '%'; $('daysv').textContent = days; $('ratev').textContent = (rate * 100).toFixed(rate * 100 % 1 ? 2 : 1) + '%'; $('viewv').textContent = Math.abs(view - rate) < .005 ? 'same as the market (' + Math.round(rate * 100) + '%)' : Math.round(view * 100) + '% a year'; table(); draw(); }
+  ['S', 'vol', 'days', 'rate', 'view'].forEach(function (id) { $(id).addEventListener('input', sync); });
+  $('presets').innerHTML = Object.keys(PRE).map(function (k) { return '<button type="button">' + k + '</button>'; }).join('');
+  document.querySelectorAll('#presets button').forEach(function (b) { b.addEventListener('click', function () { preset(b.textContent); }); });
+  var pay = $('pay'); function setCross(e) { var r = pay.getBoundingClientRect(), W = r.width, x = (e.clientX - r.left) / W * (Math.max(300, pay.clientWidth)); var f = (x - 46) / (Math.max(300, pay.clientWidth) - 56); cross = Math.max(0, Math.min(1, f)); draw(); }
+  pay.addEventListener('pointermove', setCross); pay.addEventListener('pointerdown', setCross); pay.addEventListener('pointerleave', function () { cross = null; draw(); });
+  addEventListener('resize', draw);
+  $('anTog').addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); document.body.classList.toggle('noan', !on); draw(); });
+  sync(); preset(store('ldb-opt-preset') && PRE[store('ldb-opt-preset')] ? store('ldb-opt-preset') : 'Bull call spread');
+  window.__op = { bs: bs, preset: preset, pnl: pnl, cost: cost, dist: dist };
+})();
+
+</script>
+</body>
+</html>

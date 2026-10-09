@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect Four | LDB Lab Arcade</title>
+<meta name="description" content="Connect Four against a solver that labels every column win, draw or loss once the game can be searched to the end, with a coach that flags moves that throw away a win.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Connect Four | LDB Lab Arcade">
+<meta property="og:description" content="Connect Four against a solver that labels every column win, draw or loss once the game can be searched to the end, with a coach that flags moves that throw away a win.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/connect4.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #C8323A; --crim: #8E1F27; --bone: #EDE3CF; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: radial-gradient(ellipse 60% 50% at 12% 0%, rgba(70,150,160,.16), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(142,31,39,.10), transparent 70%), #030304; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,.25) 4px, transparent 6px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: var(--bone); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #F3EBDC; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(8,8,10,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: linear-gradient(#C8323A, #8E1F27); border-color: #C8323A; color: #F3EBDC; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(8,8,10,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  .c4 { --cw: min(76px, calc((100vw - 2 * var(--g) - 40px) / 7)); display: inline-block; position: relative; }
+  .scores { display: grid; grid-template-columns: repeat(7, var(--cw)); gap: 0; margin-bottom: 8px; }
+  .scores span { text-align: center; font: 700 .62rem var(--mono); letter-spacing: .04em; padding: 4px 0; border-radius: 6px; margin: 0 3px; color: var(--soft); border: 1px solid transparent; }
+  .scores span.w { color: #06231f; background: var(--teal); } .scores span.d { color: #111; background: #CFC6B4; } .scores span.l { color: #F3EBDC; background: var(--crim); } .scores span.h { border-color: var(--line); color: #ddd; }
+  .scores span.best { box-shadow: 0 0 0 2px var(--bone); }
+  .board4 { display: grid; grid-template-columns: repeat(7, var(--cw)); grid-template-rows: repeat(6, var(--cw)); background: linear-gradient(#161619, #0b0b0d); border: 8px solid #0b0b0d; border-radius: 16px; box-shadow: 0 0 0 1px rgba(111,207,195,.35), 0 0 60px rgba(70,150,160,.08), 0 20px 60px rgba(0,0,0,.7); cursor: pointer; overflow: hidden; touch-action: manipulation; }
+  .hole { position: relative; display: flex; align-items: center; justify-content: center; }
+  .hole::before { content: ""; width: 80%; height: 80%; border-radius: 50%; background: #030304; box-shadow: inset 0 3px 6px rgba(0,0,0,.9); }
+  .disc { position: absolute; width: 80%; height: 80%; border-radius: 50%; animation: drop .42s cubic-bezier(.3,.1,.4,1.2) both; }
+  .disc.p1 { background: radial-gradient(circle at 35% 30%, #E25A60, #C8323A 55%, #7d1a20); box-shadow: inset 0 0 0 4px rgba(0,0,0,.2), inset 0 0 0 8px rgba(255,255,255,.08); }
+  .disc.p2 { background: radial-gradient(circle at 35% 30%, #F6E3A6, #C9A043 55%, #7a5a1c); box-shadow: inset 0 0 0 4px rgba(90,60,15,.35), inset 0 0 0 8px rgba(255,255,255,.12); }
+  .disc.winl { box-shadow: 0 0 0 3px var(--teal), 0 0 18px var(--teal); }
+  .disc.last::after { content: ""; position: absolute; inset: 38%; border-radius: 50%; background: rgba(255,255,255,.55); }
+  .col-hover { background: rgba(237,227,207,.05); }
+  @keyframes drop { from { transform: translateY(calc(var(--fall) * -1)); } }
+  .status { font: 800 clamp(.95rem, 2vw, 1.2rem) "Archivo", sans-serif; font-stretch: 125%; letter-spacing: .05em; text-transform: uppercase; color: var(--bone); margin: 14px 0 6px; min-height: 1.4em; }
+  .who2 { display: flex; gap: 16px; align-items: center; font: 600 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); flex-wrap: wrap; }
+  .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 6px; }
+  .grade { font: 800 1.2rem "Archivo", sans-serif; font-stretch: 125%; }
+  .g-good { color: var(--teal); } .g-bad { color: var(--lock); } .g-meh { color: var(--warm); }
+  @media (prefers-reduced-motion: reduce) { .disc { animation: none; } }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/ARCADE</span></a>
+  <div class="right">
+    <a class="btn" href="./#arcade">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Arcade 09 &middot; A solved game</p>
+      <h1>Connect Four</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" id="lvl" role="group" aria-label="Engine level"><button type="button" data-k="0">Easy</button><button type="button" data-k="1">Medium</button><button type="button" data-k="2">Hard</button><button type="button" data-k="3">Perfect</button></div>
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+      <button type="button" class="tog" id="hintTog" aria-pressed="false"><i></i>Hints</button>
+      <button type="button" class="tog" id="trTog" aria-pressed="true"><i></i>Coach</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel" style="text-align:center">
+        <div class="who2" style="justify-content:center"><span><span class="dot" style="background:#C8323A"></span><b id="n1">You</b></span><span><span class="dot" style="background:#D4AF37"></span><b id="n2">Engine</b></span><span id="think" style="color:var(--acc)"></span></div>
+        <div class="status" id="status">Your move</div>
+        <div class="c4">
+          <div class="scores" id="scores"></div>
+          <div class="board4" id="b4" aria-label="Connect Four board"></div>
+        </div>
+        <div class="controls" style="justify-content:center;margin-top:14px">
+          <div class="seg" id="first" role="group" aria-label="Who starts"><button type="button" data-k="you" aria-pressed="true">You start</button><button type="button" data-k="eng" aria-pressed="false">Engine starts</button></div>
+          <button type="button" class="act primary" id="newg">New game</button>
+          <button type="button" class="act" id="undo">Take back</button>
+        </div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Position</span><span id="depth">-</span></div>
+        <div class="big" id="verdict">-</div>
+        <p class="why" id="vWhy"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Your last move</span><span id="lastCol">-</span></div>
+        <div class="grade" id="grade">-</div>
+        <p class="why" id="gWhy">Drop a disc and the coach compares it with perfect play.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Record</span><span id="recLvl">-</span></div>
+        <div class="stat3"><div><span>Won</span><b id="rw">0</b></div><div><span>Drawn</span><b id="rd">0</b></div><div><span>Lost</span><b id="rl">0</b></div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">Solved in 1988</p><h3>The first player wins</h3><p>James D. Allen and Victor Allis independently proved that with perfect play, the player who starts wins, but only by dropping the first disc in the middle column. Starting one column off-centre draws; starting further out loses.</p></div>
+    <div><p class="k">How the solver works</p><h3>Search to the end</h3><p>Once a dozen or so discs are down, the engine searches every line to the end of the game and labels each column win, draw or loss. Earlier, there are too many lines to finish in time, so it shows a scored estimate from a shallower search: open threes, open twos and the centre column.</p></div>
+    <div><p class="k">Reading the scores</p><h3>Bigger means faster</h3><p>Solved columns show W, D or L with a number: a higher number wins sooner (or, for a loss, holds out longer). The coach flags any move that turns a win into a draw or loss, or a draw into a loss.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Arcade</span>
+  <span>Solver written for this page.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+<script id="c4src">
+function C4() {
+  var W = 7, H = 6, g = new Int8Array(W * H), hgt = new Int8Array(W), moves = 0, cur = 1, hist = [];
+  var seed = 0x2545F491; function r32() { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return seed | 0; }
+  var Z1 = [], Z2 = []; for (var i = 0; i < W * H * 3; i++) { Z1.push(r32()); Z2.push(r32()); }
+  var k1 = 0, k2 = 0, ORDER = [3, 2, 4, 1, 5, 0, 6];
+  function at(c, r) { return g[c * H + r]; }
+  function canPlay(c) { return hgt[c] < H; }
+  function play(c) { var r = hgt[c]; g[c * H + r] = cur; k1 ^= Z1[(c * H + r) * 3 + cur]; k2 ^= Z2[(c * H + r) * 3 + cur]; hgt[c]++; moves++; hist.push(c); cur = 3 - cur; }
+  function undo() { var c = hist.pop(); hgt[c]--; var r = hgt[c]; cur = 3 - cur; k1 ^= Z1[(c * H + r) * 3 + cur]; k2 ^= Z2[(c * H + r) * 3 + cur]; g[c * H + r] = 0; moves--; }
+  function line(c, r, p) {
+    var D = [[1, 0], [0, 1], [1, 1], [1, -1]];
+    for (var d = 0; d < 4; d++) { var n = 1, dx = D[d][0], dy = D[d][1], x, y;
+      for (x = c + dx, y = r + dy; x >= 0 && x < W && y >= 0 && y < H && g[x * H + y] === p; x += dx, y += dy) n++;
+      for (x = c - dx, y = r - dy; x >= 0 && x < W && y >= 0 && y < H && g[x * H + y] === p; x -= dx, y -= dy) n++;
+      if (n >= 4) return true; }
+    return false;
+  }
+  function wins(c) { return canPlay(c) && line(c, hgt[c], cur); }
+  function oppWins(c) { return canPlay(c) && line(c, hgt[c], 3 - cur); }
+  function winLine(c, r) { var p = g[c * H + r], D = [[1, 0], [0, 1], [1, 1], [1, -1]];
+    for (var d = 0; d < 4; d++) { var cells = [[c, r]], dx = D[d][0], dy = D[d][1], x, y;
+      for (x = c + dx, y = r + dy; x >= 0 && x < W && y >= 0 && y < H && g[x * H + y] === p; x += dx, y += dy) cells.push([x, y]);
+      for (x = c - dx, y = r - dy; x >= 0 && x < W && y >= 0 && y < H && g[x * H + y] === p; x -= dx, y -= dy) cells.push([x, y]);
+      if (cells.length >= 4) return cells; }
+    return null; }
+  /* static evaluation for unfinished searches: open lines of 2 and 3, centre control */
+  function heur() { var s = 0, p = cur, o = 3 - cur, D = [[1, 0], [0, 1], [1, 1], [1, -1]];
+    for (var c = 0; c < W; c++) for (var r = 0; r < H; r++) for (var d = 0; d < 4; d++) { var ec = c + 3 * D[d][0], er = r + 3 * D[d][1]; if (ec < 0 || ec >= W || er < 0 || er >= H) continue;
+      var a = 0, b = 0; for (var k = 0; k < 4; k++) { var v = g[(c + k * D[d][0]) * H + r + k * D[d][1]]; if (v === p) a++; else if (v === o) b++; }
+      if (a && !b) s += a === 3 ? 12 : a === 2 ? 3 : 1; else if (b && !a) s -= b === 3 ? 12 : b === 2 ? 3 : 1; }
+    for (r = 0; r < H; r++) { var v = g[3 * H + r]; if (v === p) s += 3; else if (v === o) s -= 3; }
+    return s; }
+  var TN = 1 << 20, TM = TN - 1, tK = new Int32Array(TN), tK2 = new Int32Array(TN), tV = new Float64Array(TN), tD = new Int8Array(TN), tF = new Int8Array(TN);
+  var nodes = 0, stopAt = 0, aborted = false, cut = false, HS = 120;
+  /* scores: exact results use Pons' convention ((43 - moves at the win) / 2); unfinished lines use heur()/HS, always smaller than 1 */
+  function neg(alpha, beta, depth) {
+    nodes++; if ((nodes & 4095) === 0 && Date.now() > stopAt) aborted = true; if (aborted) return 0;
+    if (moves === W * H) return 0;
+    for (var c = 0; c < W; c++) if (wins(c)) return Math.floor((W * H + 1 - moves) / 2);
+    var threats = 0, forced = -1; for (c = 0; c < W; c++) if (oppWins(c)) { threats++; forced = c; }
+    if (threats > 1) return -Math.floor((W * H - moves) / 2);
+    if (depth <= 0) { cut = true; var h = heur(); return Math.max(-.99, Math.min(.99, h / HS)); }
+    var max = Math.floor((W * H - 1 - moves) / 2); if (beta > max) { beta = max; if (alpha >= beta) return beta; }
+    var ti = k1 & TM, best = -1e9, a0 = alpha;
+    if (tK[ti] === k1 && tK2[ti] === k2 && tD[ti] >= depth) { var tv = tV[ti]; if (tF[ti] === 0) return tv; if (tF[ti] === 1 && tv >= beta) return tv; if (tF[ti] === 2 && tv <= alpha) return tv; }
+    var order = forced >= 0 ? [forced] : (depth > 3 ? sortMoves() : ORDER);
+    for (var i = 0; i < order.length; i++) { c = order[i]; if (!canPlay(c)) continue;
+      /* never play under an opponent's winning square */
+      if (forced < 0 && hgt[c] + 1 < H) { play(c); var bad = canPlay(c) && line(c, hgt[c], cur); undo(); if (bad && order.length > 1) { if (best < -Math.floor((W * H - moves) / 2)) best = -Math.floor((W * H - moves) / 2); continue; } }
+      play(c); var s = -neg(-beta, -alpha, depth - 1); undo(); if (aborted) return 0;
+      if (s > best) best = s; if (s > alpha) alpha = s; if (alpha >= beta) break; }
+    if (best === -1e9) best = -Math.floor((W * H - moves) / 2);
+    tK[ti] = k1; tK2[ti] = k2; tV[ti] = best; tD[ti] = Math.min(depth, 127); tF[ti] = best <= a0 ? 2 : best >= beta ? 1 : 0;
+    return best;
+  }
+  function threatsFor(p) { var n = 0; for (var c = 0; c < W; c++) for (var r = hgt[c]; r < H; r++) if (g[c * H + r] === 0 && line(c, r, p)) n++; return n; }
+  function sortMoves() { var sc = []; for (var i = 0; i < 7; i++) { var c = ORDER[i]; if (!canPlay(c)) continue; var me = cur; play(c); var t = threatsFor(me); undo(); sc.push([c, t * 10 - i]); } sc.sort(function (a, b) { return b[1] - a[1]; }); return sc.map(function (x) { return x[0]; }); }
+  /* exact score of the side to move by null-window binary search (Pons); returns null if out of time */
+  function solveExact() { var min = -Math.floor((W * H - moves) / 2), max = Math.floor((W * H + 1 - moves) / 2);
+    while (min < max) { var med = min + Math.floor((max - min) / 2); if (med <= 0 && Math.trunc(min / 2) < med) med = Math.trunc(min / 2); else if (med >= 0 && Math.trunc(max / 2) > med) med = Math.trunc(max / 2);
+      cut = false; var r = neg(med, med + 1, 99); if (aborted) return null; if (r <= med) max = r; else min = r; }
+    return min; }
+  /* score every column. exact=true when the search reached the end of the game on every line */
+  function analyse(opt) {
+    stopAt = Date.now() + (opt.time || 1000); aborted = false; nodes = 0; var res = null, maxD = opt.depth || 42;
+    if (!opt.depth) { var ex = [], ok = true, t0 = Date.now(), budget = (opt.time || 1000) * .6;
+      for (var c0 = 0; c0 < W && ok; c0++) { if (!canPlay(c0)) { ex.push(null); continue; } if (wins(c0)) { ex.push(Math.floor((W * H + 1 - moves) / 2)); continue; } play(c0); stopAt = t0 + budget; var v = solveExact(); undo(); if (v === null) ok = false; else ex.push(-v); }
+      aborted = false; stopAt = Date.now() + Math.max(200, (opt.time || 1000) * .4); if (ok) return { cols: ex, exact: true, depth: 42, nodes: nodes }; }
+    for (var d = 2; d <= maxD; d += 2) {
+      cut = false; var cols = [];
+      for (var c = 0; c < W; c++) { if (!canPlay(c)) { cols.push(null); continue; } if (wins(c)) { cols.push(Math.floor((W * H + 1 - moves) / 2)); continue; } play(c); var s = -neg(-1e9, 1e9, d - 1); undo(); if (aborted) break; cols.push(s); }
+      if (aborted) break; res = { cols: cols, exact: !cut, depth: d, nodes: nodes }; if (!cut) break;
+    }
+    if (!res) { cut = false; var cols2 = []; for (c = 0; c < W; c++) { if (!canPlay(c)) { cols2.push(null); continue; } play(c); cols2.push(-Math.max(-.99, Math.min(.99, heur() / HS))); undo(); } res = { cols: cols2, exact: false, depth: 0, nodes: nodes }; }
+    return res;
+  }
+  function load(seq) { g.fill(0); hgt.fill(0); moves = 0; cur = 1; hist = []; k1 = 0; k2 = 0; seq.forEach(function (c) { play(c); }); }
+  return { W: W, H: H, at: at, canPlay: canPlay, play: play, undo: undo, wins: wins, analyse: analyse, load: load, winLine: winLine, moves: function () { return moves; }, cur: function () { return cur; }, hgt: function (c) { return hgt[c]; }, hist: function () { return hist.slice(); } };
+}
+
+</script>
+<script>
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var G = C4(), level = +(store('ldb-c4-lvl') || 2), youP = 1, over = false, token = 0, ana = null, anaAt = -1, showAn = true, hints = false, coach = true, winCells = null, hover = -1;
+  var LV = [{ depth: 2, rand: .35, name: 'Easy' }, { depth: 6, rand: 0, name: 'Medium' }, { time: 1200, name: 'Hard' }, { time: 3000, name: 'Perfect' }];
+  /* worker with an on-page fallback */
+  var worker = null, jid = 0, pend = {}, jobs = {}, LOC = null;
+  function runLocal(d) { if (!LOC) LOC = C4(); LOC.load(d.seq); return { id: d.id, r: LOC.analyse(d.opt) }; }
+  function deliver(m) { var cb = pend[m.id]; delete pend[m.id]; delete jobs[m.id]; if (cb) cb(m.r); }
+  function local(d) { setTimeout(function () { if (pend[d.id]) deliver(runLocal(d)); }, 40); }
+  function newWorker() { if (worker) worker.terminate(); worker = null; pend = {}; jobs = {};
+    try { var src = $('c4src').textContent + '\nvar E = C4(); onmessage = function (e) { var d = e.data; E.load(d.seq); postMessage({ id: d.id, r: E.analyse(d.opt) }); };';
+      worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' }))); worker.onmessage = function (e) { deliver(e.data); };
+      worker.onerror = function (e) { if (e && e.preventDefault) e.preventDefault(); worker = null; Object.keys(jobs).forEach(function (k) { local(jobs[k]); }); }; } catch (err) { worker = null; } }
+  function ask(opt, cb) { var id = ++jid, d = { id: id, seq: G.hist(), opt: opt }; pend[id] = cb; jobs[id] = d; if (worker) { try { worker.postMessage(d); return; } catch (e) { worker = null; } } local(d); }
+  /* the empty board is a known result: centre wins, next to centre draws, the rest lose */
+  var BOOK = [-1, -1, 0, 1, 0, -1, -1];
+  function analyse(cb) { var t = token; if (G.moves() === 0) { var r = { cols: BOOK.map(function (x) { return x * 20; }), exact: true, book: true, depth: 42 }; setTimeout(function () { if (t === token) cb(r); }, 0); return; }
+    ask({ time: 1500 }, function (r) { if (t === token) cb(r); }); }
+  function label(s, exact, book) { if (s == null) return ['', '']; if (!exact) return ['h', (s >= 0 ? '+' : '') + (s * 10).toFixed(1)]; if (s > 0) return ['w', book ? 'WIN' : 'W ' + s]; if (s < 0) return ['l', book ? 'LOSS' : 'L ' + (-s)]; return ['d', 'DRAW']; }
+  function bestCol(r) { var b = -1, bs = -1e9; r.cols.forEach(function (s, c) { if (s != null && (s > bs || (s === bs && Math.abs(c - 3) < Math.abs(b - 3)))) { bs = s; b = c; } }); return b; }
+  /* ---------- board ---------- */
+  function build() { var b = $('b4'); b.innerHTML = ''; for (var r = 5; r >= 0; r--) for (var c = 0; c < 7; c++) { var h = document.createElement('div'); h.className = 'hole'; h.dataset.c = c; h.dataset.r = r; b.appendChild(h); } }
+  function render(dropC) {
+    var hs = $('b4').children, last = G.hist().length ? G.hist()[G.hist().length - 1] : -1;
+    for (var i = 0; i < hs.length; i++) { var h = hs[i], c = +h.dataset.c, r = +h.dataset.r, v = G.at(c, r), d = h.querySelector('.disc');
+      h.classList.toggle('col-hover', c === hover && !over && G.cur() === youP);
+      if (!v) { if (d) d.remove(); continue; }
+      if (!d) { d = document.createElement('span'); d.className = 'disc p' + v; d.style.setProperty('--fall', ((6 - r) * 100) + '%'); h.appendChild(d); }
+      d.classList.toggle('last', c === last && r === G.hgt(c) - 1); d.classList.toggle('winl', !!winCells && winCells.some(function (w) { return w[0] === c && w[1] === r; })); }
+    var sc = $('scores'), fresh = ana && anaAt === G.moves(), bc = fresh ? bestCol(ana) : -1;
+    sc.innerHTML = [0, 1, 2, 3, 4, 5, 6].map(function (c) { if (!showAn || !fresh || over) return '<span></span>'; var L = label(ana.cols[c], ana.exact, ana.book); return '<span class="' + L[0] + (hints && c === bc && G.cur() === youP ? ' best' : '') + '">' + L[1] + '</span>'; }).join('');
+    var st = over ? over : G.cur() === youP ? 'Your move' : 'Engine thinking…'; $('status').textContent = st; $('think').textContent = '';
+    $('n1').textContent = youP === 1 ? 'You' : 'Engine · ' + LV[level].name; $('n2').textContent = youP === 2 ? 'You' : 'Engine · ' + LV[level].name;
+    if (fresh && !over) { var me = G.cur() === youP, s = ana.cols[bc], who = me ? 'You' : 'The engine';
+      if (ana.exact) { $('verdict').textContent = s > 0 ? (me ? 'You can force a win' : 'Engine can force a win') : s < 0 ? (me ? 'Lost with perfect play' : 'Engine is lost') : 'Drawn with best play';
+        $('vWhy').textContent = ana.book ? 'The opening position is a known result: the starting player wins only through the centre column.' : (s > 0 ? (me ? 'You win' : 'The engine wins') + ' by playing column ' + (bc + 1) + ', whatever the reply.' : s < 0 ? 'Every column loses against perfect play. Column ' + (bc + 1) + ' lasts longest.' : 'Best play from both sides fills the board with no four in a row.'); $('depth').textContent = ana.book ? 'known result' : 'solved'; }
+      else { $('verdict').textContent = (s >= 0 ? '+' : '') + (s * 10).toFixed(1) + ' for ' + (me ? 'you' : 'the engine'); $('vWhy').textContent = 'Too early to solve in time. Best estimate after searching ' + ana.depth + ' moves ahead: column ' + (bc + 1) + '.'; $('depth').textContent = 'depth ' + ana.depth; } }
+  }
+  function drop(c, byYou) {
+    if (over || !G.canPlay(c)) return false; var pre = ana && anaAt === G.moves() ? ana : null, win = G.wins(c); G.play(c); winCells = win ? G.winLine(c, G.hgt(c) - 1) : null;
+    if (byYou) grade(c, pre);
+    if (win) end(byYou ? 'You win' : 'Engine wins'); else if (G.moves() === 42) end('Draw: board full');
+    token++; ana = null; render(); if (!over) next(); return true; }
+  function grade(c, pre) { $('lastCol').textContent = 'column ' + (c + 1); if (!pre) { $('grade').textContent = 'Not graded'; $('grade').className = 'grade'; $('gWhy').textContent = 'You moved before the analysis finished.'; return; }
+    var best = pre.cols[bestCol(pre)], mine = pre.cols[c], cat = function (s) { return s > 0 ? 1 : s < 0 ? -1 : 0; };
+    if (pre.exact) { var k = cat(best) - cat(mine), name = ['loss', 'draw', 'win'];
+      if (!k) { $('grade').textContent = mine === best ? 'Perfect' : 'Good'; $('grade').className = 'grade g-good'; $('gWhy').textContent = mine === best ? 'Exactly the best move.' : 'Keeps the same result (' + name[cat(mine) + 1] + '), though column ' + (bestCol(pre) + 1) + ' gets there faster.'; }
+      else { $('grade').textContent = k === 2 ? 'Blunder' : 'Mistake'; $('grade').className = 'grade g-bad'; $('gWhy').textContent = 'That turned a ' + name[cat(best) + 1] + ' into a ' + name[cat(mine) + 1] + '. Column ' + (bestCol(pre) + 1) + ' was the move.'; if (coach) toast('Coach: that turned a ' + name[cat(best) + 1] + ' into a ' + name[cat(mine) + 1] + '. Column ' + (bestCol(pre) + 1) + ' kept it.'); } }
+    else { var loss = (best - mine) * 10; $('grade').textContent = loss < .5 ? 'Good' : loss < 2 ? 'Inaccurate' : 'Risky'; $('grade').className = 'grade ' + (loss < .5 ? 'g-good' : loss < 2 ? 'g-meh' : 'g-bad'); $('gWhy').textContent = loss < .5 ? 'In line with the engine’s estimate.' : 'The estimate preferred column ' + (bestCol(pre) + 1) + ' (' + loss.toFixed(1) + ' better).'; }
+  }
+  function next() { var t = token;
+    if (G.cur() === youP) { if (showAn || hints || coach) analyse(function (r) { ana = r; anaAt = G.moves(); render(); }); return; }
+    var o = LV[level], t0 = Date.now();
+    var go = function (r) { if (t !== token) return; var c = bestCol(r);
+      if (o.rand && Math.random() < o.rand) { var ok = [0, 1, 2, 3, 4, 5, 6].filter(function (k) { return r.cols[k] != null && r.cols[k] > r.cols[c] - 0.4; }); c = ok[Math.floor(Math.random() * ok.length)]; }
+      setTimeout(function () { if (t === token) drop(c, false); }, Math.max(0, 450 - (Date.now() - t0))); };
+    if (G.moves() === 0 && level === 3) go({ cols: BOOK }); else ask(o.depth ? { depth: o.depth } : { time: o.time }, go); }
+  function end(msg) { over = msg; $('verdict').textContent = msg; $('vWhy').textContent = /Draw/.test(msg) ? 'Forty-two discs, no four in a row.' : 'Four in a row, highlighted on the board.'; $('depth').textContent = 'game over'; var rk = 'ldb-c4-rec' + level, rec = JSON.parse(store(rk) || '{"w":0,"d":0,"l":0}'); if (/You win/.test(msg)) rec.w++; else if (/Draw/.test(msg)) rec.d++; else rec.l++; store(rk, JSON.stringify(rec)); record(); }
+  function record() { var rec = JSON.parse(store('ldb-c4-rec' + level) || '{"w":0,"d":0,"l":0}'); $('rw').textContent = rec.w; $('rd').textContent = rec.d; $('rl').textContent = rec.l; $('recLvl').textContent = LV[level].name; }
+  function newGame() { newWorker(); token++; G.load([]); over = false; ana = null; winCells = null; youP = document.querySelector('#first button[aria-pressed="true"]').dataset.k === 'you' ? 1 : 2; build(); $('verdict').textContent = '-'; $('vWhy').textContent = ''; $('grade').textContent = '-'; $('lastCol').textContent = '-'; render(); next(); }
+  $('b4').addEventListener('click', function (e) { var h = e.target.closest('.hole'); if (!h || G.cur() !== youP) return; drop(+h.dataset.c, true); });
+  $('b4').addEventListener('pointermove', function (e) { var h = e.target.closest('.hole'); var c = h ? +h.dataset.c : -1; if (c !== hover) { hover = c; render(); } });
+  $('b4').addEventListener('pointerleave', function () { hover = -1; render(); });
+  addEventListener('keydown', function (e) { var n = +e.key; if (n >= 1 && n <= 7 && G.cur() === youP && !over && e.target.tagName !== 'INPUT') drop(n - 1, true); });
+  $('newg').addEventListener('click', newGame);
+  $('undo').addEventListener('click', function () { var h = G.hist(); if (!h.length) return; newWorker(); token++; over = false; winCells = null; do { G.undo(); } while (G.hist().length && G.cur() !== youP); if (G.cur() !== youP) { } build(); ana = null; render(); next(); });
+  document.querySelectorAll('#first button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('#first button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); }); });
+  function setLvl(k) { level = k; store('ldb-c4-lvl', String(k)); document.querySelectorAll('#lvl button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.k === k); }); record(); render(); }
+  document.querySelectorAll('#lvl button').forEach(function (b) { b.addEventListener('click', function () { setLvl(+b.dataset.k); }); });
+  function tog(id, fn) { $(id).addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); fn(on); store('ldb-c4-' + id, on ? '1' : '0'); });
+    var s = store('ldb-c4-' + id); if (s === '0' || s === '1') { $(id).setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+  tog('anTog', function (on) { showAn = on; document.body.classList.toggle('noan', !on); if (worker !== undefined && G.hist && on && !ana && G.cur() === youP && !over) analyse(function (r) { ana = r; anaAt = G.moves(); render(); }); render(); });
+  tog('hintTog', function (on) { hints = on; render(); });
+  tog('trTog', function (on) { coach = on; });
+  var tt; function toast(t) { $('toast').textContent = t; $('toast').classList.add('on'); clearTimeout(tt); tt = setTimeout(function () { $('toast').classList.remove('on'); }, 3400); }
+  setLvl(level); newGame();
+  window.__c4 = { G: G, st: function () { return { over: over, cur: G.cur(), you: youP, moves: G.moves(), ana: !!ana && anaAt === G.moves(), exact: ana && ana.exact, cols: ana && ana.cols }; }, drop: function (c) { return drop(c, true); }, best: function () { return ana && anaAt === G.moves() ? bestCol(ana) : null; } };
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day Trader | LDB Lab Self-training</title>
+<meta name="description" content="A small neural network teaches itself to forecast simulated one-minute prices from its own errors, and trades only when the forecast beats the cost.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Day Trader | LDB Lab Self-training">
+<meta property="og:description" content="A small neural network teaches itself to forecast simulated one-minute prices from its own errors, and trades only when the forecast beats the cost.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/daytrader.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --crim: #2E5E8E; --bone: #EAF2FB; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: #000; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px); background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: #fff; }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #000; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(6,9,12,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: var(--acc); border-color: var(--acc); color: #000; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(6,9,12,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  svg.chart { width: 100%; display: block; }
+  .leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .leg i { display: inline-block; width: 14px; height: 3px; margin-right: 5px; vertical-align: 2px; }
+  .trainbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .status2 { font: 600 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-left: auto; }
+  .status2 b { color: #fff; }
+  .live { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--dim); margin-right: 6px; vertical-align: 0; }
+  .live.on { background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: pulse 1s steps(2) infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .h3 { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 8px; display: flex; justify-content: space-between; gap: 10px; }
+  .h3 span:last-child { color: var(--dim); font-weight: 500; }
+  .fld label { display: flex; justify-content: space-between; font: 700 .6rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 5px; gap: 8px; }
+  .fld label b { color: #fff; }
+  .fld input[type=range] { width: 100%; accent-color: var(--acc); }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .lessons { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: #C9CDD3; max-height: 260px; overflow-y: auto; }
+  .lessons div { border-left: 2px solid var(--lock); padding: 4px 0 4px 10px; }
+  .lessons div.good { border-color: var(--teal); }
+  .lessons b { color: #fff; font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .heat { display: grid; gap: 2px; font: 600 .62rem var(--mono); }
+  .heat span { padding: 6px 4px; text-align: center; color: #000; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .heat .hd { background: transparent; color: var(--soft); }
+  @media (prefers-reduced-motion: reduce) { .live.on { animation: none; } }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/TRAIN</span></a>
+  <div class="right">
+    <a class="btn" href="./#train">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Self-training 02 &middot; Online neural network</p>
+      <h1>Day Trader</h1>
+    </div>
+    <div class="tools">
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="trainbar">
+          <button type="button" class="act primary" id="train">Train</button>
+          <button type="button" class="act" id="reset">New network</button>
+          <span class="status2"><span class="live" id="live"></span>Days practised <b id="gen">0</b> &middot; forecast skill <b id="days">0%</b></span>
+        </div>
+        <div class="fields">
+          <div class="fld"><label for="cost">Cost per trade <b id="costv">2.0 bp</b></label><input type="range" id="cost" min="0" max="5" step="0.5" value="2"></div>
+          <div class="fld"><label for="news">News shocks <b id="newsv">normal</b></label><input type="range" id="news" min="0" max="2" step="1" value="1"></div>
+        </div>
+        <div class="h3"><span>Learning curve: profit per day on 30 unseen days</span><span>basis points</span></div>
+        <svg class="chart" id="curve" height="220" style="height:220px" aria-hidden="true"></svg>
+        <div class="leg" id="curveLeg"></div>
+        <div class="h3"><span>One unseen day, traded by the network</span><span id="dayTag">-</span></div>
+        <svg class="chart" id="day" height="240" style="height:240px" aria-hidden="true"></svg>
+        <div class="leg" id="dayLeg"></div>
+        <div class="controls" style="margin-top:8px"><button type="button" class="act" id="nextDay">Show another day</button><span class="note">Teal background: long. Red: short. Dots mark trades.</span></div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Unseen days</span><span>per day, after costs</span></div>
+        <div class="stat2"><div><span>Network</span><b id="pA">-</b></div><div><span>Best simple rule</span><b id="pR">-</b></div><div><span>Trades per day</span><b id="tA">-</b></div><div><span>Costs as share of gross</span><b id="cA">-</b></div></div>
+        <p class="why" id="verdict">Press Train. Each practice day, the network forecasts every next 10 minutes, checks what really happened and learns from the error.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Baselines on the same days</span><span>bp per day</span></div>
+        <div class="stat2" id="bases"></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Lessons from its mistakes</span><span>day by day</span></div>
+        <div class="lessons" id="lessons"><div class="good">No lessons yet.</div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">The market</p><h3>Two real effects, simulated</h3><p>Each day has 390 one-minute bars. Prices wobble around a fair value and drift back to it (mean reversion). News occasionally moves the fair value, and the price takes several minutes to catch up (momentum). Every change of position pays the cost you set.</p></div>
+    <div><p class="k">The network</p><h3>A tiny forecasting brain</h3><p>A small neural network (about 100 numbers) reads the last 1, 5 and 15 minutes of returns, the distance from the day's average price and the time, then forecasts the next 10 minutes. It goes long or short only when the forecast is big enough to pay the cost. Nobody tells it the rules.</p></div>
+    <div><p class="k">Learning from errors</p><h3>Gradient descent, live</h3><p>Every minute of every practice day it makes a forecast, waits ten minutes, and measures how wrong it was. Each weight moves a little in the direction that would have shrunk that error. Most minutes are noise, so it learns slowly, and forecast skill stays small, as it does in real markets.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Self-training</span>
+  <span>Simulated market. Not investment advice.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+/* shared helpers for the self-training pages */
+var $ = function (id) { return document.getElementById(id); };
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gaussR(R) { var u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+function sd(a) { var m = mean(a); return Math.sqrt(mean(a.map(function (x) { return (x - m) * (x - m); }))); }
+function fmtPct(x, d) { return (x >= 0 ? '+' : '') + (x * 100).toFixed(d == null ? 1 : d) + '%'; }
+function money(v, d) { var a = Math.abs(v); if (a < (d ? .005 : .5)) v = 0, a = 0; return (v < 0 ? '-$' : '$') + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(a).toLocaleString() : a.toFixed(d == null ? 0 : d)); }
+/* line chart into an <svg>: series = [{data:[y...] or [[x,y]...], color, width, dash, label}], opts = {log, yfmt, xlabels, bands:[{x0,x1,color}], zero, yMin, yMax} */
+function lineChart(svg, series, opts) {
+  opts = opts || {}; var W = Math.max(240, svg.clientWidth || 600), H = +(svg.getAttribute('height') || svg.clientHeight || 220) || 220, L = 52, R = 10, T = 10, B = 22;
+  var pts = series.map(function (s) { return s.data.map(function (d, i) { return Array.isArray(d) ? d : [i, d]; }); });
+  var xs = [], ys = []; pts.forEach(function (p) { p.forEach(function (q) { if (isFinite(q[1])) { xs.push(q[0]); ys.push(opts.log ? Math.log(Math.max(q[1], 1e-9)) : q[1]); } }); });
+  if (!xs.length) { svg.innerHTML = ''; return; }
+  var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = opts.yMin != null ? opts.yMin : Math.min.apply(null, ys), y1 = opts.yMax != null ? opts.yMax : Math.max.apply(null, ys);
+  if (opts.zero && !opts.log) { y0 = Math.min(y0, 0); y1 = Math.max(y1, 0); }
+  if (y1 - y0 < 1e-9) { y1 += 1; y0 -= 1; } var pad = (y1 - y0) * .06; y0 -= pad; y1 += pad; if (x1 === x0) x1 = x0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - R); }, Y = function (y) { var v = opts.log ? Math.log(Math.max(y, 1e-9)) : y; return T + (y1 - v) / (y1 - y0) * (H - T - B); };
+  var h = '';
+  (opts.bands || []).forEach(function (b) { h += '<rect x="' + X(b.x0).toFixed(1) + '" y="' + T + '" width="' + Math.max(0, X(b.x1) - X(b.x0)).toFixed(1) + '" height="' + (H - T - B) + '" fill="' + b.color + '"/>'; });
+  var ticks = []; if (opts.log) { [1e-3, .01, .1, .25, .5, 1, 2, 4, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7].forEach(function (t) { var l = Math.log(t); if (l >= y0 && l <= y1) ticks.push(t); }); }
+  else { var span = y1 - y0, st = Math.pow(10, Math.floor(Math.log10(span / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return span / s <= 6; })[0] || st * 10; for (var t = Math.ceil(y0 / st) * st; t <= y1; t += st) ticks.push(+t.toFixed(10)); }
+  var yf = opts.yfmt || function (v) { return Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : +v.toFixed(3); };
+  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#5E5E64" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
+  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#5E5E64" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
+  series.forEach(function (s, k) { var p = pts[k].filter(function (q) { return isFinite(q[1]); }); if (!p.length) return;
+    if (s.dots) { p.forEach(function (q) { h += '<circle cx="' + X(q[0]).toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="' + (s.r || 2.5) + '" fill="' + s.color + '"/>'; }); return; }
+    var d = p.map(function (q, i) { return (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ' ' + Y(q[1]).toFixed(1); }).join('');
+    h += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="' + (s.width || 1.8) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + ' stroke-linejoin="round"/>'; });
+  (opts.marks || []).forEach(function (m) { h += '<circle cx="' + X(m[0]).toFixed(1) + '" cy="' + Y(m[1]).toFixed(1) + '" r="3.5" fill="' + m[2] + '"/>'; });
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = h;
+}
+function legend(el, items) { el.innerHTML = items.map(function (it) { return '<span><i style="background:' + it[1] + (it[2] ? ';height:0;border-top:2px dashed ' + it[1] + ';background:none' : '') + '"></i>' + it[0] + '</span>'; }).join(''); }
+/* runs work in small slices each frame so the page stays responsive */
+function Loop(stepFn, onFrame) { var on = false, budget = 14, self = { start: function () { if (on) return; on = true; tick(); }, stop: function () { on = false; }, running: function () { return on; }, setBudget: function (ms) { budget = ms; } };
+  function tick() { if (!on) return; var t0 = performance.now(); do { if (stepFn() === false) { on = false; break; } } while (performance.now() - t0 < budget); onFrame && onFrame(); if (on) requestAnimationFrame(tick); } return self; }
+function tog(id, key, fn) { var el = $(id); el.addEventListener('click', function () { var on = el.getAttribute('aria-pressed') !== 'true'; el.setAttribute('aria-pressed', on); fn(on); store(key + id, on ? '1' : '0'); }); var s = store(key + id); if (s === '0' || s === '1') { el.setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+function seg(id, cb) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); cb(b.dataset.k); }); }); }
+function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.k === String(k)); }); }
+
+(function () {
+  var T = 390, cost = .0002, newsLvl = 1, NEWS = [0, .01, .02];
+  var NI = 6, NH = 12, H = 10, theta, gen, practised, curve = [], baseCurve = null, lessons = [], dayIdx = 0, prevStats = null, mseHist = [], errAvg = null;
+  function genDay(R) { var F = 0, d = 0, vw = 0, vol = 0, out = { p: [], vwap: [] };
+    for (var t = 0; t < T; t++) { var open = t < 30 ? 1.8 : 1; F += .0002 * open * gaussR(R); if (R() < NEWS[newsLvl] / 6 * open) { var J = .006 * gaussR(R); F += J; d -= J; }
+      d = d * .93 + .0004 * open * gaussR(R); var p = 100 * Math.exp(F + d), v = 1 + R() * open; vw += p * v; vol += v; out.p.push(p); out.vwap.push(vw / vol); }
+    return out; }
+  function feats(D, t, f) { var p = D.p; f[0] = t ? (p[t] / p[t - 1] - 1) * 1e3 : 0; f[1] = t >= 5 ? (p[t] / p[t - 5] - 1) * 400 : 0; f[2] = t >= 15 ? (p[t] / p[t - 15] - 1) * 200 : 0; f[3] = (p[t] / D.vwap[t] - 1) * 300; f[4] = t / T * 2 - 1; f[5] = t < 30 ? 1 : 0; return f; }
+  /* a small neural network that forecasts the next 10 minutes; W1 (NH x NI), b1, W2, b2 */
+  var Lw = new Float64Array(6), AL = new Float64Array(6), W1, b1, W2, b2, hbuf = new Float64Array(NH), fbuf = new Float64Array(NI);
+  function predict(f) { var y = b2; for (var q = 0; q < NI; q++) y += Lw[q] * f[q]; for (var j = 0; j < NH; j++) { var s = b1[j]; for (var i = 0; i < NI; i++) s += W1[j * NI + i] * f[i]; hbuf[j] = Math.tanh(s); y += W2[j] * hbuf[j]; } return y; }
+  function learn(f, target, lr) { var y = predict(f), e = y - target; if (e > 3) e = 3; if (e < -3) e = -3;
+    for (var j = 0; j < NH; j++) { var gh = e * W2[j] * (1 - hbuf[j] * hbuf[j]); W2[j] -= lr * e * hbuf[j]; b1[j] -= lr * gh; for (var i = 0; i < NI; i++) W1[j * NI + i] -= lr * gh * f[i]; } for (var q = 0; q < NI; q++) Lw[q] -= lr * e * f[q]; b2 -= lr * e; return e; }
+  var A1, ab1, A2, ab2 = 0;   /* slowly averaged copy of the weights, used for trading: it smooths out day-to-day noise */
+  function avgUpdate(k) { for (var i = 0; i < W1.length; i++) A1[i] += k * (W1[i] - A1[i]); for (i = 0; i < NH; i++) { ab1[i] += k * (b1[i] - ab1[i]); A2[i] += k * (W2[i] - A2[i]); } ab2 += k * (b2 - ab2); for (i = 0; i < NI; i++) AL[i] += k * (Lw[i] - AL[i]); }
+  function predictA(f) { var y = ab2; for (var q = 0; q < NI; q++) y += AL[q] * f[q]; for (var j = 0; j < NH; j++) { var s = ab1[j]; for (var i = 0; i < NI; i++) s += A1[j * NI + i] * f[i]; y += A2[j] * Math.tanh(s); } return y; }
+  function thr() { return cost * 1e3 * 1.5; }
+  /* trade on its forecasts: go long or short only when the expected move clears the cost */
+  function netPolicy() { return function (D, t, pos) { var y = predictA(feats(D, t, fbuf)), k = thr(); return y > k ? 1 : y < -k ? -1 : Math.abs(y) < k * .3 ? 0 : pos; }; }
+  function trade(D, policy, rec) { var pos = 0, pnl = 0, gross = 0, n = 0, path = rec ? [] : null;
+    for (var t = 0; t < T - 1; t++) { var a = policy(D, t, pos); if (a !== pos) { pnl -= Math.abs(a - pos) * cost; n++; if (rec) path.push([t, a]); } pos = a; var r = D.p[t + 1] / D.p[t] - 1; pnl += pos * r; gross += pos * r; }
+    if (pos) { pnl -= Math.abs(pos) * cost; n++; if (rec) path.push([T - 1, 0]); }
+    return { pnl: pnl * 1e4, gross: gross * 1e4, n: n, path: path }; }
+  var RULES = { 'Stay flat': function () { return 0; }, 'Random trader': function (D, t, pos) { var h = Math.sin(t * 12.9898 + D.p[0] * 78.233) * 43758.5453; h -= Math.floor(h); return h < .04 ? [-1, 0, 1][Math.floor(h * 75) % 3] : pos; },
+    'Fade the move': function (D, t, pos) { var dv = D.p[t] / D.vwap[t] - 1; return dv < -.002 ? 1 : dv > .002 ? -1 : Math.abs(dv) < .0004 ? 0 : pos; },
+    'Follow the move': function (D, t, pos) { if (t < 15) return 0; var m = D.p[t] / D.p[t - 15] - 1; return m > .002 ? 1 : m < -.002 ? -1 : Math.abs(m) < .0005 ? 0 : pos; } };
+  var VAL = null; function valSet() { var R2 = rng(4242); VAL = []; for (var i = 0; i < 30; i++) VAL.push(genDay(R2)); baseCurve = {}; Object.keys(RULES).forEach(function (k) { baseCurve[k] = evalPolicy(RULES[k]); }); }
+  function evalPolicy(pol) { var p = 0, n = 0, g = 0; VAL.forEach(function (D) { var o = trade(D, pol); p += o.pnl; n += o.n; g += o.gross; }); return { pnl: p / VAL.length, n: n / VAL.length, gross: g / VAL.length }; }
+  function valMSE() { var se = 0, k = 0; VAL.slice(0, 10).forEach(function (D) { for (var t = 20; t < T - H; t += 3) { var y = (D.p[t + H] / D.p[t] - 1) * 1e3, e = predictA(feats(D, t, fbuf)) - y; se += e * e; k++; } }); return se / k; }
+  var R = rng(Date.now() & 0xffffffff), base0 = null;
+  function reset() { W1 = new Float64Array(NH * NI); b1 = new Float64Array(NH); W2 = new Float64Array(NH); b2 = 0; for (var i = 0; i < W1.length; i++) W1[i] = .4 * gaussR(R); for (i = 0; i < NH; i++) W2[i] = .02 * gaussR(R); Lw = new Float64Array(NI); AL = new Float64Array(NI); A1 = W1.slice(); ab1 = b1.slice(); A2 = W2.slice(); ab2 = b2;
+    gen = 0; practised = 0; curve = []; lessons = []; mseHist = []; valSet(); base0 = (function () { var se = 0, k = 0; VAL.slice(0, 10).forEach(function (D) { for (var t = 20; t < T - H; t += 3) { var y = (D.p[t + H] / D.p[t] - 1) * 1e3; se += y * y; k++; } }); return se / k; })();
+    var s = evalPolicy(netPolicy()); s.mse = valMSE(); curve.push([0, s.pnl]); prevStats = s; draw(); }
+  /* one practice day: forecast every minute, then learn from each forecast's error */
+  function generation() { var D = genDay(R), lr = Math.max(.0006, .004 * Math.pow(.985, practised)), big = null;
+    for (var t = 20; t < T - H; t++) { var y = (D.p[t + H] / D.p[t] - 1) * 1e3, f = feats(D, t, fbuf), e = learn(f, y, lr); if (!big || Math.abs(e) > Math.abs(big.e)) big = { e: e, t: t, y: y, dev: f[3] / 300 }; }
+    practised++; gen = practised; avgUpdate(Math.max(.03, 1 / practised));
+    if (gen % 4 === 0) { var s = evalPolicy(netPolicy()); s.mse = valMSE(); curve.push([gen, s.pnl]); lesson(s, big); prevStats = s; } }
+  function lesson(s, big) { var p = prevStats; if (!p) return; var msgs = [], fitPct = Math.max(0, 1 - s.mse / base0) * 100;
+    if (big && Math.abs(big.e) > 2.5) msgs.push({ good: false, t: 'Day ' + gen + ': at ' + clock(big.t) + ' it expected a ' + fmtBp(big.y + big.e) + ' move and got ' + fmtBp(big.y) + (Math.abs(big.dev) > .002 ? ', with the price ' + (big.dev > 0 ? 'above' : 'below') + ' the day’s average' : '') + '. A surprise like that nudges every weight toward the real outcome.' });
+    if (s.n < p.n * .8 && p.n > 4) msgs.push({ good: s.pnl >= p.pnl, t: 'Day ' + gen + ': trades fell from ' + p.n.toFixed(0) + ' to ' + s.n.toFixed(0) + ' a day as weak forecasts stopped clearing the cost hurdle.' });
+    if (s.pnl - p.pnl > 2) msgs.push({ good: true, t: 'Day ' + gen + ': forecasts now explain ' + fitPct.toFixed(1) + '% of 10-minute moves, and profit on unseen days rose to ' + s.pnl.toFixed(1) + ' bp.' });
+    else if (p.pnl - s.pnl > 2) msgs.push({ good: false, t: 'Day ' + gen + ': profit on unseen days slipped to ' + s.pnl.toFixed(1) + ' bp. One noisy practice day can pull the forecasts the wrong way.' });
+    msgs.forEach(function (x) { lessons.unshift(x); }); lessons = lessons.slice(0, 8); }
+  function clock(t) { var m = 570 + t; return Math.floor(m / 60) + ':' + ('0' + m % 60).slice(-2); }
+  function fmtBp(y) { var bp = Math.round(y * 10); if (!bp) bp = 0; return (bp >= 0 ? '+' : '') + bp + ' bp'; }
+  function draw() {
+    var keys = Object.keys(baseCurve), cols = { 'Stay flat': '#9A9AA0', 'Random trader': '#FF5A4E', 'Fade the move': '#D4AF37', 'Follow the move': '#C266B2' };
+    var series = keys.map(function (k) { return { data: curve.map(function (p) { return [p[0], baseCurve[k].pnl]; }), color: cols[k], dash: '5 4', width: 1.3 }; }); series.push({ data: curve, color: '#5B9FE0', width: 2.2 });
+    lineChart($('curve'), series, { zero: true, yfmt: function (v) { return v.toFixed(1); } });
+    legend($('curveLeg'), [['network', '#5B9FE0']].concat(keys.map(function (k) { return [k.toLowerCase(), cols[k], 1]; })));
+    var D = VAL[dayIdx], o = trade(D, netPolicy(), true), bands = [], pos = 0, st = 0;
+    o.path.forEach(function (q) { if (pos) bands.push({ x0: st, x1: q[0], color: pos > 0 ? 'rgba(111,207,195,.13)' : 'rgba(255,90,78,.14)' }); pos = q[1]; st = q[0]; }); if (pos) bands.push({ x0: st, x1: T - 1, color: pos > 0 ? 'rgba(111,207,195,.13)' : 'rgba(255,90,78,.14)' });
+    lineChart($('day'), [{ data: D.vwap, color: '#D4AF37', width: 1.2, dash: '4 3' }, { data: D.p, color: '#EAF2FB', width: 1.4 }], { bands: bands, marks: o.path.map(function (q) { return [q[0], D.p[q[0]], q[1] > 0 ? '#6FCFC3' : q[1] < 0 ? '#FF5A4E' : '#9A9AA0']; }), yfmt: function (v) { return v.toFixed(2); }, xlabels: [[0, '9:30'], [120, '11:30'], [240, '13:30'], [389, '16:00']] });
+    legend($('dayLeg'), [['price', '#EAF2FB'], ['average price (VWAP)', '#D4AF37', 1]]); $('dayTag').textContent = 'day ' + (dayIdx + 1) + ': ' + o.pnl.toFixed(1) + ' bp, ' + o.n + ' trades';
+    $('gen').textContent = gen; $('days').textContent = (Math.max(0, 1 - prevStats.mse / base0) * 100).toFixed(1) + '%';
+    var s = prevStats, bestRule = keys.reduce(function (a, k) { return baseCurve[k].pnl > baseCurve[a].pnl ? k : a; }, keys[0]);
+    $('pA').textContent = s.pnl.toFixed(1) + ' bp'; $('pA').className = s.pnl > 0 ? 'pos' : 'neg'; $('pR').textContent = baseCurve[bestRule].pnl.toFixed(1) + ' bp'; $('tA').textContent = s.n.toFixed(1);
+    $('cA').textContent = s.gross > 0 ? Math.round(Math.min(9.99, (s.gross - s.pnl) / s.gross) * 100) + '%' : '-';
+    $('bases').innerHTML = keys.map(function (k) { return '<div><span>' + k + '</span><b class="' + (baseCurve[k].pnl > 0 ? 'pos' : baseCurve[k].pnl < 0 ? 'neg' : '') + '">' + baseCurve[k].pnl.toFixed(1) + '</b></div>'; }).join('');
+    $('verdict').textContent = !gen ? 'Untrained: random weights make random forecasts, so it trades on noise and pays costs on every flip.' : s.pnl > baseCurve[bestRule].pnl ? 'The network now beats every simple rule on days it has never seen (best rule: ' + bestRule.toLowerCase() + ').' : s.pnl > 0 ? 'Profitable on unseen days after costs, using only what it taught itself. The ' + bestRule.toLowerCase() + ' rule still does better: it was written by someone who knew exactly how this market was built.' : 'Still losing on unseen days. Early on it mostly learns that its forecasts are too weak to trade.';
+    $('lessons').innerHTML = lessons.length ? lessons.map(function (l) { return '<div class="' + (l.good ? 'good' : '') + '">' + l.t + '</div>'; }).join('') : '<div class="good">No lessons yet.</div>';
+  }
+  var loop = Loop(function () { generation(); }, draw), running = false;
+  $('train').addEventListener('click', function () { running = !running; $('train').textContent = running ? 'Pause' : 'Train'; $('live').classList.toggle('on', running); if (running) loop.start(); else loop.stop(); });
+  $('reset').addEventListener('click', reset);
+  $('nextDay').addEventListener('click', function () { dayIdx = (dayIdx + 1) % 30; draw(); });
+  $('cost').addEventListener('input', function () { cost = +this.value / 1e4; $('costv').textContent = (+this.value).toFixed(1) + ' bp'; valSet(); prevStats = evalPolicy(netPolicy()); prevStats.mse = valMSE(); draw(); });
+  $('news').addEventListener('input', function () { newsLvl = +this.value; $('newsv').textContent = ['none', 'normal', 'busy'][newsLvl]; valSet(); prevStats = evalPolicy(netPolicy()); prevStats.mse = valMSE(); draw(); });
+  tog('anTog', 'ldb-dt-', function (on) { document.body.classList.toggle('noan', !on); });
+  addEventListener('resize', function () { if (W1) draw(); });
+  reset();
+  window.__dt = { train: function (n) { for (var i = 0; i < n; i++) generation(); draw(); return { gen: gen, net: prevStats, rules: baseCurve, skill: 1 - prevStats.mse / base0 }; } };
+})();
+
+</script>
+</body>
+</html>

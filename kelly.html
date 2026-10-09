@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelly Challenge | LDB Lab Arcade</title>
+<meta name="description" content="The famous $25 coin-flip experiment: a 60% coin, 300 flips, and the bet-sizing rule that most finance professionals miss. Live growth curve, ghost Kelly bettor and a 2,000-player simulation.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Kelly Challenge | LDB Lab Arcade">
+<meta property="og:description" content="The famous $25 coin-flip experiment: a 60% coin, 300 flips, and the bet-sizing rule that most finance professionals miss. Live growth curve, ghost Kelly bettor and a 2,000-player simulation.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/kelly.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #C8323A; --crim: #8E1F27; --bone: #EDE3CF; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: radial-gradient(ellipse 60% 50% at 12% 0%, rgba(70,150,160,.16), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(142,31,39,.10), transparent 70%), #030304; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,.25) 4px, transparent 6px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: var(--bone); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #F3EBDC; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(8,8,10,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: linear-gradient(#C8323A, #8E1F27); border-color: #C8323A; color: #F3EBDC; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(8,8,10,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  .coinrow { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  .coin { width: 96px; height: 96px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font: 800 1.6rem "Archivo", sans-serif; font-stretch: 125%; color: #3a2a0c;
+    background: radial-gradient(circle at 35% 30%, #F6E3A6, #C9A043 55%, #7a5a1c); box-shadow: 0 8px 20px rgba(0,0,0,.6), inset 0 0 0 4px rgba(90,60,15,.45), inset 0 0 0 7px rgba(246,227,166,.35); }
+  .coin.spin { animation: spin .5s cubic-bezier(.3,.7,.3,1); }
+  @keyframes spin { 0% { transform: rotateX(0) scale(1); } 50% { transform: rotateX(900deg) scale(1.15); } 100% { transform: rotateX(1800deg) scale(1); } }
+  .bank { font: 800 clamp(2rem, 5vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .sub { font: 600 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .betrow { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 18px; }
+  .betrow input[type=range] { width: 100%; accent-color: var(--acc); }
+  .betv { font: 700 1.05rem var(--mono); color: #fff; min-width: 150px; text-align: right; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .quick button { background: transparent; border: 1px solid var(--line); color: var(--soft); font: 600 .62rem var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 7px 10px; border-radius: 6px; cursor: pointer; }
+  .quick button:hover { color: #fff; border-color: var(--bone); }
+  .sides { display: inline-flex; border: 1px solid var(--line); } .sides button { background: transparent; border: 0; color: var(--soft); font: 700 .66rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 9px 14px; cursor: pointer; } .sides button[aria-pressed="true"] { background: var(--bone); color: #111; }
+  svg.chart { width: 100%; height: 240px; display: block; margin-top: 16px; }
+  .leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-top: 4px; }
+  .leg i { display: inline-block; width: 12px; height: 3px; margin-right: 5px; vertical-align: 2px; }
+  .flips { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 12px; max-height: 60px; overflow: hidden; }
+  .flips i { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); } .flips i.t { background: var(--lock); }
+  svg.g { width: 100%; height: 140px; display: block; }
+  .hist { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; align-items: end; height: 90px; }
+  .hist i { background: var(--acc); display: block; min-height: 1px; }
+  .hl { display: flex; justify-content: space-between; font: 600 .56rem var(--mono); color: var(--dim); margin-top: 4px; }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/ARCADE</span></a>
+  <div class="right">
+    <a class="btn" href="./#arcade">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Arcade 07 &middot; The $25 coin experiment</p>
+      <h1>Kelly Challenge</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" id="mode" role="group" aria-label="Coin"><button type="button" data-k="known">Known 60% coin</button><button type="button" data-k="hidden">Hidden bias</button></div>
+      <button type="button" class="tog" id="capTog" aria-pressed="true"><i></i>$250 cap</button>
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="coinrow">
+          <div class="coin" id="coin">H</div>
+          <div><div class="bank" id="bank">$25.00</div><div class="sub" id="sub">Flip 0 of 300 &middot; coin lands heads 60% of the time</div></div>
+        </div>
+        <div class="betrow"><input type="range" id="frac" min="0" max="100" step="1" value="10" aria-label="Bet as percent of bankroll"><div class="betv" id="betv">10% = $2.50</div></div>
+        <div class="quick"><button type="button" data-f="kelly">Kelly</button><button type="button" data-f="half">Half Kelly</button><button type="button" data-f="5">5%</button><button type="button" data-f="50">50%</button><button type="button" data-f="100">All in</button></div>
+        <div class="controls" style="margin-top:14px">
+          <div class="sides" role="group" aria-label="Side"><button type="button" data-s="H" aria-pressed="true">Heads</button><button type="button" data-s="T" aria-pressed="false">Tails</button></div>
+          <button type="button" class="act primary" id="flip">Flip<kbd>Space</kbd></button>
+          <button type="button" class="act" id="auto10">Auto &times;10</button>
+          <button type="button" class="act" id="auto100">Auto to the end</button>
+          <button type="button" class="act" id="reset">Restart</button>
+        </div>
+        <svg class="chart" id="chart" viewBox="0 0 720 240" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="leg"><span><i style="background:#EDE3CF"></i>you</span><span><i style="background:#6FCFC3"></i>Kelly (20%) on the same flips</span><span><i style="background:#D4AF37"></i>half Kelly</span><span><i style="background:#C8323A"></i>all in each time</span><span>log scale</span></div>
+        <div class="flips" id="flips" aria-hidden="true"></div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Best bet size</span><span id="kTag">Kelly</span></div>
+        <div class="big" id="kBig">20%</div>
+        <p class="why" id="kWhy">With a 60% coin at even money, the Kelly fraction is 60% &minus; 40% = 20% of your bankroll each flip.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Growth per flip vs bet size</span><span id="gTag">-</span></div>
+        <svg class="g" id="g" viewBox="0 0 360 140" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <p class="note">The curve is the typical (median) growth rate. It peaks at Kelly and turns negative past about 38%: bet more and you will usually lose money even though every flip is in your favour.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>2,000 players at your size</span><span id="mcTag">-</span></div>
+        <div class="hist" id="hist"></div><div class="hl"><span>$0</span><span>log scale</span><span id="hmax">$250</span></div>
+        <div class="stat3" style="margin-top:10px"><div><span>Median end</span><b id="mcMed">-</b></div><div><span>End under $2</span><b id="mcBust">-</b></div><div><span>Hit the cap</span><b id="mcCap">-</b></div></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Your session</span><span id="sTag">-</span></div>
+        <div class="stat2"><div><span>Heads / tails</span><b id="ht">0 / 0</b></div><div><span>Average bet</span><b id="avgf">-</b></div><div><span>Worst drawdown</span><b id="dd">0%</b></div><div><span>Peak</span><b id="peak">$25</b></div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">The experiment</p><h3>Most people go broke</h3><p>In a 2016 study, 61 finance students and professionals got $25 and a coin they were told lands heads 60% of the time, with winnings capped at $250. Only 21% reached the cap and 28% finished with under $2, despite having an edge on every flip. Over-betting and chasing losses did the damage.</p></div>
+    <div><p class="k">The Kelly rule</p><h3>Bet your edge</h3><p>For an even-money bet, the Kelly fraction is your edge: win chance minus lose chance. At 60/40 that is 20% of your current bankroll. It maximises how fast money compounds over many bets, and because you bet a fraction, you can never hit exactly zero.</p></div>
+    <div><p class="k">Average vs typical</p><h3>Expected value lies</h3><p>Betting everything each time has the highest average outcome, yet nearly every player busts: a handful of lucky survivors pull the average up. Real investors care about the typical path, which is what Kelly maximises. Half Kelly gives up a little growth for much smaller swings.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Arcade</span>
+  <span>Play money only. Based on Haghani &amp; Dewey (2016).</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var FLIPS = 300, START = 25, CAP = 250, mode = store('ldb-kc-mode') || 'known', cap = true;
+  var p, bank, n, side, outcomes, path, ghosts, heads, tails, sumF, peak, dd, done;
+  function money(v) { return '$' + v.toFixed(2); }
+  function reset() {
+    p = mode === 'known' ? .6 : .55 + Math.random() * .15; bank = START; n = 0; outcomes = []; path = [START]; heads = 0; tails = 0; sumF = 0; peak = START; dd = 0; done = false;
+    ghosts = { k: [START], h: [START], a: [START] };
+    document.querySelectorAll('#mode button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.k === mode); }); render(); mc();
+  }
+  function pEst() { return mode === 'known' ? .6 : (1 + heads) / (2 + heads + tails); }
+  function kellyF() { var q = pEst(); if (mode === 'hidden') { var a = 1 + heads, b = 1 + tails, mean = a / (a + b), sd = Math.sqrt(a * b / ((a + b) * (a + b) * (a + b + 1))); q = mean - sd * .5; } return Math.max(0, 2 * Math.max(q, 1 - q) - 1); }
+  function kellySide() { return pEst() >= .5 ? 'H' : 'T'; }
+  function frac() { return +$('frac').value / 100; }
+  function betAmt() { return Math.min(bank, Math.floor(bank * frac() * 100) / 100); }
+  function step(f) {
+    if (done) return; var amt = Math.min(bank, Math.floor(bank * f * 100) / 100), h = Math.random() < p, win = (h && side === 'H') || (!h && side === 'T');
+    bank = Math.round((bank + (win ? amt : -amt)) * 100) / 100; if (cap && bank >= CAP) bank = CAP;
+    n++; if (h) heads++; else tails++; outcomes.push(h); sumF += f; path.push(bank); peak = Math.max(peak, bank); dd = Math.max(dd, peak > 0 ? 1 - bank / peak : 0);
+    var g = function (arr, ff) { var b = arr[arr.length - 1], a = b * ff, nb = b + (h ? a : -a); if (cap && nb >= CAP) nb = CAP; if (b >= CAP && cap) nb = CAP; arr.push(Math.max(0, nb)); };
+    g(ghosts.k, .2); g(ghosts.h, .1); g(ghosts.a, 1);
+    if (bank < .01 || n >= FLIPS || (cap && bank >= CAP)) done = true;
+  }
+  function flip(times) { side = document.querySelector('.sides button[aria-pressed="true"]').dataset.s; for (var i = 0; i < times && !done; i++) step(frac()); $('coin').textContent = outcomes.length ? (outcomes[outcomes.length - 1] ? 'H' : 'T') : 'H'; $('coin').classList.remove('spin'); void $('coin').offsetWidth; $('coin').classList.add('spin'); render(); if (times > 1 || n % 10 === 0) mc(); }
+  function render() {
+    $('bank').textContent = money(bank);
+    $('sub').textContent = done ? (bank >= CAP && cap ? 'You hit the $250 cap after ' + n + ' flips' : bank < .01 ? 'Bust after ' + n + ' flips' : 'Finished all ' + FLIPS + ' flips') : 'Flip ' + n + ' of ' + FLIPS + ' · ' + (mode === 'known' ? 'coin lands heads 60% of the time' : 'coin bias is hidden; learn it as you go');
+    $('betv').textContent = $('frac').value + '% = ' + money(betAmt());
+    ['flip', 'auto10', 'auto100'].forEach(function (id) { $(id).disabled = done; });
+    $('flips').innerHTML = outcomes.slice(-200).map(function (h) { return '<i' + (h ? '' : ' class="t"') + '></i>'; }).join('');
+    chart(); gcurve(); stats();
+    var kf = kellyF(); $('kBig').textContent = Math.round(kf * 100) + '% on ' + (kellySide() === 'H' ? 'heads' : 'tails');
+    if (mode === 'known') $('kWhy').textContent = 'With a 60% coin at even money, the Kelly fraction is 60% − 40% = 20% of your current bankroll, every flip. Right now that is ' + money(bank * .2) + '.';
+    else { var a = 1 + heads, b = 1 + tails; $('kWhy').textContent = 'After ' + heads + ' heads and ' + tails + ' tails, the best guess for heads is ' + Math.round(a / (a + b) * 100) + '%. Kelly is computed from a cautious estimate (half a standard deviation lower), because over-estimating your edge is how bettors go broke.'; }
+    $('kTag').textContent = mode === 'known' ? 'p = 60%' : 'p unknown';
+  }
+  function chart() {
+    var svg = $('chart'), W = Math.max(300, svg.clientWidth || 720), H = 240, lo = Math.log(1), hi = Math.log(cap ? CAP * 1.05 : Math.max(CAP, peak * 1.2, Math.max.apply(null, ghosts.a)) ), N = Math.max(FLIPS, 1);
+    function y(v) { return H - 6 - (Math.log(Math.max(v, 1)) - lo) / (hi - lo) * (H - 14); }
+    function line(arr, col, w) { var d = arr.map(function (v, i) { return (i ? 'L' : 'M') + (i / N * W).toFixed(1) + ' ' + y(v).toFixed(1); }).join(''); return '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" vector-effect="non-scaling-stroke"/>'; }
+    var h = ''; [1, 5, 25, 100, 250, 1000, 10000].forEach(function (v) { if (Math.log(v) > hi) return; h += '<line x1="0" x2="' + W + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="rgba(255,255,255,.07)" vector-effect="non-scaling-stroke"/><text x="4" y="' + (y(v) - 3) + '" fill="#5E5E64" font-size="11" font-family="JetBrains Mono">$' + v + '</text>'; });
+    h += line(ghosts.a, '#C8323A', 1.5) + line(ghosts.h, '#D4AF37', 1.5) + line(ghosts.k, '#6FCFC3', 1.5) + line(path, '#EDE3CF', 2.5);
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = h;
+  }
+  function gcurve() {
+    var q = mode === 'known' ? .6 : pEst(), W = Math.max(200, $('g').clientWidth || 360), H = 140, pts = [], mn = 1e9, mx = -1e9;
+    for (var f = 0; f <= .6; f += .01) { var g = q * Math.log(1 + f) + (1 - q) * Math.log(Math.max(1e-9, 1 - f)); pts.push([f, g]); mn = Math.min(mn, g); mx = Math.max(mx, g); }
+    mn = Math.max(mn, -.08); var X = function (f) { return f / .6 * W; }, Y = function (g) { return H - 14 - (Math.max(g, mn) - mn) / (mx - mn) * (H - 24); };
+    var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(''), fx = frac(), gx = q * Math.log(1 + fx) + (1 - q) * Math.log(Math.max(1e-9, 1 - fx));
+    var h = '<line x1="0" x2="' + W + '" y1="' + Y(0) + '" y2="' + Y(0) + '" stroke="rgba(255,255,255,.2)" stroke-dasharray="3 3"/><path d="' + d + '" fill="none" stroke="#6FCFC3" stroke-width="2"/>';
+    var kf = Math.max(0, 2 * q - 1); h += '<line x1="' + X(kf) + '" x2="' + X(kf) + '" y1="4" y2="' + (H - 14) + '" stroke="#6FCFC3" stroke-dasharray="2 3"/><text x="' + (X(kf) + 4) + '" y="14" fill="#6FCFC3" font-size="10" font-family="JetBrains Mono">Kelly</text>';
+    if (fx <= .6) h += '<circle cx="' + X(fx) + '" cy="' + Y(gx) + '" r="5" fill="#EDE3CF"/>';
+    [0, .2, .4, .6].forEach(function (t) { h += '<text x="' + Math.min(W - 18, X(t) + 2) + '" y="' + (H - 2) + '" fill="#5E5E64" font-size="10" font-family="JetBrains Mono">' + Math.round(t * 100) + '%</text>'; });
+    $('g').setAttribute('viewBox', '0 0 ' + W + ' ' + H); $('g').innerHTML = h; $('gTag').textContent = 'yours: ' + (gx * 100 >= 0 ? '+' : '') + (fx > .99 ? '-∞' : (gx * 100).toFixed(2)) + '% / flip';
+  }
+  function mc() {
+    var f = n ? sumF / n : frac(), q = mode === 'known' ? .6 : p, left = FLIPS - n, P = 2000, ends = [], bust = 0, capped = 0;
+    for (var i = 0; i < P; i++) { var b = bank; for (var k = 0; k < left; k++) { if (b < .01 || (cap && b >= CAP)) break; var a = Math.floor(b * f * 100) / 100; b += Math.random() < q ? a : -a; if (cap && b > CAP) b = CAP; } if (b < 2) bust++; if (cap && b >= CAP) capped++; ends.push(b); }
+    ends.sort(function (a, b) { return a - b; }); var med = ends[P >> 1];
+    $('mcMed').textContent = money(med); $('mcBust').textContent = Math.round(bust / P * 100) + '%'; $('mcCap').textContent = cap ? Math.round(capped / P * 100) + '%' : 'off';
+    $('mcTag').textContent = 'betting ' + Math.round(f * 100) + '% from here';
+    var top = cap ? CAP : Math.max(1000, ends[P - 1]), bins = new Array(12).fill(0); ends.forEach(function (v) { var t = v < 1 ? 0 : Math.min(11, Math.floor(Math.log(v) / Math.log(top) * 11) + 1); bins[t]++; });
+    var mx = Math.max.apply(null, bins); $('hist').innerHTML = bins.map(function (c) { return '<i style="height:' + (c / mx * 100).toFixed(1) + '%"></i>'; }).join(''); $('hmax').textContent = '$' + Math.round(top);
+  }
+  function stats() { $('ht').textContent = heads + ' / ' + tails; $('avgf').textContent = n ? Math.round(sumF / n * 100) + '%' : '-'; $('dd').textContent = Math.round(dd * 100) + '%'; $('peak').textContent = money(peak); $('sTag').textContent = n + ' flips'; }
+  $('frac').addEventListener('input', function () { render(); });
+  $('frac').addEventListener('change', mc);
+  document.querySelectorAll('.quick button').forEach(function (b) { b.addEventListener('click', function () { var k = b.dataset.f, kf = kellyF(); $('frac').value = k === 'kelly' ? Math.round(kf * 100) : k === 'half' ? Math.round(kf * 50) : k;
+    if (k === 'kelly' || k === 'half') document.querySelectorAll('.sides button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.s === kellySide()); }); render(); mc(); }); });
+  document.querySelectorAll('.sides button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('.sides button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); }); });
+  $('flip').addEventListener('click', function () { flip(1); }); $('auto10').addEventListener('click', function () { flip(10); }); $('auto100').addEventListener('click', function () { flip(FLIPS); }); $('reset').addEventListener('click', reset);
+  addEventListener('keydown', function (e) { if (e.key === ' ' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') { e.preventDefault(); flip(1); } });
+  document.querySelectorAll('#mode button').forEach(function (b) { b.addEventListener('click', function () { mode = b.dataset.k; store('ldb-kc-mode', mode); reset(); }); });
+  function tog(id, fn) { $(id).addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); fn(on); store('ldb-kc-' + id, on ? '1' : '0'); });
+    var s = store('ldb-kc-' + id); if (s === '0' || s === '1') { $(id).setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+  tog('capTog', function (on) { cap = on; if (bank !== undefined) { render(); mc(); } });
+  tog('anTog', function (on) { document.body.classList.toggle('noan', !on); });
+  addEventListener('resize', function () { chart(); gcurve(); });
+  reset();
+  window.__kc = { st: function () { return { bank: bank, n: n, done: done, p: p, k: kellyF() }; }, flip: flip, setF: function (v) { $('frac').value = v; render(); } };
+})();
+
+</script>
+</body>
+</html>

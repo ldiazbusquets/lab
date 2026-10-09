@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landlord | LDB Lab Self-training</title>
+<meta name="description" content="A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade. Landing heat map and the champion’s strategy in plain English.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Landlord | LDB Lab Self-training">
+<meta property="og:description" content="A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade. Landing heat map and the champion’s strategy in plain English.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/landlord.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --crim: #2E5E8E; --bone: #EAF2FB; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: #000; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px); background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: #fff; }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #000; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(6,9,12,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: var(--acc); border-color: var(--acc); color: #000; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(6,9,12,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  svg.chart { width: 100%; display: block; }
+  .leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .leg i { display: inline-block; width: 14px; height: 3px; margin-right: 5px; vertical-align: 2px; }
+  .trainbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .status2 { font: 600 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-left: auto; }
+  .status2 b { color: #fff; }
+  .live { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--dim); margin-right: 6px; vertical-align: 0; }
+  .live.on { background: var(--teal); box-shadow: 0 0 8px var(--teal); animation: pulse 1s steps(2) infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .h3 { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 8px; display: flex; justify-content: space-between; gap: 10px; }
+  .h3 span:last-child { color: var(--dim); font-weight: 500; }
+  .fld label { display: flex; justify-content: space-between; font: 700 .6rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 5px; gap: 8px; }
+  .fld label b { color: #fff; }
+  .fld input[type=range] { width: 100%; accent-color: var(--acc); }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .lessons { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: #C9CDD3; max-height: 260px; overflow-y: auto; }
+  .lessons div { border-left: 2px solid var(--lock); padding: 4px 0 4px 10px; }
+  .lessons div.good { border-color: var(--teal); }
+  .lessons b { color: #fff; font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .heat { display: grid; gap: 2px; font: 600 .62rem var(--mono); }
+  .heat span { padding: 6px 4px; text-align: center; color: #000; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .heat .hd { background: transparent; color: var(--soft); }
+  @media (prefers-reduced-motion: reduce) { .live.on { animation: none; } }
+
+  .boardg { display: grid; grid-template-columns: 1.4fr repeat(9, 1fr) 1.4fr; grid-template-rows: 1.4fr repeat(9, 1fr) 1.4fr; aspect-ratio: 1; width: min(100%, 640px); margin: 0 auto; gap: 2px; background: #0b0f14; border: 6px solid #0b0f14; box-shadow: 0 0 0 1px rgba(91,159,224,.35); }
+  .bsq { position: relative; background: #11161d; font: 600 clamp(.36rem, 1vw, .55rem)/1.15 var(--mono); color: #9AA4B0; padding: 2px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; letter-spacing: .02em; }
+  .bsq .band { height: 18%; min-height: 4px; margin: -2px -2px 2px; }
+  .bsq .heat { position: absolute; inset: 0; pointer-events: none; }
+  .bsq .nm2 { position: relative; z-index: 1; }
+  .bsq .own { position: absolute; left: 2px; bottom: 2px; width: 8px; height: 8px; border-radius: 50%; z-index: 2; }
+  .bsq .hs { position: absolute; right: 2px; bottom: 1px; font: 700 .5rem var(--mono); color: #fff; z-index: 2; }
+  .bsq .tok { position: absolute; width: 22%; aspect-ratio: 1; border-radius: 50%; z-index: 3; box-shadow: 0 0 0 1.5px #000; }
+  .bsq.corner { font-size: clamp(.42rem, 1.1vw, .62rem); justify-content: center; color: #cfd6de; }
+  .center { grid-column: 2 / 11; grid-row: 2 / 11; background: radial-gradient(circle at 50% 40%, #142030, #0b0f14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8%; text-align: center; }
+  .center h2 { font: 800 clamp(1.1rem, 3.6vw, 2.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: #fff; letter-spacing: .04em; }
+  .center p { margin: 0; font-size: clamp(.6rem, 1.4vw, .8rem); color: var(--soft); }
+  .cash { width: 100%; display: grid; gap: 4px; }
+  .cash div { display: grid; grid-template-columns: 74px 1fr 64px; gap: 6px; align-items: center; font: 600 clamp(.5rem, 1.2vw, .66rem) var(--mono); color: #ddd; }
+  .cash i { height: 8px; display: block; border-radius: 4px; }
+  .glog { font: 500 .7rem/1.7 var(--mono); color: var(--soft); max-height: 140px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--line); padding: 8px 10px; }
+  table.grp { width: 100%; border-collapse: collapse; font: 600 .7rem var(--mono); }
+  table.grp td, table.grp th { padding: 4px 4px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: right; }
+  table.grp th { font-size: .54rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  table.grp td:first-child, table.grp th:first-child { text-align: left; }
+  table.grp i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; vertical-align: -1px; }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/TRAIN</span></a>
+  <div class="right">
+    <a class="btn" href="./#train">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Self-training 05 &middot; Genetic algorithm</p>
+      <h1>Landlord</h1>
+    </div>
+    <div class="tools">
+      <button type="button" class="tog" id="heatTog" aria-pressed="true"><i></i>Landing heat map</button>
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="trainbar">
+          <button type="button" class="act primary" id="train">Evolve</button>
+          <button type="button" class="act" id="watch">Watch the champion play</button>
+          <button type="button" class="act" id="reset">New population</button>
+          <span class="status2"><span class="live" id="live"></span>Generation <b id="gen">0</b> &middot; <b id="games">0</b> games played</span>
+        </div>
+        <div class="boardg" id="board"></div>
+        <div class="glog" id="glog" aria-live="polite">Evolve a few generations, then watch the champion play three simple bots.</div>
+        <div class="h3"><span>Learning curve: champion vs three simple bots</span><span>win rate, 200 games</span></div>
+        <svg class="chart" id="curve" height="200" style="height:200px" aria-hidden="true"></svg>
+        <div class="leg" id="curveLeg"></div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Champion win rate</span><span>vs 3 simple bots</span></div>
+        <div class="big" id="wr">-</div>
+        <p class="why" id="verdict">A fair share is 25%. Press Evolve: 24 strategies play each other, the winners breed, and the losers are replaced.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>The champion's strategy</span><span id="fit">-</span></div>
+        <p class="why" id="words" style="margin-top:0">-</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Which streets pay</span><span>from every simulated game</span></div>
+        <table class="grp" id="grp"></table>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Lessons from its mistakes</span><span>generation by generation</span></div>
+        <div class="lessons" id="lessons"><div class="good">No lessons yet.</div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">The game</p><h3>Buy, build, collect</h3><p>A 40-square property-trading board game with its own streets: buy what you land on, complete a colour group, build houses, and collect rent until rivals go bankrupt. Cards, taxes, jail and simple trades are included. It is inspired by The Landlord's Game of 1904, the ancestor of the genre.</p></div>
+    <div><p class="k">Genetic algorithm</p><h3>Survival of the richest</h3><p>Each strategy is 16 numbers: how much cash to keep, how badly it wants each colour, when to build, how many houses, when to pay out of jail, and how much to offer or demand in trades. Every generation the 24 strategies play 48 games; the best six survive unchanged and the rest are bred from winners with small random mutations.</p></div>
+    <div><p class="k">The heat map</p><h3>Not every square is equal</h3><p>Jail is the most visited square, because so many cards and rolls send you there. That makes the squares six to nine steps after it, like the orange Market group here, land more often than the rest, which is the kind of edge the strategies discover on their own.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Self-training</span>
+  <span>Original board and street names. Simulation only.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+/* shared helpers for the self-training pages */
+var $ = function (id) { return document.getElementById(id); };
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gaussR(R) { var u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+function sd(a) { var m = mean(a); return Math.sqrt(mean(a.map(function (x) { return (x - m) * (x - m); }))); }
+function fmtPct(x, d) { return (x >= 0 ? '+' : '') + (x * 100).toFixed(d == null ? 1 : d) + '%'; }
+function money(v, d) { var a = Math.abs(v); if (a < (d ? .005 : .5)) v = 0, a = 0; return (v < 0 ? '-$' : '$') + (a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(a).toLocaleString() : a.toFixed(d == null ? 0 : d)); }
+/* line chart into an <svg>: series = [{data:[y...] or [[x,y]...], color, width, dash, label}], opts = {log, yfmt, xlabels, bands:[{x0,x1,color}], zero, yMin, yMax} */
+function lineChart(svg, series, opts) {
+  opts = opts || {}; var W = Math.max(240, svg.clientWidth || 600), H = +(svg.getAttribute('height') || svg.clientHeight || 220) || 220, L = 52, R = 10, T = 10, B = 22;
+  var pts = series.map(function (s) { return s.data.map(function (d, i) { return Array.isArray(d) ? d : [i, d]; }); });
+  var xs = [], ys = []; pts.forEach(function (p) { p.forEach(function (q) { if (isFinite(q[1])) { xs.push(q[0]); ys.push(opts.log ? Math.log(Math.max(q[1], 1e-9)) : q[1]); } }); });
+  if (!xs.length) { svg.innerHTML = ''; return; }
+  var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = opts.yMin != null ? opts.yMin : Math.min.apply(null, ys), y1 = opts.yMax != null ? opts.yMax : Math.max.apply(null, ys);
+  if (opts.zero && !opts.log) { y0 = Math.min(y0, 0); y1 = Math.max(y1, 0); }
+  if (y1 - y0 < 1e-9) { y1 += 1; y0 -= 1; } var pad = (y1 - y0) * .06; y0 -= pad; y1 += pad; if (x1 === x0) x1 = x0 + 1;
+  var X = function (x) { return L + (x - x0) / (x1 - x0) * (W - L - R); }, Y = function (y) { var v = opts.log ? Math.log(Math.max(y, 1e-9)) : y; return T + (y1 - v) / (y1 - y0) * (H - T - B); };
+  var h = '';
+  (opts.bands || []).forEach(function (b) { h += '<rect x="' + X(b.x0).toFixed(1) + '" y="' + T + '" width="' + Math.max(0, X(b.x1) - X(b.x0)).toFixed(1) + '" height="' + (H - T - B) + '" fill="' + b.color + '"/>'; });
+  var ticks = []; if (opts.log) { [1e-3, .01, .1, .25, .5, 1, 2, 4, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7].forEach(function (t) { var l = Math.log(t); if (l >= y0 && l <= y1) ticks.push(t); }); }
+  else { var span = y1 - y0, st = Math.pow(10, Math.floor(Math.log10(span / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return span / s <= 6; })[0] || st * 10; for (var t = Math.ceil(y0 / st) * st; t <= y1; t += st) ticks.push(+t.toFixed(10)); }
+  var yf = opts.yfmt || function (v) { return Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : +v.toFixed(3); };
+  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#5E5E64" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
+  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#5E5E64" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
+  series.forEach(function (s, k) { var p = pts[k].filter(function (q) { return isFinite(q[1]); }); if (!p.length) return;
+    if (s.dots) { p.forEach(function (q) { h += '<circle cx="' + X(q[0]).toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="' + (s.r || 2.5) + '" fill="' + s.color + '"/>'; }); return; }
+    var d = p.map(function (q, i) { return (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ' ' + Y(q[1]).toFixed(1); }).join('');
+    h += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="' + (s.width || 1.8) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + ' stroke-linejoin="round"/>'; });
+  (opts.marks || []).forEach(function (m) { h += '<circle cx="' + X(m[0]).toFixed(1) + '" cy="' + Y(m[1]).toFixed(1) + '" r="3.5" fill="' + m[2] + '"/>'; });
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.innerHTML = h;
+}
+function legend(el, items) { el.innerHTML = items.map(function (it) { return '<span><i style="background:' + it[1] + (it[2] ? ';height:0;border-top:2px dashed ' + it[1] + ';background:none' : '') + '"></i>' + it[0] + '</span>'; }).join(''); }
+/* runs work in small slices each frame so the page stays responsive */
+function Loop(stepFn, onFrame) { var on = false, budget = 14, self = { start: function () { if (on) return; on = true; tick(); }, stop: function () { on = false; }, running: function () { return on; }, setBudget: function (ms) { budget = ms; } };
+  function tick() { if (!on) return; var t0 = performance.now(); do { if (stepFn() === false) { on = false; break; } } while (performance.now() - t0 < budget); onFrame && onFrame(); if (on) requestAnimationFrame(tick); } return self; }
+function tog(id, key, fn) { var el = $(id); el.addEventListener('click', function () { var on = el.getAttribute('aria-pressed') !== 'true'; el.setAttribute('aria-pressed', on); fn(on); store(key + id, on ? '1' : '0'); }); var s = store(key + id); if (s === '0' || s === '1') { el.setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+function seg(id, cb) { document.querySelectorAll('#' + id + ' button').forEach(function (b) { b.addEventListener('click', function () { document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); cb(b.dataset.k); }); }); }
+function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.k === String(k)); }); }
+
+/* Landlord: a property-trading board game engine, deterministic given an rng */
+var GROUPS = [
+  { n: 'Dockside', c: '#8B5A3C', h: 50 }, { n: 'Old Town', c: '#8FD3F0', h: 50 }, { n: 'Mill Row', c: '#D96AA7', h: 100 }, { n: 'Market', c: '#F0913A', h: 100 },
+  { n: 'Theatre', c: '#E0423A', h: 150 }, { n: 'Garden', c: '#F2D94A', h: 150 }, { n: 'Bankside', c: '#3FA66B', h: 200 }, { n: 'Hilltop', c: '#3D5FC4', h: 200 }];
+var SQ = [['GO', 'go'], ['Wharf Lane', 'p', 0, 60], ['Fund', 'card'], ['Pier Road', 'p', 0, 60], ['Income tax', 'tax', 150], ['North Station', 'st', 200], ['Bell Street', 'p', 1, 100], ['Luck', 'card'], ['Clock Row', 'p', 1, 100], ['Mint Lane', 'p', 1, 120],
+  ['Jail', 'jail'], ['Loom Street', 'p', 2, 140], ['Power Works', 'ut', 150], ['Spindle Way', 'p', 2, 140], ['Foundry Road', 'p', 2, 160], ['East Station', 'st', 200], ['Corn Market', 'p', 3, 180], ['Fund', 'card'], ['Fish Street', 'p', 3, 180], ['Spice Row', 'p', 3, 200],
+  ['Rest', 'free'], ['Stage Door', 'p', 4, 220], ['Luck', 'card'], ['Opera Lane', 'p', 4, 220], ['Gallery Road', 'p', 4, 240], ['South Station', 'st', 200], ['Rose Walk', 'p', 5, 260], ['Orchard Way', 'p', 5, 260], ['Water Works', 'ut', 150], ['Fountain Square', 'p', 5, 280],
+  ['Go to jail', 'gojail'], ['Exchange Street', 'p', 6, 300], ['Ledger Row', 'p', 6, 300], ['Fund', 'card'], ['Treasury Road', 'p', 6, 320], ['West Station', 'st', 200], ['Luck', 'card'], ['Summit Avenue', 'p', 7, 350], ['Luxury tax', 'tax', 100], ['Crown Heights', 'p', 7, 400]];
+var MULT = [1, 5, 15, 40, 55, 70];
+function price(i) { var s = SQ[i]; return s[1] === 'p' ? s[3] : s[1] === 'st' ? 200 : s[1] === 'ut' ? 150 : 0; }
+function groupSqs(g) { var o = []; SQ.forEach(function (s, i) { if (s[1] === 'p' && s[2] === g) o.push(i); }); return o; }
+var GSQ = GROUPS.map(function (_, g) { return groupSqs(g); }), STS = [5, 15, 25, 35], UTS = [12, 28];
+var CARDS = ['go', 'jail', 'back3', 'station', 'gain50', 'gain100', 'gain150', 'pay50', 'pay100', 'pay150', 'repairs', 'birthday', 'gain25', 'pay25', 'gain200', 'none'];
+/* genome: [reserve, w0..w7, wSt, wUt, buildReserve, buildMax, jailPayTurns, offerMult, sellMult] */
+var GEN = { len: 16, lo: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1.2], hi: [500, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 700, 5, 300, 3, 4] };
+function randGenome(R) { var g = []; for (var i = 0; i < GEN.len; i++) g.push(GEN.lo[i] + R() * (GEN.hi[i] - GEN.lo[i])); return g; }
+var BASELINE = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 150, 3, 0, 1.3, 1.6];
+function Game(genomes, R, opts) {
+  opts = opts || {}; var N = genomes.length, P = genomes.map(function (g, k) { return { g: g, cash: 1500, pos: 0, jail: 0, out: false, id: k, doubles: 0 }; });
+  var own = new Int8Array(40).fill(-1), houses = new Int8Array(40), mort = new Uint8Array(40), turn = 0, cur = 0, log = opts.log ? [] : null, land = opts.land || null, rentLog = opts.rent || null, events = 0;
+  function L(t) { if (log) log.push(t); }
+  function nm(p) { return opts.names ? opts.names[p.id] : 'P' + p.id; }
+  function hasGroup(p, g) { return GSQ[g].every(function (i) { return own[i] === p.id; }); }
+  function rentOf(i, dice) { var s = SQ[i], o = own[i]; if (o < 0 || mort[i]) return 0;
+    if (s[1] === 'st') return 25 * Math.pow(2, STS.filter(function (j) { return own[j] === o && !mort[j]; }).length - 1);
+    if (s[1] === 'ut') return dice * (UTS.every(function (j) { return own[j] === o; }) ? 10 : 4);
+    var base = Math.round(s[3] * .08 / 2) * 2 + 2, h = houses[i]; return h ? base * MULT[h] : base * (hasGroup(P[o], s[2]) ? 2 : 1); }
+  function worth(p) { var w = p.cash; for (var i = 0; i < 40; i++) if (own[i] === p.id) { w += mort[i] ? price(i) / 2 : price(i); if (SQ[i][1] === 'p') w += houses[i] * GROUPS[SQ[i][2]].h; } return w; }
+  function raise(p, need) { /* sell houses, then mortgage, to cover a debt */
+    for (var pass = 0; pass < 2 && p.cash < need; pass++) for (var i = 39; i >= 0 && p.cash < need; i--) { if (own[i] !== p.id) continue;
+      if (pass === 0 && houses[i]) { while (houses[i] && p.cash < need) { houses[i]--; p.cash += GROUPS[SQ[i][2]].h / 2; } }
+      if (pass === 1 && !mort[i] && (SQ[i][1] !== 'p' || GSQ[SQ[i][2]].every(function (j) { return !houses[j]; }))) { mort[i] = 1; p.cash += price(i) / 2; } } }
+  function pay(p, amt, to) { if (amt <= 0) return; if (p.cash < amt) raise(p, amt);
+    if (p.cash < amt) { var got = Math.max(0, p.cash); if (to) to.cash += got; bankrupt(p, to); return; }
+    p.cash -= amt; if (to) to.cash += amt; }
+  function bankrupt(p, to) { p.out = true; L(nm(p) + ' goes bankrupt' + (to ? ' to ' + nm(to) : '')); for (var i = 0; i < 40; i++) if (own[i] === p.id) { houses[i] = 0; if (to) { own[i] = to.id; } else { own[i] = -1; mort[i] = 0; } } p.cash = 0; }
+  function wantBuy(p, i) { var s = SQ[i], w = s[1] === 'p' ? p.g[1 + s[2]] : s[1] === 'st' ? p.g[9] : p.g[10], pr = price(i); return p.cash - pr >= p.g[0] * (1.2 - w); }
+  function card(p, dice) { var c = CARDS[Math.floor(R() * CARDS.length)];
+    switch (c) { case 'go': p.pos = 0; p.cash += 200; break; case 'jail': toJail(p); return true; case 'back3': p.pos = (p.pos + 37) % 40; arrive(p, dice); return true;
+      case 'station': var t = STS.filter(function (x) { return x > p.pos; })[0]; if (t == null) { t = 5; p.cash += 200; } p.pos = t; arrive(p, dice); return true;
+      case 'repairs': var hs = 0; for (var i = 0; i < 40; i++) if (own[i] === p.id) hs += houses[i]; pay(p, 25 * hs, null); break;
+      case 'birthday': P.forEach(function (q) { if (q !== p && !q.out) pay(q, 10, p); }); break;
+      case 'none': break; default: var v = +c.replace(/\D/g, ''); if (c.indexOf('gain') === 0) p.cash += v; else pay(p, v, null); }
+    return false; }
+  function toJail(p) { p.pos = 10; p.jail = 1; p.doubles = 0; if (land) land[10]++; }
+  function arrive(p, dice) { var i = p.pos, s = SQ[i]; if (land) land[i]++;
+    if (s[1] === 'p' || s[1] === 'st' || s[1] === 'ut') { var o = own[i];
+      if (o < 0) { if (wantBuy(p, i)) { p.cash -= price(i); own[i] = p.id; } }
+      else if (o !== p.id) { var r = rentOf(i, dice), to = P[o]; if (r) { pay(p, r, to); if (rentLog) { var key = s[1] === 'p' ? s[2] : s[1] === 'st' ? 8 : 9; rentLog[key] += r; } } } }
+    else if (s[1] === 'tax') pay(p, s[2], null); else if (s[1] === 'card') card(p, dice); else if (s[1] === 'gojail') toJail(p); }
+  function build(p) { for (var g = 7; g >= 0; g--) { if (!hasGroup(p, g)) continue; var sq = GSQ[g], cost = GROUPS[g].h; if (sq.some(function (i) { return mort[i]; })) continue;
+      var guard = 0; while (guard++ < 20) { var lo = sq.reduce(function (a, i) { return houses[i] < houses[a] ? i : a; }, sq[0]); if (houses[lo] >= Math.round(p.g[12]) || p.cash - cost < p.g[11]) break; houses[lo]++; p.cash -= cost; } } }
+  function unmortgage(p) { for (var i = 0; i < 40; i++) if (own[i] === p.id && mort[i] && p.cash - price(i) * .55 > p.g[0] + 100) { mort[i] = 0; p.cash -= price(i) * .55; } }
+  function trade(p) { for (var g = 0; g < 8; g++) { var sq = GSQ[g], mine = sq.filter(function (i) { return own[i] === p.id; }), other = sq.filter(function (i) { return own[i] !== p.id; });
+      if (mine.length < sq.length - 1 || other.length !== 1) continue; var i = other[0], o = own[i]; if (o < 0 || houses[i]) continue; var q = P[o], offer = Math.round(price(i) * p.g[14]);
+      if (p.cash - offer < p.g[0] * .5) continue; var theyNearly = GSQ[g].filter(function (j) { return own[j] === o; }).length >= sq.length - 1;
+      if (!theyNearly && offer >= price(i) * q.g[15]) { p.cash -= offer; q.cash += offer; own[i] = p.id; mort[i] = 0; L(nm(p) + ' buys ' + SQ[i][0] + ' from ' + nm(q) + ' for $' + offer); return; } } }
+  function step() { var p = P[cur]; if (p.out) { cur = (cur + 1) % N; return; }
+    var d1 = 1 + Math.floor(R() * 6), d2 = 1 + Math.floor(R() * 6), dice = d1 + d2, dbl = d1 === d2;
+    if (p.jail) { if (turn < p.g[13] || p.jail >= 3) { pay(p, 50, null); p.jail = 0; } else if (dbl) { p.jail = 0; } else { p.jail++; cur = (cur + 1) % N; turn++; return; } if (p.out) { cur = (cur + 1) % N; return; } }
+    if (dbl) p.doubles++; else p.doubles = 0;
+    if (p.doubles >= 3) { toJail(p); p.doubles = 0; cur = (cur + 1) % N; turn++; return; }
+    var np = p.pos + dice; if (np >= 40) p.cash += 200; p.pos = np % 40; arrive(p, dice);
+    if (!p.out) { unmortgage(p); trade(p); build(p); }
+    if (!(dbl && p.doubles && !p.jail && !p.out)) { cur = (cur + 1) % N; turn++; } }
+  function alive() { return P.filter(function (p) { return !p.out; }); }
+  return { P: P, own: own, houses: houses, mort: mort, step: step, alive: alive, worth: worth, turn: function () { return turn; }, cur: function () { return cur; }, log: log,
+    play: function (maxTurns) { while (alive().length > 1 && turn < maxTurns) step(); var a = P.slice().sort(function (x, y) { return (y.out ? -1 : worth(y)) - (x.out ? -1 : worth(x)); }); return a.map(function (p) { return p.id; }); } };
+}
+
+(function () {
+  var R = rng(Date.now() & 0xffffffff), POP = 24, pop, fit, gen, games, curve = [], champ, lessons = [], land = new Float64Array(40), rent = new Float64Array(10), showHeat = true, watchG = null, watchT = null;
+  var PCOL = ['#5B9FE0', '#D4AF37', '#C266B2', '#6FCFC3'], PN = ['Champion', 'Bot A', 'Bot B', 'Bot C'];
+  /* board layout */
+  function cell(i) { if (i <= 10) return [11, 11 - i]; if (i <= 20) return [11 - (i - 10), 1]; if (i <= 30) return [1, 1 + (i - 20)]; return [1 + (i - 30), 11]; }
+  function buildBoard() { var b = $('board'), h = ''; for (var i = 0; i < 40; i++) { var c = cell(i), s = SQ[i], corner = i % 10 === 0;
+      h += '<div class="bsq' + (corner ? ' corner' : '') + '" data-i="' + i + '" style="grid-row:' + c[0] + ';grid-column:' + c[1] + '">' + (s[1] === 'p' ? '<div class="band" style="background:' + GROUPS[s[2]].c + '"></div>' : '') + '<span class="heat"></span><span class="nm2">' + s[0] + '</span><span class="own"></span><span class="hs"></span></div>'; }
+    h += '<div class="center"><h2>LANDLORD</h2><p id="cMsg">24 strategies, evolving</p><div class="cash" id="cash"></div></div>'; b.innerHTML = h; }
+  function paintBoard() { var tot = land.reduce(function (a, b) { return a + b; }, 0) || 1, mx = Math.max.apply(null, Array.prototype.slice.call(land)) / tot || 1;
+    document.querySelectorAll('.bsq').forEach(function (el) { var i = +el.dataset.i, f = land[i] / tot; el.querySelector('.heat').style.background = showHeat && tot > 1 ? 'rgba(255,90,78,' + (f / mx * .55).toFixed(3) + ')' : 'transparent'; el.title = SQ[i][0] + (tot > 1 ? ': ' + (f * 100).toFixed(2) + '% of landings' : '');
+      var o = watchG ? watchG.own[i] : -1; el.querySelector('.own').style.background = o >= 0 ? PCOL[o] : 'transparent'; el.querySelector('.own').style.opacity = watchG && watchG.mort[i] ? .35 : 1;
+      var hs = watchG ? watchG.houses[i] : 0; el.querySelector('.hs').textContent = hs ? (hs === 5 ? 'H' : hs) : '';
+      el.querySelectorAll('.tok').forEach(function (t) { t.remove(); }); });
+    if (watchG) watchG.P.forEach(function (p, k) { if (p.out) return; var el = document.querySelector('.bsq[data-i="' + p.pos + '"]'); var t = document.createElement('span'); t.className = 'tok'; t.style.background = PCOL[k]; t.style.left = (8 + (k % 2) * 30) + '%'; t.style.top = (36 + Math.floor(k / 2) * 28) + '%'; el.appendChild(t); });
+    var cash = $('cash'); if (watchG) { var mxw = Math.max.apply(null, watchG.P.map(function (p) { return watchG.worth(p); })) || 1; cash.innerHTML = watchG.P.map(function (p, k) { var w = p.out ? 0 : watchG.worth(p); return '<div><span style="color:' + PCOL[k] + '">' + PN[k] + '</span><i style="width:' + Math.max(2, w / mxw * 100) + '%;background:' + PCOL[k] + ';opacity:' + (p.out ? .2 : 1) + '"></i><span>' + (p.out ? 'out' : money(w)) + '</span></div>'; }).join(''); }
+    else cash.innerHTML = ''; }
+  /* evolution */
+  function reset() { pop = []; for (var i = 0; i < POP; i++) pop.push(randGenome(R)); fit = new Float64Array(POP); gen = 0; games = 0; curve = []; lessons = []; land = new Float64Array(40); rent = new Float64Array(10); champ = pop[0]; stopWatch(); evalChamp(); draw(); }
+  function generation() { var pts = new Float64Array(POP), plays = new Float64Array(POP);
+    for (var g = 0; g < 48; g++) { var idx = []; while (idx.length < 4) { var k = Math.floor(R() * POP); if (idx.indexOf(k) < 0) idx.push(k); }
+      var order = Game(idx.map(function (k) { return pop[k]; }), R, { land: land, rent: rent }).play(600); games++;
+      idx.forEach(function (k, j) { plays[k]++; var place = order.indexOf(j); pts[k] += place === 0 ? 1 : place === 1 ? .35 : place === 2 ? .1 : 0; }); }
+    for (var i = 0; i < POP; i++) fit[i] = plays[i] ? pts[i] / plays[i] : 0;
+    var rank = pop.map(function (_, i) { return i; }).sort(function (a, b) { return fit[b] - fit[a]; }), prevChamp = champ; champ = pop[rank[0]].slice();
+    var next = rank.slice(0, 6).map(function (i) { return pop[i].slice(); });
+    function pick() { var a = rank[Math.floor(R() * 12)], b = rank[Math.floor(R() * 12)]; return fit[a] > fit[b] ? pop[a] : pop[b]; }
+    while (next.length < POP) { var A = pick(), B = pick(), ch = A.map(function (v, j) { var x = R() < .5 ? v : B[j]; if (R() < .2) x += (GEN.hi[j] - GEN.lo[j]) * .12 * gaussR(R); return Math.max(GEN.lo[j], Math.min(GEN.hi[j], x)); }); next.push(ch); }
+    pop = next; gen++; if (gen % 3 === 0 || gen < 3) { evalChamp(); lesson(prevChamp, champ); } }
+  function evalChamp() { var w = 0, RR = rng(9000 + gen); for (var k = 0; k < 200; k++) { var o = Game([champ, BASELINE, BASELINE, BASELINE], RR).play(600); if (o[0] === 0) w++; } curve.push([gen, w / 200]); }
+  function topGroups(g) { return [0, 1, 2, 3, 4, 5, 6, 7].sort(function (a, b) { return g[1 + b] - g[1 + a]; }); }
+  function words(g) { var tg = topGroups(g); return 'Keeps about ' + money(g[0]) + ' in reserve when buying, so it is ' + (g[0] < 120 ? 'aggressive' : g[0] < 300 ? 'balanced' : 'cautious') + '. Most wants ' + GROUPS[tg[0]].n + ' and ' + GROUPS[tg[1]].n + ', least wants ' + GROUPS[tg[7]].n + '. Builds up to ' + (Math.round(g[12]) >= 5 ? 'a hotel' : Math.round(g[12]) + ' house' + (Math.round(g[12]) > 1 ? 's' : '')) + ' whenever it would still have ' + money(g[11]) + ' left. Offers ' + g[14].toFixed(1) + '× list price to finish a set and sells only at ' + g[15].toFixed(1) + '×. ' + (g[13] > 60 ? 'Pays straight out of jail for the first ' + Math.round(g[13] / 4) + ' rounds, then sits tight to dodge rent.' : 'Prefers to sit in jail, dodging rent while others move.'); }
+  function lesson(a, b) { if (!a) return; var msgs = [], c = curve[curve.length - 1], p = curve[curve.length - 2];
+    if (Math.abs(b[0] - a[0]) > 60) msgs.push({ good: b[0] < a[0], t: 'Generation ' + gen + ': the champion now keeps ' + money(b[0]) + ' in reserve (was ' + money(a[0]) + '). ' + (b[0] < a[0] ? 'Hoarding cash was leaving properties for rivals.' : 'Overspending was getting it bankrupted by rent.') });
+    var ta = topGroups(a)[0], tb = topGroups(b)[0]; if (ta !== tb) msgs.push({ good: true, t: 'Generation ' + gen + ': its favourite set changed from ' + GROUPS[ta].n + ' to ' + GROUPS[tb].n + '.' });
+    if (Math.round(a[12]) !== Math.round(b[12])) msgs.push({ good: true, t: 'Generation ' + gen + ': it now builds to ' + Math.round(b[12]) + ' houses (was ' + Math.round(a[12]) + '). Rent jumps most at the third house.' });
+    if (p && c[1] < p[1] - .05) msgs.push({ good: false, t: 'Generation ' + gen + ': the new champion did worse against simple bots (' + Math.round(c[1] * 100) + '%). Beating its own population is not the same as beating everyone.' });
+    msgs.forEach(function (m) { lessons.unshift(m); }); lessons = lessons.slice(0, 8); }
+  function draw() { paintBoard();
+    lineChart($('curve'), [{ data: curve.map(function (c) { return [c[0], .25]; }), color: '#5E5E64', dash: '4 4', width: 1.2 }, { data: curve, color: '#5B9FE0', width: 2.2 }], { yMin: 0, yMax: Math.max(.6, Math.max.apply(null, curve.map(function (c) { return c[1]; })) + .05), yfmt: function (v) { return Math.round(v * 100) + '%'; } });
+    legend($('curveLeg'), [['champion', '#5B9FE0'], ['fair share (25%)', '#5E5E64', 1]]);
+    var last = curve[curve.length - 1][1]; $('wr').textContent = Math.round(last * 100) + '%'; $('gen').textContent = gen; $('games').textContent = games.toLocaleString();
+    $('verdict').textContent = !gen ? 'A fair share is 25%. Press Evolve: 24 strategies play each other, the winners breed, and the losers are replaced.' : last > .4 ? 'The evolved champion now wins far more than its fair 25% share against simple buy-everything bots.' : last > .27 ? 'Beating its fair share. More generations usually push it higher.' : 'Not yet better than a fair share. Early generations are mostly random.';
+    $('words').textContent = words(champ); $('fit').textContent = 'generation ' + gen;
+    var tot = land.reduce(function (a, b) { return a + b; }, 0) || 1, rt = rent.reduce(function (a, b) { return a + b; }, 0) || 1, rows = '<tr><th>Set</th><th>Landings</th><th>Rent share</th><th>Cost</th></tr>';
+    for (var g = 0; g < 8; g++) { var sq = SQ.map(function (s, i) { return s[1] === 'p' && s[2] === g ? i : -1; }).filter(function (i) { return i >= 0; }), lp = sq.reduce(function (a, i) { return a + land[i]; }, 0) / sq.length / tot, cost = sq.reduce(function (a, i) { return a + SQ[i][3]; }, 0);
+      rows += '<tr><td><i style="background:' + GROUPS[g].c + '"></i>' + GROUPS[g].n + '</td><td>' + (tot > 1 ? (lp * 100).toFixed(2) + '%' : '-') + '</td><td>' + (rt > 1 ? Math.round(rent[g] / rt * 100) + '%' : '-') + '</td><td>$' + cost + '</td></tr>'; }
+    rows += '<tr><td>Stations</td><td>' + (tot > 1 ? ([5, 15, 25, 35].reduce(function (a, i) { return a + land[i]; }, 0) / 4 / tot * 100).toFixed(2) + '%' : '-') + '</td><td>' + (rt > 1 ? Math.round(rent[8] / rt * 100) + '%' : '-') + '</td><td>$800</td></tr>'; $('grp').innerHTML = rows;
+    $('lessons').innerHTML = lessons.length ? lessons.map(function (l) { return '<div class="' + (l.good ? 'good' : '') + '">' + l.t + '</div>'; }).join('') : '<div class="good">No lessons yet.</div>'; }
+  /* watching one game */
+  function stopWatch() { clearInterval(watchT); watchT = null; watchG = null; $('watch').textContent = 'Watch the champion play'; var m = $('cMsg'); if (m) m.textContent = '24 strategies, evolving'; }
+  function watch() { if (watchT) { stopWatch(); paintBoard(); return; } setRun(false); var names = PN; watchG = Game([champ, BASELINE, BASELINE, BASELINE], rng(Date.now() & 0xffff), { log: true, names: names }); var shown = 0; $('glog').innerHTML = ''; $('watch').textContent = 'Stop watching';
+    watchT = setInterval(function () { for (var k = 0; k < 2; k++) if (watchG.alive().length > 1 && watchG.turn() < 600) watchG.step();
+      while (shown < watchG.log.length) { var d = document.createElement('div'); d.textContent = 'Turn ' + watchG.turn() + ': ' + watchG.log[shown++]; $('glog').appendChild(d); $('glog').scrollTop = 1e6; }
+      $('cMsg').textContent = 'Turn ' + watchG.turn() + ' · ' + PN[watchG.cur()] + ' to move'; paintBoard();
+      if (watchG.alive().length <= 1 || watchG.turn() >= 600) { var w = watchG.P.slice().sort(function (a, b) { return (b.out ? -1 : watchG.worth(b)) - (a.out ? -1 : watchG.worth(a)); })[0]; $('cMsg').textContent = PN[w.id] + ' wins' + (watchG.alive().length > 1 ? ' on net worth' : ''); clearInterval(watchT); watchT = null; $('watch').textContent = 'Watch again'; } }, 90); }
+  var loop = Loop(function () { generation(); if (gen >= 400) return false; }, draw), running = false;
+  function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : 'Evolve'; $('live').classList.toggle('on', on); if (on) { if (watchT) stopWatch(); loop.setBudget(12); loop.start(); } else loop.stop(); }
+  $('train').addEventListener('click', function () { setRun(!running); });
+  $('watch').addEventListener('click', watch);
+  $('reset').addEventListener('click', function () { setRun(false); reset(); });
+  tog('heatTog', 'ldb-ll-', function (on) { showHeat = on; if (pop) paintBoard(); });
+  tog('anTog', 'ldb-ll-', function (on) { document.body.classList.toggle('noan', !on); });
+  addEventListener('resize', function () { if (pop) draw(); });
+  buildBoard(); reset();
+  window.__ll = { train: function (n) { for (var i = 0; i < n; i++) generation(); draw(); return { gen: gen, wr: curve[curve.length - 1][1], champ: champ.map(function (x) { return +x.toFixed(2); }) }; }, watch: watch };
+})();
+
+</script>
+</body>
+</html>

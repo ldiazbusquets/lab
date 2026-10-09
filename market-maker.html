@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Maker | LDB Lab Arcade</title>
+<meta name="description" content="Quote a bid and an ask on a hidden value while informed and noise traders hit you. Live Bayesian fair value, break-even and profit-maximising quotes, and a P&amp;L breakdown.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Market Maker | LDB Lab Arcade">
+<meta property="og:description" content="Quote a bid and an ask on a hidden value while informed and noise traders hit you. Live Bayesian fair value, break-even and profit-maximising quotes, and a P&amp;L breakdown.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/market-maker.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #C8323A; --crim: #8E1F27; --bone: #EDE3CF; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: radial-gradient(ellipse 60% 50% at 12% 0%, rgba(70,150,160,.16), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(142,31,39,.10), transparent 70%), #030304; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,.25) 4px, transparent 6px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: var(--bone); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #F3EBDC; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(8,8,10,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: linear-gradient(#C8323A, #8E1F27); border-color: #C8323A; color: #F3EBDC; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(8,8,10,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  .cardsrow { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin: 6px 0 14px; max-width: 620px; }
+  .pc { aspect-ratio: 5 / 7; border-radius: 7px; display: flex; align-items: center; justify-content: center; font: 800 clamp(.9rem, 2.2vw, 1.5rem) "Archivo", sans-serif; font-stretch: 125%; }
+  .pc.up { background: #EFE6D3; color: #141414; box-shadow: 0 4px 10px rgba(0,0,0,.5); animation: flip .4s ease both; }
+  .pc.down { background: radial-gradient(circle at 50% 50%, transparent 0 5px, rgba(142,31,39,.85) 6px 7px, transparent 8px) 0 0 / 12px 12px, #120a0c; border: 2px solid #EFE6D3; }
+  .pc.down.reveal { background: #2a1416; color: var(--bone); border-color: var(--acc); }
+  @keyframes flip { from { transform: rotateY(90deg); } }
+  .row2 { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; align-items: baseline; font: 600 .72rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+  .row2 b { color: var(--bone); font-size: 1rem; letter-spacing: .02em; }
+  .quote { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 12px; }
+  .qbox { border: 1px solid var(--line); padding: 12px; }
+  .qbox label { display: block; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
+  .qbox.bid label { color: var(--teal); } .qbox.ask label { color: var(--lock); }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 38px; height: 44px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: #fff; font: 700 1.1rem var(--mono); cursor: pointer; border-radius: 8px; }
+  .step input { width: 100%; min-width: 0; height: 44px; text-align: center; background: #0b0b0d; border: 1px solid var(--line); color: #fff; font: 700 1.3rem var(--mono); border-radius: 8px; }
+  .qbox small { display: block; margin-top: 6px; font: 600 .6rem var(--mono); color: var(--dim); letter-spacing: .06em; }
+  .tape { margin-top: 14px; border: 1px solid var(--line); background: rgba(6,6,8,.8); padding: 10px 12px; height: 190px; overflow-y: auto; font: 500 .72rem/1.75 var(--mono); color: var(--soft); }
+  .tape .b { color: var(--teal); } .tape .s { color: var(--lock); } .tape .r { color: var(--bone); } .tape .x { color: var(--dim); }
+  .over { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .over[hidden] { display: none; }
+  .over > div { background: #0b0b0d; border: 1px solid var(--acc); padding: 22px; max-width: 520px; width: 100%; }
+  .over h3 { margin: 0 0 6px; font: 800 1.4rem "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); text-transform: uppercase; }
+  .over p { color: #C9CDD3; font-size: .9rem; }
+  svg.post { width: 100%; height: 170px; display: block; }
+  .leg { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .leg i { display: inline-block; width: 10px; height: 3px; margin-right: 5px; vertical-align: 2px; }
+  .fq { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 12px; font: 600 .74rem var(--mono); color: var(--soft); align-items: center; }
+  .fq b { color: #fff; text-align: right; } .fq .h { color: var(--dim); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; }
+  @media (max-width: 560px) { .cardsrow { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/ARCADE</span></a>
+  <div class="right">
+    <a class="btn" href="./#arcade">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Arcade 06 &middot; Trading-desk classic</p>
+      <h1>Market Maker</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" id="lvl" role="group" aria-label="Order flow"><button type="button" data-k="0">Retail flow</button><button type="button" data-k="1">Mixed</button><button type="button" data-k="2">Toxic</button></div>
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+      <button type="button" class="tog" id="trTog" aria-pressed="true"><i></i>Coach</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="row2"><span>Round <b id="rnd">1 / 8</b></span><span>Asset = sum of 10 hidden cards (1&ndash;13 each)</span><span>Revealed sum <b id="rsum">0</b></span></div>
+        <div class="cardsrow" id="cards"></div>
+        <div class="row2"><span>Public estimate <b id="pub">70.0 &plusmn; 11.8</b></span><span>Position <b id="pos">0</b></span><span>Cash <b id="cash">$0</b></span><span>P&amp;L at your estimate <b id="mtm">$0</b></span></div>
+        <div class="quote">
+          <div class="qbox bid"><label for="bid">Your bid (you buy)</label><div class="step"><button type="button" data-t="bid" data-d="-1" aria-label="Lower bid">&minus;</button><input id="bid" type="number" step="0.5" inputmode="decimal"><button type="button" data-t="bid" data-d="1" aria-label="Raise bid">+</button></div><small id="bidNote">-</small></div>
+          <div class="qbox ask"><label for="ask">Your ask (you sell)</label><div class="step"><button type="button" data-t="ask" data-d="-1" aria-label="Lower ask">&minus;</button><input id="ask" type="number" step="0.5" inputmode="decimal"><button type="button" data-t="ask" data-d="1" aria-label="Raise ask">+</button></div><small id="askNote">-</small></div>
+        </div>
+        <div class="controls"><button type="button" class="act primary" id="go">Send quotes<kbd>Enter</kbd></button><button type="button" class="act" id="useFair">Use suggested quotes</button><button type="button" class="act" id="newg">New game</button><span class="note" id="lim">Position limit &plusmn;12. Four traders arrive each round.</span></div>
+        <div class="tape" id="tape" aria-live="polite"></div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>What the asset is worth</span><span id="postTag">your beliefs</span></div>
+        <svg class="post" id="post" viewBox="0 0 360 170" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="leg"><span><i style="background:#6FCFC3"></i>with order flow</span><span><i style="background:#5E5E64"></i>cards only</span><span><i style="background:#EDE3CF"></i>your quotes</span></div>
+        <p class="why" id="postWhy">Before any trading, every value from 10 to 130 is possible, but most land near 70.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Suggested quotes</span><span id="fqTag">-</span></div>
+        <div class="fq"><span class="h">quote</span><span class="h">bid</span><span class="h">ask</span>
+          <span>Break-even (competitive)</span><b id="gmB">-</b><b id="gmA">-</b>
+          <span>Profit-maximising</span><b id="pmB">-</b><b id="pmA">-</b>
+          <span>Yours</span><b id="yB">-</b><b id="yA">-</b></div>
+        <div class="stat2" style="margin-top:10px"><div><span>Expected profit, your quotes</span><b id="evY">-</b></div><div><span>Best possible this round</span><b id="evB">-</b></div></div>
+        <p class="why" id="fqWhy"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Where your P&amp;L comes from</span><span>so far</span></div>
+        <div class="stat2"><div><span>Spread captured</span><b id="aSpr">$0</b></div><div><span>Lost to information</span><b id="aAdv">$0</b></div><div><span>Trades done</span><b id="aN">0</b></div><div><span>Inventory risk</span><b id="aRisk">$0</b></div></div>
+        <p class="note">Spread captured: what you earned versus your own fair value at the time. Lost to information: how much the price later moved against those trades.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="explain">
+    <div><p class="k">Why spreads exist</p><h3>Some traders know more</h3><p>Most traders here are noise: they buy or sell for their own reasons. Some are informed: they know the final value and only trade when your quote is wrong. Every trade with them loses money, so the spread you charge everyone else has to pay for it. More informed flow means wider spreads.</p></div>
+    <div><p class="k">Bayesian updating</p><h3>Trades are information</h3><p>When someone buys at your ask, it is a little more likely the value is above it. The chart combines the revealed cards with every buy, sell and pass so far, using Bayes' rule, to show what the asset is probably worth.</p></div>
+    <div><p class="k">The two quotes</p><h3>Break-even versus greedy</h3><p>The break-even quote is where a buy at your ask is, on average, worth exactly your ask: in a competitive market you cannot charge more. The profit-maximising quote is wider. It trades less but earns more per trade, and it leans away from the position you already hold.</p></div>
+  </div>
+</div>
+<div class="over" id="over" hidden><div><h3 id="oT">Settlement</h3><p id="oS"></p><div class="stat2" id="oStats"></div><div class="controls" style="margin-top:14px"><button type="button" class="act primary" id="again">Play again</button><button type="button" class="act" id="closeO">Review the tape</button></div></div></div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Arcade</span>
+  <span>Play money only. No real trading.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var N = 10, ROUNDS = 8, ARR = 4, LIMIT = 12, ALPHA = [.15, .3, .5], LNAME = ['Retail flow', 'Mixed', 'Toxic'];
+  var level = +(store('ldb-mm-lvl') || 1), coach = true, showAn = true;
+  var cards, rnd, revealed, pos, cash, events, trades, over, informedCount, noiseCount;
+  function fmt(v) { return (v < 0 ? '-$' : '$') + Math.abs(v).toFixed(1).replace(/\.0$/, ''); }
+  function phi(x) { var t = 1 / (1 + .2316419 * Math.abs(x)), d = .3989423 * Math.exp(-x * x / 2), p = d * t * (.3193815 + t * (-.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return x > 0 ? 1 - p : p; }
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+
+  /* ---------- the maths ---------- */
+  function hiddenDist(k) { var d = [1]; for (var i = 0; i < k; i++) { var n = new Array(d.length + 13).fill(0); for (var s = 0; s < d.length; s++) if (d[s]) for (var c = 1; c <= 13; c++) n[s + c] += d[s] / 13; d = n; } return d; } /* index = sum */
+  function pub() { var k = N - revealed, R = sum(revealed); return { m: R + 7 * k, s: Math.sqrt(k * 14), R: R, k: k }; }
+  function sum(n) { var t = 0; for (var i = 0; i < n; i++) t += cards[i]; return t; }
+  function pBuy(V, e, a) { var al = ALPHA[level]; return (e.canBuy ? al * (V > e.a ? 1 : 0) + (1 - al) * .5 * phi((e.m - e.a) / e.s) : 0); }
+  function pSell(V, e) { var al = ALPHA[level]; return (e.canSell ? al * (V < e.b ? 1 : 0) + (1 - al) * .5 * phi((e.b - e.m) / e.s) : 0); }
+  function like(V, e) { var b = pBuy(V, e), s = pSell(V, e); return e.act === 'buy' ? b : e.act === 'sell' ? s : 1 - b - s; }
+  /* posterior over the final value given revealed cards and every trade or pass so far */
+  function posterior(useFlow) {
+    var p = pub(), d = hiddenDist(p.k), out = [], tot = 0;
+    for (var s = 0; s < d.length; s++) { if (!d[s]) continue; var V = p.R + s, w = d[s]; if (useFlow) for (var i = 0; i < events.length; i++) { w *= like(V, events[i]); if (!w) break; } if (w) { out.push([V, w]); tot += w; } }
+    out.forEach(function (x) { x[1] /= tot; }); return out;
+  }
+  function moments(P) { var m = 0, v = 0; P.forEach(function (x) { m += x[0] * x[1]; }); P.forEach(function (x) { v += x[1] * (x[0] - m) * (x[0] - m); }); return { m: m, s: Math.sqrt(v) }; }
+  function eCtx(b, a) { var p = pub(); return { b: b, a: a, m: p.m, s: p.s, canBuy: pos > -LIMIT, canSell: pos < LIMIT }; }
+  /* break-even (Glosten-Milgrom) quotes: ask = E[V | buy at ask], bid = E[V | sell at bid] */
+  function gm(P) { var mo = moments(P), a = mo.m + 1, b = mo.m - 1, i, w, t, e;
+    for (i = 0; i < 60; i++) { e = eCtx(b, a); w = 0; t = 0; P.forEach(function (x) { var q = x[1] * pBuy(x[0], e); w += q; t += q * x[0]; }); if (w) a = Math.max(mo.m, t / w); }
+    for (i = 0; i < 60; i++) { e = eCtx(b, a); w = 0; t = 0; P.forEach(function (x) { var q = x[1] * pSell(x[0], e); w += q; t += q * x[0]; }); if (w) b = Math.min(mo.m, t / w); }
+    return { b: b, a: a }; }
+  /* expected profit per round for given quotes, minus a small penalty for piling up inventory */
+  function ev(P, b, a, invPen) { var e = eCtx(b, a), tot = 0, mo = moments(P), dpos = 0;
+    P.forEach(function (x) { var pb = pBuy(x[0], e), ps = pSell(x[0], e); tot += x[1] * (pb * (a - x[0]) + ps * (x[0] - b)); dpos += x[1] * (ps - pb); });
+    var newPos = pos + dpos * ARR, pen = invPen ? .5 * (mo.s * mo.s / 60) * (newPos * newPos - pos * pos) / 4 : 0;
+    return tot * ARR - pen; }
+  function best(P) { var mo = moments(P), c = Math.round(mo.m * 2) / 2, bb = null;
+    for (var lo = 0.5; lo <= 16; lo += 0.5) for (var hi = 0.5; hi <= 16; hi += 0.5) { var b = c - lo, a = c + hi, v = ev(P, b, a, true); if (!bb || v > bb.v) bb = { b: b, a: a, v: v }; }
+    return bb; }
+
+  /* ---------- game ---------- */
+  function newGame() {
+    cards = []; for (var i = 0; i < N; i++) cards.push(1 + Math.floor(Math.random() * 13));
+    rnd = 1; revealed = 1; pos = 0; cash = 0; events = []; trades = []; over = false; informedCount = 0; noiseCount = 0;
+    $('tape').innerHTML = ''; tape('<span class="r">New game. ' + LNAME[level] + ': about ' + Math.round(ALPHA[level] * 100) + '% of traders are informed. First card: ' + cards[0] + '.</span>');
+    $('over').hidden = true; var P = posterior(true), g = gm(P); setQ(Math.floor(g.b * 2) / 2 - 1, Math.ceil(g.a * 2) / 2 + 1); render();
+  }
+  function tape(h) { var d = document.createElement('div'); d.innerHTML = h; $('tape').appendChild(d); $('tape').scrollTop = 1e6; }
+  function setQ(b, a) { $('bid').value = b.toFixed(1); $('ask').value = a.toFixed(1); }
+  function getQ() { return { b: parseFloat($('bid').value), a: parseFloat($('ask').value) }; }
+  function send() {
+    if (over) return; var q = getQ();
+    if (!isFinite(q.b) || !isFinite(q.a) || q.b >= q.a) { toast('Your bid must be below your ask.'); return; }
+    var P = posterior(true), mo = moments(P), bestQ = best(P), evY = ev(P, q.b, q.a, true);
+    if (coach && evY < bestQ.v - 4) toast('Coach: these quotes expect ' + fmt(evY) + ' this round; ' + bestQ.b.toFixed(1) + ' / ' + bestQ.a.toFixed(1) + ' would expect ' + fmt(bestQ.v) + '.');
+    var V = sum(N), al = ALPHA[level];
+    tape('<span class="r">Round ' + rnd + ': you quote ' + q.b.toFixed(1) + ' / ' + q.a.toFixed(1) + '</span>');
+    for (var i = 0; i < ARR; i++) {
+      var e = eCtx(q.b, q.a), act = 'none', who;
+      if (Math.random() < al) { who = 'informed'; if (V > q.a && e.canBuy) act = 'buy'; else if (V < q.b && e.canSell) act = 'sell'; }
+      else { who = 'noise'; var r = e.m + e.s * gauss(); if (Math.random() < .5) { if (q.a <= r && e.canBuy) act = 'buy'; } else if (q.b >= r && e.canSell) act = 'sell'; }
+      var fairNow = moments(posterior(true)).m;
+      e.act = act; events.push(e);
+      if (act === 'buy') { pos--; cash += q.a; trades.push({ side: -1, px: q.a, fair: fairNow, who: who }); tape('<span class="s">Trader ' + (i + 1) + ' buys 1 at ' + q.a.toFixed(1) + ' (you sell)</span>'); }
+      else if (act === 'sell') { pos++; cash -= q.b; trades.push({ side: 1, px: q.b, fair: fairNow, who: who }); tape('<span class="b">Trader ' + (i + 1) + ' sells 1 at ' + q.b.toFixed(1) + ' (you buy)</span>'); }
+      else tape('<span class="x">Trader ' + (i + 1) + ' passes</span>');
+      if (act !== 'none') { if (who === 'informed') informedCount++; else noiseCount++; }
+    }
+    if (rnd >= ROUNDS) return settle();
+    rnd++; revealed++; tape('<span class="r">Card ' + revealed + ' revealed: ' + cards[revealed - 1] + '</span>');
+    var P2 = posterior(true), g = gm(P2); var c = getQ(); render();
+  }
+  function settle() {
+    over = true; var V = sum(N), pnl = cash + pos * V, spr = 0, adv = 0;
+    trades.forEach(function (t) { spr += t.side > 0 ? t.fair - t.px : t.px - t.fair; adv += t.side > 0 ? V - t.fair : t.fair - V; });
+    var bestS = +(store('ldb-mm-best' + level) || -1e9); if (pnl > bestS) store('ldb-mm-best' + level, String(pnl));
+    $('oT').textContent = pnl >= 0 ? 'You made ' + fmt(pnl) : 'You lost ' + fmt(-pnl);
+    $('oS').textContent = 'The ten cards summed to ' + V + '. You ended with a position of ' + pos + ', settled at ' + V + '. ' + (informedCount ? informedCount + ' of your trades were with informed traders, who only trade when your price is wrong.' : 'No informed trader hit you this game.');
+    $('oStats').innerHTML = '<div><span>Spread captured</span><b class="' + (spr >= 0 ? 'pos' : 'neg') + '">' + fmt(spr) + '</b></div><div><span>Lost to information</span><b class="' + (adv >= 0 ? 'pos' : 'neg') + '">' + fmt(adv) + '</b></div><div><span>Trades with noise / informed</span><b>' + noiseCount + ' / ' + informedCount + '</b></div><div><span>Best at this level</span><b>' + fmt(Math.max(pnl, bestS)) + '</b></div>';
+    $('over').hidden = false; tape('<span class="r">Settlement at ' + V + '. P&amp;L ' + fmt(pnl) + '.</span>'); render();
+  }
+
+  /* ---------- rendering ---------- */
+  function render() {
+    var p = pub(), P = posterior(true), P0 = posterior(false), mo = moments(P), q = getQ();
+    $('rnd').textContent = rnd + ' / ' + ROUNDS; $('rsum').textContent = p.R;
+    $('cards').innerHTML = cards.map(function (c, i) { return i < revealed ? '<div class="pc up">' + c + '</div>' : over ? '<div class="pc down reveal">' + c + '</div>' : '<div class="pc down"></div>'; }).join('');
+    $('pub').textContent = p.m.toFixed(1) + ' ± ' + p.s.toFixed(1); $('pos').textContent = pos; $('cash').textContent = fmt(cash);
+    var mtm = cash + pos * (over ? sum(N) : mo.m); $('mtm').textContent = fmt(mtm); $('mtm').className = mtm >= 0 ? 'pos' : 'neg';
+    $('go').disabled = over;
+    chart(P, P0, q, mo);
+    var g = gm(P), bq = best(P), evY = isFinite(q.b) && isFinite(q.a) && q.b < q.a ? ev(P, q.b, q.a, true) : NaN;
+    $('gmB').textContent = g.b.toFixed(1); $('gmA').textContent = g.a.toFixed(1); $('pmB').textContent = bq.b.toFixed(1); $('pmA').textContent = bq.a.toFixed(1); $('yB').textContent = isFinite(q.b) ? q.b.toFixed(1) : '-'; $('yA').textContent = isFinite(q.a) ? q.a.toFixed(1) : '-';
+    $('evY').textContent = isFinite(evY) ? fmt(evY) : '-'; $('evY').className = evY >= 0 ? 'pos' : 'neg'; $('evB').textContent = fmt(bq.v);
+    $('fqTag').textContent = 'fair value ' + mo.m.toFixed(1);
+    var skew = pos > 2 ? ' You are long ' + pos + ', so the best quotes lean lower to sell some back.' : pos < -2 ? ' You are short ' + (-pos) + ', so the best quotes lean higher to buy some back.' : '';
+    $('fqWhy').textContent = 'Break-even spread ' + (g.a - g.b).toFixed(1) + ' wide because ' + Math.round(ALPHA[level] * 100) + '% of traders are informed. ' + skew;
+    $('postTag').textContent = mo.m.toFixed(1) + ' ± ' + mo.s.toFixed(1);
+    var shift = mo.m - p.m; $('postWhy').textContent = events.length ? 'Cards alone say ' + p.m.toFixed(1) + '. The order flow moves that to ' + mo.m.toFixed(1) + (Math.abs(shift) > .3 ? ' (' + (shift > 0 ? 'buyers' : 'sellers') + ' have been more active than noise alone explains).' : ', so trading has not told you much yet.') : 'Before any trading, the best guess is ' + p.m.toFixed(1) + ' with about two-thirds of outcomes within ±' + p.s.toFixed(1) + '.';
+    var spr = 0, adv = 0; trades.forEach(function (t) { spr += t.side > 0 ? t.fair - t.px : t.px - t.fair; adv += t.side > 0 ? mo.m - t.fair : t.fair - mo.m; });
+    $('aSpr').textContent = fmt(spr); $('aSpr').className = spr >= 0 ? 'pos' : 'neg'; $('aAdv').textContent = fmt(adv); $('aAdv').className = adv >= 0 ? 'pos' : 'neg'; $('aN').textContent = trades.length; $('aRisk').textContent = '±' + fmt(Math.abs(pos) * mo.s);
+    $('bidNote').textContent = isFinite(q.b) ? ((q.b - mo.m) >= 0 ? '+' : '') + (q.b - mo.m).toFixed(1) + ' from fair value' : '-'; $('askNote').textContent = isFinite(q.a) ? ((q.a - mo.m) >= 0 ? '+' : '') + (q.a - mo.m).toFixed(1) + ' from fair value' : '-';
+    document.querySelectorAll('#lvl button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.k === level); });
+  }
+  function chart(P, P0, q, mo) {
+    var svg = $('post'), lo = Math.max(10, Math.floor(mo.m - 4.2 * Math.max(mo.s, 3))), hi = Math.min(130, Math.ceil(mo.m + 4.2 * Math.max(mo.s, 3))), W = 360, H = 170, top = 0;
+    if (over) { lo = Math.min(lo, sum(N) - 3); hi = Math.max(hi, sum(N) + 3); }
+    P.concat(P0).forEach(function (x) { if (x[0] >= lo && x[0] <= hi) top = Math.max(top, x[1]); });
+    var X = function (v) { return (v - lo) / (hi - lo) * W; }, bw = Math.max(1, W / (hi - lo + 1) * .8), h = '';
+    P0.forEach(function (x) { if (x[0] < lo || x[0] > hi) return; var y = x[1] / top * (H - 22); h += '<rect x="' + (X(x[0]) - bw / 2).toFixed(1) + '" y="' + (H - 16 - y).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + y.toFixed(1) + '" fill="#5E5E64" opacity=".45"/>'; });
+    P.forEach(function (x) { if (x[0] < lo || x[0] > hi) return; var y = x[1] / top * (H - 22); h += '<rect x="' + (X(x[0]) - bw / 4).toFixed(1) + '" y="' + (H - 16 - y).toFixed(1) + '" width="' + (bw / 2).toFixed(1) + '" height="' + y.toFixed(1) + '" fill="#6FCFC3"/>'; });
+    [q.b, q.a].forEach(function (v) { if (isFinite(v) && v >= lo && v <= hi) h += '<line x1="' + X(v) + '" x2="' + X(v) + '" y1="0" y2="' + (H - 16) + '" stroke="#EDE3CF" stroke-width="1.5" stroke-dasharray="4 3"/>'; });
+    if (over) { var V = sum(N); h += '<line x1="' + X(V) + '" x2="' + X(V) + '" y1="0" y2="' + (H - 16) + '" stroke="#C8323A" stroke-width="2.5"/><text x="' + Math.min(W - 40, X(V) + 4) + '" y="12" fill="#C8323A" font-size="11" font-family="JetBrains Mono">true ' + V + '</text>'; }
+    for (var t = Math.ceil(lo / 10) * 10; t <= hi; t += 10) h += '<text x="' + X(t) + '" y="' + (H - 3) + '" fill="#5E5E64" font-size="10" text-anchor="middle" font-family="JetBrains Mono">' + t + '</text>';
+    svg.innerHTML = h;
+  }
+  var tt; function toast(t) { $('toast').textContent = t; $('toast').classList.add('on'); clearTimeout(tt); tt = setTimeout(function () { $('toast').classList.remove('on'); }, 3600); }
+  document.querySelectorAll('.step button').forEach(function (b) { b.addEventListener('click', function () { var el = $(b.dataset.t); el.value = (parseFloat(el.value || 0) + .5 * b.dataset.d).toFixed(1); render(); }); });
+  ['bid', 'ask'].forEach(function (id) { $(id).addEventListener('input', render); $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } }); });
+  addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && $('over').hidden) { e.preventDefault(); send(); } });
+  $('go').addEventListener('click', send); $('newg').addEventListener('click', newGame); $('again').addEventListener('click', newGame); $('closeO').addEventListener('click', function () { $('over').hidden = true; });
+  $('useFair').addEventListener('click', function () { var bq = best(posterior(true)); setQ(bq.b, bq.a); render(); });
+  document.querySelectorAll('#lvl button').forEach(function (b) { b.addEventListener('click', function () { level = +b.dataset.k; store('ldb-mm-lvl', String(level)); newGame(); toast(LNAME[level] + ': about ' + Math.round(ALPHA[level] * 100) + '% of traders are informed.'); }); });
+  function tog(id, fn) { $(id).addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); fn(on); store('ldb-mm-' + id, on ? '1' : '0'); });
+    var s = store('ldb-mm-' + id); if (s === '0' || s === '1') { $(id).setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+  tog('anTog', function (on) { showAn = on; document.body.classList.toggle('noan', !on); $('useFair').hidden = !on; });
+  tog('trTog', function (on) { coach = on; });
+  newGame();
+  window.__mm = { st: function () { return { rnd: rnd, pos: pos, cash: cash, over: over, revealed: revealed, V: sum(N), events: events.length }; }, post: function () { return moments(posterior(true)); }, gm: function () { return gm(posterior(true)); }, best: function () { return best(posterior(true)); }, setCards: function (c) { cards = c.slice(); render(); }, send: send, setQ: function (b, a) { setQ(b, a); render(); }, level: function (k) { level = k; } };
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minesweeper | LDB Lab Arcade</title>
+<meta name="description" content="Minesweeper with the exact chance of a mine under every hidden square, a solver you can watch, and the logic explained.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Minesweeper | LDB Lab Arcade">
+<meta property="og:description" content="Minesweeper with the exact chance of a mine under every hidden square, a solver you can watch, and the logic explained.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/minesweeper.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-arcade.png">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #C8323A; --crim: #8E1F27; --bone: #EDE3CF; --teal: #6FCFC3; --mag: #B0559F; --gold: #D4AF37; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: radial-gradient(ellipse 60% 50% at 12% 0%, rgba(70,150,160,.16), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(142,31,39,.10), transparent 70%), #030304; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,.25) 4px, transparent 6px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: var(--bone); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #F3EBDC; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: rgba(8,8,10,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; min-width: 0; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .big { font: 800 2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .why { font-size: .86rem; color: #C9CDD3; margin: 8px 0 0; }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b, .stat3 b { font: 700 1.02rem var(--mono); color: #fff; }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 11px 14px; font: 700 .7rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); } .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: linear-gradient(#C8323A, #8E1F27); border-color: #C8323A; color: #F3EBDC; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: rgba(8,8,10,.85); border: 1px solid rgba(255,255,255,.1); padding: clamp(14px, 2.4vw, 24px); position: relative; min-width: 0; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+
+
+  .bar { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; justify-content: space-between; font: 600 .72rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-bottom: 12px; }
+  .bar b { color: var(--bone); font-size: 1.05rem; letter-spacing: .02em; }
+  .gridwrap { overflow-x: auto; padding-bottom: 6px; }
+  .grid { display: grid; gap: 2px; width: max-content; margin: 0 auto; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+  .c { --s: 32px; width: var(--s); height: var(--s); border-radius: 4px; display: flex; align-items: center; justify-content: center; font: 800 calc(var(--s) * .5) "JetBrains Mono", monospace; cursor: pointer; position: relative; }
+  .c.u { background: linear-gradient(#26262b, #18181c); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+  .c.u:hover { background: #2e2e34; }
+  .c.r { background: #0d0d0f; color: var(--soft); cursor: default; }
+  .c.r[data-n="1"] { color: #6FCFC3; } .c.r[data-n="2"] { color: #8FD38F; } .c.r[data-n="3"] { color: #FF5A4E; } .c.r[data-n="4"] { color: #C266B2; } .c.r[data-n="5"] { color: #E0A84E; } .c.r[data-n="6"] { color: #5BC0DE; } .c.r[data-n="7"] { color: #EDE3CF; } .c.r[data-n="8"] { color: #9A9AA0; }
+  .c.f::after { content: "\2691"; color: var(--acc); font-size: calc(var(--s) * .55); }
+  .c.m { background: #3a0e12; } .c.m::after { content: "\2739"; color: #FF5A4E; } .c.boom { background: var(--acc); } .c.boom::after { color: #fff; }
+  .c.wrongf { background: #2a1416; }
+  .c .p { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 700 calc(var(--s) * .3) var(--mono); color: rgba(255,255,255,.9); border-radius: 4px; pointer-events: none; }
+  .c.best { outline: 2px solid var(--bone); outline-offset: 1px; z-index: 1; }
+  .c.f .p { display: none; }
+  .sel2 { display: inline-flex; border: 1px solid var(--line); } .sel2 button { background: transparent; border: 0; color: var(--soft); font: 700 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 9px 12px; cursor: pointer; } .sel2 button[aria-pressed="true"] { background: var(--bone); color: #111; }
+  .legend2 { height: 8px; background: linear-gradient(90deg, #1f6f66, #6FCFC3 15%, #D4AF37 50%, #C8323A); margin-top: 8px; }
+  .lg { display: flex; justify-content: space-between; font: 600 .56rem var(--mono); color: var(--dim); margin-top: 3px; }
+
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/ARCADE</span></a>
+  <div class="right">
+    <a class="btn" href="./#arcade">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Arcade 08 &middot; Exact probabilities</p>
+      <h1>Minesweeper</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" id="lvl" role="group" aria-label="Board"><button type="button" data-k="0">Beginner</button><button type="button" data-k="1">Intermediate</button><button type="button" data-k="2">Expert</button></div>
+      <button type="button" class="tog" id="oddsTog" aria-pressed="true"><i></i>Show odds</button>
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="bar"><span>Mines left <b id="left">10</b></span><span>Time <b id="time">0</b></span><span id="state">Click any square. The first click is always safe.</span></div>
+        <div class="gridwrap"><div class="grid" id="grid"></div></div>
+        <div class="controls" style="margin-top:14px">
+          <div class="sel2" role="group" aria-label="Tap action"><button type="button" data-m="dig" aria-pressed="true">Dig</button><button type="button" data-m="flag" aria-pressed="false">Flag</button></div>
+          <button type="button" class="act primary" id="newg">New game</button>
+          <button type="button" class="act" id="step">Solver: one move</button>
+          <button type="button" class="act" id="solve">Solver: finish board</button>
+          <span class="note">Right-click or long-press to flag.</span>
+        </div>
+      </div>
+    </div>
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Safest square</span><span id="calc">-</span></div>
+        <div class="big" id="safe">-</div>
+        <p class="why" id="safeWhy">After your first click, every hidden square gets its exact chance of hiding a mine.</p>
+        <div class="legend2"></div><div class="lg"><span>0% safe</span><span>50%</span><span>100% mine</span></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>What the numbers prove</span><span>this position</span></div>
+        <div class="stat2"><div><span>Certainly safe</span><b id="nSafe" class="pos">0</b></div><div><span>Certainly mines</span><b id="nMine" class="neg">0</b></div><div><span>Edge squares</span><b id="nFront">0</b></div><div><span>Inner squares, each</span><b id="pOther">-</b></div></div>
+        <p class="note" id="guess"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Record</span><span id="lvlName">-</span></div>
+        <div class="stat3"><div><span>Played</span><b id="gp">0</b></div><div><span>Won</span><b id="gw">0</b></div><div><span>Best time</span><b id="bt">-</b></div></div>
+        <div class="stat2" style="margin-top:8px"><div><span>Solver win rate</span><b id="sw">-</b></div><div><span>Solver games</span><b id="sg">0</b></div></div>
+      </div>
+    </aside>
+  </div>
+  <div class="explain">
+    <div><p class="k">How the odds are found</p><h3>Every arrangement that fits</h3><p>Each number says exactly how many mines touch it. The solver lists every way of placing mines along the edge of the cleared area that agrees with all the numbers, then weights each one by how many ways the leftover mines can sit in the untouched squares. A square's probability is the share of arrangements with a mine there.</p></div>
+    <div><p class="k">Sure things</p><h3>0% and 100%</h3><p>When a square is a mine in every arrangement, it is certain; when it is clear in every one, it is safe to dig. Most of Minesweeper is spotting these, and the panel counts how many the current position proves.</p></div>
+    <div><p class="k">Forced guesses</p><h3>When logic runs out</h3><p>Some positions have no certain square. Then the best move is the lowest probability, often an inner square away from the numbers. Even a perfect solver loses a share of Expert games to these guesses, which the solver record shows.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Arcade</span>
+  <span>All odds computed in your browser.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  var LV = [{ w: 9, h: 9, m: 10, n: 'Beginner' }, { w: 16, h: 16, m: 40, n: 'Intermediate' }, { w: 30, h: 16, m: 99, n: 'Expert' }];
+  var manual = false, level = +(store('ldb-ms-lvl') || 0), W, H, M, mine, rev, flag, nums, started, over, won, t0, timer, showOdds = true, digMode = 'dig', probs = null;
+  var LF = [0]; for (var i = 1; i < 1000; i++) LF[i] = LF[i - 1] + Math.log(i);
+  function lc(n, k) { return k < 0 || k > n ? -Infinity : LF[n] - LF[k] - LF[n - k]; }
+  function nb(i) { var x = i % W, y = (i / W) | 0, o = []; for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) { if (!dx && !dy) continue; var X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < W && Y < H) o.push(Y * W + X); } return o; }
+  function newGame() {
+    var L = LV[level]; W = L.w; H = L.h; M = L.m; mine = new Uint8Array(W * H); rev = new Uint8Array(W * H); flag = new Uint8Array(W * H); nums = new Int8Array(W * H); started = false; over = false; won = false; probs = null; manual = false; clearInterval(timer); $('time').textContent = '0';
+    document.querySelectorAll('#lvl button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.k === level); }); $('lvlName').textContent = L.n;
+    var g = $('grid'), size = Math.max(22, Math.min(34, Math.floor((Math.min(g.parentNode.clientWidth || 600, 900) - 2 * W) / W))); if (innerWidth < 600 && level === 2) size = 26;
+    g.style.gridTemplateColumns = 'repeat(' + W + ', var(--s))'; g.style.setProperty('--s', size + 'px'); g.innerHTML = '';
+    for (var i = 0; i < W * H; i++) { var c = document.createElement('div'); c.className = 'c u'; c.dataset.i = i; c.style.setProperty('--s', size + 'px'); g.appendChild(c); }
+    $('state').textContent = 'Click any square. The first click is always safe.'; render(); record();
+  }
+  function plant(first) { var ban = {}; ban[first] = 1; nb(first).forEach(function (j) { ban[j] = 1; }); var cells = []; for (var i = 0; i < W * H; i++) if (!ban[i]) cells.push(i);
+    for (var k = 0; k < M; k++) { var j = k + Math.floor(Math.random() * (cells.length - k)), t = cells[k]; cells[k] = cells[j]; cells[j] = t; mine[cells[k]] = 1; }
+    for (i = 0; i < W * H; i++) nums[i] = nb(i).filter(function (j) { return mine[j]; }).length; started = true; t0 = Date.now(); timer = setInterval(function () { if (!over) $('time').textContent = Math.floor((Date.now() - t0) / 1000); }, 500); }
+  function dig(i) {
+    if (over || rev[i] || flag[i]) return; if (!started) plant(i);
+    if (mine[i]) { lose(i); return; }
+    var st = [i]; while (st.length) { var c = st.pop(); if (rev[c]) continue; rev[c] = 1; flag[c] = 0; if (nums[c] === 0) nb(c).forEach(function (j) { if (!rev[j] && !mine[j]) st.push(j); }); }
+    checkWin();
+  }
+  function chord(i) { if (!rev[i] || !nums[i]) return; var n = nb(i), f = n.filter(function (j) { return flag[j]; }).length; if (f === nums[i]) n.forEach(function (j) { if (!rev[j] && !flag[j]) dig(j); }); }
+  function lose(i) { over = true; clearInterval(timer); $('state').textContent = 'Boom. That square had a ' + (probs && probs.p[i] != null ? Math.round(probs.p[i] * 100) + '% chance of a mine.' : 'mine.'); bump(false); paint(i); }
+  function checkWin() { var left = 0; for (var i = 0; i < W * H; i++) if (!rev[i] && !mine[i]) left++; if (!left) { over = true; won = true; clearInterval(timer); var t = Math.floor((Date.now() - t0) / 1000); $('state').textContent = 'Cleared in ' + t + ' seconds.'; bump(true, t); for (i = 0; i < W * H; i++) if (mine[i]) flag[i] = 1; } }
+  function bump(win, t) { if (solving) return; if (!manual) { var sk = 'ldb-ms-solver-' + level, r = JSON.parse(store(sk) || '{"p":0,"w":0}'); r.p++; if (win) r.w++; store(sk, JSON.stringify(r)); record(); return; } var k = 'ldb-ms-' + level, s = JSON.parse(store(k) || '{"p":0,"w":0,"b":null}'); s.p++; if (win) { s.w++; if (s.b == null || t < s.b) s.b = t; } store(k, JSON.stringify(s)); record(); }
+  function record() { var s = JSON.parse(store('ldb-ms-' + level) || '{"p":0,"w":0,"b":null}'), r = JSON.parse(store('ldb-ms-solver-' + level) || '{"p":0,"w":0}');
+    $('gp').textContent = s.p; $('gw').textContent = s.w; $('bt').textContent = s.b == null ? '-' : s.b + 's'; $('sg').textContent = r.p; $('sw').textContent = r.p ? Math.round(r.w / r.p * 100) + '%' : '-'; }
+
+  /* ---------- exact probabilities ---------- */
+  function solve() {
+    var t = performance.now(), N = W * H, front = [], fIdx = {}, cons = [];
+    for (var i = 0; i < N; i++) { if (!rev[i]) continue; var u = nb(i).filter(function (j) { return !rev[j]; }); if (!u.length) continue; cons.push({ cells: u, n: nums[i] }); u.forEach(function (j) { if (fIdx[j] == null) { fIdx[j] = front.length; front.push(j); } }); }
+    var unknown = 0; for (i = 0; i < N; i++) if (!rev[i]) unknown++;
+    var other = unknown - front.length;
+    /* split the frontier into independent groups */
+    var par = front.map(function (_, k) { return k; }); function fd(x) { while (par[x] !== x) x = par[x] = par[par[x]]; return x; }
+    cons.forEach(function (c) { for (var k = 1; k < c.cells.length; k++) { var a = fd(fIdx[c.cells[0]]), b = fd(fIdx[c.cells[k]]); if (a !== b) par[a] = b; } });
+    var groups = {}; front.forEach(function (c, k) { var r = fd(k); (groups[r] = groups[r] || []).push(c); });
+    var comps = [], aborted = false, budget = 4e6;
+    Object.keys(groups).forEach(function (g) {
+      var cells = groups[g], loc = {}; cells.forEach(function (c, k) { loc[c] = k; });
+      var cc = cons.filter(function (c) { return loc[c.cells[0]] != null; }).map(function (c) { return { v: c.cells.map(function (x) { return loc[x]; }), n: c.n }; });
+      var by = cells.map(function () { return []; }); cc.forEach(function (c, ci) { c.v.forEach(function (x) { by[x].push(ci); }); });
+      var assign = new Int8Array(cells.length).fill(-1), sum = new Int32Array(cc.length), unk = cc.map(function (c) { return c.v.length; });
+      var sol = [], cm = [];   /* sol[k] = arrangements with k mines; cm[k][cell] = of those, how many have a mine at cell */
+      (function bt(x, k) {
+        if (--budget < 0) { aborted = true; return; }
+        if (x === cells.length) { if (!sol[k]) { sol[k] = 0; cm[k] = new Float64Array(cells.length); } sol[k]++; for (var q = 0; q < cells.length; q++) if (assign[q]) cm[k][q]++; return; }
+        for (var v = 0; v <= 1; v++) {
+          var ok = true; for (var j = 0; j < by[x].length; j++) { var c = by[x][j], s = sum[c] + v, r = unk[c] - 1; if (s > cc[c].n || s + r < cc[c].n) { ok = false; break; } }
+          if (!ok) continue; assign[x] = v; by[x].forEach(function (c) { sum[c] += v; unk[c]--; }); bt(x + 1, k + v); by[x].forEach(function (c) { sum[c] -= v; unk[c]++; }); assign[x] = -1; if (aborted) return;
+        }
+      })(0, 0);
+      comps.push({ cells: cells, sol: sol, cm: cm });
+    });
+    if (aborted) return null;
+    /* combine groups: weight each total by the ways to place the rest of the mines inside */
+    function conv(a, b) { var o = []; for (var i = 0; i < a.length; i++) if (a[i]) for (var j = 0; j < b.length; j++) if (b[j]) o[i + j] = (o[i + j] || 0) + a[i] * b[j]; return o; }
+    var p = {}, all = comps.reduce(function (acc, c) { return conv(acc, c.sol); }, [1]);
+    var ref = -Infinity; for (var k = 0; k < all.length; k++) if (all[k]) ref = Math.max(ref, lc(other, M - k));
+    function wOut(k) { return Math.exp(lc(other, M - k) - ref); }
+    var Z = 0, Eother = 0; for (k = 0; k < all.length; k++) if (all[k]) { var w = all[k] * wOut(k); Z += w; Eother += w * (M - k); }
+    comps.forEach(function (c, ci) {
+      var rest = comps.reduce(function (acc, d, di) { return di === ci ? acc : conv(acc, d.sol); }, [1]), E = [];
+      for (var kc = 0; kc < c.sol.length; kc++) { if (!c.sol[kc]) continue; var e = 0; for (var j = 0; j < rest.length; j++) if (rest[j]) e += rest[j] * wOut(kc + j); E[kc] = e; }
+      c.cells.forEach(function (cell, q) { var num = 0, den = 0; for (var kc = 0; kc < c.sol.length; kc++) { if (!c.sol[kc]) continue; num += c.cm[kc][q] * E[kc]; den += c.sol[kc] * E[kc]; } p[cell] = den ? num / den : 0; });
+    });
+    var pOther = other ? Eother / Z / other : null;
+    for (i = 0; i < N; i++) if (!rev[i] && p[i] == null) p[i] = pOther;
+    return { p: p, pOther: pOther, front: front.length, comps: comps.length, ms: performance.now() - t };
+  }
+
+  /* ---------- rendering ---------- */
+  function heat(v) { var stops = [[0, [31, 111, 102]], [.15, [111, 207, 195]], [.5, [212, 175, 55]], [1, [200, 50, 58]]]; for (var i = 1; i < stops.length; i++) if (v <= stops[i][0]) { var a = stops[i - 1], b = stops[i], t = (v - a[0]) / (b[0] - a[0]); return 'rgba(' + a[1].map(function (x, k) { return Math.round(x + (b[1][k] - x) * t); }).join(',') + ',.55)'; } return 'rgba(200,50,58,.55)'; }
+  function render() {
+    probs = started && !over ? solve() : null; var bestI = -1, bestP = 2, nS = 0, nM = 0;
+    if (probs) for (var k in probs.p) { var v = probs.p[k]; if (flag[k]) continue; if (v < 1e-12) nS++; if (v > 1 - 1e-12) nM++; if (v < bestP - 1e-9 || (Math.abs(v - bestP) < 1e-9 && probs.p[k] !== probs.pOther && bestI >= 0 && probs.p[bestI] === probs.pOther)) { bestP = v; bestI = +k; } }
+    paint(-1, bestI);
+    var fl = 0; for (var i = 0; i < W * H; i++) if (flag[i]) fl++; $('left').textContent = M - fl;
+    if (probs) { $('safe').textContent = Math.round(bestP * 1000) / 10 + '% mine'; $('calc').textContent = probs.comps + ' group' + (probs.comps === 1 ? '' : 's') + ' · ' + probs.ms.toFixed(0) + ' ms';
+      var x = bestI % W + 1, y = (bestI / W | 0) + 1; $('safeWhy').textContent = bestP < 1e-12 ? 'Column ' + x + ', row ' + y + ' is certainly safe: no arrangement that fits the numbers puts a mine there.' : 'No square is certain. The best guess is column ' + x + ', row ' + y + ', with a ' + (bestP * 100).toFixed(1) + '% chance of a mine.';
+      $('nSafe').textContent = nS; $('nMine').textContent = nM; $('nFront').textContent = probs.front; $('pOther').textContent = probs.pOther == null ? '-' : (probs.pOther * 100).toFixed(1) + '%';
+      $('guess').textContent = nS ? 'Logic alone gives you ' + nS + ' safe square' + (nS > 1 ? 's' : '') + ' to dig.' : 'No certain square: this position needs a guess.'; }
+    else if (!started) { $('safe').textContent = '-'; $('calc').textContent = '-'; $('safeWhy').textContent = 'After your first click, every hidden square gets its exact chance of hiding a mine.'; ['nSafe', 'nMine', 'nFront'].forEach(function (k) { $(k).textContent = '0'; }); $('pOther').textContent = (M / (W * H) * 100).toFixed(1) + '%'; $('guess').textContent = ''; }
+    else if (probs === null && started && !over) { $('calc').textContent = 'too many cases'; }
+  }
+  function paint(boom, bestI) {
+    var cs = $('grid').children;
+    for (var i = 0; i < W * H; i++) { var c = cs[i], cls = 'c ';
+      if (rev[i]) { cls += 'r'; c.dataset.n = nums[i]; c.textContent = nums[i] || ''; }
+      else if (over && mine[i]) { cls += 'm' + (i === boom ? ' boom' : ''); c.textContent = ''; }
+      else { cls += 'u' + (flag[i] ? ' f' : '') + (over && flag[i] && !mine[i] ? ' wrongf' : ''); c.textContent = ''; c.removeAttribute('data-n');
+        if (probs && showOdds && !flag[i] && probs.p[i] != null) { var v = probs.p[i]; c.innerHTML = '<span class="p" style="background:' + heat(v) + '">' + (v < .995 && v > .005 ? Math.round(v * 100) : v <= .005 ? '0' : '⚑') + '</span>'; } }
+      if (i === bestI && showOdds) cls += ' best'; c.className = cls; }
+  }
+  /* ---------- input ---------- */
+  var lp = null, lpFired = false;
+  $('grid').addEventListener('contextmenu', function (e) { e.preventDefault(); var c = e.target.closest('.c'); if (c) toggleFlag(+c.dataset.i); });
+  $('grid').addEventListener('pointerdown', function (e) { var c = e.target.closest('.c'); if (!c || e.button === 2) return; lpFired = false; clearTimeout(lp); if (e.pointerType !== 'mouse') lp = setTimeout(function () { lpFired = true; toggleFlag(+c.dataset.i); }, 420); });
+  $('grid').addEventListener('pointerup', function (e) { clearTimeout(lp); });
+  $('grid').addEventListener('click', function (e) { var c = e.target.closest('.c'); if (!c || lpFired) return; var i = +c.dataset.i; manual = true; if (rev[i]) chord(i); else if (digMode === 'flag') toggleFlag(i); else dig(i); render(); });
+  function toggleFlag(i) { if (over || rev[i] || !started) return; manual = true; flag[i] ^= 1; render(); }
+  /* ---------- solver ---------- */
+  var solving = false;
+  function solverMove() { if (over) return false; if (!started) { dig(((H / 2) | 0) * W + ((W / 2) | 0)); return true; } var P = solve(); if (!P) return false; var safe = [], best = -1, bp = 2;
+    for (var k in P.p) { if (P.p[k] < 1e-12) safe.push(+k); else if (P.p[k] < bp) { bp = P.p[k]; best = +k; } if (P.p[k] > 1 - 1e-12) flag[k] = 1; }
+    if (safe.length) safe.forEach(function (i) { dig(i); }); else if (best >= 0) dig(best); return true; }
+  $('step').addEventListener('click', function () { solverMove(); render(); });
+  $('solve').addEventListener('click', function () { var t = setInterval(function () { if (over || !solverMove()) { clearInterval(t); render(); return; } render(); }, 120); });
+  function benchSolver(n) { solving = true; var k = 'ldb-ms-solver-' + level, r = JSON.parse(store(k) || '{"p":0,"w":0}'); for (var g = 0; g < n; g++) { newGame(); var guard = 0; while (!over && guard++ < 2000) if (!solverMove()) break; r.p++; if (won) r.w++; } store(k, JSON.stringify(r)); solving = false; newGame(); return r; }
+  document.querySelectorAll('.sel2 button').forEach(function (b) { b.addEventListener('click', function () { digMode = b.dataset.m; document.querySelectorAll('.sel2 button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); }); });
+  $('newg').addEventListener('click', newGame);
+  document.querySelectorAll('#lvl button').forEach(function (b) { b.addEventListener('click', function () { level = +b.dataset.k; store('ldb-ms-lvl', String(level)); newGame(); }); });
+  function tog(id, fn) { $(id).addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); fn(on); store('ldb-ms-' + id, on ? '1' : '0'); });
+    var s = store('ldb-ms-' + id); if (s === '0' || s === '1') { $(id).setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+  tog('oddsTog', function (on) { showOdds = on; if (W) render(); });
+  tog('anTog', function (on) { document.body.classList.toggle('noan', !on); });
+  newGame();
+  window.__ms = { solve: solve, bench: benchSolver, st: function () { return { over: over, won: won, started: started }; },
+    setup: function (w, h, m, mines, revealList) { W = w; H = h; M = m; level = 0; mine = new Uint8Array(W * H); rev = new Uint8Array(W * H); flag = new Uint8Array(W * H); nums = new Int8Array(W * H); mines.forEach(function (i) { mine[i] = 1; }); for (var i = 0; i < W * H; i++) nums[i] = nb(i).filter(function (j) { return mine[j]; }).length; revealList.forEach(function (i) { rev[i] = 1; }); started = true; over = false; return solve(); } };
+})();
+
+</script>
+</body>
+</html>
