@@ -179,6 +179,7 @@
   /* header buttons: each section lands with its label the same distance below the bar, as on the main site */
   #shell, #mods { scroll-margin-top: calc(104px - clamp(72px, 10vw, 120px)); }
   #feed { scroll-margin-top: 0; }
+  #arcade { scroll-margin-top: 104px; }
   #mods { min-height: calc(100svh - 80px); }   /* enough room below for the last section to reach its spot on tall screens */
   .sec-head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 18px; margin-bottom: 28px; }
   .sec-head h2 { font: 400 clamp(1.8rem, 3.6vw, 2.6rem)/1.1 "Urbanist", sans-serif; margin: 0; }
@@ -246,6 +247,7 @@
       <a href="#feed" data-ws="feed" class="on"><b>1</b>feed</a>
       <a href="#shell" data-ws="shell"><b>2</b>term</a>
       <a href="#mods" data-ws="mods"><b>3</b>mods</a>
+      <a href="#arcade" data-ws="arcade"><b>4</b>arcade</a>
     </div>
   </div>
   <div class="mid" id="barclock" aria-hidden="true"></div>
@@ -320,7 +322,7 @@
     <div class="tin"><label class="ps1" for="tcmd">luis@ldb-lab:~$</label><input id="tcmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
   </div>
   <div class="chips" aria-label="Try a command">
-    <button type="button" data-c="help">help</button><button type="button" data-c="whoami">whoami</button><button type="button" data-c="ls modules">ls modules</button>
+    <button type="button" data-c="help">help</button><button type="button" data-c="whoami">whoami</button><button type="button" data-c="ls modules">ls modules</button><button type="button" data-c="arcade">arcade</button>
     <button type="button" data-c="neofetch">neofetch</button><button type="button" data-c="thermal">thermal</button><button type="button" data-c="clear">clear</button>
   </div>
 </section>
@@ -468,7 +470,7 @@
     </div>
   </section>
   <section class="wrap arcade" id="arcade" aria-label="Arcade">
-    <div class="seclab"><span class="idx">04</span><span class="nm">Arcade</span><span class="rule"></span><span class="code">Games with the maths switched on &middot; play chips only</span></div>
+    <div class="seclab"><span class="idx">04</span><span class="nm">Arcade</span><span class="rule"></span><span class="code">5 games &middot; the maths switched on &middot; play chips only</span></div>
     <div class="sec-head">
       <h2>The arcade, <span>where the odds are on screen.</span></h2>
     </div>
@@ -497,8 +499,15 @@
       <a class="card corners" href="uno-chess.html">
         <div class="top"><span>Arcade</span><span>GAME-04</span></div>
         <span class="haz"></span><span class="idx">04</span>
-        <h3>UNO Chess</h3>
-        <p>Chess where cards decide the turn: play a card to move one to three times, skip your opponent, or move one of their pieces. Take the king to win.</p>
+        <h3>UNO Chess: Hand rules</h3>
+        <p>Hold three cards and match the pile: move one to three times, skip your opponent, or move one of their pieces. Take the king to win.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+      <a class="card corners" href="uno-chess-draw.html">
+        <div class="top"><span>Arcade</span><span>GAME-05</span></div>
+        <span class="haz"></span><span class="idx">05</span>
+        <h3>UNO Chess: Draw rules</h3>
+        <p>One shared deck, one card per turn: numbers give extra moves, skips cost the turn, +2 and +4 revive lost pieces, and Reverse swaps sides.</p>
         <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
       </a>
     </div>
@@ -520,7 +529,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   tick(); setInterval(tick, 1000);
   function spy() {
     var y = innerHeight * .4, cur = 'feed';
-    ['feed', 'shell', 'mods'].forEach(function (id) { var el = document.getElementById(id); if (el && el.getBoundingClientRect().top < y) cur = id; });
+    ['feed', 'shell', 'mods', 'arcade'].forEach(function (id) { var el = document.getElementById(id); if (el && el.getBoundingClientRect().top < y) cur = id; });
     ws.forEach(function (a) { a.classList.toggle('on', a.dataset.ws === cur); });
   }
   addEventListener('scroll', spy, { passive: true }); spy();
@@ -1255,6 +1264,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       return ['<span class="hi">Available commands</span>',
         '  whoami          who runs this lab',
         '  ls [modules]    list files, or the lab modules',
+        '  arcade          list the arcade games',
         '  cat <file>      read about.txt, contact.txt or README.md',
         '  neofetch        system summary',
         '  thermal         switch the camera feed to thermal',
@@ -1269,6 +1279,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     ls: function (a) {
       if (a[0] && /^mod/.test(a[0])) return C.modules();
       return '<span class="acc" style="color:var(--acc)">modules/</span>  about.txt  contact.txt  README.md';
+    },
+    arcade: function () {
+      var G = [].map.call(document.querySelectorAll('#arcade .card'), function (c) { return [c.querySelector('.top span:last-child').textContent, c.querySelector('h3').textContent, c.getAttribute('href')]; });
+      return G.map(function (g) { return '<span class="hi">' + esc(g[0]) + '</span>  ' + (g[2] ? '<a href="' + g[2] + '">' + esc(g[1]) + '</a>' : esc(g[1])); }).join('\n') + '\n<span class="dim">' + G.length + ' games. Play chips only.</span>';
     },
     modules: function () {
       return MODS.map(function (m) { return '<span class="hi">' + esc(m.id) + '</span>  ' + esc((m.cat + '                    ').slice(0, 20)) + esc((m.name + '                              ').slice(0, 30)) + '<span class="warn">' + esc(m.status) + '</span>'; }).join('\n') +
