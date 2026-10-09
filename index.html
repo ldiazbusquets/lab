@@ -203,6 +203,9 @@
   .card .foot i { font-style: normal; color: #E0A84E; }
   .card .foot b { color: #9BE09B; font-weight: 700; } .card .foot b::before { content: "\25CF  "; }
   .card .foot b + span { color: var(--acc); }
+  .card .foot i { font-style: normal; color: var(--warm, #E0A84E); font-weight: 700; } .card .foot i::before { content: "\25CB  "; }
+  .card.soon { opacity: .62; pointer-events: none; }
+  .arcade { margin-top: clamp(56px, 8vw, 96px); scroll-margin-top: 104px; }
   .card .foot i::before { content: "\25CF  "; }
   .card[hidden], .track[hidden] { display: none; }
   .track + .track { margin-top: 44px; }
@@ -464,6 +467,42 @@
       </div>
     </div>
   </section>
+  <section class="wrap arcade" id="arcade" aria-label="Arcade">
+    <div class="seclab"><span class="idx">04</span><span class="nm">Arcade</span><span class="rule"></span><span class="code">Games with the maths switched on &middot; play chips only</span></div>
+    <div class="sec-head">
+      <h2>The arcade, <span>where the odds are on screen.</span></h2>
+    </div>
+    <div class="grid">
+      <a class="card corners" href="blackjack.html">
+        <div class="top"><span>Arcade</span><span>GAME-01</span></div>
+        <span class="haz"></span><span class="idx">01</span>
+        <h3>Blackjack</h3>
+        <p>Six-deck blackjack with the exact expected value of every move, dealer odds, the basic strategy chart and a Hi-Lo card counter.</p>
+        <div class="foot"><b>Playable</b><span>Play &rarr;</span></div>
+      </a>
+      <div class="card corners soon">
+        <div class="top"><span>Arcade</span><span>GAME-02</span></div>
+        <span class="haz"></span><span class="idx">02</span>
+        <h3>Texas Hold'em</h3>
+        <p>Heads-up poker against bots, with live equity, outs, pot odds and a suggested next move.</p>
+        <div class="foot"><i>In development</i><span></span></div>
+      </div>
+      <div class="card corners soon">
+        <div class="top"><span>Arcade</span><span>GAME-03</span></div>
+        <span class="haz"></span><span class="idx">03</span>
+        <h3>Chess</h3>
+        <p>Play an engine at several levels, with an evaluation bar, best-move hints and a review of your mistakes.</p>
+        <div class="foot"><i>In development</i><span></span></div>
+      </div>
+      <div class="card corners soon">
+        <div class="top"><span>Arcade</span><span>GAME-04</span></div>
+        <span class="haz"></span><span class="idx">04</span>
+        <h3>UNO Chess</h3>
+        <p>Chess where cards decide the turn: draw a number to move that many times, or play reverse, skip and draw two.</p>
+        <div class="foot"><i>In development</i><span></span></div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer><div class="wrap">
@@ -489,7 +528,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 
 /* ---------- project filters ---------- */
 (function () {
-  var btns = document.querySelectorAll('.filters button'), cards = document.querySelectorAll('.card');
+  var btns = document.querySelectorAll('.filters button'), cards = document.querySelectorAll('.track .card');
   btns.forEach(function (b) {
     b.addEventListener('click', function () {
       btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
@@ -1178,7 +1217,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       ['[ <span class="ok"> OK </span> ] ' + pad('feeds', 10) + 'mounted ' + FEEDS.length + ' cameras' + (nar ? '' : ', ' + FEEDS.map(function (f) { return f.cam; }).slice(0, 3).join(' ') + ' …'), 1],
       ['[ <span class="ok"> OK </span> ] ' + pad('tracker', 10) + 'LDB-Track v0.5, motion-predicted', 1],
       ['DET', 1],
-      ['[ <span class="ok"> OK </span> ] ' + pad('modules', 10) + document.querySelectorAll('.card').length + ' course modules indexed', 1],
+      ['[ <span class="ok"> OK </span> ] ' + pad('modules', 10) + document.querySelectorAll('.track .card').length + ' course modules indexed', 1],
       ['', 0],
       ['&gt; opening feed <span class="acc">' + FEEDS[0].cam + '</span> · ' + FEEDS[0].place, 1]
     ], k = 0, total = L.length;
@@ -1206,7 +1245,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
   function print(html) { out.insertAdjacentHTML('beforeend', html + '\n'); out.scrollTop = out.scrollHeight; }
   function echo(cmd) { print('<span class="ps1">luis@ldb-lab:~$</span> ' + esc(cmd)); }
-  var MODS = [].map.call(document.querySelectorAll('.card'), function (c) {
+  var MODS = [].map.call(document.querySelectorAll('.track .card'), function (c) {
     return { id: c.querySelector('.top span:last-child').textContent, cat: c.querySelector('.top span').textContent, name: c.querySelector('h3').textContent, status: c.querySelector('.foot i, .foot b') ? c.querySelector('.foot i, .foot b').textContent : '' };
   });
   function uptime() { var s = Math.floor((Date.now() - t0) / 1000); return Math.floor(s / 60) + 'm ' + (s % 60) + 's'; }
