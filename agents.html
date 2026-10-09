@@ -337,13 +337,26 @@
   .verdict5 b { color: #fff; }
   /* agents.html */
   .step { scroll-margin-top: calc(92px - clamp(64px, 9vw, 110px)); }
-  #loop { width: 100%; height: auto; }
-  #loop .nd rect { fill: #0c1117; stroke: rgba(255,255,255,.3); transition: fill .25s, stroke .25s; }
-  #loop .nd text { fill: var(--soft); font: 700 13px "JetBrains Mono", monospace; text-anchor: middle; letter-spacing: .06em; }
-  #loop .nd.on rect { fill: rgba(91,159,224,.25); stroke: var(--acc); } #loop .nd.on text { fill: #fff; }
-  #loop .ans.on rect { fill: rgba(155,224,155,.2); stroke: #9BE09B; }
-  #loop .ar { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1.4; }
-  #loop .cap { fill: var(--warm); font: 500 12px "JetBrains Mono", monospace; text-anchor: middle; }
+  #loop { width: 100%; height: auto; display: block; }
+  #loop .ring { fill: none; stroke: rgba(255,255,255,.07); stroke-width: 22; }
+  #loop .lk { fill: none; stroke: rgba(255,255,255,.28); stroke-width: 1.6; transition: stroke .3s; }
+  #loop .lk.hot { stroke: #5B9FE0; stroke-width: 2.4; marker-end: url(#ahl); }
+  #loop .nd rect { fill: #0b1016; stroke: rgba(255,255,255,.22); stroke-width: 1.2; transition: fill .3s, stroke .3s; }
+  #loop .nd .t { fill: #e9edf2; font: 700 14px "JetBrains Mono", monospace; text-anchor: middle; letter-spacing: .04em; }
+  #loop .nd .s { fill: var(--dim); font: 500 9.5px "JetBrains Mono", monospace; text-anchor: middle; letter-spacing: .08em; text-transform: uppercase; }
+  #loop .nd.on rect { fill: rgba(91,159,224,.22); stroke: #5B9FE0; filter: url(#glw); }
+  #loop .nd.on .s { fill: #A9CDF2; }
+  #loop .nd.ans.on rect { fill: rgba(155,224,155,.18); stroke: #9BE09B; }
+  #loop .nd.ans.on .s { fill: #9BE09B; }
+  #loop .ctr { fill: #fff; font: 800 22px "Archivo", sans-serif; font-stretch: 125%; text-anchor: middle; letter-spacing: .06em; }
+  #loop .ctr2 { fill: var(--warm); font: 500 10.5px "JetBrains Mono", monospace; text-anchor: middle; letter-spacing: .12em; text-transform: uppercase; }
+  .lcon { border: 1px solid rgba(255,255,255,.1); background: #040608; margin-top: 10px; }
+  .lch { display: flex; justify-content: space-between; padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.08); font: 600 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+  .lch span:first-child::before { content: "$ tail -f "; color: var(--acc); text-transform: none; letter-spacing: 0; }
+  #lg1 { list-style: none; margin: 0; padding: 6px 10px; height: 168px; overflow-y: auto; font: 500 .74rem/1.75 var(--mono); }
+  #lg1 li { display: grid; grid-template-columns: 22px 66px minmax(0,1fr); gap: 8px; animation: fadein .3s ease; }
+  #lg1 b { color: var(--dim); font-weight: 500; } #lg1 em { font-style: normal; color: #C9CDD3; overflow-wrap: anywhere; }
+  #lg1 .goal span { color: #fff; } #lg1 .think span { color: var(--warm); } #lg1 .act span { color: var(--acc); } #lg1 .act em { color: var(--acc-hi); } #lg1 .obs span { color: var(--soft); } #lg1 .ans span, #lg1 .ans em { color: #9BE09B; }
   .ins { display: flex; gap: 8px; flex-wrap: wrap; }
   .ins input, .ins select { flex: 1 1 160px; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .9rem var(--mono); padding: 8px 10px; }
   .ins select option { background: #0c1117; }
@@ -411,8 +424,9 @@
     <div class="cols">
       <div>
         <div class="panel corners">
-          <svg id="loop" viewBox="0 0 420 300" role="img" aria-label="The agent loop: goal, think, act, observe, answer"></svg>
-          <div class="ctl" style="margin-top:8px"><button type="button" class="primary" id="go1">Play the loop</button></div>
+          <svg id="loop" viewBox="0 0 520 330" role="img" aria-label="The agent loop: goal, think, act, observe, then answer"></svg>
+          <div class="lcon"><div class="lch"><span>agent.log</span><span id="turn1">idle</span></div><ol id="lg1"></ol></div>
+          <div class="ctl" style="margin-top:10px"><button type="button" class="primary" id="go1">Play the loop</button></div>
         </div>
       </div>
       <div class="explain">
@@ -573,22 +587,61 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   function call(name, arg) { try { return { ok: true, v: TOOLS[name].run(arg) }; } catch (e) { return { ok: false, v: e.message }; } }
   function fmt(v) { return JSON.stringify(v, null, 1).replace(/\n\s*/g, ' '); }
 
-  /* ---------- step 1: loop diagram ---------- */
-  var NODES = [['Goal', 60, 150], ['Think', 210, 50], ['Act', 360, 150], ['Observe', 210, 250]];
+  /* ---------- step 1: the loop, drawn as a ring with a pulse travelling around it ---------- */
+  var SV = 'http://www.w3.org/2000/svg', C0 = [260, 182], RR = 104;
+  function P(a) { var r = a * Math.PI / 180; return [C0[0] + RR * Math.cos(r), C0[1] + RR * Math.sin(r)]; }
+  function arc(a1, a2) { var p = P(a1), q = P(a2); return 'M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' A' + RR + ' ' + RR + ' 0 0 1 ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1); }
+  var NODE = { goal: [64, 78, 'Goal', 'the task'], think: [260, 78, 'Think', 'model reasons'], act: [350, 234, 'Act', 'calls a tool'], obs: [170, 234, 'Observe', 'reads result'], ans: [456, 78, 'Answer', 'final reply'] };
+  var PATHS = { gt: 'M118 78 L200 78', ta: arc(-90 + 30, 30 - 31), ao: arc(30 + 26, 150 - 26), ot: arc(150 + 31, 270 - 30), tn: 'M320 78 L402 78' };
   (function () {
-    var h = '<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="rgba(255,255,255,.5)"/></marker></defs>';
-    h += '<path class="ar" d="M100 135 Q140 70 170 60" marker-end="url(#ah)"/><path class="ar" d="M250 60 Q320 80 345 120" marker-end="url(#ah)"/><path class="ar" d="M345 180 Q320 230 250 245" marker-end="url(#ah)"/><path class="ar" d="M190 220 Q195 150 205 85" marker-end="url(#ah)"/>';
-    NODES.forEach(function (n, i) { h += '<g class="nd" id="n' + i + '"><rect x="' + (n[1] - 52) + '" y="' + (n[2] - 22) + '" width="104" height="44" rx="4"/><text x="' + n[1] + '" y="' + (n[2] + 5) + '">' + n[0] + '</text></g>'; });
-    h += '<g class="nd ans" id="n4"><rect x="300" y="30" width="104" height="44" rx="4"/><text x="352" y="57">Answer</text></g><path class="ar" d="M262 40 L298 46" marker-end="url(#ah)"/>';
-    h += '<text class="cap" id="cap1" x="210" y="160">press play</text>';
+    var h = '<defs><filter id="glw" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+      '<marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" fill="rgba(255,255,255,.45)"/></marker>' +
+      '<marker id="ahl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" fill="#5B9FE0"/></marker>' +
+      '<radialGradient id="cg"><stop offset="0" stop-color="rgba(91,159,224,.16)"/><stop offset="1" stop-color="rgba(91,159,224,0)"/></radialGradient></defs>';
+    h += '<circle cx="' + C0[0] + '" cy="' + C0[1] + '" r="' + (RR + 34) + '" fill="url(#cg)"/>';
+    h += '<circle class="ring" cx="' + C0[0] + '" cy="' + C0[1] + '" r="' + RR + '"/>';
+    for (var k in PATHS) h += '<path class="lk" id="pk-' + k + '" d="' + PATHS[k] + '" marker-end="url(#ah)"/>';
+    h += '<text class="ctr" id="ctr1" x="' + C0[0] + '" y="' + (C0[1] + 2) + '">LOOP</text><text class="ctr2" id="ctr2" x="' + C0[0] + '" y="' + (C0[1] + 22) + '">press play</text>';
+    for (k in NODE) { var n = NODE[k]; h += '<g class="nd' + (k === 'ans' ? ' ans' : '') + '" id="nd-' + k + '"><rect x="' + (n[0] - 54) + '" y="' + (n[1] - 24) + '" width="108" height="48" rx="8"/><text class="t" x="' + n[0] + '" y="' + (n[1] - 1) + '">' + n[2] + '</text><text class="s" x="' + n[0] + '" y="' + (n[1] + 14) + '">' + n[3] + '</text></g>'; }
+    h += '<g id="pulse" opacity="0"><circle r="11" fill="rgba(91,159,224,.25)"/><circle r="4.5" fill="#fff"/></g>';
     $('loop').innerHTML = h;
   })();
-  $('go1').addEventListener('click', async function () {
-    var b = this; b.disabled = true;
-    var seq = [[0, 'goal: total value of the portfolio'], [1, 'I need the holdings first'], [2, 'call get_holdings()'], [3, '5 holdings returned'], [1, 'now I need prices'], [2, 'call get_price(...) × 5'], [3, '5 prices returned'], [1, 'add it up with the calculator'], [2, 'call calculator(...)'], [3, 'total: $' + total().toLocaleString()], [1, 'I have enough to answer'], [4, 'answer with the total']];
-    for (var i = 0; i < seq.length; i++) { document.querySelectorAll('#loop .nd').forEach(function (g) { g.classList.remove('on'); }); $('n' + seq[i][0]).classList.add('on'); $('cap1').textContent = seq[i][1]; await wait(900); }
-    b.disabled = false;
-  });
+  function setNode(k) { document.querySelectorAll('#loop .nd').forEach(function (g) { g.classList.toggle('on', g.id === 'nd-' + k); }); }
+  function travel(key, ms) {
+    return new Promise(function (res) {
+      var path = $('pk-' + key), L = path.getTotalLength(), pu = $('pulse'), t0 = performance.now();
+      document.querySelectorAll('#loop .lk').forEach(function (x) { x.classList.toggle('hot', x === path); });
+      pu.setAttribute('opacity', 1);
+      (function f(now) { var k = Math.min(1, (now - t0) / (reduce ? 1 : ms)), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2, pt = path.getPointAtLength(e * L); pu.setAttribute('transform', 'translate(' + pt.x + ' ' + pt.y + ')'); if (k < 1) requestAnimationFrame(f); else res(); })(performance.now());
+    });
+  }
+  /* idle: a faint pulse circles the ring until the loop is played */
+  var idle = true;
+  (function () { var t0 = performance.now(), pu = $('pulse'); (function f(now) { if (!idle) return; var a = ((now - t0) / 4000 * 360 - 90) * Math.PI / 180; pu.setAttribute('opacity', .55); pu.setAttribute('transform', 'translate(' + (C0[0] + RR * Math.cos(a)) + ' ' + (C0[1] + RR * Math.sin(a)) + ')'); requestAnimationFrame(f); })(t0); })();
+  function lg(kind, txt) { var n = $('lg1').children.length + 1; $('lg1').insertAdjacentHTML('beforeend', '<li class="' + kind + '"><b>' + (n < 10 ? '0' : '') + n + '</b><span>' + { goal: 'GOAL', think: 'THINK', act: 'ACT', obs: 'OBSERVE', ans: 'ANSWER' }[kind] + '</span><em>' + txt + '</em></li>'); $('lg1').scrollTop = 1e6; }
+  var playing = false;
+  async function play() {
+    if (playing) return; playing = true; idle = false; $('go1').disabled = true; $('lg1').innerHTML = '';
+    var tot = '$' + total().toLocaleString(undefined, { minimumFractionDigits: 2 }), turn = 0;
+    var SEQ = [['goal', null, 'What is the portfolio worth right now?'], ['think', 'gt', 'I need to know what is in the portfolio first.'], ['act', 'ta', 'get_holdings()'], ['obs', 'ao', '5 holdings returned'],
+      ['think', 'ot', 'Now a price for each holding.'], ['act', 'ta', 'get_price() × 5'], ['obs', 'ao', '5 prices returned'],
+      ['think', 'ot', 'Let the calculator do the math.'], ['act', 'ta', 'calculator("120 * 182.40 + …")'], ['obs', 'ao', tot],
+      ['think', 'ot', 'I have enough to answer.'], ['ans', 'tn', 'The portfolio is worth ' + tot + '.']];
+    $('ctr1').textContent = 'TURN 0'; $('ctr2').textContent = 'starting';
+    for (var i = 0; i < SEQ.length; i++) {
+      var s1 = SEQ[i];
+      if (s1[1]) await travel(s1[1], s1[1] === 'gt' || s1[1] === 'tn' ? 520 : 760);
+      setNode(s1[0]); lg(s1[0], esc(s1[2]));
+      if (s1[0] === 'think') { turn++; $('ctr1').textContent = 'TURN ' + turn; }
+      $('ctr2').textContent = { goal: 'goal received', think: 'reasoning', act: 'running tool', obs: 'reading result', ans: 'done' }[s1[0]];
+      $('turn1').textContent = s1[0] === 'ans' ? 'finished in ' + turn + ' turns' : 'turn ' + turn;
+      await wait(s1[0] === 'act' ? 650 : 520);
+    }
+    document.querySelectorAll('#loop .lk').forEach(function (x) { x.classList.remove('hot'); }); $('pulse').setAttribute('opacity', 0);
+    playing = false; $('go1').disabled = false; $('go1').textContent = 'Play again';
+  }
+  $('go1').addEventListener('click', play);
+  if ('IntersectionObserver' in window && !reduce) { var io1 = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io1.disconnect(); setTimeout(play, 500); } }, { threshold: .6 }); io1.observe($('loop')); }
   function total() { return Math.round(Object.keys(CO).reduce(function (s, t) { return s + CO[t].price * CO[t].shares; }, 0) * 100) / 100; }
 
   /* ---------- step 2: tools ---------- */
