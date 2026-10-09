@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Texas Hold'em | LDB Lab Arcade</title>
+<meta name="description" content="No-limit Texas Hold'em against three bots, with live equity against likely ranges, outs, pot odds and a suggested move. Play chips only.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #C8323A; --crim: #8E1F27; --bone: #EDE3CF; --teal: #6FCFC3; --mag: #B0559F; --good: #8FD3C8; --lock: #FF5A4E; --warm: #E0A84E;
+    --g: clamp(16px, 4vw, 48px); --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 1rem/1.6 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased;
+    background: radial-gradient(ellipse 60% 50% at 12% 0%, rgba(70,150,160,.16), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(142,31,39,.10), transparent 70%), #030304; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 3px, rgba(0,0,0,.25) 4px, transparent 6px); background-size: 18px 18px; -webkit-mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); mask-image: linear-gradient(rgba(0,0,0,.9), rgba(0,0,0,.25)); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+  button, input { font-family: inherit; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.65); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  nav .right { display: flex; gap: 10px; align-items: center; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap; padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } }
+
+  .page { padding: 76px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 14px; }
+  .eyebrow { font: 500 .72rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 6px; }
+  h1 { font: 800 clamp(2rem, 4.6vw, 3.2rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; color: var(--bone); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); }
+  .seg button { background: transparent; border: 0; color: var(--soft); font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 8px 11px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--acc); color: #F3EBDC; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 10px 6px 8px; cursor: pointer; font: 600 .64rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); background: transparent; }
+  .tog i { width: 30px; height: 16px; border-radius: 9px; background: rgba(255,255,255,.15); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: #fff; border-color: var(--acc); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(14px); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); }
+  body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+  /* table */
+  .table { position: relative; border-radius: 200px / 140px; padding: 14px clamp(14px, 3vw, 40px) 14px; border: 10px solid #0b0b0d;
+    background: radial-gradient(ellipse at 50% 40%, #191a1f, #050506 75%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), inset 0 0 90px rgba(0,0,0,.8), 0 0 0 1px rgba(111,207,195,.35), 0 0 60px rgba(70,150,160,.08), 0 20px 60px rgba(0,0,0,.7);
+    display: grid; grid-template-columns: 1fr 1.6fr 1fr; grid-template-areas: ". s2 ." "s1 board s3" ". you ."; gap: 10px 14px; align-items: center; }
+  @media (max-width: 760px) { .table { border-radius: 28px; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "s1 s2 s3" "board board board" "you you you"; padding: 16px 10px; gap: 12px 6px; } }
+  .seat { display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; padding: 8px 6px; border-radius: 14px; border: 1px solid transparent; transition: border-color .25s, box-shadow .25s, opacity .25s; min-width: 0; }
+  .seat[data-i="1"] { grid-area: s1; } .seat[data-i="2"] { grid-area: s2; } .seat[data-i="3"] { grid-area: s3; } .seat[data-i="0"] { grid-area: you; }
+  .seat.turn { border-color: var(--bone); box-shadow: 0 0 22px rgba(237,227,207,.18); }
+  .seat.think .nm::after { content: " \2026"; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .seat.out { opacity: .42; }
+  .seat.win { border-color: var(--teal); box-shadow: 0 0 26px rgba(111,207,195,.25); }
+  .nm { font: 700 .66rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--bone); white-space: nowrap; }
+  .stk { font: 700 .82rem var(--mono); color: #fff; }
+  .meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; min-height: 20px; }
+  .pill { font: 700 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--soft); white-space: nowrap; }
+  .pill.a-raise, .pill.a-bet, .pill.a-all { color: #F3EBDC; background: var(--crim); border-color: var(--acc); }
+  .pill.a-call, .pill.a-check { color: var(--teal); border-color: rgba(111,207,195,.4); }
+  .pill.a-fold { color: var(--dim); }
+  .pill.lvl { color: var(--dim); border-color: transparent; padding: 0; }
+  .bet { font: 700 .72rem var(--mono); color: var(--bone); display: flex; align-items: center; gap: 4px; min-height: 22px; }
+  .nmrow { display: flex; align-items: center; gap: 6px; min-height: 20px; }
+  .dbtn { width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #F6E3A6, #B8903A 60%, #7a5a1c); color: #3a2a0c; font: 800 .56rem "Manrope", sans-serif; display: none; flex: none; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  .seat.btnr .dbtn { display: flex; }
+  .hn { font: 700 .62rem var(--mono); letter-spacing: .08em; color: var(--teal); text-align: center; min-height: 1em; }
+
+  .cards { display: flex; gap: 4px; }
+  .card { width: 46px; height: 66px; border-radius: 6px; background: #EFE6D3; color: #141414; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4); animation: deal .35s cubic-bezier(.2,.8,.3,1) both; flex: none; }
+  .card.red { color: #9E1F28; }
+  .card .c1 { position: absolute; top: 4px; left: 5px; font: 800 .8rem/1 "Manrope", sans-serif; text-align: center; }
+  .card .c1 i { display: block; font-style: normal; font-size: .72rem; margin-top: 1px; }
+  .card .pip { position: absolute; right: 5px; bottom: 3px; font-size: 1.35rem; line-height: 1; }
+  .card.back { border: 2px solid #EFE6D3;
+    background: radial-gradient(circle at 50% 50%, transparent 0 7px, rgba(142,31,39,.85) 8px 9px, transparent 10px) 0 0 / 18px 18px, radial-gradient(circle at 0 0, rgba(142,31,39,.7) 0 2px, transparent 3px) 0 0 / 9px 9px, linear-gradient(135deg, #1a0a0d, #0d0d0f 60%, #1a0a0d);
+    box-shadow: inset 0 0 0 3px #0d0d0f, inset 0 0 0 4px #8E1F27, 0 4px 10px rgba(0,0,0,.55); }
+  .card.dim { filter: brightness(.45); }
+  .card.hi { box-shadow: 0 0 0 2px var(--teal), 0 0 16px rgba(111,207,195,.5); transform: translateY(-4px); transition: transform .3s; }
+  .card.slot { background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(237,227,207,.12); animation: none; }
+  .card.flip { animation: flip .4s ease both; }
+  .seat[data-i="0"] .card { width: 74px; height: 104px; border-radius: 8px; }
+  .seat[data-i="0"] .card .c1 { font-size: 1.05rem; top: 6px; left: 7px; } .seat[data-i="0"] .card .c1 i { font-size: .95rem; }
+  .seat[data-i="0"] .card .pip { font-size: 2.2rem; right: 7px; bottom: 5px; }
+  .board .card { width: 64px; height: 90px; border-radius: 7px; }
+  .board .card .c1 { font-size: .95rem; top: 5px; left: 6px; } .board .card .c1 i { font-size: .85rem; }
+  .board .card .pip { font-size: 1.9rem; right: 6px; bottom: 4px; }
+  @keyframes deal { from { opacity: 0; transform: translateY(-30px) scale(.9); } }
+  @keyframes flip { 0% { transform: rotateY(90deg); } 100% { transform: rotateY(0); } }
+  @media (max-width: 560px) {
+    .board .card { width: 50px; height: 72px; } .board .card .pip { font-size: 1.45rem; } .board .card .c1 { font-size: .8rem; }
+    .card { width: 38px; height: 54px; } .card .pip { font-size: 1.05rem; } .card .c1 { font-size: .7rem; top: 3px; left: 4px; } .card .c1 i { font-size: .62rem; }
+    .seat[data-i="0"] .card { width: 62px; height: 88px; } .seat[data-i="0"] .card .pip { font-size: 1.8rem; }
+  }
+  .board { grid-area: board; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .board .cards { gap: 6px; }
+  .pot { font: 700 .72rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); display: flex; align-items: center; gap: 8px; }
+  .pot b { color: var(--bone); font-size: .95rem; letter-spacing: .04em; }
+  .msg { font: 800 clamp(.85rem, 1.8vw, 1.1rem) "Archivo", sans-serif; font-stretch: 125%; letter-spacing: .06em; text-align: center; text-transform: uppercase; color: var(--bone); min-height: 1.4em; }
+  .msg.win { color: var(--teal); } .msg.lose { color: var(--lock); }
+
+  /* chips */
+  svg.chp .cb { fill: var(--cb); } svg.chp .cd { fill: var(--cd); } svg.chp .cr { fill: none; stroke: var(--cr); stroke-width: 1.4; } svg.chp .ce { fill: none; stroke: rgba(0,0,0,.35); stroke-width: 2; }
+  svg.chp .ci { fill: var(--ci); } svg.chp .cn { fill: var(--cn); font: 800 22px "Manrope", sans-serif; text-anchor: middle; dominant-baseline: central; }
+  .mini { display: inline-flex; vertical-align: middle; }
+  .mini span { width: 18px; height: 18px; border-radius: 50%; margin-left: -11px; box-shadow: 0 2px 4px rgba(0,0,0,.6); } .mini span:first-child { margin-left: 0; }
+  .mini svg { display: block; width: 100%; height: 100%; }
+  [data-v="5"] { --cb: #B8343A; --cd: #EDE3CF; --cr: rgba(80,10,15,.55); --ci: #EDE3CF; --cn: #8E1F27; }
+  [data-v="25"] { --cb: #9E3A8C; --cd: #7FD6CF; --cr: rgba(60,10,50,.55); --ci: #6FCFC3; --cn: #3A1236; }
+  [data-v="100"] { --cb: #151517; --cd: #C8323A; --cr: rgba(255,255,255,.14); --ci: #C8323A; --cn: #151517; }
+  [data-v="100"] svg.chp .ce { stroke: rgba(237,227,207,.28); }
+  [data-v="500"] { --cb: url(#gld); --cd: rgba(90,60,15,.45); --cr: rgba(90,60,15,.6); --ci: url(#gld2); --cn: #4A3410; }
+
+  /* controls */
+  .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 14px; align-items: center; min-height: 52px; }
+  .controls[hidden] { display: none !important; }
+  .act { min-width: 104px; padding: 12px 14px; font: 700 .72rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: rgba(10,10,12,.7); border: 1px solid rgba(237,227,207,.22); border-radius: 10px; cursor: pointer; transition: border-color .15s, box-shadow .2s; }
+  .act:hover:not(:disabled) { border-color: var(--bone); }
+  .act:disabled { opacity: .3; cursor: default; }
+  .act.primary { background: linear-gradient(#C8323A, #8E1F27); border-color: #C8323A; color: #F3EBDC; }
+  .act.hint { box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(237,227,207,.5); }
+  .act kbd { font: 500 .56rem var(--mono); opacity: .55; margin-left: 6px; }
+  .sizer { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; width: 100%; }
+  .sizer button { background: transparent; border: 1px solid var(--line); color: var(--soft); font: 600 .6rem var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 6px 9px; border-radius: 6px; cursor: pointer; }
+  .sizer button:hover { color: #fff; border-color: var(--bone); }
+  .sizer input[type=range] { width: min(260px, 60vw); accent-color: var(--acc); }
+  .sizer output { font: 700 .8rem var(--mono); color: var(--bone); min-width: 64px; text-align: center; }
+  .bank { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font: 600 .7rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+  .bank b { color: #fff; font-size: .95rem; letter-spacing: .02em; }
+  .bank .reset { background: transparent; border: 1px solid var(--line); color: var(--soft); font: 600 .62rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 4px 8px; cursor: pointer; }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(0,0,0,.9); border: 1px solid var(--warm); color: var(--warm); font: 600 .74rem var(--mono); padding: 9px 14px; border-radius: 8px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .log { margin-top: 14px; border: 1px solid var(--line); background: rgba(6,6,8,.8); padding: 10px 12px; height: 150px; overflow-y: auto; font: 500 .7rem/1.7 var(--mono); color: var(--soft); }
+  .log b { color: var(--bone); font-weight: 700; } .log .st { color: var(--acc); } .log .w { color: var(--teal); }
+
+  /* analysis */
+  .an { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 12px; }
+  .box { background: rgba(8,8,10,.92); border: 1px solid rgba(255,255,255,.1); padding: 14px; position: relative; }
+  .box::before, .box::after { content: ""; position: absolute; width: 9px; height: 9px; border: 1px solid var(--acc); }
+  .box::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .box::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .bh span:last-child { color: var(--dim); font-weight: 500; text-align: right; }
+  .sug { font: 800 1.5rem/1.1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); letter-spacing: .04em; }
+  .why { font-size: .84rem; color: #C9CDD3; margin: 8px 0 0; }
+  .eqbig { display: flex; align-items: baseline; gap: 10px; }
+  .eqbig b { font: 800 2.2rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--bone); }
+  .eqbig span { font: 600 .66rem var(--mono); color: var(--soft); letter-spacing: .08em; text-transform: uppercase; }
+  .eqbar { display: flex; height: 10px; margin: 10px 0 4px; background: rgba(255,255,255,.06); overflow: hidden; }
+  .eqbar i { display: block; height: 100%; transition: width .3s; } .eqbar .w { background: var(--teal); } .eqbar .t { background: var(--warm); }
+  .eqleg { display: flex; justify-content: space-between; font: 600 .58rem var(--mono); color: var(--soft); letter-spacing: .06em; text-transform: uppercase; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat2 div { border: 1px solid var(--line); padding: 8px; min-width: 0; }
+  .stat2 span { display: block; font: 600 .56rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stat2 b { font: 700 1.02rem var(--mono); color: #fff; }
+  .stat2 b.pos { color: var(--teal); } .stat2 b.neg { color: var(--lock); }
+  .handnm { font: 500 1.15rem "Urbanist", sans-serif; color: #fff; }
+  .draws { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .draws span { font: 700 .58rem var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 3px 7px; border: 1px solid rgba(111,207,195,.4); color: var(--teal); }
+  .note { font-size: .78rem; color: var(--soft); margin: 8px 0 0; }
+  .outs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 8px; }
+  .outs span { font: 700 .62rem var(--mono); padding: 2px 4px; background: #EFE6D3; color: #141414; border-radius: 3px; }
+  .outs span.red { color: #9E1F28; }
+  .chart { display: grid; grid-template-columns: repeat(13, 1fr); gap: 1px; font: 700 .5rem var(--mono); }
+  .chart span { text-align: center; padding: 3px 0; color: #141414; overflow: hidden; white-space: nowrap; }
+  .chart .r { background: #B8343A; color: #F3EBDC; } .chart .c { background: #CFC6B4; } .chart .f { background: #24252a; color: #6a6b72; }
+  .chart .cur { outline: 2px solid var(--teal); outline-offset: -1px; position: relative; z-index: 1; box-shadow: 0 0 10px var(--teal); }
+  .chartleg { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font: 600 .56rem var(--mono); color: var(--soft); text-transform: uppercase; letter-spacing: .08em; }
+  .chartleg i { display: inline-block; width: 9px; height: 9px; margin-right: 4px; vertical-align: -1px; }
+
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; margin-top: 44px; }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 500 1.25rem "Urbanist", sans-serif; margin: 0 0 6px; }
+  .explain p { color: #C9CDD3; font-size: .95rem; margin: 0 0 10px; }
+  .explain .k { font: 700 .62rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 0 0 6px; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+  @media (prefers-reduced-motion: reduce) { .card, .card.flip { animation: none; } .seat.think .nm::after { animation: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="gld" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3D98A"/><stop offset=".35" stop-color="#C9A043"/><stop offset=".6" stop-color="#8A6620"/><stop offset="1" stop-color="#D8B460"/></linearGradient>
+  <linearGradient id="gld2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6E3A6"/><stop offset=".5" stop-color="#B8903A"/><stop offset="1" stop-color="#E5C677"/></linearGradient>
+</defs></svg>
+
+<nav><div class="in">
+  <a class="mark" href="./">LDB<span>/ARCADE</span></a>
+  <div class="right">
+    <a class="btn" href="./#arcade">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">// Arcade 02 &middot; Play chips only</p>
+      <h1>Texas Hold'em</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" id="lvl" role="group" aria-label="Bot difficulty"><button type="button" data-k="0" aria-pressed="false">Rookie</button><button type="button" data-k="1" aria-pressed="true">Regular</button><button type="button" data-k="2" aria-pressed="false">Shark</button></div>
+      <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
+      <button type="button" class="tog" id="trTog" aria-pressed="true"><i></i>Coach</button>
+      <button type="button" class="tog" id="peekTog" aria-pressed="false"><i></i>Show bot cards</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="table" id="table">
+        <div class="seat" data-i="2"></div>
+        <div class="seat" data-i="1"></div>
+        <div class="board">
+          <div class="pot">Pot <b id="pot">$0</b><span id="potChips"></span></div>
+          <div class="cards" id="board"></div>
+          <div class="msg" id="msg">Press deal to start</div>
+        </div>
+        <div class="seat" data-i="3"></div>
+        <div class="seat" data-i="0"></div>
+      </div>
+      <div class="controls" id="nextCtl"><button type="button" class="act primary" id="deal">Deal hand<kbd>Space</kbd></button></div>
+      <div class="controls" id="playCtl" hidden>
+        <button type="button" class="act" id="aF">Fold<kbd>F</kbd></button>
+        <button type="button" class="act" id="aC">Check<kbd>C</kbd></button>
+        <button type="button" class="act primary" id="aR">Raise<kbd>R</kbd></button>
+        <div class="sizer" id="sizer">
+          <button type="button" data-p="min">Min</button><button type="button" data-p=".5">&frac12; pot</button><button type="button" data-p=".75">&frac34; pot</button><button type="button" data-p="1">Pot</button><button type="button" data-p="all">All-in</button>
+          <input type="range" id="amt" min="0" max="100" step="5" aria-label="Raise amount"><output id="amtV">$0</output>
+        </div>
+      </div>
+      <div class="bank"><span>Your stack <b id="stack">$1,000</b></span><span>Blinds <b>$5 / $10</b></span><span>Session <b id="net">$0</b></span><button type="button" class="reset" id="reset">Reset chips</button></div>
+      <div class="log" id="log" aria-live="polite"></div>
+    </div>
+
+    <aside class="an" aria-label="Analysis">
+      <div class="box">
+        <div class="bh"><span>Suggested play</span><span id="sugSrc">-</span></div>
+        <div class="sug" id="sug">-</div>
+        <p class="why" id="why">Deal a hand to see the math.</p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Your equity</span><span id="eqSub">-</span></div>
+        <div class="eqbig"><b id="eq">-</b><span id="eqLab">chance to win the pot</span></div>
+        <div class="eqbar"><i class="w" id="eqW" style="width:0"></i><i class="t" id="eqT" style="width:0"></i></div>
+        <div class="eqleg"><span id="eqWin">Win -</span><span id="eqTie">Split -</span><span id="eqRnd">vs random -</span></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Pot odds</span><span>is calling worth it?</span></div>
+        <div class="stat2"><div><span>To call</span><b id="toCall">-</b></div><div><span>Equity needed</span><b id="need">-</b></div><div><span>Pot after call</span><b id="potAfter">-</b></div><div><span>EV of calling</span><b id="evCall">-</b></div></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Your hand</span><span id="street">-</span></div>
+        <div class="handnm" id="handnm">-</div>
+        <div class="draws" id="draws"></div>
+        <p class="note" id="outsTxt"></p>
+        <div class="outs" id="outs"></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Starting hands</span><span>4 players</span></div>
+        <div class="chart" id="chart"></div>
+        <div class="chartleg"><span><i style="background:#B8343A"></i>Raise</span><span><i style="background:#CFC6B4"></i>Play with care</span><span><i style="background:#24252a"></i>Fold</span><span style="margin-left:auto">upper = suited</span></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Your session</span><span id="agree">-</span></div>
+        <div class="stat2"><div><span>Hands / won</span><b id="sHands">0 / 0</b></div><div><span>Hands played</span><b id="sVpip">-</b></div></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="explain">
+    <div><p class="k">Equity and ranges</p><h3>Your share of the pot</h3><p>Equity is how often your hand wins if the cards ran out from here, found by simulating thousands of run-outs. Players who raise usually hold strong hands, so the main number weights each opponent by their actions: raisers get the top fifth of hands, callers the top half. The figure against random hands is shown for comparison.</p></div>
+    <div><p class="k">Pot odds</p><h3>Price versus chance</h3><p>If you must call $20 into a $60 pot, you put in 20 to win 80, so you need at least 25% equity to break even. When your equity beats the price, calling makes money over time even when it loses this hand. The EV line shows the average result of the call.</p></div>
+    <div><p class="k">Outs</p><h3>Cards that save you</h3><p>Outs are unseen cards that improve you to a likely winner, such as the nine remaining hearts for a flush draw. A quick rule: multiply outs by 4 on the flop (two cards to come) or by 2 on the turn for a rough chance to hit. The panel lists the exact cards.</p></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab Arcade</span>
+  <span>Play chips only. No real money, no data collected.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches, FAST = false;
+  function money(v) { return (v < 0 ? '-$' : '$') + Math.abs(Math.round(v)).toLocaleString(); }
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  function rnd(n) { return Math.floor(Math.random() * n); }
+  function pct(x, d) { return (x * 100).toFixed(d == null ? 0 : d) + '%'; }
+
+  /* ---------- hand evaluator: 5 to 7 cards, card = rank*4 + suit ---------- */
+  function straightTop(m) { for (var t = 12; t >= 4; t--) if (((m >> (t - 4)) & 31) === 31) return t; if ((m & 0x100F) === 0x100F) return 3; return -1; }
+  function evalN(cs) {
+    var cnt = [0,0,0,0,0,0,0,0,0,0,0,0,0], sm = [0,0,0,0], sc = [0,0,0,0], m = 0, i, r, s;
+    for (i = 0; i < cs.length; i++) { r = cs[i] >> 2; s = cs[i] & 3; cnt[r]++; sm[s] |= 1 << r; sc[s]++; m |= 1 << r; }
+    for (s = 0; s < 4; s++) if (sc[s] >= 5) {
+      var st = straightTop(sm[s]); if (st >= 0) return (8 << 20) | st;
+      var v = 0, k = 0; for (r = 12; r >= 0 && k < 5; r--) if (sm[s] >> r & 1) { v = v << 4 | r; k++; } return (5 << 20) | v;
+    }
+    var q = -1, t1 = -1, t2 = -1, p1 = -1, p2 = -1;
+    for (r = 12; r >= 0; r--) { var c = cnt[r]; if (c === 4) q = r; else if (c === 3) { if (t1 < 0) t1 = r; else if (t2 < 0) t2 = r; } else if (c === 2) { if (p1 < 0) p1 = r; else if (p2 < 0) p2 = r; } }
+    function kick(n, ex1, ex2) { var v = 0, k = 0; for (var r = 12; r >= 0 && k < n; r--) if (cnt[r] && r !== ex1 && r !== ex2) { v = v << 4 | r; k++; } return v; }
+    if (q >= 0) return (7 << 20) | q << 4 | kick(1, q);
+    if (t1 >= 0 && (t2 >= 0 || p1 >= 0)) { var pp = Math.max(t2, p1); return (6 << 20) | t1 << 4 | pp; }
+    var st2 = straightTop(m); if (st2 >= 0) return (4 << 20) | st2;
+    if (t1 >= 0) return (3 << 20) | t1 << 8 | kick(2, t1);
+    if (p1 >= 0 && p2 >= 0) return (2 << 20) | p1 << 8 | p2 << 4 | kick(1, p1, p2);
+    if (p1 >= 0) return (1 << 20) | p1 << 12 | kick(3, p1);
+    return kick(5);
+  }
+  var PRE = [0.851,0.669,0.66,0.654,0.644,0.625,0.623,0.606,0.599,0.601,0.583,0.584,0.571,0.654,0.828,0.635,0.626,0.614,0.602,0.582,0.571,0.567,0.557,0.549,0.537,0.531,0.644,0.613,0.803,0.602,0.593,0.577,0.562,0.543,0.535,0.522,0.523,0.512,0.502,0.633,0.604,0.583,0.773,0.575,0.555,0.54,0.526,0.51,0.502,0.492,0.488,0.472,0.625,0.594,0.574,0.55,0.753,0.538,0.523,0.509,0.489,0.469,0.462,0.455,0.451,0.609,0.578,0.554,0.532,0.517,0.722,0.506,0.488,0.474,0.454,0.44,0.43,0.424,0.6,0.562,0.535,0.509,0.496,0.479,0.693,0.48,0.465,0.446,0.424,0.412,0.405,0.588,0.551,0.518,0.5,0.477,0.465,0.452,0.662,0.459,0.438,0.416,0.402,0.387,0.578,0.545,0.507,0.478,0.463,0.446,0.433,0.422,0.632,0.434,0.414,0.391,0.38,0.58,0.534,0.505,0.471,0.442,0.427,0.418,0.403,0.401,0.602,0.414,0.396,0.38,0.566,0.527,0.495,0.459,0.435,0.41,0.393,0.385,0.381,0.382,0.573,0.387,0.37,0.56,0.512,0.484,0.448,0.424,0.401,0.38,0.369,0.357,0.367,0.35,0.544,0.356,0.551,0.501,0.473,0.445,0.418,0.391,0.371,0.347,0.338,0.343,0.332,0.323,0.505];                                       /* heads-up equity vs a random hand, 13x13: upper = suited */
+  var PRE3 = [0.644,0.418,0.4,0.389,0.372,0.346,0.337,0.328,0.303,0.322,0.311,0.291,0.293,0.384,0.578,0.378,0.363,0.361,0.328,0.305,0.298,0.285,0.287,0.276,0.269,0.266,0.373,0.354,0.529,0.355,0.347,0.325,0.297,0.272,0.263,0.257,0.25,0.258,0.25,0.349,0.338,0.32,0.496,0.333,0.313,0.294,0.269,0.25,0.254,0.238,0.24,0.223,0.346,0.33,0.313,0.308,0.449,0.307,0.288,0.265,0.247,0.233,0.227,0.224,0.218,0.308,0.292,0.291,0.279,0.275,0.413,0.29,0.264,0.249,0.231,0.217,0.208,0.203,0.297,0.271,0.26,0.26,0.251,0.254,0.384,0.268,0.251,0.234,0.214,0.2,0.19,0.283,0.256,0.234,0.233,0.232,0.226,0.232,0.347,0.254,0.24,0.212,0.202,0.182,0.273,0.249,0.231,0.217,0.214,0.213,0.217,0.215,0.313,0.241,0.218,0.205,0.186,0.281,0.237,0.221,0.204,0.193,0.188,0.192,0.197,0.204,0.287,0.226,0.209,0.197,0.273,0.23,0.217,0.199,0.184,0.172,0.167,0.177,0.183,0.186,0.258,0.201,0.184,0.259,0.23,0.212,0.195,0.175,0.169,0.163,0.16,0.168,0.169,0.156,0.243,0.18,0.259,0.221,0.201,0.183,0.172,0.164,0.149,0.142,0.145,0.158,0.15,0.136,0.221];                                      /* equity vs three random hands (4 players), same layout */
+  var RK = '23456789TJQKA', SU = ['♠', '♥', '♦', '♣'], CAT = ['High card', 'Pair', 'Two pair', 'Three of a kind', 'Straight', 'Flush', 'Full house', 'Four of a kind', 'Straight flush'];
+  var RN = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'], PL = ['Twos', 'Threes', 'Fours', 'Fives', 'Sixes', 'Sevens', 'Eights', 'Nines', 'Tens', 'Jacks', 'Queens', 'Kings', 'Aces'];
+  function hname(s) { var c = s >> 20;
+    switch (c) { case 0: return 'High card, ' + RN[s >> 16 & 15]; case 1: return 'Pair of ' + PL[s >> 12 & 15]; case 2: return 'Two pair, ' + PL[s >> 8 & 15] + ' and ' + PL[s >> 4 & 15]; case 3: return 'Three of a kind, ' + PL[s >> 8 & 15];
+      case 4: return 'Straight, ' + RN[s & 15] + ' high'; case 5: return 'Flush, ' + RN[s >> 16 & 15] + ' high'; case 6: return 'Full house, ' + PL[s >> 4 & 15] + ' full of ' + PL[s & 15]; case 7: return 'Four of a kind, ' + PL[s >> 4 & 15]; default: return (s & 15) === 12 ? 'Royal flush' : 'Straight flush, ' + RN[s & 15] + ' high'; } }
+  function cname(c) { return (RK[c >> 2] === 'T' ? '10' : RK[c >> 2]) + SU[c & 3]; }
+  /* class index into the 13x13 chart (row/col 0 = ace) */
+  function cls(a, b) { var ra = 12 - (a >> 2), rb = 12 - (b >> 2), hi = Math.min(ra, rb), lo = Math.max(ra, rb); if (hi === lo) return hi * 13 + hi; return (a & 3) === (b & 3) ? hi * 13 + lo : lo * 13 + hi; }
+  /* percentile of every class, weighted by how many combos it has */
+  var PCT = (function () { var idx = []; for (var k = 0; k < 169; k++) idx.push(k); idx.sort(function (x, y) { return PRE3[y] - PRE3[x]; });
+    var out = new Array(169), cum = 0; idx.forEach(function (k) { var r = Math.floor(k / 13), c = k % 13, n = r === c ? 6 : r < c ? 4 : 12; cum += n; out[k] = cum / 1326; }); return out; })();
+  function tier(k) { return PCT[k] <= .16 ? 'r' : PCT[k] <= .36 ? 'c' : 'f'; }
+
+  /* ---------- Monte Carlo equity: hero vs the opponents' likely ranges ---------- */
+  var mark = new Int32Array(52), stamp = 0;
+  function equity(hole, board, ranges, iters) {
+    var w = 0, t = 0, n = ranges.length, oh = [], bd = new Array(5), cs = new Array(7);
+    for (var it = 0; it < iters; it++) {
+      stamp++; hole.forEach(function (c) { mark[c] = stamp; }); board.forEach(function (c) { mark[c] = stamp; });
+      for (var o = 0; o < n; o++) {
+        var a, b, tries = 0;
+        do { do { a = rnd(52); } while (mark[a] === stamp); do { b = rnd(52); } while (mark[b] === stamp || b === a); tries++; } while (tries < 40 && PCT[cls(a, b)] > ranges[o]);
+        mark[a] = mark[b] = stamp; oh[o * 2] = a; oh[o * 2 + 1] = b;
+      }
+      for (var i = 0; i < 5; i++) { if (i < board.length) bd[i] = board[i]; else { var c; do { c = rnd(52); } while (mark[c] === stamp); mark[c] = stamp; bd[i] = c; } }
+      cs[0] = hole[0]; cs[1] = hole[1]; for (i = 0; i < 5; i++) cs[i + 2] = bd[i];
+      var me = evalN(cs), best = 0, ties = 0;
+      for (o = 0; o < n; o++) { cs[0] = oh[o * 2]; cs[1] = oh[o * 2 + 1]; var s = evalN(cs); if (s > best) { best = s; ties = 1; } else if (s === best) ties++; }
+      if (me > best) w++; else if (me === best) t += 1 / (ties + 1);
+    }
+    return { win: w / iters, tie: t / iters, eq: (w + t) / iters };
+  }
+  /* outs: unseen cards that lift you to a hand that is likely best */
+  function outs(hole, board) {
+    if (board.length < 3 || board.length > 4) return { list: [], draws: [] };
+    var cur = evalN(hole.concat(board)), cc = cur >> 20, list = [], seen = {}, topB = 0;
+    hole.concat(board).forEach(function (c) { seen[c] = 1; }); board.forEach(function (c) { topB = Math.max(topB, c >> 2); });
+    for (var c = 0; c < 52; c++) { if (seen[c]) continue;
+      var nb = board.concat([c]), ns = evalN(hole.concat(nb)), nc = ns >> 20, bs = evalN(nb) >> 20;
+      if (nc <= cc || nc <= bs) continue;
+      if (nc >= 2 && !(nc === 2 && (ns >> 8 & 15) !== (hole[0] >> 2) && (ns >> 8 & 15) !== (hole[1] >> 2) && (ns >> 4 & 15) !== (hole[0] >> 2) && (ns >> 4 & 15) !== (hole[1] >> 2))) list.push(c);
+      else if (nc === 1 && (ns >> 12 & 15) >= topB && ((ns >> 12 & 15) === (hole[0] >> 2) || (ns >> 12 & 15) === (hole[1] >> 2))) list.push(c);
+    }
+    var draws = [], all = hole.concat(board), su = [0, 0, 0, 0]; all.forEach(function (c) { su[c & 3]++; });
+    if (cc < 5) for (var s = 0; s < 4; s++) if (su[s] === 4 && ((hole[0] & 3) === s || (hole[1] & 3) === s)) draws.push('Flush draw');
+    if (cc < 4) { var hm = 0, bm = 0, hits = 0; all.forEach(function (c) { hm |= 1 << (c >> 2); }); board.forEach(function (c) { bm |= 1 << (c >> 2); });
+      if (straightTop(hm) < 0) for (var r = 0; r < 13; r++) if (straightTop(hm | 1 << r) >= 0 && straightTop(bm | 1 << r) < 0) hits++;
+      if (hits >= 2) draws.push('Open-ended straight draw'); else if (hits === 1) draws.push('Gutshot straight draw'); }
+    if (cc === 0 && board.length < 5) { var oc = 0; hole.forEach(function (h) { if ((h >> 2) > topB) oc++; }); if (oc === 2) draws.push('Two overcards'); }
+    return { list: list, draws: draws };
+  }
+  function best5(cs) { var best = -1, pick = null;
+    for (var a = 0; a < cs.length; a++) for (var b = a + 1; b < cs.length; b++) { var f = cs.filter(function (_, i) { return i !== a && i !== b; }); if (f.length !== 5) continue; var s = evalN(f); if (s > best) { best = s; pick = f; } }
+    if (cs.length === 5) pick = cs; return pick || []; }
+
+  /* ---------- table state ---------- */
+  var SB = 5, BB = 10, START = 1000;
+  var NAMES = ['You', 'Kaz', 'Mara', 'Dutch'];
+  var P = NAMES.map(function (n, i) { return { name: n, stack: START, hole: [], bet: 0, total: 0, folded: false, allin: false, acted: false, last: '', range: 1, bot: i > 0, rebuys: 0 }; });
+  var saved = +(store('ldb-pk-stack') || START); P[0].stack = saved >= BB ? saved : START;
+  var startStack = P[0].stack;
+  var button = rnd(4), board = [], deck = [], street = 0, curBet = 0, minRaise = BB, toAct = -1, handOn = false, handId = 0, level = 1, showBots = false, coach = true, analysisOn = true;
+  var stats = { hands: 0, won: 0, vpip: 0, dec: 0, agree: 0 }, vpipThis = false, lastSug = null, eqCache = null;
+  var sv = store('ldb-pk-lvl'); if (sv != null && sv !== '') level = +sv;
+
+  function chipSVG(v) {
+    var d = ''; for (var i = 0; i < 12; i++) { var a = i / 12 * Math.PI * 2; d += '<circle class="cd" cx="' + (50 + 43 * Math.cos(a)).toFixed(1) + '" cy="' + (50 + 43 * Math.sin(a)).toFixed(1) + '" r="3.4"/>'; }
+    return '<svg class="chp" viewBox="0 0 100 100" aria-hidden="true"><circle class="cb" cx="50" cy="50" r="49"/>' + d + '<circle class="ce" cx="50" cy="50" r="48"/><circle class="cr" cx="50" cy="50" r="36"/><circle class="cr" cx="50" cy="50" r="32"/><circle class="ci" cx="50" cy="50" r="19"/>' + (v ? '<text class="cn" x="50" y="51">' + v + '</text>' : '') + '</svg>';
+  }
+  function miniStack(amt) { var out = '', n = 0; [500, 100, 25, 5].forEach(function (v) { while (amt >= v && n < 6) { out += '<span data-v="' + v + '">' + chipSVG('') + '</span>'; amt -= v; n++; } }); return out ? '<span class="mini">' + out + '</span>' : ''; }
+  function cardEl(c, down) {
+    var d = document.createElement('div');
+    if (c == null) { d.className = 'card slot'; return d; }
+    if (down) { d.className = 'card back'; return d; }
+    d.className = 'card' + ((c & 3) === 1 || (c & 3) === 2 ? ' red' : '');
+    var r = RK[c >> 2] === 'T' ? '10' : RK[c >> 2];
+    d.innerHTML = '<span class="c1">' + r + '<i>' + SU[c & 3] + '</i></span><span class="pip">' + SU[c & 3] + '</span>';
+    d.dataset.c = c; d.setAttribute('aria-label', cname(c)); return d;
+  }
+
+  /* ---------- rendering ---------- */
+  function seatHTML(i) {
+    var el = document.querySelector('.seat[data-i="' + i + '"]');
+    if (!el.firstChild) el.innerHTML = '<div class="nmrow"><div class="nm"></div><span class="dbtn" title="Dealer button">D</span></div><div class="cards"></div><div class="hn"></div><div class="meta"><span class="stk"></span><span class="pill act-pill"></span></div><div class="bet"></div>';
+    return el;
+  }
+  var showdown = false, winners = {}, hiCards = [];
+  function render() {
+    var potTot = P.reduce(function (a, p) { return a + p.total; }, 0);
+    $('pot').textContent = money(potTot); $('potChips').innerHTML = miniStack(potTot - P.reduce(function (a, p) { return a + p.bet; }, 0));
+    var bEl = $('board'); for (var k = 0; k < 5; k++) { var want = board[k]; var ex = bEl.children[k]; var has = ex && ex.dataset.c != null ? +ex.dataset.c : null;
+      if (!ex) bEl.appendChild(cardEl(want == null ? null : want)); else if (has !== (want == null ? null : want)) bEl.replaceChild(cardEl(want == null ? null : want), ex); }
+    P.forEach(function (p, i) {
+      var el = seatHTML(i);
+      el.querySelector('.nm').textContent = p.name + (i === 0 ? '' : '');
+      el.classList.toggle('btnr', i === button); el.classList.toggle('turn', handOn && toAct === i); el.classList.toggle('think', handOn && toAct === i && p.bot);
+      el.classList.toggle('out', p.folded); el.classList.toggle('win', !!winners[i]);
+      el.querySelector('.stk').textContent = money(p.stack);
+      var pl = el.querySelector('.act-pill'); pl.textContent = p.last; pl.className = 'pill act-pill' + (p.last ? ' a-' + p.last.split(' ')[0].toLowerCase().replace('all-in', 'all') : ''); pl.style.display = p.last ? '' : 'none';
+      el.querySelector('.bet').innerHTML = p.bet ? miniStack(p.bet) + money(p.bet) : (i > 0 ? '<span class="pill lvl">' + ['Rookie', 'Regular', 'Shark'][level] + '</span>' : '');
+      var reveal = i === 0 || showBots || (showdown && !p.folded);
+      var ce = el.querySelector('.cards'), sig = p.hole.join(',') + '|' + (reveal ? 1 : 0) + '|' + hiCards.join(',');
+      if (ce.dataset.sig !== sig) { var wasDown = ce.dataset.sig && ce.dataset.sig.split('|')[1] === '0' && reveal; ce.dataset.sig = sig; ce.innerHTML = '';
+        p.hole.forEach(function (c) { var e = cardEl(c, !reveal); if (wasDown) e.classList.add('flip'); if (showdown && hiCards.length && reveal) e.classList.add(winners[i] && hiCards.indexOf(c) >= 0 ? 'hi' : 'dim'); ce.appendChild(e); }); }
+      var hn = el.querySelector('.hn'); hn.textContent = (p.hole.length && reveal && board.length >= 3 && !p.folded) ? hname(evalN(p.hole.concat(board))) : (i === 0 && p.hole.length && board.length < 3 ? handClass(p.hole) : '');
+    });
+    if (showdown && hiCards.length) Array.prototype.forEach.call(bEl.children, function (e) { if (e.dataset.c != null) { e.classList.toggle('hi', hiCards.indexOf(+e.dataset.c) >= 0); e.classList.toggle('dim', hiCards.indexOf(+e.dataset.c) < 0); } });
+    else Array.prototype.forEach.call(bEl.children, function (e) { e.classList.remove('hi', 'dim'); });
+    $('stack').textContent = money(P[0].stack); var net = P[0].stack + (handOn ? P[0].total : 0) - startStack; $('net').textContent = (net >= 0 ? '+' : '') + money(net);
+    var mine = handOn && toAct === 0; $('playCtl').hidden = !mine; $('nextCtl').hidden = handOn;
+    if (mine) controls();
+  }
+  function handClass(h) { var k = cls(h[0], h[1]), r = Math.floor(k / 13), c = k % 13, a = 'AKQJT98765432'; return r === c ? 'Pocket ' + PL[12 - r] : a[Math.min(r, c)] + a[Math.max(r, c)] + (r < c ? ' suited' : ' offsuit'); }
+  function msg(t, c) { $('msg').textContent = t; $('msg').className = 'msg' + (c ? ' ' + c : ''); }
+  function log(h) { var l = $('log'); var d = document.createElement('div'); d.innerHTML = h; l.appendChild(d); while (l.children.length > 80) l.firstChild.remove(); l.scrollTop = l.scrollHeight; }
+  var tt; function toast(t) { $('toast').textContent = t; $('toast').classList.add('on'); clearTimeout(tt); tt = setTimeout(function () { $('toast').classList.remove('on'); }, 3200); }
+
+  /* ---------- hand flow ---------- */
+  function nextIdx(i) { return (i + 1) % 4; }
+  function startHand() {
+    if (handOn) return;
+    if (P[0].stack < BB) { msg('Out of chips. Press reset chips', 'lose'); return; }
+    handId++; showdown = false; winners = {}; hiCards = []; vpipThis = false; lastSug = null; eqCache = null;
+    P.forEach(function (p) { if (p.bot && p.stack < BB) { p.bought = (p.bought || 0) + START - p.stack; p.stack = START; p.rebuys++; log('<b>' + p.name + '</b> rebuys for ' + money(START)); }
+      p.hole = []; p.bet = 0; p.total = 0; p.folded = false; p.allin = false; p.acted = false; p.last = ''; p.range = 1; });
+    button = nextIdx(button); deck = []; for (var c = 0; c < 52; c++) deck.push(c);
+    for (var i = 51; i > 0; i--) { var j = rnd(i + 1), t = deck[i]; deck[i] = deck[j]; deck[j] = t; }
+    board = []; street = 0; handOn = true; stats.hands++;
+    for (var r = 0; r < 2; r++) for (var k = 1; k <= 4; k++) P[(button + k) % 4].hole.push(deck.pop());
+    log('<span class="st">Hand ' + stats.hands + '</span> &middot; ' + P[button].name + ' on the button');
+    var sb = (button + 1) % 4, bb = (button + 2) % 4; post(sb, SB, 'SB'); post(bb, BB, 'BB');
+    curBet = BB; minRaise = BB; toAct = bb; msg('Pre-flop');
+    advance();
+  }
+  function post(i, amt, lab) { var p = P[i], a = Math.min(amt, p.stack); p.stack -= a; p.bet += a; p.total += a; if (!p.stack) p.allin = true; p.last = lab; log('<b>' + p.name + '</b> posts ' + lab + ' ' + money(a)); }
+  function live() { return P.filter(function (p) { return !p.folded; }); }
+  function canAct(p) { return !p.folded && !p.allin; }
+  function roundDone() { return P.filter(canAct).every(function (p) { return p.acted && p.bet === curBet; }); }
+  function advance() {
+    var id = handId;
+    if (live().length === 1) return finish();
+    var a = P.filter(canAct);
+    if (roundDone() || (a.length === 1 && a[0].bet >= curBet)) {
+      if (street === 3) return finish();
+      return nextStreet();
+    }
+    var i = toAct; do { i = nextIdx(i); } while (!(canAct(P[i]) && (!P[i].acted || P[i].bet < curBet)));
+    toAct = i; render();
+    if (P[i].bot) setTimeout(function () { if (id === handId && toAct === i && handOn) botAct(i); }, FAST || reduce ? 0 : 620 + rnd(500));
+    else { if (analysisOn || coach) analyse(); }
+  }
+  function nextStreet() {
+    toAct = -1;
+    P.forEach(function (p) { p.bet = 0; p.acted = false; if (!p.folded && p.last !== 'All-in') p.last = ''; });
+    curBet = 0; minRaise = BB; street++;
+    if (street === 1) { board.push(deck.pop(), deck.pop(), deck.pop()); } else board.push(deck.pop());
+    log('<span class="st">' + ['', 'Flop', 'Turn', 'River'][street] + '</span> ' + board.map(cname).join(' '));
+    msg(['', 'Flop', 'Turn', 'River'][street]); eqCache = null;
+    toAct = button; var id = handId;
+    var runout = P.filter(canAct).length <= 1;
+    render();
+    if (runout) { setTimeout(function () { if (id === handId) { if (street === 3) finish(); else nextStreet(); } }, FAST || reduce ? 0 : 900); return; }
+    advance();
+  }
+  function act(i, type, to) {
+    if (!handOn || toAct !== i) return;
+    var p = P[i], toCall = curBet - p.bet, amt = 0;
+    if (type === 'fold') { p.folded = true; p.last = 'Fold'; }
+    else if (type === 'check') { p.last = 'Check'; }
+    else if (type === 'call') { amt = Math.min(toCall, p.stack); p.last = amt === p.stack ? 'All-in' : 'Call'; if (p.range > .5) p.range = .5; }
+    else if (type === 'raise' && p.bet + p.stack <= curBet) { amt = p.stack; p.last = 'All-in'; type = 'call'; if (p.range > .5) p.range = .5; }
+    else if (type === 'raise') {
+      to = Math.min(Math.max(to, curBet + minRaise), p.bet + p.stack); amt = to - p.bet;
+      var inc = to - curBet; if (inc >= minRaise) { minRaise = inc; P.forEach(function (q, j) { if (j !== i) q.acted = false; }); } else P.forEach(function (q, j) { if (j !== i && q.bet < to) q.acted = false; });
+      p.last = amt === p.stack ? 'All-in' : curBet === 0 ? 'Bet' : 'Raise'; p.range = street === 0 ? Math.min(p.range, curBet > BB * 4 ? .07 : .22) : Math.max(.05, Math.min(.22, p.range) * .6); curBet = Math.max(curBet, to);
+    }
+    p.stack -= amt; p.bet += amt; p.total += amt; if (!p.stack && !p.folded) p.allin = true; p.acted = true;
+    if (i === 0 && street === 0 && (type === 'call' || type === 'raise')) vpipThis = true;
+    log('<b>' + p.name + '</b> ' + (type === 'fold' ? 'folds' : type === 'check' ? 'checks' : type === 'call' ? 'calls ' + money(amt) : (p.last === 'Bet' ? 'bets ' : 'raises to ') + money(p.bet)) + (p.allin ? ' (all-in)' : ''));
+    advance();
+  }
+  function finish() {
+    if (!handOn) return;
+    var id = handId; handOn = false; toAct = -1;
+    var splitMe = false, L = live(), potTot = P.reduce(function (a, p) { return a + p.total; }, 0), won = {}, scores = {};
+    if (L.length === 1) { var w = P.indexOf(L[0]); won[w] = potTot; }
+    else {
+      while (board.length < 5) board.push(deck.pop());
+      showdown = true; L.forEach(function (p) { scores[P.indexOf(p)] = evalN(p.hole.concat(board)); });
+      var levels = L.map(function (p) { return p.total; }).filter(function (v, k, a) { return a.indexOf(v) === k; }).sort(function (a, b) { return a - b; }), prev = 0, dist = 0, lastW = [];
+      levels.forEach(function (lv) {
+        var part = P.reduce(function (a, p) { return a + Math.min(p.total, lv) - Math.min(p.total, prev); }, 0);
+        var elig = P.map(function (p, j) { return j; }).filter(function (j) { return !P[j].folded && P[j].total >= lv; });
+        var top = Math.max.apply(null, elig.map(function (j) { return scores[j]; })), ws = elig.filter(function (j) { return scores[j] === top; });
+        var share = Math.floor(part / ws.length / 5) * 5, rem = part - share * ws.length;
+        if (ws.length > 1 && ws.indexOf(0) >= 0) splitMe = true; ws.forEach(function (j) { won[j] = (won[j] || 0) + share; }); var first = ws.slice().sort(function (a, b) { return ((a - button + 3) % 4) - ((b - button + 3) % 4); })[0]; won[first] += rem;
+        dist += part; prev = lv; lastW = ws;
+      });
+      if (dist < potTot) won[lastW[0]] += potTot - dist;
+    }
+    var wIdx = Object.keys(won).map(Number);
+    wIdx.forEach(function (j) { P[j].stack += won[j]; winners[j] = 1; });
+    P.forEach(function (p) { p.bet = 0; });
+    if (showdown) { var bw = wIdx.sort(function (a, b) { return scores[b] - scores[a]; })[0]; hiCards = best5(P[bw].hole.concat(board));
+      L.forEach(function (p) { log('<b>' + p.name + '</b> shows ' + p.hole.map(cname).join(' ') + ' &middot; ' + hname(scores[P.indexOf(p)])); }); }
+    wIdx.forEach(function (j) { log('<span class="w"><b>' + P[j].name + '</b> wins ' + money(won[j]) + (showdown ? ' with ' + hname(scores[j]).toLowerCase() : '') + '</span>'); });
+    var myNet = (won[0] || 0) - P[0].total;
+    if (won[0]) stats.won++;
+    if (vpipThis) stats.vpip++;
+    msg(won[0] ? (won[0] <= P[0].total ? 'Split pot, you get ' + money(won[0]) + ' back' : 'You win ' + money(won[0]) + (splitMe ? ' (split)' : '')) : P[0].folded ? P[wIdx[0]].name + ' wins ' + money(won[wIdx[0]]) : 'You lose ' + money(P[0].total), won[0] ? 'win' : P[0].folded ? '' : 'lose');
+    P.forEach(function (p) { p.total = 0; });
+    store('ldb-pk-stack', String(P[0].stack));
+    $('sHands').textContent = stats.hands + ' / ' + stats.won; $('sVpip').textContent = pct(stats.vpip / stats.hands) + ' of hands'; $('agree').textContent = stats.dec ? pct(stats.agree / stats.dec) + ' match the math' : '-';
+    render(); idle();
+    if (P[0].stack < BB) msg('Out of chips. Press reset chips', 'lose');
+  }
+
+  /* ---------- the bots ---------- */
+  function botAct(i) {
+    var p = P[i], toCall = curBet - p.bet, potTot = P.reduce(function (a, q) { return a + q.total; }, 0), opp = live().filter(function (q) { return q !== p; });
+    var shark = level === 2, rook = level === 0;
+    var e = equity(p.hole, board, opp.map(function (q) { return shark ? q.range : 1; }), shark ? 700 : 450).eq;
+    e += (Math.random() - .5) * (rook ? .24 : shark ? .04 : .1);
+    var n = opp.length, rel = e * (n + 1), odds = toCall / (potTot + toCall), r = Math.random();
+    var o = outs(p.hole, board), drawy = o.list.length >= 8 && street < 3;
+    var sizeTo = function (f) { return Math.round((curBet + f * (potTot + toCall)) / 5) * 5; };
+    if (street === 0) {
+      var pc = PCT[cls(p.hole[0], p.hole[1])], open = rook ? .5 : shark ? .3 : .34, raiseP = rook ? .07 : shark ? .16 : .13, lv = curBet <= BB ? 0 : curBet <= BB * 4 ? 1 : 2;
+      if (toCall === 0) { if (pc <= raiseP || (shark && pc <= .3 && r < .25)) return act(i, 'raise', BB * 3 + (curBet - BB)); return act(i, 'check'); }
+      if (lv === 0) { if (pc <= raiseP && r < (rook ? .5 : .9)) return act(i, 'raise', BB * 3); if (pc <= open || (odds < .2 && pc < .6)) return act(i, 'call'); return act(i, 'fold'); }
+      if (lv === 1) { if (pc <= raiseP * .35 && r < (rook ? .4 : .85)) return act(i, 'raise', curBet * 3); if (pc <= open * .55 || (rook && pc < .4)) return act(i, 'call'); return act(i, 'fold'); }
+      if (pc <= .026 && r < .8) return act(i, 'raise', curBet * 2.5); if (pc <= (rook ? .2 : shark ? .07 : .09) || (odds < .25 && pc < .2)) return act(i, 'call'); return act(i, 'fold');
+    }
+    var valueT = rook ? 1.5 : shark ? 1.25 : 1.35;
+    if (toCall === 0) {
+      if (rel > valueT && r < (rook ? .5 : .85)) return act(i, 'raise', sizeTo(rel > 1.7 ? .75 : .55));
+      if (!rook && drawy && r < (shark ? .45 : .25)) return act(i, 'raise', sizeTo(.5));
+      if (shark && street === 3 && r < .12) return act(i, 'raise', sizeTo(.6));
+      return act(i, 'check');
+    }
+    if (rel > valueT + .35 && r < (rook ? .3 : .6)) return act(i, 'raise', curBet * 2 + Math.round(potTot * .3 / 5) * 5);
+    var margin = rook ? -.08 : shark ? .01 : .02;
+    if (e > odds + margin || (drawy && !rook && e > odds - .06)) return act(i, 'call');
+    return act(i, 'fold');
+  }
+
+  /* ---------- your controls ---------- */
+  function controls() {
+    var p = P[0], toCall = curBet - p.bet, maxTo = p.bet + p.stack, minTo = Math.min(curBet + minRaise, maxTo);
+    $('aC').innerHTML = (toCall ? (toCall >= p.stack ? 'Call all-in ' + money(p.stack) : 'Call ' + money(toCall)) : 'Check') + '<kbd>C</kbd>';
+    var canRaise = p.stack > toCall && P.some(function (q, j) { return j && canAct(q); });
+    $('aR').disabled = !canRaise; $('sizer').style.display = canRaise ? '' : 'none';
+    var a = $('amt'); a.min = minTo; a.max = maxTo; if (+a.value < minTo || +a.value > maxTo || a.dataset.h !== String(handId) + street) { a.value = minTo; a.dataset.h = String(handId) + street; }
+    setAmt(+a.value);
+  }
+  function setAmt(v) { var p = P[0], a = $('amt'); v = Math.max(+a.min, Math.min(+a.max, Math.round(v / 5) * 5)); if (+a.max - v < 5) v = +a.max; a.value = v; $('amtV').textContent = money(v);
+    $('aR').innerHTML = (v >= p.bet + p.stack ? 'All-in ' + money(v) : (curBet ? 'Raise to ' : 'Bet ') + money(v)) + '<kbd>R</kbd>'; }
+  $('amt').addEventListener('input', function () { setAmt(+this.value); });
+  document.querySelectorAll('#sizer button').forEach(function (b) { b.addEventListener('click', function () {
+    var p = P[0], potTot = P.reduce(function (a, q) { return a + q.total; }, 0), toCall = curBet - p.bet, k = b.dataset.p;
+    setAmt(k === 'min' ? +$('amt').min : k === 'all' ? p.bet + p.stack : curBet + (+k) * (potTot + toCall)); }); });
+  function you(type) {
+    if (!handOn || toAct !== 0) return; var p = P[0], toCall = curBet - p.bet;
+    if (type === 'C') type = toCall ? 'call' : 'check'; else if (type === 'F') type = toCall ? 'fold' : 'check'; else if (type === 'R') { if ($('aR').disabled) return; type = 'raise'; }
+    if (lastSug) { stats.dec++; var cat = type === 'check' && lastSug.k === 'fold' ? 'fold' : type; if (cat === lastSug.k) stats.agree++; else if (coach) toast('Coach: the math leaned ' + lastSug.label.toLowerCase() + ' (' + lastSug.short + ').'); lastSug = null; }
+    act(0, type, +$('amt').value);
+  }
+  $('aF').addEventListener('click', function () { you('F'); }); $('aC').addEventListener('click', function () { you('C'); }); $('aR').addEventListener('click', function () { you('R'); });
+  $('deal').addEventListener('click', startHand);
+  addEventListener('keydown', function (e) { if (e.metaKey || e.ctrlKey || e.altKey) return; var k = e.key.toLowerCase();
+    if (k === ' ' && !handOn && e.target.tagName !== 'BUTTON') { e.preventDefault(); startHand(); }
+    else if (handOn && toAct === 0 && (k === 'f' || k === 'c' || k === 'r')) { e.preventDefault(); you(k.toUpperCase()); } });
+  $('reset').addEventListener('click', function () { handId++; handOn = false; P.forEach(function (p) { p.stack = START; p.hole = []; p.bet = 0; p.total = 0; p.folded = false; p.last = ''; p.rebuys = 0; }); board = []; showdown = false; winners = {}; hiCards = []; startStack = START; stats = { hands: 0, won: 0, vpip: 0, dec: 0, agree: 0 }; store('ldb-pk-stack', String(START)); $('log').innerHTML = ''; $('sHands').textContent = '0 / 0'; $('sVpip').textContent = '-'; $('agree').textContent = '-'; msg('Fresh chips. Press deal'); render(); idle(); });
+
+  /* ---------- analysis for you ---------- */
+  function idle() {
+    var h = P[0].hole; ['eq', 'toCall', 'need', 'potAfter', 'evCall'].forEach(function (k) { $(k).textContent = '-'; }); $('evCall').className = '';
+    $('eqW').style.width = $('eqT').style.width = '0'; $('eqWin').textContent = 'Win -'; $('eqTie').textContent = 'Split -'; $('eqRnd').textContent = 'vs random -'; $('eqSub').textContent = '-';
+    $('sug').textContent = '-'; $('sugSrc').textContent = '-'; $('why').textContent = handOn ? 'Waiting for your turn.' : 'Hand over. Deal the next one when ready.';
+    ['aF', 'aC', 'aR'].forEach(function (k) { $(k).classList.remove('hint'); });
+    if (h.length && board.length) handBox(h); else if (!h.length) { $('handnm').textContent = '-'; $('draws').innerHTML = ''; $('outsTxt').textContent = ''; $('outs').innerHTML = ''; $('street').textContent = '-'; }
+    chart(h.length ? cls(h[0], h[1]) : -1);
+  }
+  function handBox(h) {
+    $('street').textContent = ['Pre-flop', 'Flop', 'Turn', 'River'][Math.min(3, Math.max(0, board.length - 2))];
+    if (board.length < 3) { var k = cls(h[0], h[1]); $('handnm').textContent = handClass(h); $('draws').innerHTML = ''; $('outsTxt').textContent = 'Top ' + Math.max(1, Math.round(PCT[k] * 100)) + '% of starting hands at a 4-player table. Against three random hands it wins ' + pct(PRE3[k], 1) + ' (a fair share is 25%); heads-up, ' + pct(PRE[k], 1) + '.'; $('outs').innerHTML = ''; return null; }
+    $('handnm').textContent = hname(evalN(h.concat(board)));
+    var o = outs(h, board); $('draws').innerHTML = o.draws.map(function (d) { return '<span>' + d + '</span>'; }).join('');
+    if (board.length < 5) { var unseen = 52 - 2 - board.length, n = o.list.length, exact = board.length === 3 ? 1 - (unseen - n) * (unseen - n - 1) / (unseen * (unseen - 1)) : n / unseen;
+      $('outsTxt').textContent = n ? n + ' out' + (n > 1 ? 's' : '') + ' to improve to a likely winner: about ' + pct(exact) + ' to hit ' + (board.length === 3 ? 'by the river (rule of 4 says ' + Math.min(100, n * 4) + '%)' : 'on the river (rule of 2 says ' + n * 2 + '%)') + '.' : 'No clean outs: no single card lifts you to a likely winner.';
+      $('outs').innerHTML = o.list.map(function (c) { return '<span class="' + ((c & 3) === 1 || (c & 3) === 2 ? 'red' : '') + '">' + cname(c) + '</span>'; }).join(''); }
+    else { $('outsTxt').textContent = 'All cards are out. Only the betting is left.'; $('outs').innerHTML = ''; }
+    return o;
+  }
+  function analyse() {
+    var p = P[0], h = p.hole, toCall = curBet - p.bet, potTot = P.reduce(function (a, q) { return a + q.total; }, 0), opp = live().filter(function (q) { return q !== p; });
+    var R = equity(h, board, opp.map(function (q) { return q.range; }), 3000), Rr = equity(h, board, opp.map(function () { return 1; }), 1500);
+    var o = handBox(h); chart(cls(h[0], h[1]));
+    $('eq').textContent = pct(R.eq); $('eqW').style.width = pct(R.win, 1); $('eqT').style.width = pct(R.tie, 1); $('eqWin').textContent = 'Win ' + pct(R.win); $('eqTie').textContent = 'Split ' + pct(R.tie); $('eqRnd').textContent = 'vs random ' + pct(Rr.eq);
+    var rl = opp.map(function (q) { return q.name + (q.range < .3 ? ' (raised)' : q.range < .9 ? ' (called)' : ''); }); $('eqSub').textContent = opp.length > 1 ? 'vs ' + opp.length + ' players’ likely hands' : 'vs ' + opp[0].name + '’s likely hand';
+    var need = toCall / (potTot + toCall), ev = R.eq * (potTot + toCall) - toCall;
+    $('toCall').textContent = toCall ? money(Math.min(toCall, p.stack)) : 'free'; $('need').textContent = toCall ? pct(need) : '0%'; $('potAfter').textContent = money(potTot + Math.min(toCall, p.stack));
+    $('evCall').textContent = toCall ? (ev >= 0 ? '+' : '') + money(ev) : '-'; $('evCall').className = toCall ? (ev >= 0 ? 'pos' : 'neg') : '';
+    /* the suggestion */
+    var n = opp.length, rel = R.eq * (n + 1), s, why, src;
+    if (street === 0) {
+      var k = cls(h[0], h[1]), pc = PCT[k], lv = curBet <= BB ? 0 : curBet <= BB * 4 ? 1 : 2, pos = ((0 - button + 4) % 4), late = pos === 0 || pos === 3, hc = handClass(h), top = 'top ' + Math.max(1, Math.round(pc * 100)) + '%';
+      src = 'starting-hand ranking';
+      var callOk = R.eq >= need, C = function (k2, label, short, w) { s = { k: k2, label: label, short: short }; why = w; };
+      if (pc <= .026) { if (lv < 2 || p.stack > toCall) C('raise', lv ? 'Re-raise' : 'Raise', 'premium hand', hc + ' is a premium hand (' + top + '). Build the pot: ' + (lv ? 'raise to about 3x their bet.' : 'raise to 3 big blinds.')); else C('call', 'Call', 'premium hand', hc + ' is a premium hand. Call the all-in.'); }
+      else if (lv === 0) {
+        if (pc <= .17) C('raise', 'Raise', 'strong hand, unopened pot', hc + ' is in the ' + top + ' and nobody has raised. Open with a raise to $30.');
+        else if (pc <= .36 && late) C('raise', 'Raise', 'playable hand in late position', hc + ' (' + top + ') is worth a raise from late position, where fewer players act after you.');
+        else if (pc <= .36) C(toCall ? 'call' : 'check', toCall ? 'Call' : 'Check', 'playable, see a cheap flop', hc + ' (' + top + ') is playable but not strong. ' + (toCall ? 'Calling the big blind is cheap.' : 'Take the free flop.'));
+        else C(toCall ? 'fold' : 'check', toCall ? 'Fold' : 'Check', 'weak starting hand', hc + ' is outside the top third of starting hands. ' + (toCall ? 'Folding costs nothing more.' : 'Take the free flop.'));
+      } else if (lv === 1) {
+        if (pc <= .07) C('raise', 'Re-raise', 'strong hand facing one raise', hc + ' (' + top + ') is ahead of most raising hands. Re-raise to about ' + money(curBet * 3) + '.');
+        else if (pc <= .2 && callOk) C('call', 'Call', 'good hand facing a raise', 'Against a raiser\u2019s range ' + hc + ' wins ' + pct(R.eq) + ', and the call needs ' + pct(need) + '. Call and see the flop.');
+        else if (pc <= .36 && need < .3 && callOk) C('call', 'Call', 'cheap enough to continue', 'Speculative hand, but the price is low: you need ' + pct(need) + ' and have ' + pct(R.eq) + '.');
+        else C('fold', 'Fold', 'not strong enough vs a raise', hc + ' does poorly against a raising range: ' + pct(R.eq) + ' equity, ' + pct(need) + ' needed.');
+      } else {
+        if (pc <= .07 && callOk) C('call', 'Call', 'strong hand, big pot', 'There has been a re-raise, so their range is very strong. ' + hc + ' still has ' + pct(R.eq) + ' against it, above the ' + pct(need) + ' needed.');
+        else C('fold', 'Fold', 'big re-raise war', 'After a re-raise, opponents usually hold the top few percent of hands. ' + hc + ' has ' + pct(R.eq) + ' against that, and the price needs ' + pct(need) + '.');
+      }
+    } else {
+      src = 'equity vs likely hands';
+      var drawy = o && o.list.length >= 8 && street < 3, valueT = 1.3;
+      if (!toCall) {
+        if (rel > valueT) { s = { k: 'raise', label: 'Bet ' + (rel > 1.7 ? '3/4 pot' : '1/2 pot'), short: 'you are ahead' }; why = 'You win ' + pct(R.eq) + ' against ' + n + ' player' + (n > 1 ? 's' : '') + ', well above a fair share of ' + pct(1 / (n + 1)) + '. Bet so worse hands pay you.'; }
+        else if (drawy) { s = { k: 'raise', label: 'Bet 1/2 pot', short: 'semi-bluff with a draw' }; why = 'You have ' + o.list.length + ' outs. Betting wins now if they fold and you still hit ' + pct(R.eq) + ' of the time if called.'; }
+        else { s = { k: 'check', label: 'Check', short: 'no edge to bet' }; why = 'Your ' + pct(R.eq) + ' is not enough to bet for value against ' + n + ' player' + (n > 1 ? 's' : '') + '. Check and see what they do.'; }
+      } else {
+        if (rel > 1.6 && p.stack > toCall) { s = { k: 'raise', label: 'Raise', short: 'strong favourite' }; why = 'You win ' + pct(R.eq) + ' and only need ' + pct(need) + '. Raise to get more money in while ahead.'; }
+        else if (R.eq >= need) { s = { k: 'call', label: 'Call', short: 'the price is right' }; why = 'You need ' + pct(need) + ' to break even and you have ' + pct(R.eq) + '. Calling earns about ' + money(ev) + ' on average.'; }
+        else if (drawy && R.eq > need - .07) { s = { k: 'call', label: 'Call', short: 'draw with implied odds' }; why = 'Slightly short of the price (' + pct(R.eq) + ' vs ' + pct(need) + '), but when your draw hits you usually win more later. A close call.'; }
+        else { s = { k: 'fold', label: 'Fold', short: 'not getting the price' }; why = 'The call needs ' + pct(need) + ' but you only win ' + pct(R.eq) + '. Calling loses about ' + money(-ev) + ' on average.'; }
+      }
+    }
+    if (s.k === 'raise' && !(p.stack > toCall && P.some(function (q, j) { return j && canAct(q); }))) { s = toCall ? { k: 'call', label: 'Call', short: s.short } : { k: 'check', label: 'Check', short: s.short }; why += ' You cannot raise here, so ' + s.label.toLowerCase() + '.'; }
+    lastSug = s; $('sug').textContent = s.label; $('sugSrc').textContent = src; $('why').textContent = why;
+    ['aF', 'aC', 'aR'].forEach(function (k) { $(k).classList.remove('hint'); });
+    if (analysisOn) $(s.k === 'fold' ? (toCall ? 'aF' : 'aC') : s.k === 'raise' ? 'aR' : 'aC').classList.add('hint');
+    if (s.k === 'raise' && street > 0) { var potT = P.reduce(function (a, q) { return a + q.total; }, 0); setAmt(toCall ? curBet * 2 + Math.round(potT * .3 / 5) * 5 : curBet + (rel > 1.7 ? .75 : .5) * potT); }
+    else if (s.k === 'raise') setAmt(curBet > BB ? curBet * 3 : BB * 3);
+  }
+  function chart(cur) {
+    var a = 'AKQJT98765432', html = '';
+    for (var r = 0; r < 13; r++) for (var c = 0; c < 13; c++) { var k = r * 13 + c; html += '<span class="' + tier(k) + (k === cur ? ' cur' : '') + '" title="' + (r === c ? a[r] + a[c] : a[Math.min(r, c)] + a[Math.max(r, c)] + (r < c ? 's' : 'o')) + ': wins ' + pct(PRE3[k], 1) + ' vs 3 random hands">' + (r === c ? a[r] + a[c] : a[Math.min(r, c)] + a[Math.max(r, c)]) + '</span>'; }
+    $('chart').innerHTML = html;
+  }
+
+  /* ---------- toggles ---------- */
+  function tog(id, fn) { $(id).addEventListener('click', function () { var on = this.getAttribute('aria-pressed') !== 'true'; this.setAttribute('aria-pressed', on); fn(on); store('ldb-pk-' + id, on ? '1' : '0'); });
+    var s = store('ldb-pk-' + id); if (s === '0' || s === '1') { $(id).setAttribute('aria-pressed', s === '1'); fn(s === '1'); } }
+  tog('anTog', function (on) { analysisOn = on; document.body.classList.toggle('noan', !on); if (!on) ['aF', 'aC', 'aR'].forEach(function (k) { $(k).classList.remove('hint'); }); else if (handOn && toAct === 0) analyse(); });
+  tog('trTog', function (on) { coach = on; });
+  tog('peekTog', function (on) { showBots = on; render(); });
+  function setLvl(k) { level = k; document.querySelectorAll('#lvl button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.k === k); }); store('ldb-pk-lvl', String(k)); render(); }
+  document.querySelectorAll('#lvl button').forEach(function (b) { b.addEventListener('click', function () { setLvl(+b.dataset.k); toast('Bots now play at ' + b.textContent + ' level.'); }); });
+  setLvl(level);
+
+  render(); idle();
+  window.__pk = { P: P, evalN: evalN, equity: equity, outs: outs, hname: hname, best5: best5, PCT: PCT, cls: cls, fast: function () { FAST = true; }, act: function (i, t, to) { act(i, t, to); }, deal: function () { startHand(); }, st: function () { return { handOn: handOn, toAct: toAct, street: street, board: board.slice(), curBet: curBet, pot: P.reduce(function (a, p) { return a + p.total; }, 0) }; },
+    rig: function (holes, bd) { /* test hook: next hand deals these cards */ rigged = { holes: holes, bd: bd }; } };
+  var rigged = null, _start = startHand;
+  startHand = function () { if (rigged && !handOn) { var r = rigged; rigged = null; var orig = Math.random; _start(); P.forEach(function (p, i) { if (r.holes[i]) p.hole = r.holes[i].slice(); }); var used = [].concat.apply([], r.holes).concat(r.bd); deck = deck.filter(function (c) { return used.indexOf(c) < 0; }); for (var i = r.bd.length - 1; i >= 0; i--) deck.push(r.bd[i]); render(); if (toAct === 0) analyse(); return; } _start(); };
+  $('deal').removeEventListener('click', _start); $('deal').addEventListener('click', function () { startHand(); });
+})();
+</script>
+</body>
+</html>
