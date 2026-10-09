@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How models are served | LDB Lab</title>
+<meta name="description" content="Model a real AI server: prefill and decode, the KV cache, batching, speculative decoding and the cost of every answer.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="How models are served | LDB Lab">
+<meta property="og:description" content="What it takes to answer millions of AI requests a day.">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000; --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --acc-hi: #A9CDF2; --warm: #E0A84E; --lock: #FF5A4E;
+    --g: clamp(20px, 5vw, 72px); --max: 1180px;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: clip;
+    font: 400 1.0625rem/1.65 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px);
+    background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--g); }
+  b, strong { font-weight: 700; color: #fff; }
+
+  /* status bar */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.6);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  nav .left, nav .right { display: flex; align-items: center; gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  .ws { display: flex; gap: 4px; margin-left: 6px; }
+  .ws a { display: flex; align-items: center; justify-content: center; min-width: 30px; height: 28px; padding: 0 8px; font: 700 .68rem var(--mono); text-decoration: none;
+    color: var(--soft); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+  .ws a:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ws a.on { background: var(--acc); border-color: var(--acc); color: #000; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+    padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); transition: background .2s; color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 760px) { .ws, nav .right .btn.main { display: none; } }
+
+  /* header */
+  header.wrap { padding-top: clamp(120px, 18vh, 170px); padding-bottom: 40px; }
+  .eyebrow { font: 500 .76rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 16px; }
+  h1 { font: 800 clamp(2.6rem, 7vw, 5.4rem)/.98 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.02em; margin: 0; }
+  .lede { font: 300 clamp(1.1rem, 1.9vw, 1.35rem)/1.55 "Urbanist", sans-serif; color: #D3D6DB; max-width: 760px; margin: 22px 0 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .specs span { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); border: 1px solid var(--line); padding: 7px 11px; }
+  .specs span b { color: var(--acc-hi); }
+  .status { font: 500 .72rem var(--mono); letter-spacing: .06em; color: var(--soft); margin-top: 16px; }
+  .status.err { color: var(--lock); }
+
+  /* prompt box (sticky) */
+  .prompt { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .prompt .row { display: flex; gap: 10px; align-items: center; }
+  .prompt label { font: 700 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+  .prompt input { flex: 1; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .95rem var(--mono); padding: 10px 12px; }
+  .prompt input:focus { outline: none; border-color: var(--acc); }
+  .ex { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .ex button, .ctl button { font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); background: transparent;
+    border: 1px solid var(--line); padding: 6px 10px; cursor: pointer; }
+  .ex button:hover, .ctl button:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ctl button.primary { color: #000; background: var(--acc); border-color: var(--acc); }
+
+  /* steps */
+  .step { padding: clamp(64px, 9vw, 110px) 0 0; }
+  /* step buttons: each step lands with its label 32px below the sticky text bar (--stick is measured by script) */
+  .step { scroll-margin-top: calc(var(--stick, 210px) + 32px - clamp(64px, 9vw, 110px)); }
+  .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+  .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acc); }
+  .seclab .nm { color: var(--ink); }
+  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(91,159,224,.5) 0 2px, transparent 2px 7px); }
+  h2 { font: 400 clamp(1.7rem, 3.4vw, 2.5rem)/1.12 "Urbanist", sans-serif; margin: 0 0 14px; }
+  h2 span { color: var(--soft); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .explain p { color: #C9CDD3; margin: 0 0 14px; font-size: 1rem; }
+  .explain .k { font: 700 .66rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 6px; }
+  .panel { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 18px; }
+  .panel + .panel { margin-top: 14px; }
+  .corners::before, .corners::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--acc); }
+  .corners::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .corners::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .ph span:last-child { color: var(--dim); font-weight: 500; }
+
+  /* tokens */
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; font: 500 .86rem var(--mono); }
+  .chip { position: relative; padding: 4px 6px 16px; border: 1px solid rgba(255,255,255,.14); white-space: pre; cursor: pointer; transition: border-color .15s, background .15s; }
+  .chip i { position: absolute; left: 6px; bottom: 2px; font: 500 .56rem var(--mono); font-style: normal; color: var(--dim); }
+  .chip:hover, .chip.sel { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chip.sel i { color: var(--acc-hi); }
+  .chip .sp { color: var(--dim); }
+  .c0 { background: rgba(91,159,224,.10); } .c1 { background: rgba(224,168,78,.10); } .c2 { background: rgba(186,160,255,.10); } .c3 { background: rgba(120,200,160,.10); }
+
+  /* embeddings */
+  .vec { display: grid; grid-template-columns: repeat(32, 1fr); gap: 2px; margin-top: 8px; }
+  .vec div { aspect-ratio: 1; }
+  .near { display: flex; flex-wrap: wrap; gap: 6px; font: 500 .8rem var(--mono); margin-top: 10px; }
+  .near span { border: 1px solid var(--line); padding: 3px 7px; white-space: pre; }
+  .near span em { font-style: normal; color: var(--dim); margin-left: 6px; font-size: .7rem; }
+  canvas { display: block; width: 100%; }
+  #mapc { height: 340px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* attention */
+  .ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+  .ctl .lab { font: 700 .64rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-right: 4px; }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: #000; border-color: var(--ink); }
+  .att-row { display: flex; flex-wrap: wrap; gap: 3px; font: 500 .86rem var(--mono); }
+  .att-row span { padding: 3px 5px; white-space: pre; border: 1px solid transparent; cursor: pointer; }
+  .att-row span.q { border-color: var(--lock); }
+  #attc { height: 300px; margin-top: 14px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* prediction */
+  .bars { font: 500 .82rem var(--mono); }
+  .bar { display: grid; grid-template-columns: 110px 1fr 58px; gap: 10px; align-items: center; margin: 4px 0; }
+  .bar .t { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .bar .b { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .bar .b i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .25s; }
+  .bar .p { text-align: right; color: var(--soft); }
+  .slider { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; font: 600 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+  .slider input { flex: 1; accent-color: var(--acc); }
+  .slider b { min-width: 34px; text-align: right; }
+
+  /* generation */
+  .gen { font: 500 1rem/1.7 var(--mono); white-space: pre-wrap; word-break: break-word; min-height: 140px; color: #D7DCE2; }
+  .gen .new { color: #fff; background: rgba(91,159,224,.16); border-bottom: 1px solid var(--acc); }
+  .gen .new.hot { animation: pop .6s ease-out; }
+  @keyframes pop { from { background: rgba(91,159,224,.6); } }
+  .genlog { font: 500 .72rem/1.6 var(--mono); color: var(--soft); margin-top: 12px; max-height: 120px; overflow: auto; }
+
+  /* scale table */
+  table.scale { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.scale th, table.scale td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.scale th { font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  table.scale td:first-child { color: #fff; font-weight: 600; }
+  table.scale tr.me td { background: rgba(91,159,224,.07); }
+  .tblwrap { overflow-x: auto; }
+  .fine { font-size: .82rem; color: var(--dim); margin-top: 12px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 110px; padding: 36px 0 48px; color: var(--dim); font-size: .85rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: var(--soft); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .gen .new.hot { animation: none; } }
+
+  /* learn.html: no sticky bar, so steps land 32px under the 60px status bar */
+  .step { scroll-margin-top: calc(92px - clamp(64px, 9vw, 110px)); }
+  canvas.plot { height: 320px; background: #040608; border: 1px solid rgba(255,255,255,.06); cursor: default; }
+  canvas.plot.sq { height: 300px; }
+  canvas.plot.short { height: 150px; margin-top: 12px; }
+  #c2 { cursor: crosshair; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo canvas.plot.sq { height: 240px; }
+  @media (max-width: 520px) { .duo { grid-template-columns: 1fr; } .slider b { min-width: 60px; } }
+  .slider span { min-width: 92px; }
+  .slider b { min-width: 60px; }
+  .fine a { color: var(--acc-hi); }
+  /* shared with classic.html */
+  canvas.plot.tall { height: 380px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 500 .68rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .legend i.ok { background: rgb(91,159,224); } .legend i.bad { background: rgb(255,104,90); } .legend i.hol { border: 1.5px solid #ddd; }
+  ol.rules { list-style: none; margin: 0; padding: 0; font: 500 .8rem/1.5 var(--mono); }
+  ol.rules li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #C9CDD3; }
+  ol.rules li span { flex: 1 1 220px; }
+  ol.rules em { font-style: normal; color: var(--dim); font-size: .72rem; }
+  ol.rules li.more { color: var(--dim); }
+  b.appr { color: rgb(120,180,240); } b.deny { color: rgb(255,120,105); }
+  ol.rules b { text-transform: uppercase; font-size: .72rem; letter-spacing: .1em; }
+  .bar.top .b i { background: var(--acc-hi); } .bar.top .t { color: #fff; }
+  .bar.base .b i { background: #444a52; } .bar.base .t, .bar.base .p { color: var(--dim); }
+  #score5 .bar { grid-template-columns: 150px 1fr 58px; margin: 10px 0; }
+  @media (max-width: 520px) { #score5 .bar { grid-template-columns: 120px 1fr 52px; } }
+  #c3 { cursor: crosshair; }
+  /* shared with nn.html */
+  .duo.wide { grid-template-columns: 1fr 1fr; }
+  canvas.plot.sqr { height: 280px; }
+  canvas.plot.sqr.solo { height: auto; aspect-ratio: 1; max-width: 460px; margin: 0 auto; }
+  canvas.plot.net { height: 400px; }
+  .pg { display: grid; grid-template-columns: 250px minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 1080px) { .pg { grid-template-columns: 1fr 1fr; } .pgc { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { .pg { grid-template-columns: 1fr; } canvas.plot.net { height: 320px; } .duo.wide { grid-template-columns: 1fr; } }
+  .pgc .ctl { margin-bottom: 10px; } .pgc .ctl .lab { width: 100%; margin-bottom: 2px; }
+  .pgc .slider { margin: 6px 0 12px; } .pgc .slider span { min-width: 64px; } .pgc .slider b { min-width: 18px; } .pgc .slider input { min-width: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+  .stats div { border: 1px solid var(--line); padding: 8px; }
+  .stats span { display: block; font: 600 .58rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stats b { font: 700 1.05rem var(--mono); }
+  .explain.two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 20px; }
+  @media (max-width: 900px) { .explain.two { grid-template-columns: 1fr; } }
+  .chain { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 4px 0; }
+  .chain .nd, .chain .ed { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: var(--mono); }
+  .chain .nd { flex: 0 0 auto; min-width: 92px; border: 1px solid rgba(255,255,255,.25); padding: 12px 8px; background: #0a0f14; transition: border-color .3s, background .3s; }
+  .chain .nd.hot { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chain .ed { flex: 1 1 0; min-width: 84px; padding: 0 6px; position: relative; }
+  .chain .ed::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed rgba(255,255,255,.3); z-index: -1; }
+  .chain i { font-style: normal; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .chain b { font-size: 1rem; color: #fff; margin: 3px 0; white-space: pre; }
+  .chain .ed b { background: var(--bg); padding: 0 4px; }
+  .chain em { font-style: normal; font-size: .64rem; color: var(--soft); min-height: 1em; }
+  .chain em.gr { color: var(--warm); }
+  #st4 { line-height: 1.6; min-height: 4.8em; }
+  .layers { display: flex; flex-direction: column; gap: 14px; }
+  .lay > span { display: block; font: 700 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 6px; }
+  .lay div { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lay canvas { width: 64px; height: 64px; border: 1px solid rgba(255,255,255,.18); }
+  #c1 { cursor: crosshair; }
+  .cols > div { min-width: 0; }
+  @media (max-width: 520px) { .chain .nd { min-width: 62px; padding: 10px 3px; } .chain .ed { min-width: 46px; padding: 0 2px; } .chain b { font-size: .8rem; } .chain em, .chain i { font-size: .52rem; letter-spacing: .04em; } }
+  /* shared with gpu.html */
+  #s1 .duo.wide { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 640px) { #s1 canvas.plot.sqr { height: 150px; } }
+  .bench { margin-top: 6px; }
+  .br { display: grid; grid-template-columns: 190px minmax(0,1fr) 120px; gap: 12px; align-items: center; margin: 12px 0; font: 600 .74rem var(--mono); color: var(--soft); }
+  .br b { text-align: right; color: #fff; font-size: .9rem; }
+  @media (max-width: 560px) { .br { grid-template-columns: 1fr 90px; } .br .meter { grid-column: 1 / -1; grid-row: 2; } }
+  .meter { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .meter i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .6s; }
+  #bc { background: var(--warm); }
+  .calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .calc div { border: 1px solid var(--line); padding: 10px 12px; }
+  .calc span { display: block; font: 600 .6rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .calc b { font: 700 1rem var(--mono); color: #fff; }
+  @media (max-width: 520px) { .calc { grid-template-columns: 1fr; } }
+  .mem4 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 26px; }
+  @media (max-width: 860px) { .mem4 { grid-template-columns: 1fr; } }
+  .membar { position: relative; height: 34px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .membar i { position: absolute; inset: 0 auto 0 0; background: rgba(91,159,224,.55); transition: width .4s; }
+  .membar i.over { background: rgba(255,90,78,.6); }
+  .membar span { position: absolute; left: 10px; top: 8px; font: 700 .8rem var(--mono); color: #fff; }
+  .tear { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 22px; align-items: center; }
+  @media (max-width: 760px) { .tear { grid-template-columns: 1fr; } }
+  #tear { width: 100%; height: auto; }
+  #tear .ly { cursor: pointer; }
+  #tear .ly rect { fill: #0c1117; stroke: rgba(255,255,255,.35); stroke-width: 1.2; transition: fill .2s, stroke .2s; }
+  #tear .ly .fin { stroke: rgba(255,255,255,.2); fill: none; }
+  #tear .ly:focus { outline: none; }
+  #tear .ly:focus-visible rect:not(.hit) { stroke: #fff; }
+  #tear .ly rect.hit, #tear .ly.on rect.hit, #tear .ly:hover rect.hit { fill: transparent; stroke: none; }
+  #tear .ly text { fill: var(--soft); font: 600 13px "JetBrains Mono", monospace; letter-spacing: .04em; }
+  #tear .ly:hover rect, #tear .ly:focus rect { stroke: var(--acc); }
+  #tear .ly.on rect { fill: rgba(91,159,224,.22); stroke: var(--acc); }
+  #tear .ly.on text { fill: #fff; }
+  #tear .axis { stroke: rgba(255,255,255,.15); stroke-dasharray: 3 4; }
+  .tinfo b { display: block; font: 500 1.3rem "Urbanist", sans-serif; color: #fff; margin-bottom: 8px; }
+  .tinfo p { color: #C9CDD3; margin: 0; font-size: .98rem; }
+  .hwgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; margin-top: 18px; }
+  .hw { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 16px; }
+  .hw.mine { border-color: rgba(224,168,78,.55); }
+  .hw .top { display: flex; justify-content: space-between; font: 500 .62rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--acc); gap: 8px; }
+  .hw .top span:last-child { color: var(--dim); }
+  .hw h3 { font: 500 1.2rem/1.2 "Urbanist", sans-serif; margin: 10px 0 2px; }
+  .hw .kind { font-size: .82rem; color: var(--soft); margin: 0 0 10px; }
+  .hw .spec { display: flex; justify-content: space-between; gap: 10px; font: 500 .72rem var(--mono); color: var(--dim); margin-top: 7px; }
+  .hw .spec b { color: #fff; text-align: right; font-weight: 600; }
+  .mbar { height: 4px; background: rgba(255,255,255,.07); margin-top: 4px; }
+  .mbar i { display: block; height: 100%; background: var(--acc); }
+  .mbar.bw i { background: var(--warm); }
+  /* shared with scale.html */
+  .stack { display: flex; height: 34px; gap: 2px; margin-bottom: 10px; }
+  .stack i { display: block; }
+  .legend i { border-radius: 2px; }
+  .gpus { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 4px; }
+  .rep .rl { display: block; font: 700 .6rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 5px; }
+  .rg { display: grid; gap: 6px; }
+  .stg { display: flex; flex-direction: column; gap: 4px; }
+  .gp { border: 1px solid; padding: 6px 7px; font: 500 .62rem/1.35 var(--mono); color: var(--soft); min-width: 0; overflow: hidden; }
+  .gp b { display: block; color: #fff; font-size: .68rem; }
+  .gp span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gp .sh { display: none; }
+  @media (max-width: 560px) { .gp .lg { display: none; } .gp .sh { display: block; } .gp { padding: 5px; } }
+  .zoom { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 26px; align-items: start; }
+  @media (max-width: 860px) { .zoom { grid-template-columns: 1fr; } }
+  .zoom h3 { font: 500 1.5rem "Urbanist", sans-serif; margin: 14px 0 6px; }
+  .zoom p { color: #C9CDD3; margin: 0 0 12px; }
+  canvas.plot.zc { height: 330px; background: #040608; }
+  .calc b sup { font-size: .7em; }
+  /* serve.html */
+  .cfg { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 10px 0 2px; }
+  .cfg .wrap { display: flex; flex-wrap: wrap; gap: 0 22px; }
+  .cfg .ctl { margin-bottom: 8px; }
+  @media (max-width: 760px) { .cfg { position: static; } }
+  .step { scroll-margin-top: calc(var(--stick, 120px) + 32px - clamp(64px, 9vw, 110px)); }
+  .tl { display: flex; height: 28px; margin: 14px 0 8px; background: rgba(255,255,255,.04); }
+  .tl i { display: block; height: 100%; transition: width .3s; }
+  .tl .pf { background: var(--warm); } .tl .dc { background: var(--acc); }
+  .memgrid { display: grid; grid-template-columns: repeat(20, minmax(0,1fr)); gap: 2px; margin-bottom: 10px; }
+  .memgrid i { aspect-ratio: 1; background: rgba(255,255,255,.05); }
+  .memgrid i.w { background: rgba(91,159,224,.8); } .memgrid i.k { background: rgba(224,168,78,.8); } .memgrid i.x { background: rgba(255,90,78,.8); }
+  .spec4 { font: 500 .8rem var(--mono); min-height: 60px; margin-top: 12px; }
+  .spec4 .pass { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 5px; }
+  .spec4 em { font-style: normal; color: var(--dim); font-size: .64rem; width: 52px; text-transform: uppercase; letter-spacing: .08em; }
+  .spec4 span { padding: 2px 6px; border: 1px solid; }
+  .spec4 .ok { color: #9BE09B; border-color: rgba(155,224,155,.5); } .spec4 .no { color: var(--lock); border-color: rgba(255,90,78,.6); text-decoration: line-through; } .spec4 .big { color: #fff; border-color: var(--acc); background: rgba(91,159,224,.2); }
+  .spec4 .sum { color: var(--soft); margin: 8px 0 0; }
+</style>
+<body>
+
+<nav><div class="in">
+  <div class="left">
+    <a class="mark" href="./">LDB<span>/LAB</span></a>
+    <div class="ws" aria-label="Steps">
+      <a href="#s1" data-s="s1">1</a><a href="#s2" data-s="s2">2</a><a href="#s3" data-s="s3">3</a>
+      <a href="#s4" data-s="s4">4</a><a href="#s5" data-s="s5">5</a>
+    </div>
+  </div>
+  <div class="right">
+    <a class="btn" href="./">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<header class="wrap">
+  <p class="eyebrow">// MOD-11 &middot; AI infrastructure</p>
+  <h1>How models are served</h1>
+  <p class="lede">Training happens once. Serving happens every time anyone asks a question, millions of times a day. This page models one server answering real traffic: why the first word takes longer than the rest, what fills up the memory, how batching makes it affordable, and what each answer costs.</p>
+  <div class="specs">
+    <span>Steps <b>5</b></span><span>Server <b id="srv">8 &times; H100</b></span><span>Model <b>Llama 3.1 architecture</b></span>
+  </div>
+</header>
+
+<div class="cfg"><div class="wrap">
+  <div class="ctl" id="mdl"><span class="lab">Model</span><button type="button" data-m="0">Llama 3.1 8B</button><button type="button" data-m="1" aria-pressed="true">Llama 3.1 70B</button><button type="button" data-m="2">Llama 3.1 405B</button></div>
+  <div class="ctl" id="qnt"><span class="lab">Precision</span><button type="button" data-b="2" aria-pressed="true">16-bit</button><button type="button" data-b="1">8-bit</button><button type="button" data-b="0.5">4-bit</button></div>
+  <div class="ctl" id="chp"><span class="lab">H100s</span><button type="button" data-n="1">1</button><button type="button" data-n="2">2</button><button type="button" data-n="4">4</button><button type="button" data-n="8" aria-pressed="true">8</button></div>
+</div></div>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="step" id="s1">
+    <div class="seclab"><span class="idx">01</span><span class="nm">Reading, then writing</span><span class="rule"></span><span>Prefill and decode</span></div>
+    <h2>The model reads your whole question at once, <span>then writes its answer one token at a time.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="slider"><span>Question</span><input id="pl" type="range" min="10" max="8000" step="10" value="500" aria-label="Question length in tokens"><b id="plv"></b></div>
+          <div class="slider"><span>Answer</span><input id="al" type="range" min="10" max="2000" step="10" value="400" aria-label="Answer length in tokens"><b id="alv"></b></div>
+          <div class="tl"><i id="tl1" class="pf"></i><i id="tl2" class="dc"></i></div>
+          <div class="legend"><span><i style="background:var(--warm)"></i>Reading the question (prefill)</span><span><i style="background:var(--acc)"></i>Writing the answer (decode)</span></div>
+          <div class="calc"><div><span>Time to first word</span><b id="ttft"></b></div><div><span>Writing speed</span><b id="tps1"></b></div><div><span>Total time</span><b id="tot1"></b></div><div><span>Share spent writing</span><b id="sh1"></b></div></div>
+          <div class="status" id="st1"></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>A chatbot answer has two phases. First, <b>prefill</b>: every token of your question is processed in parallel in one big batch of math, which GPUs are excellent at. Then <b>decode</b>: the answer is produced one token at a time, and each token needs the whole model read from memory again (module 09).</p>
+        <p>Drag the sliders. Even a long question is read in a fraction of a second, but writing a long answer takes many seconds. That is why chatbots show text streaming in word by word, and why the delay before the first word ("time to first token") is tracked separately.</p>
+        <p class="fine">Estimates for one user, assuming 50% of peak compute when reading and 70% of peak memory speed when writing. Pick the model, precision and number of GPUs in the bar above; they apply to the whole page.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="s2">
+    <div class="seclab"><span class="idx">02</span><span class="nm">Conversation memory</span><span class="rule"></span><span>The KV cache</span></div>
+    <h2>Every conversation keeps a memory on the GPU <span>that grows with every token.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="slider"><span>Conversation</span><input id="ctx" type="range" min="1" max="128" step="1" value="8" aria-label="Conversation length in thousands of tokens"><b id="ctxv"></b></div>
+          <div class="slider"><span>Users</span><input id="us" type="range" min="1" max="256" step="1" value="32" aria-label="Users at the same time"><b id="usv"></b></div>
+          <div class="ph" style="margin-top:12px"><span>GPU memory</span><span id="mem2"></span></div>
+          <div class="memgrid" id="mg2"></div>
+          <div class="legend"><span><i style="background:rgba(91,159,224,.8)"></i>Model weights</span><span><i style="background:rgba(224,168,78,.8)"></i>Conversation memory</span><span><i style="background:rgba(255,90,78,.8)"></i>Does not fit</span></div>
+          <div class="calc"><div><span>Memory per conversation</span><b id="kv2"></b></div><div><span>Most users that fit</span><b id="max2"></b></div></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Attention (module 06) lets each new token look back at every earlier one. To avoid recomputing everything, the server stores two vectors per layer for every token so far, called the <b>KV cache</b>. For Llama 3.1 70B that is about 320 KB per token at 16-bit.</p>
+        <p>So a single 8,000-token conversation needs about 2.6 GB, and a full 128,000-token one about 42 GB, more than half an H100 on its own. Drag the sliders and watch the GPUs fill up. Each square is 1% of total memory.</p>
+        <p class="k">The real limit on users</p>
+        <p>How many people a server can handle at once is usually set by this memory, not by compute. A lot of serving engineering, such as vLLM's "paged attention", exists to pack these caches in tightly without waste.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="s3">
+    <div class="seclab"><span class="idx">03</span><span class="nm">Batching</span><span class="rule"></span><span>Serving many at once</span></div>
+    <h2>One read of the model can serve many users at once. <span>That is what makes AI affordable.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="slider"><span>Batch size</span><input id="bs" type="range" min="0" max="9" step="1" value="5" aria-label="Users served together, powers of two"><b id="bsv"></b></div>
+          <canvas id="c3" class="plot" aria-label="Total and per-user speed for each batch size"></canvas>
+          <div class="calc"><div><span>Speed per user</span><b id="pu3"></b></div><div><span>Total output of the server</span><b id="tot3"></b></div><div><span>Bottleneck</span><b id="bn3"></b></div><div><span>Fits in memory?</span><b id="fit3"></b></div></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Writing one token means reading all the model's weights from memory. But once the weights are flowing through the chip, multiplying them for 32 users costs barely more time than for 1. So servers group many users' next tokens into one <b>batch</b>.</p>
+        <p>Drag the batch size. Total output (blue) climbs steeply while each user's speed (amber) barely drops, until the GPUs run out of compute or the conversation memory from step 2 runs out.</p>
+        <p class="k">The trade-off</p>
+        <p>Bigger batches mean cheaper tokens but slower answers for each person. Every AI provider tunes this balance, which is why the same model can be offered as a fast premium tier and a cheaper slower one.</p>
+        <p class="fine">Assumes conversations of the length set in step 2. Simplified model: real servers also mix prefill and decode, and reach somewhat lower efficiency.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="s4">
+    <div class="seclab"><span class="idx">04</span><span class="nm">Tricks for speed</span><span class="rule"></span><span>Speculative decoding</span></div>
+    <h2>Let a small model guess ahead, <span>and the big model check several guesses in one go.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="slider"><span>Guesses ahead</span><input id="k4" type="range" min="1" max="8" step="1" value="4" aria-label="Tokens guessed ahead by the small model"><b id="k4v"></b></div>
+          <div class="slider"><span>Guess accuracy</span><input id="a4" type="range" min="30" max="95" step="1" value="75" aria-label="Chance each guess is accepted"><b id="a4v"></b></div>
+          <div class="spec4" id="sp4"></div>
+          <div class="ctl" style="margin-top:10px"><button type="button" id="run4" class="primary">Simulate a sentence</button></div>
+          <div class="calc"><div><span>Tokens per big-model pass</span><b id="tp4"></b></div><div><span>Speed-up (before draft cost)</span><b id="su4"></b></div></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Step 1 showed that writing is slow because every token needs a full read of the big model. <b>Speculative decoding</b> gets around this: a small, fast "draft" model guesses the next few tokens, then the big model checks all the guesses in a single pass, which costs about the same as writing one token.</p>
+        <p>Every guess up to the first wrong one is kept, and the big model supplies the correct token at that point. The answer is exactly what the big model would have written on its own, just faster.</p>
+        <p>Press <b>Simulate</b> to watch it: green tokens were accepted guesses, red marks a rejected guess and blue is the token the big model wrote itself. Other common tricks are <b>quantization</b> (the precision buttons at the top) and <b>prompt caching</b>, which reuses the memory from step 2 when many requests share the same opening text.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="s5">
+    <div class="seclab"><span class="idx">05</span><span class="nm">The cost of an answer</span><span class="rule"></span><span>Unit economics</span></div>
+    <h2>Put it together: <span>what does one answer cost to produce?</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="slider"><span>$ per GPU-hour</span><input id="pr5" type="range" min="1" max="6" step="0.25" value="2.5" aria-label="Rental price per GPU-hour"><b id="pr5v"></b></div>
+          <div class="slider"><span>Server busy</span><input id="ut5" type="range" min="10" max="90" step="5" value="50" aria-label="Share of time the server is busy"><b id="ut5v"></b></div>
+          <div class="calc">
+            <div><span>Server cost per hour</span><b id="sc5"></b></div><div><span>Tokens per hour</span><b id="tk5"></b></div>
+            <div><span>Cost per million tokens</span><b id="pm5"></b></div><div><span>Cost of one 400-token answer</span><b id="pa5"></b></div>
+            <div><span>1 million users, 20 answers a day</span><b id="pd5"></b></div><div><span>Servers needed for them</span><b id="sv5"></b></div>
+          </div>
+          <div class="status" id="st5"></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Uses the server and batch size from the steps above. Divide what the GPUs cost per hour by how many tokens they produce in that hour and you get the cost per token, the number every AI company watches.</p>
+        <p>The <b>Server busy</b> slider matters more than people expect: traffic comes in waves, and a GPU waiting for requests still costs money. Change the model size, precision or batch size and watch the unit cost move by 10 times or more.</p>
+        <p class="k">Why this matters</p>
+        <p>These are compute costs only. Providers also pay for staff, data centres, networking and the training runs from module 10, and they price their APIs above this. But the shape of the economics, memory-bound, batch-hungry and very sensitive to utilisation, is the same.</p>
+        <p>Next in the course: <a href="rag.html">how AI looks things up</a>, in module 12.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT I LEARNED: Luis, write a short section here in your own words when you are ready, for example:
+  <section class="step" id="notes">
+    <div class="seclab"><span class="idx">06</span><span class="nm">What I learned</span><span class="rule"></span></div>
+    <div class="explain"><p>...</p></div>
+  </section>
+  -->
+
+</main>
+
+<footer><div class="wrap">
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; MOD-11</span>
+  <span>Previous: <a href="scale.html">Training at scale</a> &nbsp;&middot;&nbsp; Next: <a href="rag.html">How AI looks things up</a></span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</div></footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function setup(c) {
+    var dpr = Math.min(devicePixelRatio || 1, 2), w = c.clientWidth, h = c.clientHeight, x = c.getContext('2d');
+    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, w, h); return { x: x, w: w, h: h };
+  }
+  function t(s) { return s < 1 ? Math.round(s * 1000) + ' ms' : s < 60 ? s.toFixed(1) + ' s' : (s / 60).toFixed(1) + ' min'; }
+  function gb(v) { return v < 1 ? Math.round(v * 1000) + ' MB' : v < 1000 ? v.toFixed(v < 10 ? 1 : 0) + ' GB' : (v / 1000).toFixed(1) + ' TB'; }
+  function money(v) { return v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + ' million' : v >= 1000 ? '$' + Math.round(v).toLocaleString() : v >= 1 ? '$' + v.toFixed(2) : v >= .01 ? '$' + v.toFixed(3) : '$' + v.toFixed(5); }
+
+  /* Llama 3.1 architecture: parameters, layers, key/value heads (head size 128) */
+  var MOD = [{ n: 'Llama 3.1 8B', p: 8.03e9, L: 32, kv: 8 }, { n: 'Llama 3.1 70B', p: 70.6e9, L: 80, kv: 8 }, { n: 'Llama 3.1 405B', p: 405.9e9, L: 126, kv: 8 }];
+  var H100 = { mem: 80, bw: 3.35e12, fl: 989e12 }, S = { m: 1, b: 2, n: 8 };
+  function grp(sel, key, attr) { document.querySelectorAll(sel + ' button').forEach(function (b) { if (!b.hasAttribute('aria-pressed')) b.setAttribute('aria-pressed', 'false'); b.addEventListener('click', function () { document.querySelectorAll(sel + ' button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); S[key] = +b.dataset[attr]; all(); }); }); }
+  grp('#mdl', 'm', 'm'); grp('#qnt', 'b', 'b'); grp('#chp', 'n', 'n');
+  function W() { return MOD[S.m].p * S.b; }                                  /* weight bytes */
+  function KVt() { var m = MOD[S.m]; return 2 * m.L * m.kv * 128 * Math.max(1, S.b); }   /* bytes per token (cache kept at 16-bit unless 8-bit chosen) */
+  function memTot() { return S.n * H100.mem * 1e9; }
+  function fits() { return W() < memTot() * .92; }
+
+  /* ---------- step 1 ---------- */
+  function upd1() {
+    var pl = +$('pl').value, al = +$('al').value; $('plv').textContent = pl.toLocaleString() + ' tokens'; $('alv').textContent = al.toLocaleString() + ' tokens';
+    if (!fits()) { $('ttft').textContent = $('tps1').textContent = $('tot1').textContent = $('sh1').textContent = '-'; $('st1').textContent = 'This model does not fit on ' + S.n + ' H100' + (S.n > 1 ? 's' : '') + ' at this precision. Add GPUs or lower the precision in the bar above.'; $('st1').classList.add('err'); $('tl1').style.width = $('tl2').style.width = '0'; return; }
+    $('st1').classList.remove('err');
+    var pf = 2 * MOD[S.m].p * pl / (S.n * H100.fl * .5), dt = W() / (S.n * H100.bw * .7), dc = dt * al, tot = pf + dc;
+    $('ttft').textContent = t(pf); $('tps1').textContent = Math.round(1 / dt) + ' tokens/s'; $('tot1').textContent = t(tot); $('sh1').textContent = Math.round(dc / tot * 100) + '%';
+    $('tl1').style.width = Math.max(.5, pf / tot * 100) + '%'; $('tl2').style.width = (dc / tot * 100) + '%';
+    $('st1').textContent = 'Reading ' + pl.toLocaleString() + ' tokens takes ' + t(pf) + '; writing ' + al + ' takes ' + t(dc) + '.';
+  }
+  ['pl', 'al'].forEach(function (id) { $(id).addEventListener('input', upd1); });
+
+  /* ---------- step 2 ---------- */
+  function upd2() {
+    var ctx = +$('ctx').value * 1000, us = +$('us').value, kv = KVt() * ctx, tot = memTot(), w = W();
+    $('ctxv').textContent = (ctx / 1000) + 'k tokens'; $('usv').textContent = us;
+    $('kv2').textContent = gb(kv / 1e9);
+    var maxU = Math.max(0, Math.floor((tot * .92 - w) / kv)); $('max2').textContent = w > tot * .92 ? 'none: the model does not fit' : maxU.toLocaleString();
+    var cells = 100, wc = Math.min(cells, Math.round(w / tot * cells)), kc = Math.round(kv * us / tot * cells), h = '';
+    for (var i = 0; i < cells; i++) h += '<i class="' + (i < wc ? 'w' : i < wc + kc ? 'k' : '') + '"></i>';
+    var over = wc + kc - cells; if (over > 0) h += '<i class="x"></i>'.repeat(Math.min(over, 100));
+    $('mg2').innerHTML = h; $('mem2').textContent = gb((w + kv * us) / 1e9) + ' needed of ' + gb(tot / 1e9) + (w + kv * us > tot * .92 ? ' · too much' : '');
+  }
+  ['ctx', 'us'].forEach(function (id) { $(id).addEventListener('input', upd2); });
+
+  /* ---------- step 3: batching roofline ---------- */
+  function stepTime(B) {                                             /* seconds per decode step for a batch of B */
+    var ctx = +$('ctx').value * 1000, bytes = W() + B * KVt() * ctx / 2, flops = 2 * MOD[S.m].p * B;   /* average cache length is half the conversation */
+    var tm = bytes / (S.n * H100.bw * .7), tc = flops / (S.n * H100.fl * .5); return { t: Math.max(tm, tc), mem: tm >= tc };
+  }
+  function upd3() {
+    var B = Math.pow(2, +$('bs').value), r = stepTime(B), ctx = +$('ctx').value * 1000; $('bsv').textContent = B + (B === 1 ? ' user' : ' users');
+    var ok = fits(), fitB = ok && W() + B * KVt() * ctx <= memTot() * .92;
+    $('pu3').textContent = ok ? Math.round(1 / r.t) + ' tokens/s' : '-'; $('tot3').textContent = ok ? Math.round(B / r.t).toLocaleString() + ' tokens/s' : '-';
+    $('bn3').textContent = ok ? (r.mem ? 'memory speed' : 'compute') : '-'; $('fit3').textContent = !ok ? 'model too big' : fitB ? 'yes' : 'no: not enough room for ' + B + ' conversations';
+    var o = setup($('c3')), x = o.x, pad = 34, X = function (i) { return pad + i / 9 * (o.w - pad - 14); }, pts = [];
+    for (var i = 0; i <= 9; i++) { var b = Math.pow(2, i), s = stepTime(b); pts.push([b / s.t, 1 / s.t, W() + b * KVt() * ctx <= memTot() * .92]); }
+    var mxT = Math.max.apply(null, pts.map(function (p) { return p[0]; })), mxU = pts[0][1];
+    x.strokeStyle = 'rgba(255,255,255,.14)'; x.lineWidth = 1; x.beginPath(); x.moveTo(pad, 8); x.lineTo(pad, o.h - 26); x.lineTo(o.w - 8, o.h - 26); x.stroke();
+    x.font = '500 10px "JetBrains Mono", monospace'; x.fillStyle = 'rgba(255,255,255,.45)'; x.fillText('batch size →', o.w - 100, o.h - 6);
+    for (i = 0; i <= 9; i++) x.fillText(Math.pow(2, i), X(i) - 4, o.h - 12);
+    if (!ok) { x.fillStyle = 'rgba(255,90,78,.8)'; x.fillText('model does not fit on this server', pad + 10, 30); return; }
+    [[0, '91,159,224', mxT, 'total tokens/s'], [1, '224,168,78', mxU, 'per-user tokens/s']].forEach(function (s, si) {
+      x.strokeStyle = 'rgb(' + s[1] + ')'; x.lineWidth = 2.2; x.beginPath(); pts.forEach(function (p, j) { var Y = 10 + (1 - p[s[0]] / s[2]) * (o.h - 40); if (j) x.lineTo(X(j), Y); else x.moveTo(X(j), Y); }); x.stroke();
+      x.fillStyle = 'rgb(' + s[1] + ')'; x.fillRect(pad + 10, 12 + si * 14, 10, 3); x.fillStyle = 'rgba(255,255,255,.75)'; x.fillText(s[3], pad + 26, 17 + si * 14);
+    });
+    pts.forEach(function (p, j) { if (!p[2]) { x.fillStyle = 'rgba(255,90,78,.12)'; x.fillRect(X(j) - (o.w - pad) / 18, 8, (o.w - pad) / 9, o.h - 34); } });
+    var bi = +$('bs').value; x.strokeStyle = '#fff'; x.setLineDash([2, 3]); x.beginPath(); x.moveTo(X(bi), 8); x.lineTo(X(bi), o.h - 26); x.stroke(); x.setLineDash([]);
+  }
+  $('bs').addEventListener('input', function () { upd3(); upd5(); });
+
+  /* ---------- step 4: speculative decoding ---------- */
+  function upd4() {
+    var k = +$('k4').value, a = +$('a4').value / 100, e = (1 - Math.pow(a, k + 1)) / (1 - a);
+    $('k4v').textContent = k; $('a4v').textContent = Math.round(a * 100) + '%'; $('tp4').textContent = e.toFixed(2); $('su4').textContent = e.toFixed(1) + '×';
+  }
+  ['k4', 'a4'].forEach(function (id) { $(id).addEventListener('input', upd4); });
+  var WORDS = 'The fund rebalanced its portfolio toward short-term bonds as rates rose and equities stayed volatile through the quarter .'.split(' ');
+  $('run4').addEventListener('click', function () {
+    var k = +$('k4').value, a = +$('a4').value / 100, out = [], pos = 0, passes = 0, box = $('sp4'), btn = this; btn.disabled = true; box.innerHTML = '';
+    (function pass() {
+      if (pos >= WORDS.length) { box.insertAdjacentHTML('beforeend', '<p class="sum">' + WORDS.length + ' words in ' + passes + ' big-model passes (one at a time would take ' + WORDS.length + ').</p>'); btn.disabled = false; return; }
+      passes++; var row = '<div class="pass"><em>pass ' + passes + '</em>';
+      for (var i = 0; i < k && pos < WORDS.length; i++) { if (Math.random() < a) { row += '<span class="ok">' + WORDS[pos++] + '</span>'; } else { row += '<span class="no">guess</span>'; break; } }
+      if (pos < WORDS.length) row += '<span class="big">' + WORDS[pos++] + '</span>';
+      box.insertAdjacentHTML('beforeend', row + '</div>'); setTimeout(pass, reduce ? 0 : 450);
+    })();
+  });
+
+  /* ---------- step 5 ---------- */
+  function upd5() {
+    var pr = +$('pr5').value, ut = +$('ut5').value / 100, B = Math.pow(2, +$('bs').value); $('pr5v').textContent = '$' + pr.toFixed(2); $('ut5v').textContent = Math.round(ut * 100) + '%';
+    var ctx = +$('ctx').value * 1000; while (B > 1 && W() + B * KVt() * ctx > memTot() * .92) B /= 2;
+    var hr = pr * S.n; $('sc5').textContent = money(hr);
+    if (!fits()) { ['tk5', 'pm5', 'pa5', 'pd5', 'sv5'].forEach(function (id) { $(id).textContent = '-'; }); $('st5').textContent = 'The model does not fit on this server.'; return; }
+    var tph = B / stepTime(B).t * 3600 * ut, pm = hr / tph * 1e6;
+    $('tk5').textContent = Math.round(tph / 1e6 * 10) / 10 + ' million'; $('pm5').textContent = money(pm); $('pa5').textContent = money(pm * 400 / 1e6);
+    var daily = 1e6 * 20 * 400; $('pd5').textContent = money(daily / 1e6 * pm) + ' a day'; $('sv5').textContent = Math.ceil(daily / (tph * 24)).toLocaleString();
+    $('st5').textContent = 'Batch of ' + B + ' users on ' + S.n + ' × H100' + (B < Math.pow(2, +$('bs').value) ? ' (batch reduced to fit in memory)' : '') + '. Output tokens only; reading the questions adds a little more.';
+  }
+  ['pr5', 'ut5'].forEach(function (id) { $(id).addEventListener('input', upd5); });
+
+  function measureStick() { var c = document.querySelector('.cfg'); document.documentElement.style.setProperty('--stick', (60 + (getComputedStyle(c).position === 'sticky' ? c.offsetHeight : 0)) + 'px'); }
+  measureStick(); addEventListener('resize', measureStick);
+  function all() { $('srv').textContent = S.n + ' × H100'; upd1(); upd2(); upd3(); upd5(); }
+  $('ctx').addEventListener('input', function () { upd3(); upd5(); });
+  all(); upd4();
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(upd3, 150); });
+  var ws = document.querySelectorAll('.ws a');
+  function spy() {
+    var cur = '', y = innerHeight * .45;
+    ['s1', 's2', 's3', 's4', 's5'].forEach(function (id) { if ($(id).getBoundingClientRect().top < y) cur = id; });
+    ws.forEach(function (a) { a.classList.toggle('on', a.dataset.s === cur); });
+  }
+  addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
+</body>
+</html>

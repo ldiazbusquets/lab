@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From predictor to assistant | LDB Lab</title>
+<meta name="description" content="Watch the Lab's mini language model ignore instructions, then follow them after fine-tuning, both live in your browser. Plus chat templates and learning from human preferences (RLHF).">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="From predictor to assistant | LDB Lab">
+<meta property="og:description" content="How a text predictor becomes a helpful assistant.">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Urbanist:wght@300..600&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000; --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12);
+    --acc: #5B9FE0; --acc-hi: #A9CDF2; --warm: #E0A84E; --lock: #FF5A4E;
+    --g: clamp(20px, 5vw, 72px); --max: 1180px;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); overflow-x: clip;
+    font: 400 1.0625rem/1.65 "Manrope", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: linear-gradient(rgba(91,159,224,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.05) 1px, transparent 1px);
+    background-size: 48px 48px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--g); }
+  b, strong { font-weight: 700; color: #fff; }
+
+  /* status bar */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(0,0,0,.6);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 60px; padding: 0 clamp(16px, 3vw, 36px); gap: 12px; }
+  nav .left, nav .right { display: flex; align-items: center; gap: 12px; }
+  .mark { font: 800 1.15rem "Archivo", sans-serif; font-stretch: 125%; text-decoration: none; white-space: nowrap; }
+  .mark span { color: var(--acc); font: 500 .78rem var(--mono); margin-left: 8px; letter-spacing: .1em; }
+  .ws { display: flex; gap: 4px; margin-left: 6px; }
+  .ws a { display: flex; align-items: center; justify-content: center; min-width: 30px; height: 28px; padding: 0 8px; font: 700 .68rem var(--mono); text-decoration: none;
+    color: var(--soft); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+  .ws a:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ws a.on { background: var(--acc); border-color: var(--acc); color: #000; }
+  .btn { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; white-space: nowrap;
+    padding: 9px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.04); transition: background .2s; color: var(--ink); }
+  .btn:hover { background: rgba(255,255,255,.12); }
+  @media (max-width: 760px) { .ws, nav .right .btn.main { display: none; } }
+
+  /* header */
+  header.wrap { padding-top: clamp(120px, 18vh, 170px); padding-bottom: 40px; }
+  .eyebrow { font: 500 .76rem var(--mono); color: var(--acc); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 16px; }
+  h1 { font: 800 clamp(2.6rem, 7vw, 5.4rem)/.98 "Archivo", sans-serif; font-stretch: 125%; letter-spacing: -.02em; margin: 0; }
+  .lede { font: 300 clamp(1.1rem, 1.9vw, 1.35rem)/1.55 "Urbanist", sans-serif; color: #D3D6DB; max-width: 760px; margin: 22px 0 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .specs span { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); border: 1px solid var(--line); padding: 7px 11px; }
+  .specs span b { color: var(--acc-hi); }
+  .status { font: 500 .72rem var(--mono); letter-spacing: .06em; color: var(--soft); margin-top: 16px; }
+  .status.err { color: var(--lock); }
+
+  /* prompt box (sticky) */
+  .prompt { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.86); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .prompt .row { display: flex; gap: 10px; align-items: center; }
+  .prompt label { font: 700 .68rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+  .prompt input { flex: 1; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .95rem var(--mono); padding: 10px 12px; }
+  .prompt input:focus { outline: none; border-color: var(--acc); }
+  .ex { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .ex button, .ctl button { font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); background: transparent;
+    border: 1px solid var(--line); padding: 6px 10px; cursor: pointer; }
+  .ex button:hover, .ctl button:hover { color: var(--ink); border-color: rgba(255,255,255,.3); }
+  .ctl button.primary { color: #000; background: var(--acc); border-color: var(--acc); }
+
+  /* steps */
+  .step { padding: clamp(64px, 9vw, 110px) 0 0; }
+  /* step buttons: each step lands with its label 32px below the sticky text bar (--stick is measured by script) */
+  .step { scroll-margin-top: calc(var(--stick, 210px) + 32px - clamp(64px, 9vw, 110px)); }
+  .seclab { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; font: 600 .7rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--soft); }
+  .seclab .idx { font: 800 1.9rem/1 "Archivo", sans-serif; font-stretch: 125%; color: var(--acc); }
+  .seclab .nm { color: var(--ink); }
+  .seclab .rule { flex: 1; height: 8px; background: repeating-linear-gradient(-45deg, rgba(91,159,224,.5) 0 2px, transparent 2px 7px); }
+  h2 { font: 400 clamp(1.7rem, 3.4vw, 2.5rem)/1.12 "Urbanist", sans-serif; margin: 0 0 14px; }
+  h2 span { color: var(--soft); }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .explain p { color: #C9CDD3; margin: 0 0 14px; font-size: 1rem; }
+  .explain .k { font: 700 .66rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin: 18px 0 6px; }
+  .panel { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 18px; }
+  .panel + .panel { margin-top: 14px; }
+  .corners::before, .corners::after { content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--acc); }
+  .corners::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .corners::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .ph { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .ph span:last-child { color: var(--dim); font-weight: 500; }
+
+  /* tokens */
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; font: 500 .86rem var(--mono); }
+  .chip { position: relative; padding: 4px 6px 16px; border: 1px solid rgba(255,255,255,.14); white-space: pre; cursor: pointer; transition: border-color .15s, background .15s; }
+  .chip i { position: absolute; left: 6px; bottom: 2px; font: 500 .56rem var(--mono); font-style: normal; color: var(--dim); }
+  .chip:hover, .chip.sel { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chip.sel i { color: var(--acc-hi); }
+  .chip .sp { color: var(--dim); }
+  .c0 { background: rgba(91,159,224,.10); } .c1 { background: rgba(224,168,78,.10); } .c2 { background: rgba(186,160,255,.10); } .c3 { background: rgba(120,200,160,.10); }
+
+  /* embeddings */
+  .vec { display: grid; grid-template-columns: repeat(32, 1fr); gap: 2px; margin-top: 8px; }
+  .vec div { aspect-ratio: 1; }
+  .near { display: flex; flex-wrap: wrap; gap: 6px; font: 500 .8rem var(--mono); margin-top: 10px; }
+  .near span { border: 1px solid var(--line); padding: 3px 7px; white-space: pre; }
+  .near span em { font-style: normal; color: var(--dim); margin-left: 6px; font-size: .7rem; }
+  canvas { display: block; width: 100%; }
+  #mapc { height: 340px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* attention */
+  .ctl { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+  .ctl .lab { font: 700 .64rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin-right: 4px; }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: #000; border-color: var(--ink); }
+  .att-row { display: flex; flex-wrap: wrap; gap: 3px; font: 500 .86rem var(--mono); }
+  .att-row span { padding: 3px 5px; white-space: pre; border: 1px solid transparent; cursor: pointer; }
+  .att-row span.q { border-color: var(--lock); }
+  #attc { height: 300px; margin-top: 14px; background: #040608; border: 1px solid rgba(255,255,255,.06); }
+
+  /* prediction */
+  .bars { font: 500 .82rem var(--mono); }
+  .bar { display: grid; grid-template-columns: 110px 1fr 58px; gap: 10px; align-items: center; margin: 4px 0; }
+  .bar .t { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .bar .b { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .bar .b i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .25s; }
+  .bar .p { text-align: right; color: var(--soft); }
+  .slider { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px; font: 600 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+  .slider input { flex: 1; accent-color: var(--acc); }
+  .slider b { min-width: 34px; text-align: right; }
+
+  /* generation */
+  .gen { font: 500 1rem/1.7 var(--mono); white-space: pre-wrap; word-break: break-word; min-height: 140px; color: #D7DCE2; }
+  .gen .new { color: #fff; background: rgba(91,159,224,.16); border-bottom: 1px solid var(--acc); }
+  .gen .new.hot { animation: pop .6s ease-out; }
+  @keyframes pop { from { background: rgba(91,159,224,.6); } }
+  .genlog { font: 500 .72rem/1.6 var(--mono); color: var(--soft); margin-top: 12px; max-height: 120px; overflow: auto; }
+
+  /* scale table */
+  table.scale { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.scale th, table.scale td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.scale th { font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  table.scale td:first-child { color: #fff; font-weight: 600; }
+  table.scale tr.me td { background: rgba(91,159,224,.07); }
+  .tblwrap { overflow-x: auto; }
+  .fine { font-size: .82rem; color: var(--dim); margin-top: 12px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 110px; padding: 36px 0 48px; color: var(--dim); font-size: .85rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a { color: var(--soft); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .gen .new.hot { animation: none; } }
+
+  /* learn.html: no sticky bar, so steps land 32px under the 60px status bar */
+  .step { scroll-margin-top: calc(92px - clamp(64px, 9vw, 110px)); }
+  canvas.plot { height: 320px; background: #040608; border: 1px solid rgba(255,255,255,.06); cursor: default; }
+  canvas.plot.sq { height: 300px; }
+  canvas.plot.short { height: 150px; margin-top: 12px; }
+  #c2 { cursor: crosshair; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo canvas.plot.sq { height: 240px; }
+  @media (max-width: 520px) { .duo { grid-template-columns: 1fr; } .slider b { min-width: 60px; } }
+  .slider span { min-width: 92px; }
+  .slider b { min-width: 60px; }
+  .fine a { color: var(--acc-hi); }
+  /* shared with classic.html */
+  canvas.plot.tall { height: 380px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 500 .68rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .legend i.ok { background: rgb(91,159,224); } .legend i.bad { background: rgb(255,104,90); } .legend i.hol { border: 1.5px solid #ddd; }
+  ol.rules { list-style: none; margin: 0; padding: 0; font: 500 .8rem/1.5 var(--mono); }
+  ol.rules li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); color: #C9CDD3; }
+  ol.rules li span { flex: 1 1 220px; }
+  ol.rules em { font-style: normal; color: var(--dim); font-size: .72rem; }
+  ol.rules li.more { color: var(--dim); }
+  b.appr { color: rgb(120,180,240); } b.deny { color: rgb(255,120,105); }
+  ol.rules b { text-transform: uppercase; font-size: .72rem; letter-spacing: .1em; }
+  .bar.top .b i { background: var(--acc-hi); } .bar.top .t { color: #fff; }
+  .bar.base .b i { background: #444a52; } .bar.base .t, .bar.base .p { color: var(--dim); }
+  #score5 .bar { grid-template-columns: 150px 1fr 58px; margin: 10px 0; }
+  @media (max-width: 520px) { #score5 .bar { grid-template-columns: 120px 1fr 52px; } }
+  #c3 { cursor: crosshair; }
+  /* shared with nn.html */
+  .duo.wide { grid-template-columns: 1fr 1fr; }
+  canvas.plot.sqr { height: 280px; }
+  canvas.plot.sqr.solo { height: auto; aspect-ratio: 1; max-width: 460px; margin: 0 auto; }
+  canvas.plot.net { height: 400px; }
+  .pg { display: grid; grid-template-columns: 250px minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 1080px) { .pg { grid-template-columns: 1fr 1fr; } .pgc { grid-column: 1 / -1; } }
+  @media (max-width: 640px) { .pg { grid-template-columns: 1fr; } canvas.plot.net { height: 320px; } .duo.wide { grid-template-columns: 1fr; } }
+  .pgc .ctl { margin-bottom: 10px; } .pgc .ctl .lab { width: 100%; margin-bottom: 2px; }
+  .pgc .slider { margin: 6px 0 12px; } .pgc .slider span { min-width: 64px; } .pgc .slider b { min-width: 18px; } .pgc .slider input { min-width: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 4px; }
+  .stats div { border: 1px solid var(--line); padding: 8px; }
+  .stats span { display: block; font: 600 .58rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .stats b { font: 700 1.05rem var(--mono); }
+  .explain.two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 20px; }
+  @media (max-width: 900px) { .explain.two { grid-template-columns: 1fr; } }
+  .chain { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 4px 0; }
+  .chain .nd, .chain .ed { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: var(--mono); }
+  .chain .nd { flex: 0 0 auto; min-width: 92px; border: 1px solid rgba(255,255,255,.25); padding: 12px 8px; background: #0a0f14; transition: border-color .3s, background .3s; }
+  .chain .nd.hot { border-color: var(--acc); background: rgba(91,159,224,.12); }
+  .chain .ed { flex: 1 1 0; min-width: 84px; padding: 0 6px; position: relative; }
+  .chain .ed::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed rgba(255,255,255,.3); z-index: -1; }
+  .chain i { font-style: normal; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .chain b { font-size: 1rem; color: #fff; margin: 3px 0; white-space: pre; }
+  .chain .ed b { background: var(--bg); padding: 0 4px; }
+  .chain em { font-style: normal; font-size: .64rem; color: var(--soft); min-height: 1em; }
+  .chain em.gr { color: var(--warm); }
+  #st4 { line-height: 1.6; min-height: 4.8em; }
+  .layers { display: flex; flex-direction: column; gap: 14px; }
+  .lay > span { display: block; font: 700 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 6px; }
+  .lay div { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lay canvas { width: 64px; height: 64px; border: 1px solid rgba(255,255,255,.18); }
+  #c1 { cursor: crosshair; }
+  .cols > div { min-width: 0; }
+  @media (max-width: 520px) { .chain .nd { min-width: 62px; padding: 10px 3px; } .chain .ed { min-width: 46px; padding: 0 2px; } .chain b { font-size: .8rem; } .chain em, .chain i { font-size: .52rem; letter-spacing: .04em; } }
+  /* shared with gpu.html */
+  #s1 .duo.wide { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 640px) { #s1 canvas.plot.sqr { height: 150px; } }
+  .bench { margin-top: 6px; }
+  .br { display: grid; grid-template-columns: 190px minmax(0,1fr) 120px; gap: 12px; align-items: center; margin: 12px 0; font: 600 .74rem var(--mono); color: var(--soft); }
+  .br b { text-align: right; color: #fff; font-size: .9rem; }
+  @media (max-width: 560px) { .br { grid-template-columns: 1fr 90px; } .br .meter { grid-column: 1 / -1; grid-row: 2; } }
+  .meter { height: 14px; background: rgba(255,255,255,.06); position: relative; }
+  .meter i { position: absolute; inset: 0 auto 0 0; background: var(--acc); transition: width .6s; }
+  #bc { background: var(--warm); }
+  .calc { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .calc div { border: 1px solid var(--line); padding: 10px 12px; }
+  .calc span { display: block; font: 600 .6rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .calc b { font: 700 1rem var(--mono); color: #fff; }
+  @media (max-width: 520px) { .calc { grid-template-columns: 1fr; } }
+  .mem4 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 26px; }
+  @media (max-width: 860px) { .mem4 { grid-template-columns: 1fr; } }
+  .membar { position: relative; height: 34px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .membar i { position: absolute; inset: 0 auto 0 0; background: rgba(91,159,224,.55); transition: width .4s; }
+  .membar i.over { background: rgba(255,90,78,.6); }
+  .membar span { position: absolute; left: 10px; top: 8px; font: 700 .8rem var(--mono); color: #fff; }
+  .tear { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 22px; align-items: center; }
+  @media (max-width: 760px) { .tear { grid-template-columns: 1fr; } }
+  #tear { width: 100%; height: auto; }
+  #tear .ly { cursor: pointer; }
+  #tear .ly rect { fill: #0c1117; stroke: rgba(255,255,255,.35); stroke-width: 1.2; transition: fill .2s, stroke .2s; }
+  #tear .ly .fin { stroke: rgba(255,255,255,.2); fill: none; }
+  #tear .ly:focus { outline: none; }
+  #tear .ly:focus-visible rect:not(.hit) { stroke: #fff; }
+  #tear .ly rect.hit, #tear .ly.on rect.hit, #tear .ly:hover rect.hit { fill: transparent; stroke: none; }
+  #tear .ly text { fill: var(--soft); font: 600 13px "JetBrains Mono", monospace; letter-spacing: .04em; }
+  #tear .ly:hover rect, #tear .ly:focus rect { stroke: var(--acc); }
+  #tear .ly.on rect { fill: rgba(91,159,224,.22); stroke: var(--acc); }
+  #tear .ly.on text { fill: #fff; }
+  #tear .axis { stroke: rgba(255,255,255,.15); stroke-dasharray: 3 4; }
+  .tinfo b { display: block; font: 500 1.3rem "Urbanist", sans-serif; color: #fff; margin-bottom: 8px; }
+  .tinfo p { color: #C9CDD3; margin: 0; font-size: .98rem; }
+  .hwgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; margin-top: 18px; }
+  .hw { position: relative; background: rgba(6,9,12,.9); border: 1px solid rgba(255,255,255,.1); padding: 16px; }
+  .hw.mine { border-color: rgba(224,168,78,.55); }
+  .hw .top { display: flex; justify-content: space-between; font: 500 .62rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--acc); gap: 8px; }
+  .hw .top span:last-child { color: var(--dim); }
+  .hw h3 { font: 500 1.2rem/1.2 "Urbanist", sans-serif; margin: 10px 0 2px; }
+  .hw .kind { font-size: .82rem; color: var(--soft); margin: 0 0 10px; }
+  .hw .spec { display: flex; justify-content: space-between; gap: 10px; font: 500 .72rem var(--mono); color: var(--dim); margin-top: 7px; }
+  .hw .spec b { color: #fff; text-align: right; font-weight: 600; }
+  .mbar { height: 4px; background: rgba(255,255,255,.07); margin-top: 4px; }
+  .mbar i { display: block; height: 100%; background: var(--acc); }
+  .mbar.bw i { background: var(--warm); }
+  /* shared with scale.html */
+  .stack { display: flex; height: 34px; gap: 2px; margin-bottom: 10px; }
+  .stack i { display: block; }
+  .legend i { border-radius: 2px; }
+  .gpus { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 4px; }
+  .rep .rl { display: block; font: 700 .6rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-bottom: 5px; }
+  .rg { display: grid; gap: 6px; }
+  .stg { display: flex; flex-direction: column; gap: 4px; }
+  .gp { border: 1px solid; padding: 6px 7px; font: 500 .62rem/1.35 var(--mono); color: var(--soft); min-width: 0; overflow: hidden; }
+  .gp b { display: block; color: #fff; font-size: .68rem; }
+  .gp span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gp .sh { display: none; }
+  @media (max-width: 560px) { .gp .lg { display: none; } .gp .sh { display: block; } .gp { padding: 5px; } }
+  .zoom { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 26px; align-items: start; }
+  @media (max-width: 860px) { .zoom { grid-template-columns: 1fr; } }
+  .zoom h3 { font: 500 1.5rem "Urbanist", sans-serif; margin: 14px 0 6px; }
+  .zoom p { color: #C9CDD3; margin: 0 0 12px; }
+  canvas.plot.zc { height: 330px; background: #040608; }
+  .calc b sup { font-size: .7em; }
+  /* shared with serve.html */
+  .cfg { position: sticky; top: 60px; z-index: 10; background: rgba(0,0,0,.88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 10px 0 2px; }
+  .cfg .wrap { display: flex; flex-wrap: wrap; gap: 0 22px; }
+  .cfg .ctl { margin-bottom: 8px; }
+  @media (max-width: 760px) { .cfg { position: static; } }
+  .step { scroll-margin-top: calc(var(--stick, 120px) + 32px - clamp(64px, 9vw, 110px)); }
+  .tl { display: flex; height: 28px; margin: 14px 0 8px; background: rgba(255,255,255,.04); }
+  .tl i { display: block; height: 100%; transition: width .3s; }
+  .tl .pf { background: var(--warm); } .tl .dc { background: var(--acc); }
+  .memgrid { display: grid; grid-template-columns: repeat(20, minmax(0,1fr)); gap: 2px; margin-bottom: 10px; }
+  .memgrid i { aspect-ratio: 1; background: rgba(255,255,255,.05); }
+  .memgrid i.w { background: rgba(91,159,224,.8); } .memgrid i.k { background: rgba(224,168,78,.8); } .memgrid i.x { background: rgba(255,90,78,.8); }
+  .spec4 { font: 500 .8rem var(--mono); min-height: 60px; margin-top: 12px; }
+  .spec4 .pass { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 5px; }
+  .spec4 em { font-style: normal; color: var(--dim); font-size: .64rem; width: 52px; text-transform: uppercase; letter-spacing: .08em; }
+  .spec4 span { padding: 2px 6px; border: 1px solid; }
+  .spec4 .ok { color: #9BE09B; border-color: rgba(155,224,155,.5); } .spec4 .no { color: var(--lock); border-color: rgba(255,90,78,.6); text-decoration: line-through; } .spec4 .big { color: #fff; border-color: var(--acc); background: rgba(91,159,224,.2); }
+  .spec4 .sum { color: var(--soft); margin: 8px 0 0; }
+  /* shared with rag.html */
+  .qrow label { display: block; font: 700 .64rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); }
+  .qrow input { display: block; width: 100%; margin-top: 6px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .95rem var(--mono); padding: 9px 11px; }
+  .qrow input:focus { outline: none; border-color: var(--acc); }
+  .cfg .wrap { display: block; }
+  .cfg .ex { margin: 8px 0 6px; }
+  @media (max-width: 760px) { .cfg .ex { display: none; } }
+  .doc { max-height: 430px; overflow: auto; padding-right: 8px; font-size: .9rem; line-height: 1.6; color: #C9CDD3; }
+  .doc h4 { font: 700 .66rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin: 14px 0 4px; }
+  .doc h4:first-child { margin-top: 0; }
+  .doc p { margin: 0; }
+  .doc.chunks span { padding: 1px 0; }
+  ol.hits { list-style: none; margin: 0; padding: 0; }
+  ol.hits li { border: 1px solid var(--line); padding: 11px 13px; margin-bottom: 8px; font-size: .9rem; color: #C9CDD3; }
+  ol.hits li.top { border-color: var(--acc); background: rgba(91,159,224,.07); }
+  ol.hits .hh { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font: 500 .66rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+  ol.hits .hh b { color: #fff; }
+  ol.hits p { margin: 0; }
+  mark { background: rgba(224,168,78,.3); color: #fff; padding: 0 2px; }
+  pre.raw { white-space: pre-wrap; word-break: break-word; font: 500 .74rem/1.6 var(--mono); background: #040608; border: 1px solid rgba(255,255,255,.08); padding: 12px; max-height: 340px; overflow: auto; margin: 0; color: #9aa3ad; }
+  pre.raw .sys { color: var(--warm); } pre.raw .srcs { color: #C9CDD3; } pre.raw .qq { color: #fff; font-weight: 700; }
+  .answer p { margin: 0; font-size: 1.05rem; color: #fff; border-left: 3px solid var(--acc); padding: 8px 12px; background: rgba(91,159,224,.07); }
+  .answer .cite { color: var(--acc); font: 700 .8rem var(--mono); }
+  .gauge { position: relative; height: 30px; background: rgba(255,255,255,.05); border: 1px solid var(--line); margin: 10px 0 14px; }
+  .gauge i { position: absolute; inset: 0 auto 0 0; background: rgba(91,159,224,.55); transition: width .3s; }
+  .gauge b { position: absolute; left: 10px; top: 6px; font: 700 .78rem var(--mono); }
+  .verdict5 { padding: 12px 14px; border: 1px solid; font-size: .98rem; color: #C9CDD3; }
+  .verdict5.yes { border-color: rgba(155,224,155,.55); background: rgba(155,224,155,.06); } .verdict5.no { border-color: rgba(255,90,78,.55); background: rgba(255,90,78,.06); }
+  .verdict5 b { color: #fff; }
+  /* shared with agents.html */
+  .step { scroll-margin-top: calc(92px - clamp(64px, 9vw, 110px)); }
+  #loop { width: 100%; height: auto; }
+  #loop .nd rect { fill: #0c1117; stroke: rgba(255,255,255,.3); transition: fill .25s, stroke .25s; }
+  #loop .nd text { fill: var(--soft); font: 700 13px "JetBrains Mono", monospace; text-anchor: middle; letter-spacing: .06em; }
+  #loop .nd.on rect { fill: rgba(91,159,224,.25); stroke: var(--acc); } #loop .nd.on text { fill: #fff; }
+  #loop .ans.on rect { fill: rgba(155,224,155,.2); stroke: #9BE09B; }
+  #loop .ar { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1.4; }
+  #loop .cap { fill: var(--warm); font: 500 12px "JetBrains Mono", monospace; text-anchor: middle; }
+  .ins { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ins input, .ins select { flex: 1 1 160px; min-width: 0; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .9rem var(--mono); padding: 8px 10px; }
+  .ins select option { background: #0c1117; }
+  .ins input:focus, .ins select:focus { outline: none; border-color: var(--acc); }
+  .ins button { font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #000; background: var(--acc); border: 1px solid var(--acc); padding: 6px 14px; cursor: pointer; }
+  .ins button:disabled { opacity: .5; cursor: default; }
+  pre.raw.res { min-height: 44px; margin-top: 8px; }
+  pre.raw .ok { color: #9BE09B; } pre.raw .bad { color: var(--lock); }
+  .chk { display: inline-flex; align-items: center; gap: 8px; font: 500 .8rem var(--mono); color: #C9CDD3; cursor: pointer; }
+  .chk input { accent-color: var(--acc); width: 16px; height: 16px; }
+  #tk3 button { text-transform: none; letter-spacing: 0; font-size: .74rem; }
+  ol.trace { list-style: none; margin: 14px 0 0; padding: 0; min-height: 40px; }
+  ol.trace li { display: grid; grid-template-columns: 110px minmax(0,1fr); gap: 12px; padding: 8px 10px; border-left: 2px solid var(--line); margin-bottom: 4px; font-size: .92rem; color: #C9CDD3; animation: fadein .3s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } }
+  ol.trace li span { font: 700 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
+  ol.trace li code { font: 500 .82rem var(--mono); color: var(--acc-hi); word-break: break-all; }
+  ol.trace li.goal { border-color: #fff; } ol.trace li.goal div { color: #fff; font-weight: 600; }
+  ol.trace li.think { border-color: var(--warm); } ol.trace li.think span { color: var(--warm); }
+  ol.trace li.act { border-color: var(--acc); } ol.trace li.act span { color: var(--acc); }
+  ol.trace li.obs div { font: 500 .78rem var(--mono); word-break: break-word; }
+  ol.trace li.err { border-color: var(--lock); } ol.trace li.err span, ol.trace li.err div { color: var(--lock); }
+  ol.trace li.ans { border-color: #9BE09B; background: rgba(155,224,155,.06); } ol.trace li.ans span { color: #9BE09B; } ol.trace li.ans div { color: #fff; }
+  @media (max-width: 560px) { ol.trace li { grid-template-columns: 1fr; gap: 2px; } }
+  .duo2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  @media (max-width: 560px) { .duo2 { grid-template-columns: 1fr; } }
+  .agent { border: 1px solid var(--line); padding: 14px; background: rgba(6,9,12,.9); }
+  .agent b { font: 800 1.2rem "Archivo", sans-serif; font-stretch: 125%; color: #fff; } .agent span { font: 600 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-left: 8px; }
+  .agent p { color: #C9CDD3; font-size: .9rem; margin: 8px 0 0; }
+  .scen { color: #C9CDD3; font-size: .95rem; margin: 0 0 12px; } .scen code { font: 500 .8rem var(--mono); color: var(--lock); }
+  .guards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .verdict5 { margin-top: 10px; min-height: 20px; } .verdict5:empty { display: none; }
+  .verdict5.mid { border-color: rgba(224,168,78,.6); background: rgba(224,168,78,.06); }
+  /* assistant.html */
+  .ldst b { color: #9BE09B; }
+  .lbl { display: block; font: 700 .64rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 6px; }
+  textarea, .turn textarea { width: 100%; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.18); color: #fff; font: 500 .9rem/1.5 var(--mono); padding: 9px 11px; resize: vertical; }
+  textarea:focus { outline: none; border-color: var(--acc); }
+  #ex1 button { text-transform: none; white-space: pre; }
+  .out { font: 500 .92rem/1.6 var(--mono); white-space: pre-wrap; word-break: break-word; min-height: 96px; background: #040608; border: 1px solid rgba(255,255,255,.08); padding: 12px; margin-top: 10px; color: #fff; }
+  .out .pr { color: var(--dim); } .out .gen { color: #fff; background: rgba(91,159,224,.12); }
+  .out .end { display: block; font-style: normal; color: #9BE09B; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; margin-top: 6px; }
+  .out .err { color: var(--lock); }
+  .out .cur { display: inline-block; width: 8px; height: 1em; background: var(--acc); vertical-align: text-bottom; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .turns { display: flex; flex-direction: column; gap: 8px; }
+  .turn { display: grid; grid-template-columns: 82px minmax(0,1fr) 26px; gap: 8px; align-items: start; }
+  .turn > span { font: 700 .62rem var(--mono); letter-spacing: .1em; text-transform: uppercase; padding-top: 10px; }
+  .turn.system > span { color: var(--warm); } .turn.user > span { color: var(--acc); } .turn.assistant > span { color: #9BE09B; }
+  .turn button { background: transparent; border: 1px solid var(--line); color: var(--soft); cursor: pointer; height: 30px; margin-top: 4px; }
+  .turn:first-child { grid-template-columns: 82px minmax(0,1fr); }
+  pre.raw .mk { color: var(--dim); } pre.raw .rl { font-weight: 700; } pre.raw .rl.system, pre.raw .tx.system { color: var(--warm); } pre.raw .rl.user { color: var(--acc); } pre.raw .tx.user { color: #cfe2f6; } pre.raw .rl.assistant { color: #9BE09B; } pre.raw .tx.assistant { color: #d9f2d9; } pre.raw .nx { color: var(--soft); font-style: italic; }
+  .vs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 560px) { .vs2 { grid-template-columns: 1fr; } }
+  .vs2 .out { min-height: 120px; font-size: .82rem; margin-top: 0; }
+  #o1 { min-height: 150px; }
+  @media (max-width: 560px) { #o1 { min-height: 230px; } .vs2 .out { min-height: 150px; } }
+  .mask { font: 500 .8rem var(--mono); display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 12px; }
+  .mask span { padding: 3px 5px; white-space: pre; border: 1px solid; }
+  .mask .m0 { color: var(--dim); border-color: rgba(255,255,255,.1); } .mask .m1 { color: #fff; border-color: var(--acc); background: rgba(91,159,224,.2); }
+  table.acc td:last-child { font-family: var(--mono); }
+  .q4 { font-size: 1.05rem; color: #fff; margin: 0 0 10px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .pair { grid-template-columns: 1fr; } }
+  .pair button { text-align: left; background: rgba(255,255,255,.03); border: 1px solid var(--line); color: #C9CDD3; padding: 12px; cursor: pointer; font: 400 .92rem/1.5 "Manrope", sans-serif; transition: border-color .2s, background .2s; }
+  .pair button:hover { border-color: var(--acc); background: rgba(91,159,224,.08); }
+  .pair button span { display: block; font: 700 .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-bottom: 6px; }
+  .bar.pm { grid-template-columns: 150px 1fr 50px; }
+  .bar.pm .b { background: rgba(255,255,255,.06); } .bar.pm .b::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: rgba(255,255,255,.4); }
+  .bar.pm .b i { right: auto; } .bar.pm .b i.neg { background: var(--lock); }
+  .recipe { display: flex; flex-direction: column; gap: 10px; }
+  .rc { border: 1px solid var(--line); border-left: 3px solid var(--acc); padding: 12px 14px; background: rgba(6,9,12,.9); }
+  .rc b { color: #fff; font: 500 1.1rem "Urbanist", sans-serif; } .rc p { margin: 6px 0; color: #C9CDD3; font-size: .92rem; } .rc span { font: 600 .62rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--warm); }
+</style>
+<body>
+
+<nav><div class="in">
+  <div class="left">
+    <a class="mark" href="./">LDB<span>/LAB</span></a>
+    <div class="ws" aria-label="Steps">
+      <a href="#s1" data-s="s1">1</a><a href="#s2" data-s="s2">2</a><a href="#s3" data-s="s3">3</a>
+      <a href="#s4" data-s="s4">4</a><a href="#s5" data-s="s5">5</a>
+    </div>
+  </div>
+  <div class="right">
+    <a class="btn" href="./">&larr; Lab</a>
+    <a class="btn main" href="/">Main site &rarr;</a>
+  </div>
+</div></nav>
+
+<header class="wrap">
+  <p class="eyebrow">// MOD-08 &middot; Generative AI</p>
+  <h1>From predictor to assistant</h1>
+  <p class="lede">A freshly trained language model does not answer questions. It just continues text. This page takes the Lab's own mini model from module 06, shows it ignoring instructions, and then runs a version I fine-tuned to follow them, both live in your browser. Then it covers how human preferences shape the final assistant.</p>
+  <div class="specs">
+    <span>Steps <b>5</b></span><span>Models <b>2 real, running in your browser</b></span><span id="ld" class="ldst">Loading models&hellip;</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- STEP 1 -->
+  <section class="step" id="s1">
+    <div class="seclab"><span class="idx">01</span><span class="nm">The base model</span><span class="rule"></span><span>It only continues</span></div>
+    <h2>Ask a base model a question <span>and it just keeps writing.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <label class="lbl" for="q1">Text for the base model</label>
+          <textarea id="q1" rows="2" spellcheck="false">User: shout my lord is here
+Bot:</textarea>
+          <div class="ex" id="ex1"><button type="button">User: shout my lord is here&#10;Bot:</button><button type="button">User: what is the capital of france?&#10;Bot:</button><button type="button">To be, or not</button></div>
+          <div class="ctl" style="margin-top:8px"><button type="button" class="primary" id="go1">Continue the text</button></div>
+          <div class="out" id="o1"></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>This is the real 867,072-parameter model from module 06. It was <b>pretrained</b> on Shakespeare with one goal: predict the next token. That is the same first stage every large language model goes through, just on trillions of tokens of web text instead of one play collection.</p>
+        <p>Give it an instruction and it does not follow it. It has no idea it is being asked anything; it simply continues in the style of what it read. Big base models behave the same way: ask one a question and it might answer, or it might write five more similar questions, because both are plausible continuations.</p>
+        <p class="fine">Output is sampled, so press the button again for a different continuation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" id="s2">
+    <div class="seclab"><span class="idx">02</span><span class="nm">The chat template</span><span class="rule"></span><span>What the model actually sees</span></div>
+    <h2>A chat is secretly one long document, <span>with markers for who is speaking.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="turns" id="turns"></div>
+          <div class="ctl" style="margin-top:8px"><button type="button" id="addU">+ User message</button><button type="button" id="addA">+ Assistant reply</button><button type="button" id="rst2">Reset</button></div>
+          <div class="ph" style="margin-top:14px"><span>What the model receives</span><span id="nt2"></span></div>
+          <pre class="raw" id="raw2"></pre>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Chat apps show tidy speech bubbles, but the model only ever sees one stream of text. The conversation is flattened into a <b>chat template</b>: special marker tokens show where each message starts and ends and who wrote it. The model then writes the next part, the assistant's reply, and stops when it produces the end marker.</p>
+        <p>Edit the messages and watch the raw text update. The format shown is ChatML, used by several open models; each model family has its own variation. The <b>system</b> message holds standing instructions the user usually never sees.</p>
+        <p class="k">The mini model's version</p>
+        <p>For the fine-tuned mini model in the next step, I used the simplest possible template: a line starting with "User:", then "Bot:", and a blank line to mark the end of the answer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" id="s3">
+    <div class="seclab"><span class="idx">03</span><span class="nm">Fine-tuning</span><span class="rule"></span><span>Learning from examples</span></div>
+    <h2>Train it on thousands of example conversations <span>and it learns to follow instructions.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span>Same instruction, two models</span><span>both live</span></div>
+          <div class="ins">
+            <select id="task3" aria-label="Instruction"><option>reverse</option><option>shout</option><option>repeat</option><option>first word of</option><option>last word of</option><option>count the words in</option></select>
+            <input id="txt3" type="text" value="good night sweet" aria-label="Words for the instruction" spellcheck="false" autocomplete="off">
+            <button type="button" class="primary" id="go3">Ask both</button>
+          </div>
+          <div class="vs2">
+            <div><div class="ph"><span>Base model</span><span>module 06</span></div><div class="out" id="b3"></div></div>
+            <div><div class="ph"><span>Fine-tuned</span><span>same model + examples</span></div><div class="out" id="f3"></div></div>
+          </div>
+          <div class="ph" style="margin-top:16px"><span>A training example</span><span>only the blue part is graded</span></div>
+          <div class="mask" id="mask3"></div>
+          <div class="tblwrap"><table class="scale acc" id="acc3"></table></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>To make the fine-tuned version, I took the module 06 model and continued training it on about 30,000 short example conversations: an instruction from "User" and the correct answer from "Bot". This is <b>supervised fine-tuning</b> (SFT).</p>
+        <p>One detail matters: the model is graded only on the <b>answer</b> tokens (blue), not on the instruction. It is learning how to respond, not how to write questions.</p>
+        <p>Pick an instruction and some words and ask both models. The base model rambles; the fine-tuned one answers and stops. The table shows how often it gets each task exactly right, tested on 25 new examples per task. Counting and picking out words are easy. Shouting is hardest: in this model's Shakespeare vocabulary, capitalised words break into many small, rarely seen pieces.</p>
+        <p class="fine">Each answer is the model's single most likely continuation. Words outside the model's small vocabulary may come out misspelled.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" id="s4">
+    <div class="seclab"><span class="idx">04</span><span class="nm">Learning from preferences</span><span class="rule"></span><span>RLHF</span></div>
+    <h2>Following instructions is not enough. <span>People have to say which answers are better.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="panel corners">
+          <div class="ph"><span id="q4n"></span><span id="q4c"></span></div>
+          <p class="q4" id="q4"></p>
+          <div class="pair" id="pair4"></div>
+          <div class="ph" style="margin-top:16px"><span>What a reward model learned from your choices</span><span id="rm4n">0 choices</span></div>
+          <div class="bars" id="rw4"></div>
+          <div class="status" id="st4"></div>
+          <div class="ctl" style="margin-top:8px"><button type="button" id="rs4">Start over</button></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>Many questions have several acceptable answers, some much better than others. So people are shown two answers to the same prompt and asked which is better, over hundreds of thousands of pairs.</p>
+        <p>Those choices train a <b>reward model</b>: a model that scores any answer the way the raters would. The assistant is then tuned to produce answers that score highly. This is <b>reinforcement learning from human feedback</b> (RLHF); newer methods such as DPO skip the separate reward model but use the same kind of comparisons.</p>
+        <p>Try it: pick the better answer in each pair. The bars show what a simple reward model learns from your choices. Then try picking the longer answer every time, and watch it learn "longer is better". That is <b>reward hacking</b>: the assistant learns what raters reward, which is not always what they meant.</p>
+        <p class="fine">The answers here are examples written for this page, each tagged with a few simple traits the reward model can see.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 -->
+  <section class="step" id="s5">
+    <div class="seclab"><span class="idx">05</span><span class="nm">The full recipe</span><span class="rule"></span><span>How an assistant is made</span></div>
+    <h2>Pretrain, fine-tune, align, <span>then give it its instructions.</span></h2>
+    <div class="cols">
+      <div>
+        <div class="recipe">
+          <div class="rc"><b>1 &middot; Pretraining</b><p>Predict the next token over trillions of tokens of text. Produces a base model that knows a lot but only continues text. By far the most expensive stage (module 10).</p><span>Data: trillions of tokens</span></div>
+          <div class="rc"><b>2 &middot; Supervised fine-tuning</b><p>Train on example conversations written or checked by people, so the model learns the chat format and to follow instructions.</p><span>Data: thousands to millions of examples</span></div>
+          <div class="rc"><b>3 &middot; Preference tuning</b><p>Raters compare answers; a reward model or a direct method (RLHF, DPO) pushes the model toward answers people prefer: helpful, honest, harmless.</p><span>Data: hundreds of thousands of comparisons</span></div>
+          <div class="rc"><b>4 &middot; System prompt and tools</b><p>At serving time, a hidden system message sets the rules, persona and available tools for each product built on the model.</p><span>Data: a few paragraphs of instructions</span></div>
+        </div>
+      </div>
+      <div class="explain">
+        <p>The later stages are tiny compared with pretraining but change behaviour enormously. In OpenAI's 2022 InstructGPT study, people preferred answers from a 1.3-billion-parameter model tuned this way over the 175-billion-parameter GPT-3 base model, a model more than 100 times larger.</p>
+        <p>Labs differ in how they do stage 3. Anthropic's "Constitutional AI", for example, has a model critique and revise answers against a written set of principles, reducing how many human comparisons are needed.</p>
+        <p class="k">Why it matters for users</p>
+        <p>Much of an assistant's "personality", what it refuses, how cautious or chatty it is, comes from these later stages rather than from the raw knowledge learned in pretraining.</p>
+        <p>This completes the Generative AI track. Next in the course: <a href="gpu.html">why AI runs on GPUs</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT I LEARNED: Luis, write a short section here in your own words when you are ready, for example:
+  <section class="step" id="notes">
+    <div class="seclab"><span class="idx">06</span><span class="nm">What I learned</span><span class="rule"></span></div>
+    <div class="explain"><p>...</p></div>
+  </section>
+  -->
+
+</main>
+
+<footer><div class="wrap">
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; MOD-08</span>
+  <span>Previous: <a href="diff.html">Diffusion</a> &nbsp;&middot;&nbsp; Next: <a href="gpu.html">Why AI runs on GPUs</a></span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
+</div></footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  var ACC = {"repeat": 0.84, "shout": 0.28, "first word of": 0.8, "last word of": 0.88, "count the words in": 0.96, "reverse": 0.6};
+
+  /* ---------- the two mini models (same architecture as module 06) ---------- */
+  var CFG = null, vocab = [], idx = {}, rank = {}, BASE = {}, SFT = {}, ready = false;
+  function half(u) { var s = (u & 0x8000) ? -1 : 1, e = (u >> 10) & 0x1f, f = u & 0x3ff; if (e === 0) return s * Math.pow(2, -14) * (f / 1024); if (e === 31) return f ? NaN : s * Infinity; return s * Math.pow(2, e - 15) * (1 + f / 1024); }
+  function unpack(buf, M) { var raw = new Uint16Array(buf), all = new Float32Array(raw.length), W = {}; for (var i = 0; i < raw.length; i++) all[i] = half(raw[i]); M.tensors.forEach(function (t) { var n = t.shape.reduce(function (a, b) { return a * b; }, 1); W[t.name] = all.subarray(t.offset, t.offset + n); }); return W; }
+  Promise.all([fetch('llm/model.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }), fetch('llm/weights.bin').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }), fetch('llm/sft.bin').then(function (r) { if (!r.ok) throw 1; return r.arrayBuffer(); })]).then(function (r) {
+    var M = r[0]; CFG = M.config; vocab = M.vocab; vocab.forEach(function (t, i) { idx[t] = i; }); M.merges.forEach(function (m, i) { rank[m[0] + '\u0000' + m[1]] = i; });
+    BASE = unpack(r[1], M); SFT = unpack(r[2], M); ready = true; $('ld').innerHTML = 'Models <b>loaded</b>'; go1(); go3(); mask3();
+  }).catch(function (e) { $('ld').innerHTML = '<b style="color:var(--lock)">Model files missing</b>'; ['o1', 'b3', 'f3'].forEach(function (id) { $(id).innerHTML = '<span class="err">The model files could not be loaded. Check that the llm folder (including sft.bin) is uploaded next to this page.</span>'; }); });
+  var PAT = / ?[A-Za-z]+| ?[0-9]+| ?[^A-Za-z0-9\s]+|\n|\s+(?!\S)|\s+/g;
+  function encode(text) {
+    var out = [], chunks = text.match(PAT) || [];
+    chunks.forEach(function (w) {
+      var s = Array.from(w).filter(function (c) { return c in idx; });
+      while (s.length > 1) { var best = 1e9, bi = -1; for (var i = 0; i < s.length - 1; i++) { var r = rank[s[i] + '\u0000' + s[i + 1]]; if (r !== undefined && r < best) { best = r; bi = i; } } if (bi < 0) break; s.splice(bi, 2, s[bi] + s[bi + 1]); }
+      s.forEach(function (t) { out.push(idx[t]); });
+    });
+    return out;
+  }
+  function layerNorm(x, g, b, D) { var y = new Float32Array(x.length); for (var o = 0; o < x.length; o += D) { var m = 0, v = 0, i; for (i = 0; i < D; i++) m += x[o + i]; m /= D; for (i = 0; i < D; i++) { var d = x[o + i] - m; v += d * d; } v /= D; var s = 1 / Math.sqrt(v + 1e-5); for (i = 0; i < D; i++) y[o + i] = (x[o + i] - m) * s * g[i] + b[i]; } return y; }
+  function matmul(x, T, Din, w, b, Dout) { var y = new Float32Array(T * Dout); for (var t = 0; t < T; t++) { var yo = t * Dout, xo = t * Din; for (var j = 0; j < Dout; j++) y[yo + j] = b[j]; for (var i = 0; i < Din; i++) { var xv = x[xo + i], wo = i * Dout; if (xv === 0) continue; for (j = 0; j < Dout; j++) y[yo + j] += xv * w[wo + j]; } } return y; }
+  function gelu(x) { return 0.5 * x * (1 + Math.tanh(0.7978845608 * (x + 0.044715 * x * x * x))); }
+  function logits(W, ids) {
+    var D = CFG.dim, H = CFG.heads, hd = D / H, T = ids.length, L = CFG.layers, V = CFG.vocab, h = new Float32Array(T * D), i, t;
+    for (t = 0; t < T; t++) for (i = 0; i < D; i++) h[t * D + i] = W.wte[ids[t] * D + i] + W.wpe[t * D + i];
+    for (var l = 0; l < L; l++) {
+      var p = 'h' + l + '.', a = layerNorm(h, W[p + 'ln1.g'], W[p + 'ln1.b'], D), qkv = matmul(a, T, D, W[p + 'qkv.w'], W[p + 'qkv.b'], 3 * D), y = new Float32Array(T * D);
+      for (var hh = 0; hh < H; hh++) for (var q = 0; q < T; q++) {
+        var mx = -1e30, sc = new Float32Array(q + 1), k, d2;
+        for (k = 0; k <= q; k++) { var s = 0; for (d2 = 0; d2 < hd; d2++) s += qkv[q * 3 * D + hh * hd + d2] * qkv[k * 3 * D + D + hh * hd + d2]; s /= Math.sqrt(hd); sc[k] = s; if (s > mx) mx = s; }
+        var sum = 0; for (k = 0; k <= q; k++) { sc[k] = Math.exp(sc[k] - mx); sum += sc[k]; }
+        for (k = 0; k <= q; k++) { var w = sc[k] / sum; for (d2 = 0; d2 < hd; d2++) y[q * D + hh * hd + d2] += w * qkv[k * 3 * D + 2 * D + hh * hd + d2]; }
+      }
+      var pr = matmul(y, T, D, W[p + 'proj.w'], W[p + 'proj.b'], D); for (i = 0; i < h.length; i++) h[i] += pr[i];
+      a = layerNorm(h, W[p + 'ln2.g'], W[p + 'ln2.b'], D); var f = matmul(a, T, D, W[p + 'fc.w'], W[p + 'fc.b'], 4 * D); for (i = 0; i < f.length; i++) f[i] = gelu(f[i]);
+      var o = matmul(f, T, 4 * D, W[p + 'out.w'], W[p + 'out.b'], D); for (i = 0; i < h.length; i++) h[i] += o[i];
+    }
+    h = layerNorm(h, W['lnf.g'], W['lnf.b'], D);
+    var last = h.subarray((T - 1) * D, T * D), lg = new Float32Array(V); for (var v = 0; v < V; v++) { var s2 = 0; for (i = 0; i < D; i++) s2 += last[i] * W.wte[v * D + i]; lg[v] = s2; } return lg;
+  }
+  /* write tokens one at a time into an element; greedy, or sampled with temperature */
+  function write(W, prompt, el, opts, done) {
+    var ids = encode(prompt), out = '', n = 0, max = opts.max || 40, temp = opts.temp || 0;
+    el.innerHTML = '<span class="pr">' + esc(prompt) + '</span><span class="gen"></span><i class="cur"></i>'; var g = el.querySelector('.gen');
+    (function next() {
+      var lg = logits(W, ids.slice(-CFG.ctx)), pick = 0;
+      if (temp) { var mx = -1e30, i, ps = [], s = 0; for (i = 0; i < lg.length; i++) mx = Math.max(mx, lg[i] / temp); for (i = 0; i < lg.length; i++) { ps.push(Math.exp(lg[i] / temp - mx)); s += ps[i]; } var r = Math.random() * s; for (i = 0; i < ps.length; i++) { r -= ps[i]; if (r <= 0) { pick = i; break; } } }
+      else { for (var j = 1; j < lg.length; j++) if (lg[j] > lg[pick]) pick = j; }
+      ids.push(pick); out += vocab[pick]; n++; g.textContent = out;
+      var stop = opts.stopBlank && /\n\n$/.test(out);
+      if (n < max && !stop) setTimeout(next, 0); else { var c = el.querySelector('.cur'); if (c) c.remove(); if (stop) el.insertAdjacentHTML('beforeend', '<em class="end">[end of answer]</em>'); done && done(out); }
+    })();
+  }
+
+  /* ---------- step 1 ---------- */
+  function go1() { if (!ready) return; write(BASE, $('q1').value, $('o1'), { max: 40, temp: .8 }); }
+  $('go1').addEventListener('click', go1);
+  document.querySelectorAll('#ex1 button').forEach(function (b) { b.addEventListener('click', function () { $('q1').value = b.textContent; go1(); }); });
+
+  /* ---------- step 2: chat template ---------- */
+  var TURNS;
+  function rst2() { TURNS = [['system', 'You are a helpful assistant for a wealth management firm. Be concise.'], ['user', 'What is an index fund?'], ['assistant', 'A fund that holds every stock in a market index, such as the S&P 500, so it tracks the market at low cost.'], ['user', 'Is it risky?']]; render2(); }
+  function render2() {
+    $('turns').innerHTML = TURNS.map(function (t, i) { return '<div class="turn ' + t[0] + '"><span>' + t[0] + '</span><textarea data-i="' + i + '" rows="2" spellcheck="false">' + esc(t[1]) + '</textarea>' + (i ? '<button type="button" data-x="' + i + '" aria-label="Remove message">&times;</button>' : '') + '</div>'; }).join('');
+    $('turns').querySelectorAll('textarea').forEach(function (a) { a.addEventListener('input', function () { TURNS[+a.dataset.i][1] = a.value; raw2(); }); });
+    $('turns').querySelectorAll('button[data-x]').forEach(function (b) { b.addEventListener('click', function () { TURNS.splice(+b.dataset.x, 1); render2(); }); });
+    raw2();
+  }
+  function raw2() {
+    var h = TURNS.map(function (t) { return '<span class="mk">&lt;|im_start|&gt;</span><span class="rl ' + t[0] + '">' + t[0] + '</span>\n<span class="tx ' + t[0] + '">' + esc(t[1]) + '</span><span class="mk">&lt;|im_end|&gt;</span>\n'; }).join('') + '<span class="mk">&lt;|im_start|&gt;</span><span class="rl assistant">assistant</span>\n<span class="nx">the model writes from here, and stops by writing &lt;|im_end|&gt;</span>';
+    $('raw2').innerHTML = h; var chars = TURNS.reduce(function (s, t) { return s + t[1].length + 20; }, 0); $('nt2').textContent = 'about ' + Math.round(chars / 4) + ' tokens';
+  }
+  $('addU').addEventListener('click', function () { TURNS.push(['user', 'New question']); render2(); });
+  $('addA').addEventListener('click', function () { TURNS.push(['assistant', 'New reply']); render2(); });
+  $('rst2').addEventListener('click', rst2);
+
+  /* ---------- step 3: base vs fine-tuned ---------- */
+  function go3() {
+    if (!ready) return; var words = ($('txt3').value.toLowerCase().match(/[a-z]+/g) || []).slice(0, 8).join(' ') || 'good night sweet prince';
+    var pr = 'User: ' + $('task3').value + ' ' + words + '\nBot:'; $('go3').disabled = true;
+    write(BASE, pr, $('b3'), { max: 24, temp: 0 }, function () { write(SFT, pr, $('f3'), { max: 24, temp: 0, stopBlank: true }, function () { $('go3').disabled = false; }); });
+  }
+  $('go3').addEventListener('click', go3);
+  $('txt3').addEventListener('keydown', function (e) { if (e.key === 'Enter') go3(); });
+  function mask3() {
+    var pr = 'User: shout to arms my lords\nBot:', an = ' TO ARMS MY LORDS\n\n';
+    $('mask3').innerHTML = encode(pr).map(function (i) { return '<span class="m0">' + esc(vocab[i]).replace(/\n/g, '↵') + '</span>'; }).join('') + encode(an).map(function (i) { return '<span class="m1">' + esc(vocab[i]).replace(/\n/g, '↵') + '</span>'; }).join('');
+  }
+  $('acc3').innerHTML = '<thead><tr><th>Task</th><th>Exactly right, 25 unseen examples</th></tr></thead><tbody>' + Object.keys(ACC).map(function (k) { return '<tr><td>' + k + '</td><td>' + Math.round(ACC[k] * 100) + '%</td></tr>'; }).join('') + '</tbody>';
+
+  /* ---------- step 4: preferences ---------- */
+  var FEAT = ['Correct', 'Follows the request', 'Polite', 'Length', 'Overconfident'];
+  var PAIRS = [
+    ['How many days are in a leap year?', ['366.', [1, 1, 0.5, .05, 0]], ['A leap year has 365 days, because the extra day is only counted in some calendars, and this is a really common point of confusion that many people get wrong.', [0, 1, .5, .6, 1]]],
+    ['Summarize: "The meeting moved to Friday at 3pm."', ['The meeting is now Friday at 3pm.', [1, 1, .5, .15, 0]], ['Great question! Meetings are a key part of working life, and scheduling them well matters. In this case, it seems a change happened, which can be stressful, but you can handle it. It is now on Friday.', [.6, .4, 1, .9, 0]]],
+    ['Give me one word for "very happy".', ['Elated.', [1, 1, .5, .05, 0]], ['Here are some options: elated, overjoyed, thrilled, ecstatic, delighted, jubilant, euphoric and over the moon. Each has a slightly different shade of meaning.', [1, .3, .6, .6, 0]]],
+    ['Will the stock market go up next month?', ['Nobody can reliably predict that. Over long periods markets have tended to rise, but any single month can go either way.', [1, 1, .6, .5, 0]], ['Yes. Markets almost always rise in that period, so it is a safe bet.', [0, 1, .5, .3, 1]]],
+    ['Translate "thank you" into Spanish.', ['Gracias.', [1, 1, .6, .05, 0]], ['Merci.', [0, 1, .5, .05, 1]]],
+    ['Write a polite reply declining a meeting.', ['Thank you for the invitation. Unfortunately I cannot attend, but I would be glad to catch up another time.', [1, 1, 1, .45, 0]], ['No. I am too busy.', [1, .6, 0, .1, 0]]]
+  ];
+  var choices = [], qi = 0, order = [];
+  function rs4() { choices = []; qi = 0; order = PAIRS.map(function () { return Math.random() < .5; }); show4(); train4(); }
+  function show4() {
+    if (qi >= PAIRS.length) { $('q4n').textContent = 'All ' + PAIRS.length + ' rated'; $('q4c').textContent = ''; $('q4').textContent = 'Done. Look at what the reward model learned below, then press Start over and try a different strategy, such as always choosing the longer answer.'; $('pair4').innerHTML = ''; return; }
+    var P = PAIRS[qi], a = order[qi] ? P[2] : P[1], b = order[qi] ? P[1] : P[2];
+    $('q4n').textContent = 'Prompt ' + (qi + 1) + ' of ' + PAIRS.length; $('q4c').textContent = 'which answer is better?'; $('q4').textContent = P[0];
+    $('pair4').innerHTML = [a, b].map(function (r, i) { return '<button type="button" data-i="' + i + '"><span>Answer ' + 'AB'[i] + '</span>' + esc(r[0]) + '</button>'; }).join('');
+    $('pair4').querySelectorAll('button').forEach(function (bt) { bt.addEventListener('click', function () { var win = +bt.dataset.i === 0 ? a : b, lose = +bt.dataset.i === 0 ? b : a; choices.push([win[1], lose[1]]); qi++; train4(); show4(); }); });
+  }
+  function train4() {
+    var w = [0, 0, 0, 0, 0];
+    for (var it = 0; it < 400; it++) { var g = [0, 0, 0, 0, 0]; choices.forEach(function (c) { var d = c[0].map(function (v, i) { return v - c[1][i]; }), z = d.reduce(function (s, v, i) { return s + v * w[i]; }, 0), p = 1 / (1 + Math.exp(-z)); d.forEach(function (v, i) { g[i] += (1 - p) * v; }); }); for (var i = 0; i < 5; i++) w[i] += .5 * (g[i] - .05 * w[i]); }
+    var mx = Math.max(1, Math.max.apply(null, w.map(Math.abs)));
+    $('rw4').innerHTML = FEAT.map(function (f, i) { var v = w[i] / mx; return '<div class="bar pm"><span class="t">' + f + '</span><span class="b"><i class="' + (v < 0 ? 'neg' : '') + '" style="left:' + (v < 0 ? 50 + v * 50 : 50) + '%;width:' + Math.abs(v * 50) + '%"></i></span><span class="p">' + (w[i] >= 0 ? '+' : '') + w[i].toFixed(1) + '</span></div>'; }).join('');
+    $('rm4n').textContent = choices.length + (choices.length === 1 ? ' choice' : ' choices');
+    var top = w.map(function (v, i) { return [v, i]; }).sort(function (a, b) { return Math.abs(b[0]) - Math.abs(a[0]); })[0];
+    $('st4').textContent = !choices.length ? 'Pick answers to train the reward model.' : 'Right now it mostly rewards ' + (top[0] >= 0 ? '' : 'avoiding ') + FEAT[top[1]].toLowerCase() + (FEAT[top[1]] === 'Length' && top[0] > 0 ? '. An assistant tuned on this would learn to pad its answers.' : FEAT[top[1]] === 'Correct' && top[0] > 0 ? '. Good: that is what you want it to value.' : '.');
+  }
+  $('rs4').addEventListener('click', rs4);
+
+  /* ---------- start ---------- */
+  rst2(); rs4();
+  var ws = document.querySelectorAll('.ws a');
+  function spy() {
+    var cur = '', y = innerHeight * .45;
+    ['s1', 's2', 's3', 's4', 's5'].forEach(function (id) { if ($(id).getBoundingClientRect().top < y) cur = id; });
+    ws.forEach(function (a) { a.classList.toggle('on', a.dataset.s === cur); });
+  }
+  addEventListener('scroll', spy, { passive: true }); spy();
+})();
+</script>
+</body>
+</html>
