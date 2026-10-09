@@ -112,6 +112,7 @@
   /* boot screen, once per visit */
   .boot { position: fixed; inset: 0; z-index: 60; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer;
     transform-origin: 50% 50%; }
+  .boot[hidden] { display: none; }
   .boot::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px); }
   .boot::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.7)); }
   .boot .bin { position: relative; z-index: 1; display: grid; grid-template-columns: auto min(520px, 60vw); gap: clamp(24px, 5vw, 64px); align-items: center; justify-content: center; padding: 0 clamp(20px, 5vw, 60px); width: 100%; }
@@ -1162,7 +1163,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         var X2 = X * cr + Z * sr, Z2 = -X * sr + Z * cr, Y2 = Y * ct - Z2 * st, Z3 = Y * st + Z2 * ct, f = 2.6 / (2.6 + Z3);
         return [c + X2 * R * f, c + Y2 * R * f, Z3, k];
       }).sort(function (a, b) { return b[2] - a[2]; });
-      pr.forEach(function (p) { var d = Math.max(0, Math.min(1, (1 - p[2]) / 2)); cx.fillStyle = p[3] < 1 ? 'rgba(91,159,224,' + (.3 + d * .6).toFixed(2) + ')' : 'rgba(255,255,255,' + (.12 + d * .8).toFixed(3) + ')'; cx.beginPath(); cx.arc(p[0], p[1], .5 + d * 1.2, 0, 6.283); cx.fill(); });
+      pr.forEach(function (p) { var d = Math.max(0, Math.min(1, (1 - p[2]) / 2)); cx.fillStyle = 'rgba(255,255,255,' + ((.12 + d * .8) * (.4 + .6 * p[3])).toFixed(3) + ')'; cx.beginPath(); cx.arc(p[0], p[1], .5 + d * 1.2, 0, 6.283); cx.fill(); });
       requestAnimationFrame(orb);
     }
     requestAnimationFrame(orb);
