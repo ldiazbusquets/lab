@@ -81,6 +81,10 @@
   .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(70% 55% at 50% 38%, rgba(255,255,255,.08), transparent 70%); pointer-events: none; }
   #wordmark { position: absolute; left: 0; right: 0; top: clamp(70px, 9vh, 100px); width: 100%; height: clamp(150px, 24vw, 330px); z-index: 0; }
   .hero .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .unicorn { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 1.2s ease; }
+  .unicorn.on { opacity: 1; }
+  .hero.has3d #wordmark { opacity: 0; }
+  .hero:not(.has3d) #wordmark { top: clamp(84px, 11vh, 120px); height: min(27vw, 33vh); }
   .stage.head { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); width: min(760px, 58vw); height: min(92%, 860px); pointer-events: none; }
   .stage.head canvas, .stage.head img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: center bottom; -webkit-mask: linear-gradient(180deg, #000 72%, transparent 99%); mask: linear-gradient(180deg, #000 72%, transparent 99%); }
   @media (max-width: 1200px) and (min-width: 981px) { .stage.head { width: min(520px, 44vw); left: 54%; } }
@@ -345,6 +349,7 @@
   .rv.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } }
   [hidden] { display: none !important; }
+  @media (max-width: 980px) { .hero:not(.has3d) #wordmark { top: 0; height: 26vw; margin-bottom: 8px; } }
 </style>
 <style id="ldb-pt">@view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
@@ -385,10 +390,8 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <section class="hero" id="top" aria-label="Introduction">
   <canvas id="wordmark" aria-hidden="true"></canvas>
   <span class="sr">LDB Lab</span>
-  <div class="stage head">
-    <canvas id="head" aria-label="A chrome helmeted figure, breaking into fragments on one side"></canvas>
-    <img id="headFallback" src="img/head.webp" alt="" hidden width="700" height="800">
-  </div>
+  <!-- 3D hero scene from Unicorn Studio. To switch it on, paste your project's embed ID between the quotes on the next line. -->
+  <div class="unicorn" id="unicorn" data-project=""></div>
 
   <div class="hcopy">
     <p class="k">Applied AI &middot; Luis Diaz Busquets</p>
@@ -407,7 +410,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 
 <section class="s" id="start" aria-label="Start here"><div class="w">
   <div class="rv"><span class="lbl">Start here</span><h2 class="h">Three pieces <em>worth your time.</em></h2></div>
-  <div class="feat rv"><a class="fc" href="options.html"><div class="im"><img src="img/options.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Open the tool</b><span>TOOL-01 &rarr;</span></div></div><h3>Options builder</h3><p>Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</p></a><a class="fc" href="trader.html"><div class="im"><img src="img/trader.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-01 &rarr;</span></div></div><h3>Market trader</h3><p>A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</p></a><a class="fc" href="montecarlo.html"><div class="im"><img src="img/montecarlo.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-04 &rarr;</span></div></div><h3>Retirement simulator</h3><p>Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</p></a></div>
+  <div class="feat rv"><a class="fc" href="options.html"><div class="im"><img src="img/options.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Open the tool</b><span>TOOL-01 &rarr;</span></div></div><h3>Options builder</h3><p>Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</p></a><a class="fc" href="trader.html"><div class="im"><img src="img/trader.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-01 &rarr;</span></div></div><h3>Market trader</h3><p>A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</p></a><a class="fc" href="montecarlo.html"><div class="im"><img src="img/montecarlo.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-04 &rarr;</span></div></div><h3>Monte Carlo planner</h3><p>Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</p></a></div>
 </div></section>
 
 <section class="s" id="course" aria-label="The course"><span id="mods"></span><div class="w">
@@ -432,7 +435,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <section class="s" id="sim" aria-label="Monte Carlo simulation"><div class="w">
   <div class="shead rv"><div><span class="lbl">Monte Carlo</span><h2 class="h">Every outcome, <em>fully simulated.</em></h2>
     <p class="lead">Risk desks look at thousands of possible futures at once. Here are 400 of them, drawn live on your device.</p></div>
-    <a class="pill gl" href="montecarlo.html">Open the retirement simulator</a></div>
+    <a class="pill gl" href="montecarlo.html">Open the Monte Carlo planner</a></div>
   <div class="dash rv">
     <div class="abar">
       <span class="logo"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg> LDB <span>Lab</span></span>
@@ -475,7 +478,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <div class="r"><p>Five agents start knowing nothing, practise on simulated markets, leagues and board games, and are always scored on data they never trained on. Each page lists the mistakes they learned from.</p></div>
   </div>
   <div class="showcase" data-set="agents">
-    <div class="tabsx" role="tablist" aria-label="Learning agents"><button type="button" role="tab" aria-selected="true">Market trader</button><button type="button" role="tab" aria-selected="false">Day trader</button><button type="button" role="tab" aria-selected="false">Sports-market model</button><button type="button" role="tab" aria-selected="false">Retirement simulator</button><button type="button" role="tab" aria-selected="false">Landlord</button></div>
+    <div class="tabsx" role="tablist" aria-label="Learning agents"><button type="button" role="tab" aria-selected="true">Market trader</button><button type="button" role="tab" aria-selected="false">Day trader</button><button type="button" role="tab" aria-selected="false">Sports-market model</button><button type="button" role="tab" aria-selected="false">Monte Carlo planner</button><button type="button" role="tab" aria-selected="false">Landlord</button></div>
     <div class="show rv">
       <div class="im"><img class="simg" src="img/trader.webp" alt="" width="760" height="570"></div>
       <div><div class="k sk">&nbsp;</div><h3 class="st">&nbsp;</h3><p class="sd">&nbsp;</p><div class="facts2 sf"></div>
@@ -500,7 +503,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div class="nums" aria-live="off"><div><span id="stTr">00</span><small>tracked</small></div><div><span id="stPe">00</span><small>people</small></div><div><span id="stIn">—</span><small>per frame</small></div></div>
       <div class="modes" role="group" aria-label="Camera mode">
         <button type="button" data-mode="optical" aria-pressed="true">Optical</button>
-        <button type="button" data-mode="thermal" aria-pressed="false">White hot</button>
+        <button type="button" data-mode="thermal" aria-pressed="false">Thermal</button>
         <button type="button" id="pauseBtn" aria-pressed="false">Pause</button>
       </div>
     </div>
@@ -538,7 +541,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <tr class="row" data-cat="agents" data-tag="Q-learning" data-href="trader.html"><td class="id">AGENT-01</td><td class="t"><a href="trader.html">Market trader</a></td><td class="d">A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</td><td class="m"><span class="tag">Q-learning</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
 <tr class="row" data-cat="agents" data-tag="Neural network" data-href="daytrader.html"><td class="id">AGENT-02</td><td class="t"><a href="daytrader.html">Day trader</a></td><td class="d">A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.</td><td class="m"><span class="tag">Neural network</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
 <tr class="row" data-cat="agents" data-tag="Online ratings" data-href="betting.html"><td class="id">AGENT-03</td><td class="t"><a href="betting.html">Sports-market model</a></td><td class="d">Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.</td><td class="m"><span class="tag">Online ratings</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
-<tr class="row" data-cat="agents" data-tag="Monte Carlo" data-href="montecarlo.html"><td class="id">AGENT-04</td><td class="t"><a href="montecarlo.html">Retirement simulator</a></td><td class="d">Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</td><td class="m"><span class="tag">Monte Carlo</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
+<tr class="row" data-cat="agents" data-tag="Monte Carlo" data-href="montecarlo.html"><td class="id">AGENT-04</td><td class="t"><a href="montecarlo.html">Monte Carlo planner</a></td><td class="d">Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</td><td class="m"><span class="tag">Monte Carlo</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
 <tr class="row" data-cat="agents" data-tag="Genetic algorithm" data-href="landlord.html"><td class="id">AGENT-05</td><td class="t"><a href="landlord.html">Landlord</a></td><td class="d">A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.</td><td class="m"><span class="tag">Genetic algorithm</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
 <tr class="grp" data-cat="games"><td colspan="6">Games, just for fun &middot; 7</td></tr>
 <tr class="row" data-cat="games" data-tag="Expected value" data-href="blackjack.html"><td class="id">GAME-01</td><td class="t"><a href="blackjack.html">Blackjack</a></td><td class="d">Six-deck blackjack with the exact expected value of every move, the basic strategy chart and a Hi-Lo count.</td><td class="m"><span class="tag">Expected value</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
@@ -590,7 +593,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   <div class="fgrid">
     <div><p class="big4">Glad you stopped by. <em>Let's talk models.</em></p><p style="margin-top:16px">Built by Luis Diaz Busquets. Runs entirely in your browser.</p></div>
     <div><h5>Lab</h5><p><a href="#course" data-go="course">Course</a></p><p><a href="#tools" data-go="tools">Tools</a></p><p><a href="#agents" data-go="agents">Agents</a></p><p><a href="#vision" data-go="vision">Vision</a></p><p><a href="#games" data-go="games">Games</a></p></div>
-    <div><h5>Start here</h5><p><a href="learn.html">How models learn</a></p><p><a href="options.html">Options builder</a></p><p><a href="montecarlo.html">Retirement simulator</a></p><p><a href="llm.html">How an LLM works</a></p></div>
+    <div><h5>Start here</h5><p><a href="learn.html">How models learn</a></p><p><a href="options.html">Options builder</a></p><p><a href="montecarlo.html">Monte Carlo planner</a></p><p><a href="llm.html">How an LLM works</a></p></div>
     <div><h5>Elsewhere</h5><p><a href="/">Main site</a></p><p><a href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a></p><p><a href="https://www.linkedin.com/in/luis-diaz-busquets" rel="noopener">LinkedIn</a></p></div>
   </div>
   <div class="fbar"><span>No cookies, no tracking</span><span>&copy; <span id="yr"></span> Luis Diaz Busquets</span><span>Simulated data. Not investment advice.</span></div>
@@ -598,7 +601,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <div class="wm" id="wm" aria-hidden="true"><span>l</span><span>d</span><span>b</span><span>&nbsp;</span><span>l</span><span>a</span><span>b</span></div>
 </footer>
 
-<script>window.LDB_SHOW = {"tools": [{"id": "TOOL-01", "img": "options", "title": "Options builder", "desc": "Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.", "href": "options.html", "kind": "Finance tool", "facts": [["Pricing", "Black-Scholes"], ["Strategies", "12 presets"]]}, {"id": "TOOL-02", "img": "market-maker", "title": "Market maker", "desc": "Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.", "href": "market-maker.html", "kind": "Finance tool", "facts": [["Fair value", "Exact Bayesian"], ["Game", "8 rounds"]]}, {"id": "TOOL-03", "img": "kelly", "title": "Kelly challenge", "desc": "The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.", "href": "kelly.html", "kind": "Finance tool", "facts": [["Players simulated", "2,000"], ["Bankroll cap", "$250"]]}], "agents": [{"id": "AGENT-01", "img": "trader", "title": "Market trader", "desc": "A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.", "href": "trader.html", "kind": "Learning agent", "facts": [["Method", "Q-learning"], ["Judged on", "40 unseen years"]]}, {"id": "AGENT-02", "img": "daytrader", "title": "Day trader", "desc": "A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.", "href": "daytrader.html", "kind": "Learning agent", "facts": [["Model", "Online neural net"], ["Judged on", "30 unseen days"]]}, {"id": "AGENT-03", "img": "betting", "title": "Sports-market model", "desc": "Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.", "href": "betting.html", "kind": "Learning agent", "facts": [["League", "20 clubs"], ["Sizing", "Fractional Kelly"]]}, {"id": "AGENT-04", "img": "montecarlo", "title": "Retirement simulator", "desc": "Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.", "href": "montecarlo.html", "kind": "Learning agent", "facts": [["Test futures", "2,000"], ["Planner", "Cross-entropy"]]}, {"id": "AGENT-05", "img": "landlord", "title": "Landlord", "desc": "A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.", "href": "landlord.html", "kind": "Learning agent", "facts": [["Method", "Genetic algorithm"], ["Population", "24 strategies"]]}]}; window.LDB_STATS = [["01 / 14 course modules", "From a single neuron to agents and the GPUs they run on."], ["02 / 5 learning agents", "Trained live, judged on data they never saw."], ["03 / 3 finance tools", "Options, market making and bet sizing, with the maths shown."], ["04 / 7 games", "Blackjack to chess, with the odds switched on."]];</script>
+<script>window.LDB_SHOW = {"tools": [{"id": "TOOL-01", "img": "options", "title": "Options builder", "desc": "Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.", "href": "options.html", "kind": "Finance tool", "facts": [["Pricing", "Black-Scholes"], ["Strategies", "12 presets"]]}, {"id": "TOOL-02", "img": "market-maker", "title": "Market maker", "desc": "Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.", "href": "market-maker.html", "kind": "Finance tool", "facts": [["Fair value", "Exact Bayesian"], ["Game", "8 rounds"]]}, {"id": "TOOL-03", "img": "kelly", "title": "Kelly challenge", "desc": "The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.", "href": "kelly.html", "kind": "Finance tool", "facts": [["Players simulated", "2,000"], ["Bankroll cap", "$250"]]}], "agents": [{"id": "AGENT-01", "img": "trader", "title": "Market trader", "desc": "A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.", "href": "trader.html", "kind": "Learning agent", "facts": [["Method", "Q-learning"], ["Judged on", "40 unseen years"]]}, {"id": "AGENT-02", "img": "daytrader", "title": "Day trader", "desc": "A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.", "href": "daytrader.html", "kind": "Learning agent", "facts": [["Model", "Online neural net"], ["Judged on", "30 unseen days"]]}, {"id": "AGENT-03", "img": "betting", "title": "Sports-market model", "desc": "Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.", "href": "betting.html", "kind": "Learning agent", "facts": [["League", "20 clubs"], ["Sizing", "Fractional Kelly"]]}, {"id": "AGENT-04", "img": "montecarlo", "title": "Monte Carlo planner", "desc": "Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.", "href": "montecarlo.html", "kind": "Learning agent", "facts": [["Test futures", "2,000"], ["Planner", "Cross-entropy"]]}, {"id": "AGENT-05", "img": "landlord", "title": "Landlord", "desc": "A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.", "href": "landlord.html", "kind": "Learning agent", "facts": [["Method", "Genetic algorithm"], ["Population", "24 strategies"]]}]}; window.LDB_STATS = [["01 / 14 course modules", "From a single neuron to agents and the GPUs they run on."], ["02 / 5 learning agents", "Trained live, judged on data they never saw."], ["03 / 3 finance tools", "Options, market making and bet sizing, with the maths shown."], ["04 / 7 games", "Blackjack to chess, with the odds switched on."]];</script>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
@@ -606,6 +609,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 (function () {
   /* always open at the top: no automatic jumps on load or reload */
   try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+  var startHash = location.hash.slice(1);
   if (location.hash) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
   scrollTo(0, 0);
   var head = document.querySelector('header.top'), nav = document.getElementById('nav'), menu = document.getElementById('menuBtn');
@@ -679,6 +683,9 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     a.addEventListener('click', function (e) { if (route(a.dataset.go)) { e.preventDefault(); closeMenu(); } });
   });
   nav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
+  /* arriving from another page with a section in the link (for example the back button on a tool page): start at the top, then glide there */
+  var ALIAS = { mods: 'course', arcade: 'games', train: 'agents', catalog: 'games', feed: 'vision' };
+  if (startHash) { var target = ALIAS[startHash] || startHash; if (document.getElementById(target)) setTimeout(function () { route(target); }, 450); }
 
   function spy() {
     var y = innerHeight * .35, cur = '';
@@ -853,115 +860,21 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   if (document.fonts && document.fonts.load) document.fonts.load('500 100px Manrope').then(start, start); else start();
 })();
 
-/* ---------- hero: a chrome, helmeted cyborg bust, ray-marched live in WebGL ---------- */
+/* ---------- hero 3D scene: a Unicorn Studio project, loaded only when an embed ID is set ---------- */
 (function () {
-  var cv = document.getElementById('head'); if (!cv) return;
-  var fb = document.getElementById('headFallback');
-  var gl = null;
-  try { gl = cv.getContext('webgl', { premultipliedAlpha: false, alpha: true, antialias: false }) || cv.getContext('experimental-webgl'); } catch (e) {}
-  if (!gl) { cv.style.display = 'none'; if (fb) fb.hidden = false; return; }
-  var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-  var FS = [
-'precision highp float;',
-'uniform vec2 R;uniform float T;uniform vec2 M;uniform float Q;',
-'float hash(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
-'float noise(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);',
-' return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),',
-'            mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}',
-'float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}',
-'float sEll(vec3 p,vec3 r){float k0=length(p/r),k1=length(p/(r*r));return k0*(k0-1.)/k1;}',
-'float sCap(vec3 p,vec3 a,vec3 b,float r){vec3 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h)-r;}',
-'float sBox(vec3 p,vec3 b){vec3 q=abs(p)-b;return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.);}',
-'float visor(vec3 p){vec2 v=vec2(p.x*(1.+.25*max(0.,-p.y)),p.y+.10);vec2 q=abs(v)-vec2(.26,.20);return length(max(q,0.))+min(max(q.x,q.y),0.)-.2;}',
-'mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}',
-/* the solid bust before it breaks apart */
-'float body(vec3 p){',
-' float h=sEll(p-vec3(0.,.12,-.02),vec3(.58,.67,.64));',
-' h=smin(h,sEll(p-vec3(0.,-.27,.10),vec3(.49,.46,.53)),.20);',
-' h=smin(h,sCap(p,vec3(0.,-.50,-.08),vec3(0.,-1.0,-.10),.235),.16);',
-' h=smin(h,sEll(p-vec3(0.,-1.10,-.12),vec3(.58,.22,.32)),.24);',
-' vec3 q=vec3(abs(p.x),p.y,p.z);',
-' h=smin(h,sCap(q,vec3(.25,-1.16,-.12),vec3(.98,-1.42,-.12),.24),.22);',
-' h=smin(h,sEll(p-vec3(0.,-1.6,-.04),vec3(.9,.45,.40)),.24);',
-' h=max(h,-(p.y+1.78));',
-' h=smin(h,sCap(q,vec3(.52,.02,-.04),vec3(.575,.02,-.04),.12),.07);',
-' return h;}',
-/* where the bust dissolves: the right-hand side, ragged with noise */
-'float erode(vec3 p){return p.x*.9-p.y*.32+.30*noise(p*4.5+vec3(0.,T*.12,0.))-.58;}',
-'float scene(vec3 p,out float mat){',
-' float b=body(p),e=erode(p);',
-' float d=max(b,e);mat=0.;',
-/* drifting cubes in the eroded zone */
-' float s=.075;vec3 c=floor(p/s)+.5;vec3 cp=c*s;',
-' float ec=erode(cp),bc=body(cp);',
-' if(ec>0.&&ec<.5&&bc<.0){float r=hash(c);',
-'  if(r>.35){float drift=ec*.06*(.5+.5*sin(T*.8+r*6.28));vec3 q=p-cp-vec3(drift,-drift*.4,drift*.3);',
-'   q.xy*=rot(r*3.+T*.3*(r-.5));float bx=sBox(q,vec3(s*(.22+.18*(1.-ec*1.6))));',
-'   if(bx<d){d=bx;mat=2.;}}}',
-/* visor band: black glass wrapped around the front */
-' if(mat<1.&&p.z>.08&&visor(p)<0.)mat=1.;',
-' return d*.8;}',
-'vec3 nrm(vec3 p){float m;vec2 e=vec2(.0015,0.);return normalize(vec3(scene(p+e.xyy,m)-scene(p-e.xyy,m),scene(p+e.yxy,m)-scene(p-e.yxy,m),scene(p+e.yyx,m)-scene(p-e.yyx,m)));}',
-/* a monochrome studio: softbox above-left, a bright horizon line, dark floor */
-'vec3 env(vec3 r){',
-' float y=r.y;vec3 c=mix(vec3(.16,.18,.19),vec3(.78,.84,.88),smoothstep(-.45,.75,y));',
-' c=mix(c,vec3(.05,.06,.065),smoothstep(-.05,-.5,y)*.8);',
-' c+=vec3(1.)*smoothstep(.97,1.,dot(r,normalize(vec3(-.55,.7,.45))))*2.2;',
-' c+=vec3(.85,.9,.95)*exp(-abs(y-.04)*22.)*1.1;',
-' c+=vec3(.7,.76,.8)*smoothstep(.86,1.,dot(r,normalize(vec3(.85,.2,.5))))*1.;',
-' c+=vec3(.5)*smoothstep(.9,1.,dot(r,normalize(vec3(.0,-.2,1.))))*.6;',
-' return c;}',
-'void main(){',
-' vec2 uv=(gl_FragCoord.xy*2.-R)/R.y;',
-' vec3 ro=vec3(0.,-.42,3.6),rd=normalize(vec3(uv*.56,-1.));',
-' float ya=M.x*.42-.30+.10*sin(T*.25),pa=M.y*.18+.04*sin(T*.31);',
-' mat2 Ry=rot(ya),Rx=rot(pa);',
-' ro.xz*=Ry;rd.xz*=Ry;ro.yz*=Rx;rd.yz*=Rx;',
-' float t=0.,mat=0.;bool hit=false;',
-' for(int i=0;i<110;i++){vec3 p=ro+rd*t;float d=scene(p,mat);if(d<.0012){hit=true;break;}t+=d;if(t>7.)break;}',
-' if(!hit){gl_FragColor=vec4(0.);return;}',
-' vec3 p=ro+rd*t,n=nrm(p),r=reflect(rd,n);',
-' float fr=pow(1.-max(dot(n,-rd),0.),4.);',
-' vec3 col;',
-' if(mat>1.5){col=env(r)*.85+vec3(.05);}',
-' else if(mat>.5){col=env(r)*(.12+.8*fr)+vec3(.008,.009,.01);',
-'  float sl=smoothstep(.993,1.,dot(r,normalize(vec3(-.55,.7,.45))));col+=sl*.9;',
-'  float led=smoothstep(.022,.012,length(vec2(p.x+.20,p.y-.18)));col+=vec3(.55,.85,.8)*led*1.4;}',
-' else{col=env(r)*(.78+.30*fr)+vec3(.03);',
-'  float seam=smoothstep(.006,.0,abs(p.x))*step(.3,p.y)*step(-.1,p.z);col*=1.-seam*.7;',
-'  float strap=smoothstep(.008,.0,abs(p.z+.06))*step(.12,p.y);col*=1.-strap*.6;',
-'  float rib=smoothstep(.006,.0,abs(length(vec2(abs(p.x)-.52,p.y-.02))-.1))*step(.4,abs(p.x));col*=1.-rib*.6;',
-'  float edge=abs(visor(p));col*=1.-.7*smoothstep(.016,.0,edge)*step(.05,p.z);}',
-' float ao=clamp(.5+.5*n.y,0.,1.);col*=.75+.25*ao;',
-' if(mat<.5||mat>1.5)col=mix(col,vec3(dot(col,vec3(.33))),.7);',
-' col=pow(col,vec3(.92));',
-' gl_FragColor=vec4(col,1.);}'
-  ].join('\n');
-  function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; }
-  var pr;
-  try { pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error('link'); }
-  catch (e) { cv.style.display = 'none'; if (fb) fb.hidden = false; return; }
-  gl.useProgram(pr);
-  var bf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  var uR = gl.getUniformLocation(pr, 'R'), uT = gl.getUniformLocation(pr, 'T'), uM = gl.getUniformLocation(pr, 'M');
-  var scale = 1, mx = 0, my = 0, tx = 0, ty = 0, on = false, t0 = performance.now(), slow = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function size() { var dpr = Math.min(1.5, devicePixelRatio || 1) * scale; cv.width = Math.max(2, Math.round(cv.clientWidth * dpr)); cv.height = Math.max(2, Math.round(cv.clientHeight * dpr)); gl.viewport(0, 0, cv.width, cv.height); }
-  size(); addEventListener('resize', function () { clearTimeout(size.t); size.t = setTimeout(size, 150); });
-  addEventListener('pointermove', function (e) { tx = (e.clientX / innerWidth - .5) * 2; ty = (e.clientY / innerHeight - .5) * 2; }, { passive: true });
-  var last = 0;
-  function frame(now) {
-    if (!on) return;
-    var dt = now - last; last = now;
-    if (dt > 45 && ++slow > 20 && scale > .5) { scale -= .15; slow = 0; size(); } else if (dt < 30) slow = Math.max(0, slow - 1);
-    mx += (tx - mx) * .05; my += (ty - my) * .05;
-    gl.uniform2f(uR, cv.width, cv.height); gl.uniform1f(uT, (now - t0) / 1000); gl.uniform2f(uM, mx, -my);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-    requestAnimationFrame(frame);
-  }
-  if (reduce) { gl.uniform2f(uR, cv.width, cv.height); gl.uniform1f(uT, 2); gl.uniform2f(uM, 0, 0); gl.drawArrays(gl.TRIANGLES, 0, 3); return; }
-  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { var v = es[0].isIntersecting; if (v && !on) { on = true; last = performance.now(); requestAnimationFrame(frame); } if (!v) on = false; }).observe(cv);
-  else { on = true; requestAnimationFrame(frame); }
+  var box = document.getElementById('unicorn'); if (!box) return;
+  var id = (box.getAttribute('data-project') || '').trim(); if (!id) return;
+  var hero = document.querySelector('.hero');
+  box.setAttribute('data-us-project', id);
+  box.setAttribute('data-us-production', 'true');
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.4.0/dist/unicornStudio.umd.js';
+  s.onload = function () {
+    if (!window.UnicornStudio) return;
+    UnicornStudio.init().then(function () { box.classList.add('on'); hero.classList.add('has3d'); }).catch(function () { box.remove(); });
+  };
+  s.onerror = function () { box.remove(); };
+  document.head.appendChild(s);
 })();
 
 /* =====================================================================
@@ -1037,8 +950,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   var tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true }), LUT = null;
   var hot = document.createElement('canvas'), hx2 = hot.getContext('2d');
   function thermalLUT() {
-    /* white hot: brightness stands in for heat, compressed so the scene reads cold and dark */
-    var L = []; for (var i = 0; i < 256; i++) { var t = i / 255, v = Math.round(12 + 64 * Math.pow(t, 1.1)); L.push([v, v, v]); } return L;
+    /* white-hot greyscale: every pixel mapped through a contrast curve, warm (bright) is white, cold is black */
+    var L = []; for (var i = 0; i < 256; i++) { var t = i / 255, u = t * t * (3 - 2 * t), v = Math.round(8 + 244 * (u * .7 + Math.pow(t, 1.4) * .3)); L.push([v, v, v]); } return L;
   }
   function grain(alpha) {
     sx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1124,6 +1037,55 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var x0 = Math.max(a[0], b[0]), y0 = Math.max(a[1], b[1]), x1 = Math.min(a[0] + a[2], b[0] + b[2]), y1 = Math.min(a[1] + a[3], b[1] + b[3]);
     return Math.max(0, x1 - x0) * Math.max(0, y1 - y0);
   }
+  /* ---------- inference engine: runs in a background worker so the page never stalls ---------- */
+  var WORKER_SRC = [
+    'var S = {};',
+    'function decode(d, n, GX, GY, GS, rx, ry, k, th, keep) { var out = [];',
+    '  for (var a = 0; a < n; a++) { var off = a * 85, obj = d[off + 4]; if (obj < th) continue;',
+    '    var bc = 0, bs = 0; for (var c = 0; c < 80; c++) { var v = d[off + 5 + c]; if (v > bs) { bs = v; bc = c; } }',
+    '    if (keep && !keep[bc]) continue; var sc = obj * bs; if (sc < th) continue;',
+    '    var cx = (d[off] + GX[a]) * GS[a], cy = (d[off + 1] + GY[a]) * GS[a], w = Math.exp(d[off + 2]) * GS[a], h = Math.exp(d[off + 3]) * GS[a];',
+    '    out.push([bc, sc, rx + (cx - w / 2) / k, ry + (cy - h / 2) / k, w / k, h / k]); }',
+    '  return out; }',
+    'var G = null;',
+    'function grid(sz) { var X = [], Y = [], Z = []; [8, 16, 32].forEach(function (s) { var g = sz / s; for (var y = 0; y < g; y++) for (var x = 0; x < g; x++) { X.push(x); Y.push(y); Z.push(s); } }); return [X, Y, Z]; }',
+    'self.onmessage = function (e) { var m = e.data;',
+    '  if (m.t === "init") {',
+    '    try { importScripts(m.ort + "ort.min.js"); } catch (x) { postMessage({ t: "fail", msg: "could not load ONNX Runtime" }); return; }',
+    '    ort.env.wasm.wasmPaths = m.ort; ort.env.wasm.numThreads = m.threads; G = grid(m.sz);',
+    '    fetch(m.det).then(function (r) { if (!r.ok) throw new Error("models/yolox_tiny.onnx not found"); return r.arrayBuffer(); }).then(function (b) {',
+    '      return ort.InferenceSession.create(b, { executionProviders: m.eps, graphOptimizationLevel: "all" }).then(function (s) { S.backend = m.eps[0]; return s; })',
+    '        .catch(function () { return ort.InferenceSession.create(b, { executionProviders: ["wasm"] }).then(function (s) { S.backend = "wasm"; return s; }); });',
+    '    }).then(function (s) { S.det = s; postMessage({ t: "ready", backend: S.backend });',
+    '      return fetch(m.face).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (b) { return ort.InferenceSession.create(b, { executionProviders: ["wasm"] }); })',
+    '        .then(function (f) { S.face = f; postMessage({ t: "face" }); }).catch(function () { postMessage({ t: "noface" }); });',
+    '    }).catch(function (x) { postMessage({ t: "fail", msg: String(x && x.message || x) }); });',
+    '  } else if (m.t === "det") {',
+    '    S.det.run({ images: new ort.Tensor("float32", m.buf, [1, 3, m.sz, m.sz]) }).then(function (o) {',
+    '      postMessage({ t: "r", id: m.id, dets: decode(o.output.data, G[0].length, G[0], G[1], G[2], m.rx, m.ry, m.k, m.th, m.keep) });',
+    '    }).catch(function (x) { postMessage({ t: "r", id: m.id, err: String(x) }); });',
+    '  } else if (m.t === "face") {',
+    '    S.face.run({ input: new ort.Tensor("float32", m.buf, [1, 3, 240, 320]) }).then(function (o) {',
+    '      postMessage({ t: "r", id: m.id, s: new Float32Array(o.scores.data), b: new Float32Array(o.boxes.data) });',
+    '    }).catch(function (x) { postMessage({ t: "r", id: m.id, err: String(x) }); });',
+    '  } };'
+  ].join('\n');
+  var worker = null, wReq = {}, wId = 0, useWorker = !/[?&]noworker/.test(location.search);
+  function wCall(msg, transfer) { return new Promise(function (res, rej) { msg.id = ++wId; wReq[msg.id] = [res, rej]; worker.postMessage(msg, transfer || []); }); }
+  var GRID = null;
+  function gridFor(sz) { if (GRID) return GRID; var X = [], Y = [], Z = []; [8, 16, 32].forEach(function (s) { var g = sz / s; for (var y = 0; y < g; y++) for (var x = 0; x < g; x++) { X.push(x); Y.push(y); Z.push(s); } }); GRID = [X, Y, Z]; return GRID; }
+  function decodeLocal(d, rx, ry, k, th, keep) {
+    var G = gridFor(SZ), out = [];
+    for (var a = 0; a < G[0].length; a++) { var off = a * 85, obj = d[off + 4]; if (obj < th) continue;
+      var bc = 0, bs = 0; for (var c = 0; c < 80; c++) { var v = d[off + 5 + c]; if (v > bs) { bs = v; bc = c; } }
+      if (keep && !keep[bc]) continue; var sc = obj * bs; if (sc < th) continue;
+      var cx = (d[off] + G[0][a]) * G[2][a], cy = (d[off + 1] + G[1][a]) * G[2][a], w = Math.exp(d[off + 2]) * G[2][a], h = Math.exp(d[off + 3]) * G[2][a];
+      out.push([bc, sc, rx + (cx - w / 2) / k, ry + (cy - h / 2) / k, w / k, h / k]); }
+    return out;
+  }
+  var LOW = .15;                                      /* low-confidence boxes only keep existing tracks alive, they never start new ones */
+  function keepMask() { var want = FEEDS[cur].classes, m = new Uint8Array(80); if (!want) return null; want.forEach(function (c) { var i = COCO.indexOf(c); if (i >= 0) m[i] = 1; }); return m; }
+
   /* run the detector on one region of the video (the whole frame, or a zoomed tile) */
   function runRegion(src, rx, ry, rw, rh) {
     var k = Math.min(SZ / rw, SZ / rh);
@@ -1131,30 +1093,20 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     pcx.drawImage(src, rx, ry, rw, rh, 0, 0, rw * k, rh * k);
     var px = pcx.getImageData(0, 0, SZ, SZ).data, A = SZ * SZ, buf = new Float32Array(3 * A);
     for (var i = 0, p = 0; i < A; i++, p += 4) { buf[i] = px[p + 2]; buf[A + i] = px[p + 1]; buf[2 * A + i] = px[p]; }   /* BGR, 0 to 255 */
-    return model.run({ images: new ort.Tensor('float32', buf, [1, 3, SZ, SZ]) }).then(function (o) {
-      var d = o.output.data, out = [];
-      for (var a = 0; a < GX.length; a++) {
-        var off = a * 85, obj = d[off + 4];
-        if (obj < TH) continue;
-        var bc = 0, bs = 0;
-        for (var c = 0; c < 80; c++) { var v = d[off + 5 + c]; if (v > bs) { bs = v; bc = c; } }
-        var sc = obj * bs; if (sc < TH) continue;
-        var cx = (d[off] + GX[a]) * GS[a], cy = (d[off + 1] + GY[a]) * GS[a], w = Math.exp(d[off + 2]) * GS[a], h = Math.exp(d[off + 3]) * GS[a];
-        out.push({ class: COCO[bc], score: sc, bbox: [rx + (cx - w / 2) / k, ry + (cy - h / 2) / k, w / k, h / k] });
-      }
-      return out;
-    });
+    var keep = keepMask(), conv = function (list) { return list.map(function (q) { return { class: COCO[q[0]], score: q[1], bbox: [q[2], q[3], q[4], q[5]] }; }); };
+    if (worker) return wCall({ t: 'det', buf: buf, sz: SZ, rx: rx, ry: ry, k: k, th: LOW, keep: keep }, [buf.buffer]).then(function (r) { if (r.err) throw new Error(r.err); return conv(r.dets); });
+    return model.run({ images: new ort.Tensor('float32', buf, [1, 3, SZ, SZ]) }).then(function (o) { return conv(decodeLocal(o.output.data, rx, ry, k, LOW, keep)); });
   }
-  /* merge overlapping boxes: drop duplicates, and drop partial boxes of an object already boxed whole */
+  /* non-maximum suppression per class, and drop partial boxes of an object already boxed whole */
   function merge(dets) {
     var keep = [];
     dets.sort(function (a, b) { return b.score - a.score; }).forEach(function (d) {
       var ad = d.bbox[2] * d.bbox[3], drop = false;
       for (var j = 0; j < keep.length && !drop; j++) {
         var k = keep[j], ak = k.bbox[2] * k.bbox[3], it = inter(d.bbox, k.bbox), u = it / (ad + ak - it || 1), same = d.class === k.class;
-        if (u > (same ? .45 : .75)) drop = true;
-        else if (same && it / ad > .8 && ad > .2 * ak) drop = true;                               /* d is a piece of k */
-        else if (same && it / ak > .8 && ak > .2 * ad) { keep[j] = d; drop = true; }             /* k is a piece of d: keep the whole */
+        if (u > (same ? .5 : .8)) drop = true;
+        else if (same && it / ad > .85 && ad > .2 * ak && d.score < k.score + .1) drop = true;
+        else if (same && it / ak > .85 && ak > .2 * ad && d.score > k.score - .1) { keep[j] = d; drop = true; }
       }
       if (!drop) keep.push(d);
     });
@@ -1168,61 +1120,72 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     fcx.drawImage(src, rx, ry, rw, rh, 0, 0, 320, 240);
     var px = fcx.getImageData(0, 0, 320, 240).data, A = 320 * 240, buf = new Float32Array(3 * A);
     for (var i = 0, p = 0; i < A; i++, p += 4) { buf[i] = (px[p] - 127) / 128; buf[A + i] = (px[p + 1] - 127) / 128; buf[2 * A + i] = (px[p + 2] - 127) / 128; }
-    return faceNet.run({ input: new ort.Tensor('float32', buf, [1, 3, 240, 320]) }).then(function (o) {
-      var s = o.scores.data, b = o.boxes.data, best = null, bd = 1e9, tx = .5, ty = .3;
+    var run = worker ? wCall({ t: 'face', buf: buf }, [buf.buffer]).then(function (r) { if (r.err) throw new Error(r.err); return { s: r.s, b: r.b }; })
+      : faceNet.run({ input: new ort.Tensor('float32', buf, [1, 3, 240, 320]) }).then(function (o) { return { s: o.scores.data, b: o.boxes.data }; });
+    return run.then(function (o) {
+      var s = o.s, b = o.b, best = null, bd = 1e9, tx = .5, ty = .3;
       for (var a = 0; a < s.length / 2; a++) {
         if (s[a * 2 + 1] < .7) continue;
         var fx = (b[a * 4] + b[a * 4 + 2]) / 2, fy = (b[a * 4 + 1] + b[a * 4 + 3]) / 2, dd = (fx - tx) * (fx - tx) + (fy - ty) * (fy - ty);
-        if (dd < bd) { bd = dd; best = a; }                        /* the face nearest the top-centre belongs to this person */
+        if (dd < bd) { bd = dd; best = a; }
       }
       if (best === null) return null;
       var x0 = rx + b[best * 4] * rw, y0 = ry + b[best * 4 + 1] * rh, x1 = rx + b[best * 4 + 2] * rw, y1 = ry + b[best * 4 + 3] * rh;
       var fw = x1 - x0, fh = y1 - y0, fcy = (y0 + y1) / 2 - y, fcx = (x0 + x1) / 2 - x;
-      /* sanity checks: a face must be head-sized and sit at the top of this person's box */
       if (fw > w * .75 || fw < w * .1 || fh > h * .32 || fcy > h * .4 || fcx < -w * .1 || fcx > w * 1.1) return null;
       return [x0, y0, fw, fh];
     });
   }
+
+  /* ---------- tracker: an alpha-beta filter per object, matched in two passes (confident boxes, then weak ones) ---------- */
+  function predictBox(t, at) { var dt = Math.max(0, Math.min(1, at - t.tCap)); return [t.tb[0] + t.vx * dt, t.tb[1] + t.vy * dt, t.tb[2] + (t.vw || 0) * dt, t.tb[3] + (t.vh || 0) * dt]; }
+  function updateTrack(t, b, tCap, score) {
+    var dt = Math.max(.03, tCap - t.tCap), pr = predictBox(t, tCap);
+    var A = t.hits < 3 ? .85 : .55, B = t.hits < 3 ? .5 : .18;               /* trust new tracks' measurements more */
+    var pcx = pr[0] + pr[2] / 2, pcy = pr[1] + pr[3] / 2, mcx = b[0] + b[2] / 2, mcy = b[1] + b[3] / 2;
+    var rx = mcx - pcx, ry = mcy - pcy, rw = b[2] - pr[2], rh = b[3] - pr[3];
+    var ncx = pcx + A * rx, ncy = pcy + A * ry, nw = pr[2] + A * rw, nh = pr[3] + A * rh;
+    var cap = Math.max(b[2], b[3]) * 2.5;
+    t.vx = Math.max(-cap, Math.min(cap, t.vx + B * rx / dt)); t.vy = Math.max(-cap, Math.min(cap, t.vy + B * ry / dt));
+    t.vw = (t.vw || 0) * .6 + .1 * rw / dt; t.vh = (t.vh || 0) * .6 + .1 * rh / dt;
+    t.tb = [ncx - nw / 2, ncy - nh / 2, nw, nh]; t.tCap = tCap; t.seen = tCap;
+    t.s = t.s * .6 + score * .4; t.m = true; t.miss = 0; t.hits++;
+  }
+  function associate(dets, pool, minIou, tCap) {
+    var pairs = [];
+    dets.forEach(function (d, i) { pool.forEach(function (t, j) {
+      if (t.m || t.cls !== d.class) return; var pr = predictBox(t, tCap), v = iou(pr, d.bbox);
+      if (v < minIou) {                                                    /* small, fast objects: fall back to centre distance */
+        var dd = Math.hypot(pr[0] + pr[2] / 2 - d.bbox[0] - d.bbox[2] / 2, pr[1] + pr[3] / 2 - d.bbox[1] - d.bbox[3] / 2), gate = Math.max(d.bbox[2], d.bbox[3]) * 1.2;
+        if (dd < gate && d.bbox[2] < pr[2] * 2 && d.bbox[2] > pr[2] * .5) v = minIou * .99 * (1 - dd / gate) + .001; else return;
+      }
+      pairs.push([v, i, j]); }); });
+    pairs.sort(function (a, b) { return b[0] - a[0]; });
+    var usedD = {}, left = [];
+    pairs.forEach(function (p) { var d = dets[p[1]], t = pool[p[2]]; if (usedD[p[1]] || t.m) return; usedD[p[1]] = 1; updateTrack(t, d.bbox, tCap, d.score); });
+    dets.forEach(function (d, i) { if (!usedD[i]) left.push(d); });
+    return left;
+  }
   function onDetections(preds, src, tCap) {
     if (src !== video) return;                                   /* stale result from the previous feed */
     tracks.forEach(function (t) { t.m = false; });
-    preds.slice().sort(function (a, b) { return b.score - a.score; }).forEach(function (p) {
-      /* match each detection to a track: by overlap with where the track should be now, or failing that by distance,
-         so small fast objects (cars far away) keep their identity between detections */
-      var best = null, bi = .1, pc = [p.bbox[0] + p.bbox[2] / 2, p.bbox[1] + p.bbox[3] / 2];
-      tracks.forEach(function (t) {
-        if (t.m || t.cls !== p.class) return;
-        var dt0 = Math.min(1.5, tCap - t.tCap), pr = [t.tb[0] + (t.vx || 0) * dt0, t.tb[1] + (t.vy || 0) * dt0, t.tb[2], t.tb[3]];
-        var v = iou(pr, p.bbox);
-        if (v <= bi) {
-          var d = Math.hypot(pr[0] + pr[2] / 2 - pc[0], pr[1] + pr[3] / 2 - pc[1]), gate = Math.max(p.bbox[2], p.bbox[3]) * 1.6;
-          var sizeOk = p.bbox[2] < t.tb[2] * 2 && p.bbox[2] > t.tb[2] * .5;
-          if (d < gate && sizeOk) v = .1 + .09 * (1 - d / gate);           /* weaker than any real overlap */
-        }
-        if (v > bi) { bi = v; best = t; }
-      });
-      if (best) {
-        /* estimate velocity so the box keeps moving with the object between detections */
-        var dtc = tCap - best.tCap;
-        if (dtc > .04) {
-          var nvx = ((p.bbox[0] + p.bbox[2] / 2) - (best.tb[0] + best.tb[2] / 2)) / dtc, nvy = ((p.bbox[1] + p.bbox[3] / 2) - (best.tb[1] + best.tb[3] / 2)) / dtc;
-          var cap = Math.max(p.bbox[2], p.bbox[3]) * 3;          /* ignore jumps that are too big to be real motion */
-          nvx = Math.max(-cap, Math.min(cap, nvx)); nvy = Math.max(-cap, Math.min(cap, nvy));
-          best.vx = best.hits > 1 ? best.vx * .5 + nvx * .5 : nvx; best.vy = best.hits > 1 ? best.vy * .5 + nvy * .5 : nvy;
-        }
-        best.tb = p.bbox.slice(); best.tCap = tCap; best.s = p.score; best.m = true; best.miss = 0; best.hits++;
-        if (best.hits === 3) log('DETECT', p.class + ' ' + label(best) + ' conf ' + p.score.toFixed(2), 300);
-      } else tracks.push({ id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, vx: 0, vy: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] });
-    });
-    tracks.forEach(function (t) { if (!t.m) t.miss++; });
+    var hi = preds.filter(function (p) { return p.score >= TH; }), lo = preds.filter(function (p) { return p.score < TH; });
+    var leftHi = associate(hi, tracks, .2, tCap);                               /* pass 1: confident boxes */
+    associate(lo, tracks.filter(function (t) { return t.hits >= 3; }), .35, tCap);   /* pass 2: weak boxes rescue known objects through occlusion */
+    leftHi.forEach(function (p) { tracks.push({ id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, seen: tCap, vx: 0, vy: 0, vw: 0, vh: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] }); });
+    tracks.forEach(function (t) { if (!t.m) { t.miss++; var pr = predictBox(t, tCap); t.tb = pr; t.tCap = tCap; t.vx *= .7; t.vy *= .7; } else if (t.hits === 3) log('DETECT', t.cls + ' ' + label(t) + ' conf ' + t.s.toFixed(2), 300); });
     tracks = tracks.filter(function (t) {
-      if (t.miss > (t.tb[3] < 40 ? 7 : 4)) {                        /* small objects get a little longer before they are dropped */ if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
+      var gone = tCap - t.seen > (t.hits > 8 ? 1.1 : .5) || (t.hits < 3 && t.miss > 1);
+      if (gone) { if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
       return true;
     });
+    /* two tracks on the same object: keep the older one */
+    tracks.sort(function (a, b) { return a.id - b.id; });
+    tracks = tracks.filter(function (t, i) { for (var j = 0; j < i; j++) { var o = tracks[j]; if (o.cls === t.cls && iou(o.tb, t.tb) > .7) { if (t === lock) lock = o; return false; } } return true; });
   }
   function findFaces(src) {
-    var people = tracks.filter(function (t) { return t.cls === 'person' && t.m && t.tb[3] >= 36 && t.hits >= 3 && t.s >= .45; })   /* only well-established people */
-      .sort(function (a, b) { return b.tb[3] - a.tb[3]; }).slice(0, touch ? 4 : 10);
+    var people = tracks.filter(function (t) { return t.cls === 'person' && t.m && t.tb[3] >= 36 && t.hits >= 3 && t.s >= .4; })
+      .sort(function (a, b) { return b.tb[3] - a.tb[3]; }).slice(0, touch ? 3 : 6);
     var chain = Promise.resolve(), found = 0;
     people.forEach(function (t) {
       chain = chain.then(function () { return src === video ? runFace(src, t.tb) : null; }).then(function (f) {
@@ -1234,29 +1197,28 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   }
   function detLoop() {
     if (!model) return;
-    if (!running || detBusy || sw || !video || video.readyState < 2 || (paused && tracks.length && detOnce)) { setTimeout(detLoop, 150); return; }
+    if (!running || detBusy || sw || !video || video.readyState < 2 || (paused && tracks.length && detOnce)) { setTimeout(detLoop, 120); return; }
     detBusy = true; cycle++;
     var src = video, t0 = performance.now(), W0 = src.videoWidth, H0 = src.videoHeight, all = [], tCap = T;
     var regions = [[0, 0, W0, H0]];
     var tl = FEEDS[cur].tiles;
-    if (tl && !touch) {
-      if (tl === 'grid' && regionMs < 70) {                         /* 3 x 2 grid of zoomed tiles for very small objects */
-        var tw = W0 * .4, th = H0 * .55;
-        [0, H0 - th].forEach(function (y) { [0, (W0 - tw) / 2, W0 - tw].forEach(function (x) { regions.push([x, y, tw, th]); }); });
-      } else if (regionMs < 160) regions.push([0, 0, W0 * .58, H0], [W0 * .42, 0, W0 * .58, H0]);   /* zoomed halves */
+    /* zoomed tiles find small, distant objects, but cost extra passes: only on devices fast enough to afford them */
+    if (tl && !touch && cycle % 2 === 0) {
+      if (tl === 'grid' && regionMs < 45) { var tw = W0 * .4, th = H0 * .55; [0, H0 - th].forEach(function (y) { [0, (W0 - tw) / 2, W0 - tw].forEach(function (x) { regions.push([x, y, tw, th]); }); }); }
+      else if (regionMs < 90) regions.push([0, 0, W0 * .58, H0], [W0 * .42, 0, W0 * .58, H0]);
     }
     var chain = Promise.resolve();
     regions.forEach(function (r) { chain = chain.then(function () { return runRegion(src, r[0], r[1], r[2], r[3]).then(function (d) { all = all.concat(d); }); }); });
     chain.then(function () {
-      var ms = performance.now() - t0; infer = infer ? infer * .8 + ms * .2 : ms;
-      regionMs = regionMs ? regionMs * .7 + ms / regions.length * .3 : ms / regions.length;   /* slow device: tiles switch off */
-      var want = FEEDS[cur].classes;
-      onDetections(merge(want ? all.filter(function (d) { return want.indexOf(d.class) >= 0; }) : all), src, tCap);
-      if (faceNet && cycle % 2 === 0) return findFaces(src);
-    }).then(function () { detBusy = false; detOnce = true; setTimeout(detLoop, touch ? 200 : 0); })
+      var ms = performance.now() - t0, per = ms / regions.length;
+      infer = infer ? infer * .8 + per * .2 : per;
+      regionMs = regionMs ? regionMs * .7 + per * .3 : per;
+      onDetections(merge(all), src, tCap);
+      if ((faceNet || faceReady) && cycle % 3 === 0) return findFaces(src);
+    }).then(function () { detBusy = false; detOnce = true; setTimeout(detLoop, touch ? 120 : 0); })
       .catch(function (e) { detBusy = false; setTimeout(detLoop, 600); });
   }
-  var detOnce = false, regionMs = 0;
+  var detOnce = false, regionMs = 0, faceReady = false;
   function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
   /* download a model with a progress readout */
   var dlPct = -1, detFailed = false;
@@ -1272,27 +1234,43 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   }
   function loadModel() {
     log('SYS', 'loading detector: YOLOX-tiny, 80 COCO classes');
-    var t0 = performance.now(), eps = ('gpu' in navigator) ? ['webgpu', 'wasm'] : ['wasm'];
-    var lib = window.ort ? Promise.resolve() : loadScript(ORT + 'ort.min.js');
-    Promise.all([lib, fetchModel('models/yolox_tiny.onnx')]).then(function (r) {
-      ort.env.wasm.wasmPaths = ORT;
-      ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
-      var buf = r[1];
-      return ort.InferenceSession.create(buf, { executionProviders: eps, graphOptimizationLevel: 'all' })
-        .then(function (s) { backend = eps[0]; return s; })
-        .catch(function () { return ort.InferenceSession.create(buf, { executionProviders: ['wasm'] }).then(function (s) { backend = 'wasm'; return s; }); });
-    }).then(function (s) {
-      model = s; dlPct = -1;
-      log('SYS', 'detector online in ' + Math.round(performance.now() - t0) + ' ms, backend ' + backend);
-      detLoop();
-      return fetchModel('models/face.onnx').then(function (b) { return ort.InferenceSession.create(b, { executionProviders: ['wasm'] }); })
-        .then(function (f) { faceNet = f; log('SYS', 'face model online, faces will be blurred'); })
-        .catch(function (e) { log('ERR', /not found/.test(String(e && e.message)) ? 'missing models/face.onnx' : 'face model could not load'); });
-    }).catch(function (e) {
-      dlPct = -1; detFailed = true;
-      var m = String(e && e.message || e);
-      log('ERR', /not found/.test(m) ? 'missing ' + m.split(' ')[0] + ', upload the models folder' : /ort/.test(m) || !window.ort ? 'could not load ONNX Runtime from the CDN' : 'detector failed: ' + m.slice(0, 60));
-    });
+    var t0 = performance.now(), eps = ('gpu' in navigator) ? ['webgpu', 'wasm'] : ['wasm'], threads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
+    var ORTA = new URL(ORT, location.href).href, abs = function (u) { return new URL(u, location.href).href; };
+    function online() { dlPct = -1; log('SYS', 'detector online in ' + Math.round(performance.now() - t0) + ' ms, backend ' + backend + (worker ? ', background worker' : '')); detLoop(); }
+    function local() {
+      var lib = window.ort ? Promise.resolve() : loadScript(ORTA + 'ort.min.js');
+      Promise.all([lib, fetchModel('models/yolox_tiny.onnx')]).then(function (r) {
+        ort.env.wasm.wasmPaths = ORTA; ort.env.wasm.numThreads = threads;
+        var buf = r[1];
+        return ort.InferenceSession.create(buf, { executionProviders: eps, graphOptimizationLevel: 'all' })
+          .then(function (s) { backend = eps[0]; return s; })
+          .catch(function () { return ort.InferenceSession.create(buf, { executionProviders: ['wasm'] }).then(function (s) { backend = 'wasm'; return s; }); });
+      }).then(function (s) {
+        model = s; online();
+        return fetchModel('models/face.onnx').then(function (b) { return ort.InferenceSession.create(b, { executionProviders: ['wasm'] }); })
+          .then(function (f) { faceNet = f; log('SYS', 'face model online, faces will be blurred'); })
+          .catch(function (e) { log('ERR', /not found/.test(String(e && e.message)) ? 'missing models/face.onnx' : 'face model could not load'); });
+      }).catch(function (e) {
+        dlPct = -1; detFailed = true;
+        var m = String(e && e.message || e);
+        log('ERR', /not found/.test(m) ? 'missing ' + m.split(' ')[0] + ', upload the models folder' : /ort/.test(m) || !window.ort ? 'could not load ONNX Runtime from the CDN' : 'detector failed: ' + m.slice(0, 60));
+      });
+    }
+    if (!useWorker || typeof Worker === 'undefined') return local();
+    try { worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }))); } catch (e) { worker = null; return local(); }
+    var settled = false;
+    function giveUp() { if (settled) return; settled = true; try { worker.terminate(); } catch (e) {} worker = null; log('SYS', 'background worker unavailable, running on the page'); local(); }
+    worker.onmessage = function (e) {
+      var m = e.data;
+      if (m.t === 'r') { var q = wReq[m.id]; if (q) { delete wReq[m.id]; q[0](m); } return; }
+      if (m.t === 'ready') { settled = true; model = { worker: true }; backend = m.backend; online(); }
+      else if (m.t === 'face') { faceReady = true; log('SYS', 'face model online, faces will be blurred'); }
+      else if (m.t === 'noface') log('ERR', 'face model could not load');
+      else if (m.t === 'fail') { if (!settled) giveUp(); }
+    };
+    worker.onerror = function () { if (!settled) giveUp(); else Object.keys(wReq).forEach(function (k) { wReq[k][1](new Error('worker')); delete wReq[k]; }); };
+    worker.postMessage({ t: 'init', ort: ORTA, threads: threads, eps: eps, det: abs('models/yolox_tiny.onnx'), face: abs('models/face.onnx'), sz: SZ });
+    setTimeout(function () { if (!settled) giveUp(); }, 90000);
   }
 
   /* ---------- drawing helpers ---------- */
@@ -1384,26 +1362,12 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     sx.setTransform(1, 0, 0, 1, 0, 0);
     if (mode === 'thermal') {
       if (!LUT) LUT = thermalLUT();
-      tmp.width = Math.max(1, Math.round(cw / 2)); tmp.height = Math.max(1, Math.round(ch / 2));
+      tmp.width = cw; tmp.height = ch;
       tx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, tmp.width, tmp.height);
       var img = tx.getImageData(0, 0, tmp.width, tmp.height), d = img.data;
       for (var i = 0; i < d.length; i += 4) { var c = LUT[(d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11) | 0]; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; }
       tx.putImageData(img, 0, 0);
       sx.drawImage(tmp, 0, 0, cw, ch);
-      /* people, animals and engines read hot: their own pixels lifted to white, feathered at the edges */
-      sx.save(); sx.globalCompositeOperation = 'screen';
-      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return; var x0 = t.b[0] * S, y0 = t.b[1] * S, x1 = t.b[2] * S, y1 = t.b[3] * S, w = Math.round(x1 - x0), h = Math.round(y1 - y0); if (w < 4 || h < 4) return;
-        var person = t.g === 'p'; hot.width = w; hot.height = h; hx2.globalCompositeOperation = 'source-over';
-        hx2.fillStyle = person ? '#8a8a8a' : '#6a6a6a'; hx2.fillRect(0, 0, w, h); hx2.globalCompositeOperation = 'screen';
-        hx2.filter = 'grayscale(1) brightness(' + (person ? 3.2 : 2.4) + ') contrast(1.3) blur(' + Math.max(.5, w / 70).toFixed(1) + 'px)';
-        hx2.drawImage(tmp, x0 / 2, y0 / 2, w / 2, h / 2, 0, 0, w, h); hx2.filter = 'none';
-        if (person) { var fg = hx2.createRadialGradient(w / 2, h * .1, 0, w / 2, h * .1, Math.max(4, w * .28)); fg.addColorStop(0, 'rgba(255,255,255,.85)'); fg.addColorStop(1, 'rgba(255,255,255,0)'); hx2.fillStyle = fg; hx2.fillRect(0, 0, w, h); }
-        hx2.globalCompositeOperation = 'destination-in';
-        hx2.save(); hx2.translate(w / 2, h / 2); hx2.scale(w / 2, h / 2);
-        var m = hx2.createRadialGradient(0, 0, 0, 0, 0, 1); m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(.62, 'rgba(0,0,0,.9)'); m.addColorStop(1, 'rgba(0,0,0,0)');
-        hx2.fillStyle = m; hx2.fillRect(-1, -1, 2, 2); hx2.restore();
-        sx.drawImage(hot, x0, y0); });
-      sx.restore();
     } else {
       sx.filter = 'grayscale(1) contrast(1.15) brightness(.92)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
@@ -1541,7 +1505,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   function resize() {
     var r = feed.getBoundingClientRect();
     W = Math.max(1, r.width); H = Math.max(1, r.height); dpr = Math.min(window.devicePixelRatio || 1, 2);
-    S = Math.min(1, 900 / W);                          /* the camera image is drawn at lower resolution, like a real feed */
+    S = Math.min(1, 1400 / W);                          /* the camera image is drawn at lower resolution, like a real feed */
     sc.width = Math.round(W * S); sc.height = Math.round(H * S);
     hc.width = Math.round(W * dpr); hc.height = Math.round(H * dpr);
     computeCrop();
@@ -1610,7 +1574,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '  games           list the games',
         '  cat <file>      read about.txt, contact.txt or README.md',
         '  neofetch        system summary',
-        '  thermal         switch the camera feed to white-hot thermal',
+        '  thermal         switch the camera feed to thermal (white hot)',
         '  optical         switch the camera feed back to optical',
         '  next            switch to the next camera feed',
         '  track           jump up to the live feed',
@@ -1656,7 +1620,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       return '<div class="nf"><canvas class="orb" aria-hidden="true"></canvas><div class="nfi">' + info.join('\n') + '</div></div>';
     },
     next: function () { var f = window.ldbNextFeed && window.ldbNextFeed(); return f ? '<span class="ok">switching to ' + f.cam + ' ' + esc(f.place) + '</span>' : '<span class="dim">no other feed ready yet</span>'; },
-    thermal: function () { if (window.ldbSetMode) window.ldbSetMode('thermal'); return '<span class="ok">sensor mode set to WHITE HOT</span>  <span class="dim">(type "track" to look)</span>'; },
+    thermal: function () { if (window.ldbSetMode) window.ldbSetMode('thermal'); return '<span class="ok">sensor mode set to THERMAL</span>  <span class="dim">(type "track" to look)</span>'; },
     optical: function () { if (window.ldbSetMode) window.ldbSetMode('optical'); return '<span class="ok">sensor mode set to OPTICAL</span>'; },
     track: function () { document.getElementById('vision').scrollIntoView({ behavior: 'smooth' }); return '<span class="dim">back to the live feed...</span>'; },
     main: function () { setTimeout(function () { location.href = '/'; }, 400); return '<span class="dim">opening ldiazbusquets.github.io ...</span>'; },
