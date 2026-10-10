@@ -982,7 +982,7 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
   function textCols(s) { var cols = []; s.split('').forEach(function (c) { var g = glyph(c); for (var b = 4; b >= 0; b--) { var col = 0; for (var r = 0; r < 7; r++) if (g[r] >> b & 1) col |= 1 << r; cols.push(col); } cols.push(0); }); return cols; }
   var ROWS = 13, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null, PX = null, PY = null, PR = null;
   /* the outline of the visor glass (in the helmet image's pixels), so the matrix bends with it instead of sitting in a flat box */
-  var GLASS = [[306,392],[722,392],[717,420],[705,447],[691,462],[661,464],[632,466],[602,468],[573,469],[543,469],[514,470],[484,469],[454,469],[425,468],[395,466],[366,464],[336,462],[322,447],[311,420]],
+  var GLASS = [[306,396],[722,396],[717,423],[705,450],[691,467],[661,469],[632,470],[602,472],[573,472],[543,473],[514,473],[484,473],[454,472],[425,472],[395,470],[366,469],[336,467],[322,450],[311,423]],
     BX = 298, BY = 384, BW = 432, BH = 110;
   function span(gx) {                                         /* top and bottom of the glass at one image column */
     var lo = 1e9, hi = -1e9;
