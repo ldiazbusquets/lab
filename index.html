@@ -338,7 +338,7 @@
 
   /* closing banner and footer */
   .cta2 { position: relative; margin-top: clamp(96px, 11vw, 150px); min-height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
-  .cta2 { min-height: clamp(560px, 52vw, 760px); background: radial-gradient(90% 60% at 50% 30%, #12202A 0%, #0B0E10 55%, #0B0C0D 100%); isolation: isolate; }
+  .cta2 { min-height: clamp(560px, 52vw, 760px); background: #07090A; isolation: isolate; }
   .cta2 .bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: -1; -webkit-mask: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); mask: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); }
   .cta2::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgba(11,12,13,.55) 0%, rgba(11,12,13,.12) 45%, transparent 65%), linear-gradient(0deg, rgba(11,12,13,.55), transparent 40%); }
   .cta2 .cta { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -665,11 +665,11 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 </main>
 
 <section class="cta2" aria-label="Get started">
-  <canvas class="bg" id="grid" role="img" aria-label="Animated glowing grid stretching to the horizon, with light trails racing across it"></canvas>
+  <canvas class="bg" id="grid" role="img" aria-label="A dark digital sea under a heavy sky, with monoliths and glowing pillars of light rising from the water"></canvas>
   <div class="w rv">
     <span class="lbl">Simulation, live</span>
     <h2 style="margin-top:16px">A sea of simulations, <span>running right now.</span></h2>
-    <p>Every agent in the Lab learns by living through thousands of simulated markets, games and lifetimes before it is judged on data it has never seen. This is the world they train in, and the light trails are agents finding their way across it.</p>
+    <p>Every agent in the Lab learns by living through thousands of simulated markets, games and lifetimes before it is judged on data it has never seen. This is the world they train in: an endless sea of runs, each pillar of light one simulation in progress.</p>
     <div class="cta"><a class="pill lt" href="learn.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Start the course</a><a class="pill gl" href="#agents" data-go="agents">Meet the agents</a></div>
   </div>
 </section>
@@ -982,7 +982,7 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
   function textCols(s) { var cols = []; s.split('').forEach(function (c) { var g = glyph(c); for (var b = 4; b >= 0; b--) { var col = 0; for (var r = 0; r < 7; r++) if (g[r] >> b & 1) col |= 1 << r; cols.push(col); } cols.push(0); }); return cols; }
   var ROWS = 13, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null, PX = null, PY = null, PR = null;
   /* the outline of the visor glass (in the helmet image's pixels), so the matrix bends with it instead of sitting in a flat box */
-  var GLASS = [[306,392],[722,392],[717,420],[705,447],[691,464],[668,476],[640,483],[600,486],[560,486],[545,479],[525,474],[500,474],[480,479],[465,486],[420,486],[385,483],[357,476],[336,464],[322,447],[311,420]],
+  var GLASS = [[306,392],[722,392],[717,420],[705,447],[691,462],[661,464],[632,466],[602,468],[573,469],[543,469],[514,470],[484,469],[454,469],[425,468],[395,466],[366,464],[336,462],[322,447],[311,420]],
     BX = 298, BY = 384, BW = 432, BH = 110;
   function span(gx) {                                         /* top and bottom of the glass at one image column */
     var lo = 1e9, hi = -1e9;
@@ -1054,72 +1054,89 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
   go();
 })();
 
-/* ---------- closing banner: a sea of simulation, a living grid with agents racing across it ---------- */
+/* ---------- closing banner: a sea of simulation. Dark digital water, fog, monoliths, and pillars of light ---------- */
 (function () {
   var cv = document.getElementById('grid'); if (!cv) return;
   var x = cv.getContext('2d'), W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, T = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var CAMH = 1.6, SPEED = 1.15, ZN = .6, ZF = 34, XS = 22, F = 0, HZ = 0;
-  function wave(wx, wz) {                                    /* the surface swells slowly, like a sea */
-    return .32 * Math.sin(wx * .33 + T * .55) + .24 * Math.sin(wz * .29 - T * .8) + .1 * Math.sin((wx - wz) * .7 + T * 1.25); }
-  function proj(wx, wz) { var z = wz - T * SPEED; if (z < ZN) return null; return [W / 2 + wx / z * F, HZ + (CAMH - wave(wx, wz)) / z * F, z]; }
-  function fog(z) { return Math.max(0, Math.min(1, (ZF - z) / (ZF * .7))) * Math.min(1, (z - ZN) * 1.4); }
-  /* agents: light trails that run along the grid lines and turn at the crossings */
-  var COLS = ['143,226,238', '236,244,248', '143,195,186'], runners = [];
-  function spawn(r, i) { r.c = COLS[i % COLS.length]; r.x = Math.round((Math.random() - .5) * 16); r.z = Math.round(T * SPEED + 3 + Math.random() * 15);
-    var d = Math.floor(Math.random() * 3); r.dx = d === 0 ? 1 : d === 1 ? -1 : 0; r.dz = r.dx ? 0 : -1; r.v = 4 + Math.random() * 3; r.trail = []; r.next = 1; r.age = 0; return r; }
-  function stepRunners(dt) {
-    runners.forEach(function (r, i) {
-      r.age += dt; var mv = r.v * dt; r.x += r.dx * mv; r.z += r.dz * mv; r.next -= mv;
-      if (r.next <= 0) {                                      /* at a crossing: snap, and sometimes turn */
-        r.x = Math.round(r.x); r.z = Math.round(r.z); r.next = 1;
-        if (Math.random() < .28) { if (r.dx) { r.dz = Math.random() < .7 ? -1 : 1; r.dx = 0; } else { r.dx = Math.random() < .5 ? 1 : -1; r.dz = 0; } } }
-      r.trail.push([r.x, r.z]); if (r.trail.length > 70) r.trail.shift();
-      if (r.z - T * SPEED < ZN + .2 || r.z - T * SPEED > ZF || Math.abs(r.x) > XS || r.age > 16) spawn(r, i); });
+  var CAMH = 1.25, ZN = .7, ZF = 60, F = 0, HZ = 0, shards = [], pillars = [], specks = [];
+  function rnd(a) { a = Math.sin(a * 127.1) * 43758.5453; return a - Math.floor(a); }
+  function wave(wx, wz) {                                   /* a slow, heavy swell with fine chop on top */
+    return .22 * Math.sin(wx * .23 + wz * .31 - T * .7) + .14 * Math.sin(wx * .57 - wz * .21 + T * .9) + .05 * Math.sin(wx * 1.9 + wz * 1.3 - T * 2.1); }
+  function build() {
+    shards = []; pillars = []; specks = [];
+    /* monoliths: some hang from above, some break the surface. Angular, dark, generated, never the same twice */
+    for (var i = 0; i < 16; i++) { var hang = i < 10, cx = rnd(i + 1) * 1.1 - .05, w = .01 + rnd(i + 7) * .028, side = Math.abs(cx - .5) > .17 || !hang;
+      if (!side) cx = cx < .5 ? cx - .2 : cx + .2;
+      var depth = .35 + rnd(i + 3) * .65, pts = [];
+      if (hang) { var bot = HZ * (.35 + rnd(i + 11) * .55); pts = [[cx - w, -10], [cx + w, -10], [cx + w * 1.15, bot * .35], [cx + w * (.5 + rnd(i + 2) * .4), bot * .62], [cx + w * .7, bot * .74], [cx + w * .15, bot], [cx - w * .25, bot * (.86 + rnd(i + 5) * .08)], [cx - w * .6, bot * .7], [cx - w * (.7 + rnd(i + 9) * .3), bot * .48], [cx - w * 1.1, bot * .3]]; }
+      else { var top = HZ - (50 + rnd(i + 13) * 150) * depth, ww = w * .5, lean = (rnd(i + 17) - .5) * ww * 1.4;
+        pts = [[cx - ww, HZ + 4], [cx - ww * .85 + lean * .3, (HZ + top) / 2], [cx - ww * .2 + lean, top + 14], [cx + ww * .3 + lean, top], [cx + ww * .8 + lean * .4, top + 30], [cx + ww, HZ + 4]]; }
+      shards.push({ p: pts, d: depth, hang: hang }); }
+    for (var k = 0; k < 7; k++) { var px = (k + .5) / 7 + (rnd(k + 21) - .5) * .1, top2 = HZ * (.15 + rnd(k + 41) * .6);
+      shards.forEach(function (sh) { if (sh.hang && Math.abs(sh.p[3][0] - px) < .03) { px = sh.p[3][0]; top2 = sh.p[3][1]; } });   /* light falling from a monolith's tip */
+      pillars.push({ x: px, top: top2, d: .3 + rnd(k + 51) * .7, ph: rnd(k + 61) * 6.28, sp: .4 + rnd(k + 71) * .8 }); }
+    for (var s = 0; s < 70; s++) specks.push({ x: Math.random(), y: Math.random(), v: .02 + Math.random() * .05, a: .15 + Math.random() * .35 });
   }
   function size() { var b = cv.getBoundingClientRect(); if (b.width < 4) return false; dpr = Math.min(2, window.devicePixelRatio || 1); W = b.width; H = b.height;
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); F = Math.max(W, H * 1.4) * .55; HZ = H * .3;
-    if (!runners.length) for (var i = 0; i < 6; i++) runners.push(spawn({}, i)); return true; }
-  function line(pts, col, a, w) { var started = false; x.strokeStyle = 'rgba(' + col + ',' + a.toFixed(3) + ')'; x.lineWidth = w; x.beginPath();
-    pts.forEach(function (p) { if (!p) { started = false; return; } if (started) x.lineTo(p[0], p[1]); else { x.moveTo(p[0], p[1]); started = true; } }); x.stroke(); }
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); F = Math.max(W * .75, H); HZ = H * .46; build(); return true; }
   function draw() {
-    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
-    var hg = x.createLinearGradient(0, HZ - 120, 0, HZ + 160);                     /* the glow where the sea meets the sky */
-    hg.addColorStop(0, 'rgba(120,200,220,0)'); hg.addColorStop(.42, 'rgba(120,200,220,.16)'); hg.addColorStop(.5, 'rgba(190,235,245,.22)'); hg.addColorStop(1, 'rgba(120,200,220,0)');
-    x.fillStyle = hg; x.fillRect(0, HZ - 120, W, 280);
-    var hl = x.createLinearGradient(0, 0, W, 0);                                    /* a bright horizon line */
-    hl.addColorStop(0, 'rgba(170,235,248,0)'); hl.addColorStop(.5, 'rgba(200,245,252,.85)'); hl.addColorStop(1, 'rgba(170,235,248,0)');
-    x.fillStyle = hl; x.fillRect(0, HZ + CAMH / ZF * F - 1, W, 1.5);
-    x.lineCap = 'round';
-    var z0 = Math.floor(T * SPEED + ZN);
-    for (var wz = z0; wz < T * SPEED + ZF; wz++) {                                  /* lines across */
-      var p0 = proj(0, wz); if (!p0) continue; var pts = [];
-      for (var wx = -XS; wx <= XS; wx += .5) pts.push(proj(wx, wz));
-      line(pts, '150,225,240', .85 * fog(p0[2]), Math.max(.6, 4.5 / p0[2])); }
-    for (var gx = -XS; gx <= XS; gx++) {                                            /* lines into the distance */
-      var pts2 = [], zz; for (zz = z0; zz < T * SPEED + ZF; zz += .5) pts2.push(proj(gx, zz));
-      for (var s = 1; s < pts2.length; s++) { var a = pts2[s - 1], b = pts2[s]; if (!a || !b) continue;
-        x.strokeStyle = 'rgba(150,225,240,' + (.8 * fog(b[2])).toFixed(3) + ')'; x.lineWidth = Math.max(.6, 4.5 / b[2]); x.beginPath(); x.moveTo(a[0], a[1]); x.lineTo(b[0], b[1]); x.stroke(); } }
-    x.globalCompositeOperation = 'lighter';                                          /* the agents, glowing */
-    runners.forEach(function (r) { var n = r.trail.length; if (n < 2) return;
-      var CH = 8, seg = Math.ceil(n / CH);                                        /* drawn in a few chunks so the trail fades without beading */
-      for (var ch = 0; ch < CH; ch++) { var s0 = ch * seg, s1 = Math.min(n - 1, s0 + seg); if (s1 <= s0) continue;
-        var pts3 = []; for (var k = s0; k <= s1; k++) pts3.push(proj(r.trail[k][0], r.trail[k][1]));
-        var ref = pts3[pts3.length - 1] || pts3[0]; if (!ref) continue;
-        var f = Math.pow((ch + 1) / CH, .8) * fog(ref[2]), wdt = Math.min(4.5, Math.max(1.2, 10 / ref[2]));
-        x.lineCap = 'butt'; x.lineJoin = 'round';
-        line(pts3, r.c, f * .28, wdt * 4); line(pts3, r.c, f * .95, wdt); line(pts3, '255,255,255', f * .7, Math.max(.8, wdt * .35)); }
-      var hp = proj(r.x, r.z); if (hp) { var rr = Math.min(5, Math.max(1.5, 10 / hp[2])), fg = fog(hp[2]);
-        x.fillStyle = 'rgba(' + r.c + ',' + (.25 * fg).toFixed(3) + ')'; x.beginPath(); x.arc(hp[0], hp[1], rr * 3, 0, 6.283); x.fill();
-        x.fillStyle = 'rgba(255,255,255,' + (.95 * fg).toFixed(3) + ')'; x.beginPath(); x.arc(hp[0], hp[1], rr, 0, 6.283); x.fill(); } });
+    x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var sky = x.createLinearGradient(0, 0, 0, HZ);                              /* a low, heavy sky */
+    sky.addColorStop(0, '#07090A'); sky.addColorStop(.6, '#0E1519'); sky.addColorStop(1, '#1A262C');
+    x.fillStyle = sky; x.fillRect(0, 0, W, HZ + 2);
+    for (var c = 0; c < 5; c++) {                                                  /* clouds glowing behind the monoliths */
+      var cx = ((c * .27 + T * .004 * (c % 2 ? 1 : -1)) % 1.2 + 1.2) % 1.2 - .1, cy = HZ * (.62 + .1 * Math.sin(c * 2.1)), r = W * (.12 + .05 * (c % 3));
+      var g = x.createRadialGradient(cx * W, cy, 0, cx * W, cy, r); g.addColorStop(0, 'rgba(150,180,192,' + (.16 + .05 * Math.sin(T * .3 + c)).toFixed(3) + ')'); g.addColorStop(1, 'rgba(150,180,192,0)');
+      x.fillStyle = g; x.fillRect(cx * W - r, cy - r, r * 2, r * 2); }
+    /* far monoliths first, then pillars, then near monoliths */
+    function shard(sh) { var shade = Math.round(9 + (1 - sh.d) * 16); x.fillStyle = 'rgb(' + shade + ',' + (shade + 4) + ',' + (shade + 6) + ')';
+      x.beginPath(); sh.p.forEach(function (q, i) { var X = q[0] * W, Y = q[1]; if (i) x.lineTo(X, Y); else x.moveTo(X, Y); }); x.closePath(); x.fill(); }
+    shards.filter(function (s) { return s.d < .6; }).forEach(shard);
+    x.globalCompositeOperation = 'lighter';
+    pillars.forEach(function (p) { var fl = .75 + .25 * Math.sin(T * p.sp * 3 + p.ph) * Math.sin(T * p.sp * 7.3 + p.ph * 2), X = p.x * W, base = HZ + 2 + (1 - p.d) * 6, wdt = 1 + p.d * 1.6;
+      var gl = x.createLinearGradient(0, p.top, 0, base); gl.addColorStop(0, 'rgba(160,230,245,0)'); gl.addColorStop(.25, 'rgba(160,230,245,' + (.5 * fl).toFixed(3) + ')'); gl.addColorStop(1, 'rgba(200,245,252,' + (.95 * fl).toFixed(3) + ')');
+      x.fillStyle = gl; x.fillRect(X - wdt / 2, p.top, wdt, base - p.top);
+      var halo = x.createLinearGradient(X - 22 * p.d, 0, X + 22 * p.d, 0); halo.addColorStop(0, 'rgba(120,200,225,0)'); halo.addColorStop(.5, 'rgba(120,200,225,' + (.14 * fl).toFixed(3) + ')'); halo.addColorStop(1, 'rgba(120,200,225,0)');
+      x.fillStyle = halo; x.fillRect(X - 22 * p.d, p.top + (base - p.top) * .3, 44 * p.d, (base - p.top) * .7);
+      var bl = x.createRadialGradient(X, base, 0, X, base, 60 * p.d + 20); bl.addColorStop(0, 'rgba(170,225,240,' + (.35 * fl).toFixed(3) + ')'); bl.addColorStop(1, 'rgba(170,225,240,0)');
+      x.fillStyle = bl; x.fillRect(X - 90, base - 90, 180, 180);
+      p.base = base; p.fl = fl; p.wd = wdt; });
     x.globalCompositeOperation = 'source-over';
+    shards.filter(function (s) { return s.d >= .6; }).forEach(shard);
+    /* the sea: the water's surface drawn as fine scanlines, lit where the swell faces the light */
+    var wg = x.createLinearGradient(0, HZ, 0, H); wg.addColorStop(0, '#141D22'); wg.addColorStop(.3, '#0A0F12'); wg.addColorStop(1, '#050708');
+    x.fillStyle = wg; x.fillRect(0, HZ, W, H - HZ);
+    var rows = Math.round(Math.min(150, H / 3.2));
+    for (var r = 0; r < rows; r++) {
+      var u = r / (rows - 1), wz = ZN + Math.pow(1 - u, 2.4) * (ZF - ZN) + 1, fog = Math.min(1, (ZF - wz) / ZF * 1.6), pts = [], sl = [];
+      for (var sx = -60; sx <= W + 60; sx += 10) { var wx = (sx - W / 2) / F * wz, y0 = wave(wx, wz), y1 = wave(wx, wz + .35);
+        pts.push([sx, HZ + (CAMH - y0) / wz * F]); sl.push(y0 - y1); }
+      x.lineWidth = Math.max(.6, 2.2 / Math.sqrt(wz));
+      for (var i2 = 1; i2 < pts.length; i2++) { var lit = Math.max(0, sl[i2] * 7 + .2), a = Math.min(.8, (.09 + lit * .75) * Math.max(fog, .55));
+        var near = 0; pillars.forEach(function (p) { var d = Math.abs(pts[i2][0] - p.x * W); if (d < 70) near += (1 - d / 70) * .6 * p.d; });
+        a = Math.min(.9, a + near * lit * fog);
+        if (a < .02) continue;
+        x.strokeStyle = 'rgba(' + Math.round(150 + near * 60) + ',' + Math.round(185 + near * 50) + ',' + Math.round(198 + near * 50) + ',' + a.toFixed(3) + ')';
+        x.beginPath(); x.moveTo(pts[i2 - 1][0], pts[i2 - 1][1]); x.lineTo(pts[i2][0], pts[i2][1]); x.stroke(); } }
+    x.globalCompositeOperation = 'lighter';                                          /* each pillar's broken reflection in the swell */
+    pillars.forEach(function (p) { var X = p.x * W, len = (H - HZ) * (.35 + p.d * .4);
+      for (var yy = 0; yy < len; yy += 3) { var k = 1 - yy / len, jit = Math.sin(yy * .35 + T * 3 + p.ph) * (2 + yy * .04), on2 = Math.sin(yy * .9 - T * 4 + p.ph) > -.2;
+        if (!on2) continue; x.fillStyle = 'rgba(170,230,245,' + (.45 * k * k * p.fl).toFixed(3) + ')'; x.fillRect(X + jit - p.wd * (1 + yy * .02), p.base + yy, p.wd * 2 * (1 + yy * .02), 1.5); } });
+    x.globalCompositeOperation = 'source-over';
+    var fg = x.createLinearGradient(0, HZ - H * .16, 0, HZ + H * .12);              /* mist sitting on the water */
+    fg.addColorStop(0, 'rgba(120,150,162,0)'); fg.addColorStop(.55, 'rgba(120,150,162,.3)'); fg.addColorStop(1, 'rgba(120,150,162,0)');
+    x.fillStyle = fg; x.fillRect(0, HZ - H * .16, W, H * .28);
+    x.fillStyle = 'rgba(200,225,235,1)';                                           /* specks of data drifting down */
+    specks.forEach(function (s) { s.y += s.v * .016; if (s.y > 1) { s.y = 0; s.x = Math.random(); } x.globalAlpha = s.a * (1 - s.y * .5); x.fillRect(s.x * W, s.y * H, 1, 3 + s.v * 40); });
+    x.globalAlpha = 1;
   }
   function frame(now) { raf = 0; if (!on) return; var dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
     if (!W && !size()) { raf = requestAnimationFrame(frame); return; }
-    T += dt; stepRunners(dt); draw(); if (!reduce) raf = requestAnimationFrame(frame); }
+    T += dt; draw(); if (!reduce) raf = requestAnimationFrame(frame); }
   addEventListener('resize', function () { W = 0; if (on && !raf) raf = requestAnimationFrame(frame); });
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { on = e[0].isIntersecting; if (on && !raf) { last = 0; raf = requestAnimationFrame(frame); } }, { rootMargin: '120px' }).observe(cv);
   else { on = true; raf = requestAnimationFrame(frame); }
-  if (reduce) { on = true; size(); for (var i = 0; i < 120; i++) { T += .016; stepRunners(.016); } draw(); }
+  if (reduce) { on = true; size(); T = 3; draw(); }
 })();
 
 /* =====================================================================
