@@ -299,7 +299,7 @@
   .spot .orb canvas { width: 100%; height: 100%; display: block; }
   .spot .orb::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, transparent 52%, rgba(15,17,18,.9)); pointer-events: none; }
   .spot .r p { color: var(--t2); margin: 0 0 24px; max-width: 360px; }
-  @media (max-width: 900px) { .spot { grid-template-columns: minmax(0, 1fr); justify-items: start; } }
+  @media (max-width: 900px) { .spot { grid-template-columns: minmax(0, 1fr); justify-items: start; } .spot .orb { justify-self: center; } }
 
   /* index */
   .tabs { display: inline-flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.06); margin-top: 30px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
@@ -1262,8 +1262,16 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     v.addEventListener('loadeddata', function () { v._ok = true; if (cur < 0) show(i, true); }, { once: true });
     v.addEventListener('error', function () { bad[i] = true; vids[i] = null; if (cur < 0) tryNext(i); else preloadAfter(i); }, { once: true });
     v.src = FEEDS[i].src;
+    v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'; vhold().appendChild(v); kick(v, i);
     vids[i] = v; return v;
   }
+  var vbox = null, needTap = false;
+  function vhold() {   /* the clips sit inside the feed, under the canvas that draws them: phones only keep playing video they consider visible */
+    if (!vbox) { vbox = document.createElement('div'); vbox.setAttribute('aria-hidden', 'true'); vbox.style.cssText = 'position:absolute;inset:0;overflow:hidden;pointer-events:none'; feed.insertBefore(vbox, feed.firstChild); }
+    return vbox; }
+  function kick(v, i) { var p = v.play(); if (p && p.then) p.then(function () { if (i !== cur || paused || !running) v.pause(); }).catch(function () { needTap = true; }); }
+  function unlock() { vids.forEach(function (v, i) { if (v) kick(v, i); }); needTap = false; }
+  ['touchstart', 'pointerdown', 'keydown'].forEach(function (e) { addEventListener(e, unlock, { once: true, passive: true }); });
   function tryNext(from) {
     for (var k = 1; k <= FEEDS.length; k++) { var i = (from + k) % FEEDS.length; if (!bad[i]) { make(i); return; } }
     log('ERR', 'no feeds available, check the feeds folder');
@@ -1816,7 +1824,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, W, H);
     hx.textAlign = 'center';
     hx.fillStyle = 'rgba(242,244,245,.85)'; hx.font = '500 13px "Manrope", system-ui, sans-serif';
-    hx.fillText(dead ? 'Camera feed unavailable on this device' : 'Connecting to camera feed', W / 2, H / 2 - 4);
+    hx.fillText(dead ? 'Camera feed unavailable on this device' : needTap ? 'Tap to start the camera feed' : 'Connecting to camera feed', W / 2, H / 2 - 4);
     hx.fillStyle = 'rgba(160,167,176,.8)'; hx.font = '400 11px "Geist Mono", ui-monospace, monospace';
     hx.fillText(dead ? 'The rest of the Lab works normally' : 'Loading video' + '...'.slice(0, 1 + Math.floor(T * 2) % 3), W / 2, H / 2 + 16);
     hx.textAlign = 'left';
