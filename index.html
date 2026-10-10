@@ -23,7 +23,7 @@
     return null; }
   function apply(t) { var lt = t === 'light', changed = root.classList.contains('lt') !== lt;
     root.classList.toggle('lt', lt); root.setAttribute('data-theme', t);
-    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#8597A4' : '#6E808E';
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#D5DDE3' : '#6E808E';
     var b = document.getElementById('themeBtn'); if (b) b.setAttribute('aria-label', lt ? 'Switch to dark' : 'Switch to light');
     if (changed) window.dispatchEvent(new Event('themechange')); }
   apply(chosen() || byHour());
@@ -113,7 +113,7 @@
   /* the helmet, with a dot-matrix display living inside its visor glass */
   .stage.helm { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); height: min(82%, 800px); aspect-ratio: 1; pointer-events: none; }
   .stage.helm img { width: 100%; height: 100%; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,.35)); animation: helmIn 1.4s cubic-bezier(.2,.7,.2,1) both; }
-  .stage.helm .visor { position: absolute; left: 29.1%; top: 37.5%; width: 42.19%; height: 10.74%; -webkit-mask: url(img/visor.png) center / 100% 100% no-repeat; mask: url(img/visor.png) center / 100% 100% no-repeat; animation: helmIn 1.4s .5s ease both; }
+  .stage.helm .visor { position: absolute; left: 29.1%; top: 37.5%; width: 42.19%; height: 10.74%; -webkit-mask: url(data:image/png;base64,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) center / 100% 100% no-repeat; mask: url(data:image/png;base64,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) center / 100% 100% no-repeat; animation: helmIn 1.4s .5s ease both; }
   .hero.has3d .stage.helm { display: none; }
   @keyframes helmIn { from { opacity: 0; transform: translateY(18px); } }
   @media (prefers-reduced-motion: reduce) { .stage.helm img, .stage.helm .visor { animation: none; } }
@@ -395,7 +395,7 @@
   /* light theme: on from 7 am to 7 pm, local time (set by a small script in the head) */
     html.lt { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --s3: #D5DBDF; --ln: rgba(24,34,44,.09); --ln2: rgba(24,34,44,.16);
       --ink: #15191C; --t2: #56616A; --t3: #8A949B; --mint: #3D8A7E; --green: #2E9E58; --red: #D64545;
-      --steel: linear-gradient(180deg, #8597A4 0%, #9AAAB5 18%, #B7C3CB 40%, #D3DAE0 64%, #E6EAED 84%, #ECEEF0 100%); }
+      --steel: linear-gradient(180deg, #D5DDE3 0%, #DFE5E9 30%, #E7EBEE 62%, #ECEEF0 100%); }
     html.lt body { background: var(--bg) radial-gradient(120% 60% at 50% 0%, #F4F6F7, transparent 70%) no-repeat; }
     html.lt ::selection { background: rgba(110,128,142,.3); }
     
@@ -463,7 +463,12 @@
     /* closing banner and footer */
     html.lt .fgrid .big4 em { color: #8C969D; }
     html.lt .wm span { background: linear-gradient(180deg, #8597A4 0%, #B7C3CB 70%, rgba(236,238,240,0) 100%); -webkit-background-clip: text; background-clip: text; }
-  
+  /* buttons sitting on a dark screen keep their dark-theme look, so they never turn white-on-white */
+  html.lt .cta2 .pill.lt, html.lt .vision .pill.lt { background: rgba(236,240,243,.92); color: #121416; box-shadow: none; }
+  html.lt .cta2 .pill.lt .ic, html.lt .vision .pill.lt .ic { background: #121416; color: #ECF0F3; }
+  html.lt .cta2 .pill.lt:hover, html.lt .vision .pill.lt:hover { background: #fff; }
+  html.lt .cta2 .pill.gl, html.lt .vision .pill.gl { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: #F2F4F5; }
+  html.lt .cta2 .pill.gl:hover, html.lt .vision .pill.gl:hover { background: rgba(255,255,255,.13); }
 </style>
 <style id="ldb-pt">@view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
@@ -517,7 +522,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
 
   <div class="scard" aria-label="What is inside">
-    <div class="tp"><svg viewBox="0 0 34 34" aria-hidden="true"><g stroke="#F2F4F5" stroke-width="1.4" stroke-linecap="round" fill="none"><circle cx="17" cy="17" r="5"/><path d="M17 3v6M17 25v6M3 17h6M25 17h6M7.1 7.1l4.2 4.2M22.7 22.7l4.2 4.2M26.9 7.1l-4.2 4.2M11.3 22.7l-4.2 4.2"/></g></svg>
+    <div class="tp"><svg viewBox="0 0 34 34" aria-hidden="true"><g stroke="#F2F4F5" stroke-width="1.4" stroke-linecap="round" fill="none"><circle cx="7" cy="9" r="2.6"/><circle cx="7" cy="25" r="2.6"/><circle cx="17" cy="17" r="2.6"/><circle cx="27" cy="9" r="2.6"/><circle cx="27" cy="25" r="2.6"/><path d="M9.3 10.3l5.4 5.3M9.3 23.7l5.4-5.3M19.3 15.6l5.4-5.3M19.3 18.4l5.4 5.3"/></g></svg>
       <button class="nx" type="button" id="scNext" aria-label="Next"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <div class="it"><i></i><div><b id="scb">01 / 14 course modules</b><span id="scs">&nbsp;</span></div></div>
     <div class="bar"><i class="on"></i><i></i><i></i><i></i></div>
@@ -960,14 +965,14 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
       p.vx += (p.ox - p.x) * .045; p.vy += (p.oy - p.y) * .045; p.vx *= .84; p.vy *= .84; p.x += p.vx; p.y += p.vy; }
     /* blurred layer: the letters out of focus */
     if (bl.width !== cv.width) { bl.width = cv.width; bl.height = cv.height; }
-    bx.setTransform(dpr, 0, 0, dpr, 0, 0); bx.clearRect(0, 0, W, H); var LT = lightQ.matches; bx.fillStyle = LT ? 'rgba(255,255,255,.72)' : 'rgba(176,192,204,.6)';
+    bx.setTransform(dpr, 0, 0, dpr, 0, 0); bx.clearRect(0, 0, W, H); var LT = lightQ.matches; bx.fillStyle = LT ? 'rgba(98,116,130,.82)' : 'rgba(176,192,204,.6)';   /* light theme: the steel blue-grey moves into the letters */
     for (var a = 0; a < P.length; a++) { var q = P[a]; bx.fillRect(q.x, q.y, g, g); }
     x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'blur(' + (Math.max(2, 9 - t * 3) * dpr).toFixed(1) + 'px)'; x.drawImage(bl, 0, 0); x.setTransform(dpr, 0, 0, dpr, 0, 0);
     /* sharp layer: in focus near the cursor and along a slow sweep */
     x.filter = 'none';
     for (var b = 0; b < P.length; b++) { var r = P[b], fx = Math.max(0, 1 - Math.abs(r.ox - (mx > -999 ? mx : sweep)) / (W * .16)), moving = Math.min(1, Math.abs(r.vx) + Math.abs(r.vy));
       var al = Math.min(.95, fx * .8 + moving * .9) * Math.min(1, t / 1.2); if (al < .03) continue;
-      x.fillStyle = (LT ? 'rgba(255,255,255,' : 'rgba(214,224,231,') + al.toFixed(2) + ')'; x.fillRect(r.x, r.y, g * r.s, g * r.s); }
+      x.fillStyle = (LT ? 'rgba(62,80,94,' : 'rgba(214,224,231,') + al.toFixed(2) + ')'; x.fillRect(r.x, r.y, g * r.s, g * r.s); }
     requestAnimationFrame(frame);
   }
   function gapSize() { return Math.max(1.6, W / 520); }
@@ -1034,31 +1039,33 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
   }
   function put(c, r, v) { if (c >= 0 && c < COLS && r >= 0 && r < ROWS) { var i = r * COLS + c; if (v > grid[i]) grid[i] = v; } }
   function stamp(cols, c0, r0, v) { for (var i = 0; i < cols.length; i++) for (var r = 0; r < 7; r++) if (cols[i] >> r & 1) put(c0 + i, r0 + r, v); }
-  var WORD = textCols('LDB LAB'), NAME = textCols('ENTITY'), TICK1 = textCols('ENTITY ONLINE'), TICK2 = textCols('APPLIED AI \u00b7 MODELS YOU CAN WATCH THINK');
+  var WORD = textCols('LDB LAB'), NAME = textCols('ENTITY'), ONL = textCols('ONLINE'), TICK2 = textCols('APPLIED AI \u00b7 MODELS YOU CAN WATCH THINK');
   function R0() { return Math.floor((ROWS - 7) / 2); }                                   /* text sits on the middle rows */
   var SPD = 26;                                                                          /* ticker speed, columns per second */
   function ticker(cols) { return { d: function () { return (COLS + cols.length) / SPD + .35; }, f: function (t) { stamp(cols, COLS - Math.floor(t * SPD), R0(), 1); } }; }
   /* the scenes, played in a loop; each one runs exactly as long as it needs to finish */
+  /* the intro plays once: ENTITY ONLINE, the name, the tagline, LDB LAB and a wipe; then the visor idles on a slow spectrum */
+  var IDLE = { d: Infinity, f: function (t) {
+      var env = Math.min(1, t * .8);
+      for (var c = 0; c < COLS; c++) { var u = c / COLS, h = (.32 + .26 * Math.sin(u * 9 + t * 2.4) * Math.sin(u * 3.3 - t * 1.3) + .2 * Math.sin(u * 23 + t * 5.2)) * ROWS * env;
+        for (var r = 0; r < Math.min(ROWS, Math.max(0, h)); r++) put(c, ROWS - 1 - r, r > ROWS * .62 ? 1 : .7); } } };
   var scenes = [
-    ticker(TICK1),                                                                       /* ENTITY ONLINE scrolls fully across */
-    { d: 3.4, f: function (t) {                                                          /* ENTITY, waking up: flickers, holds, fades */
-      var c0 = Math.round((COLS - NAME.length) / 2), on = t < .9 ? (Math.floor(t * 9) % 2 ? .25 : 1) : 1;
-      stamp(NAME, c0, R0(), on * Math.min(1, (3.4 - t) * 2.5)); } },
-    { d: 5, f: function (t) {                                                            /* a spectrum, as if listening; rises and settles back to zero */
-      var env = Math.min(1, t * 1.5, Math.max(0, (4.6 - t) * 1.5));
-      for (var c = 0; c < COLS; c++) { var u = c / COLS, h = (.35 + .3 * Math.sin(u * 9 + t * 3.1) * Math.sin(u * 3.3 - t * 1.7) + .25 * Math.sin(u * 23 + t * 7)) * ROWS * env;
-        for (var r = 0; r < Math.min(ROWS, Math.max(0, h)); r++) put(c, ROWS - 1 - r, r > ROWS * .62 ? 1 : .7); } } },
+    { d: 1.6, f: function () {} },                                                       /* a beat of dark glass while the helmet fades in */
+    { d: 3.2, f: function (t) {                                                          /* ENTITY types itself in, centred, then holds */
+      var c0 = Math.round((COLS - NAME.length) / 2), shown = Math.min(NAME.length, Math.floor(t * 20));
+      stamp(NAME.slice(0, shown), c0, R0(), Math.min(1, (3.2 - t) * 3));
+      if (shown < NAME.length) for (var r = R0() - 1; r < R0() + 8; r++) put(c0 + shown, r, .9); } },
+    { d: 2.6, f: function (t) {                                                          /* ONLINE flickers on, like a status light */
+      var c0 = Math.round((COLS - ONL.length) / 2), on = t < .8 ? (Math.floor(t * 10) % 2 ? .2 : 1) : 1;
+      stamp(ONL, c0, R0(), on * Math.min(1, (2.6 - t) * 3)); } },
     ticker(TICK2),
-    { d: function () { return WORD.length / 22 + 2.2 + (COLS + 10) / (COLS + 8) * 1.6; }, f: function (t) {   /* LDB LAB builds in column by column, holds, then a wipe clears it */
-      var c0 = Math.round((COLS - WORD.length) / 2), shown = Math.min(WORD.length, Math.floor(t * 22)), tb = WORD.length / 22, hold = tb + 1.6;
-      var wipe = t > hold ? Math.floor((t - hold) / 1.6 * (COLS + 8)) - 4 : -99;
-      var cut = wipe > -99 ? WORD.slice(Math.max(0, wipe - c0)) : WORD.slice(0, shown);
-      stamp(cut, wipe > -99 ? Math.max(c0, wipe) : c0, R0(), 1);
+    { d: function () { return WORD.length / 22 + 1.8 + 1.7; }, f: function (t) {   /* LDB LAB builds in, holds, then a bar wipes the whole visor left to right */
+      var c0 = Math.round((COLS - WORD.length) / 2), shown = Math.min(WORD.length, Math.floor(t * 22)), tb = WORD.length / 22, hold = tb + 1.8;
+      var wipe = t > hold ? Math.floor((t - hold) / 1.5 * (COLS + 10)) - 5 : -99;
+      if (wipe < 0 || wipe < c0 + WORD.length) { var cut = wipe > -99 ? WORD.slice(Math.max(0, wipe + 1 - c0)) : WORD.slice(0, shown); stamp(cut, wipe > -99 ? Math.max(c0, wipe + 1) : c0, R0(), 1); }
       if (shown < WORD.length) for (var r = R0() - 1; r < R0() + 8; r++) put(c0 + shown, r, .9);
-      if (wipe > -99) for (var r2 = 0; r2 < ROWS; r2++) put(wipe, r2, .6); } },
-    { d: 2 * Math.PI / 2.2 * 2, f: function (t) {                                       /* a scanner: exactly two sweeps there and back */
-      var p = (Math.sin(t * 2.2 - Math.PI / 2) * .5 + .5) * (COLS - 1), env = Math.min(1, t * 3, (2 * Math.PI / 2.2 * 2 - t) * 3);
-      for (var c = 0; c < COLS; c++) { var v = Math.max(0, 1 - Math.abs(c - p) / 7) * env; if (v > 0) for (var r = R0(); r < R0() + 7; r++) put(c, r, v * (r === R0() + 3 ? 1 : .75)); } } }
+      if (wipe > -99) for (var r2 = 0; r2 < ROWS; r2++) { put(wipe, r2, 1); put(wipe - 1, r2, .55); put(wipe - 2, r2, .25); } } },
+    IDLE
   ];
   function dur(sc) { return typeof sc.d === 'function' ? sc.d() : sc.d; }
   var si = 0, st = 0, last = 0, on = true, raf = 0;
@@ -1069,7 +1076,7 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
     if (grid) {
       for (var i = 0; i < grid.length; i++) grid[i] *= .45;                                                       /* LEDs fade, not snap */
       if (reduce) { stamp(NAME, Math.round((COLS - NAME.length) / 2), R0(), 1); }
-      else { if (st > dur(scenes[si])) { st = 0; si = (si + 1) % scenes.length; } scenes[si].f(st); }
+      else { if (st > dur(scenes[si]) && si < scenes.length - 1) { st = 0; si++; } scenes[si].f(st); }
       draw(now / 1000);
     }
     if (!reduce) raf = requestAnimationFrame(frame);
@@ -1090,6 +1097,8 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
   }
   function go() { if (!raf && on) raf = requestAnimationFrame(frame); }
   addEventListener('resize', function () { grid = null; if (reduce) go(); });
+  if ('ResizeObserver' in window) { var lastW = 0, lastH = 0; new ResizeObserver(function () { var r = cv.getBoundingClientRect(); if (Math.abs(r.width - lastW) > .5 || Math.abs(r.height - lastH) > .5) { lastW = r.width; lastH = r.height; grid = null; if (reduce) go(); } }).observe(cv); }
+  var himg = cv.parentNode.querySelector('img'); if (himg && !himg.complete) himg.addEventListener('load', function () { grid = null; });
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { on = e[0].isIntersecting; if (on) { last = 0; go(); } }).observe(cv);
   go();
 })();

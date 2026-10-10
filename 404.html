@@ -24,7 +24,7 @@
     return null; }
   function apply(t) { var lt = t === 'light', changed = root.classList.contains('lt') !== lt;
     root.classList.toggle('lt', lt); root.setAttribute('data-theme', t);
-    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#8597A4' : '#6E808E';
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#D5DDE3' : '#6E808E';
     var b = document.getElementById('themeBtn'); if (b) b.setAttribute('aria-label', lt ? 'Switch to dark' : 'Switch to light');
     if (changed) window.dispatchEvent(new Event('themechange')); }
   apply(chosen() || byHour());
@@ -62,7 +62,7 @@
   .links a:hover { background: rgba(255,255,255,.14); }
   .links a.p { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
   html.lt { --s1: #F6F7F8; --ln: rgba(24,34,44,.09); --ln2: rgba(24,34,44,.16); --ink: #15191C; color-scheme: light; }
-  html.lt body { background: linear-gradient(180deg, #8597A4 0%, #B7C3CB 35%, #E1E6E9 70%, #ECEEF0 100%) fixed; }
+  html.lt body { background: linear-gradient(180deg, #D5DDE3 0%, #E3E8EB 45%, #ECEEF0 100%) fixed; }
   html.lt .logo span, html.lt .k, html.lt p { color: rgba(21,25,28,.66); }
   html.lt .links a { background: rgba(255,255,255,.5); }
   html.lt .links a:hover { background: rgba(255,255,255,.85); }
