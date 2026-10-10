@@ -338,8 +338,10 @@
 
   /* closing banner and footer */
   .cta2 { position: relative; margin-top: clamp(96px, 11vw, 150px); min-height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
-  .cta2 { background: radial-gradient(60% 70% at 70% 55%, rgba(110,128,142,.22), transparent 70%); }
-  .cta2 .bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; color: var(--ink); -webkit-mask: linear-gradient(180deg, transparent, #000 18%, #000 80%, transparent); mask: linear-gradient(180deg, transparent, #000 18%, #000 80%, transparent); }
+  .cta2 { min-height: clamp(560px, 52vw, 760px); background: radial-gradient(90% 60% at 50% 30%, #12202A 0%, #0B0E10 55%, #0B0C0D 100%); isolation: isolate; }
+  .cta2 .bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: -1; -webkit-mask: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); mask: linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); }
+  .cta2::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(90deg, rgba(11,12,13,.55) 0%, rgba(11,12,13,.12) 45%, transparent 65%), linear-gradient(0deg, rgba(11,12,13,.55), transparent 40%); }
+  .cta2 .cta { display: flex; gap: 10px; flex-wrap: wrap; }
   .cta2 .w { pointer-events: none; } .cta2 .w a { pointer-events: auto; }
   .cta2 .w { position: relative; width: 100%; padding-bottom: 80px; }
   .cta2 h2 { font: 300 clamp(34px, 5vw, 66px)/1.05 var(--sans); letter-spacing: -.03em; margin: 0 0 18px; }
@@ -372,9 +374,10 @@
     body { background: var(--bg) radial-gradient(120% 60% at 50% 0%, #F4F6F7, transparent 70%) no-repeat; }
     ::selection { background: rgba(110,128,142,.3); }
     /* screens keep their dark glass: the camera, the simulator, the agent orb, the console, image captions */
-    .vision, .dash, .term, .spot .orb, .fc .gl, .show .im {
+    .vision, .dash, .term, .spot .orb, .fc .gl, .show .im, .cta2 {
       --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --s3: #23272A; --ln: rgba(255,255,255,.08); --ln2: rgba(255,255,255,.14);
       --ink: #F2F4F5; --t2: #A3ADB4; --t3: #6A747B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; color: var(--ink); }
+    .cta2 .bg { -webkit-mask: none; mask: none; }
     .dash { box-shadow: 0 50px 100px -50px rgba(30,42,52,.55), 0 0 0 1px rgba(24,34,44,.12); }
     .term { box-shadow: 0 40px 80px -48px rgba(30,42,52,.5); }
     .spot .orb { box-shadow: 0 0 0 1px rgba(24,34,44,.16), 0 0 0 16px rgba(24,34,44,.03), 0 0 0 17px rgba(24,34,44,.09), 0 30px 70px -30px rgba(30,42,52,.5); }
@@ -428,7 +431,6 @@
     @media (max-width: 820px) { .vision { background: #0B0C0D; } }
 
     /* closing banner and footer */
-    .cta2 { background: radial-gradient(60% 70% at 70% 55%, rgba(133,151,164,.25), transparent 70%); }
     .fgrid .big4 em { color: #8C969D; }
     .wm span { background: linear-gradient(180deg, #8597A4 0%, #B7C3CB 70%, rgba(236,238,240,0) 100%); -webkit-background-clip: text; background-clip: text; }
   }
@@ -663,12 +665,12 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 </main>
 
 <section class="cta2" aria-label="Get started">
-  <canvas class="bg" id="descent" role="img" aria-label="Animated contour map of a loss surface, with dots rolling downhill to its lowest point"></canvas>
+  <canvas class="bg" id="grid" role="img" aria-label="Animated glowing grid stretching to the horizon, with light trails racing across it"></canvas>
   <div class="w rv">
-    <span class="lbl">Gradient descent, live</span>
-    <h2 style="margin-top:16px">Every model learns <span>by rolling downhill.</span></h2>
-    <p>Each line is a level of error. The dots follow the slope to the lowest point they can find, and some get stuck in a shallower one. Training a model is exactly this, in millions of dimensions. Module 01 starts here.</p>
-    <a class="pill lt" href="learn.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Start the course</a>
+    <span class="lbl">Simulation, live</span>
+    <h2 style="margin-top:16px">A sea of simulations, <span>running right now.</span></h2>
+    <p>Every agent in the Lab learns by living through thousands of simulated markets, games and lifetimes before it is judged on data it has never seen. This is the world they train in, and the light trails are agents finding their way across it.</p>
+    <div class="cta"><a class="pill lt" href="learn.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Start the course</a><a class="pill gl" href="#agents" data-go="agents">Meet the agents</a></div>
   </div>
 </section>
 
@@ -978,16 +980,29 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
     '/': '01010204081010', '%': '18190204081303', '>': '08040201020408', '·': '00000004000000' };
   function glyph(c) { var h = F[c] || F[' '], r = []; for (var i = 0; i < 7; i++) r.push(parseInt(h.substr(i * 2, 2), 16)); return r; }
   function textCols(s) { var cols = []; s.split('').forEach(function (c) { var g = glyph(c); for (var b = 4; b >= 0; b--) { var col = 0; for (var r = 0; r < 7; r++) if (g[r] >> b & 1) col |= 1 << r; cols.push(col); } cols.push(0); }); return cols; }
-  var ROWS = 13, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null;
+  var ROWS = 13, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null, PX = null, PY = null, PR = null;
+  /* the outline of the visor glass (in the helmet image's pixels), so the matrix bends with it instead of sitting in a flat box */
+  var GLASS = [[306,392],[722,392],[717,420],[705,447],[691,464],[668,476],[640,483],[600,486],[560,486],[545,479],[525,474],[500,474],[480,479],[465,486],[420,486],[385,483],[357,476],[336,464],[322,447],[311,420]],
+    BX = 298, BY = 384, BW = 432, BH = 110;
+  function span(gx) {                                         /* top and bottom of the glass at one image column */
+    var lo = 1e9, hi = -1e9;
+    for (var i = 0; i < GLASS.length; i++) { var a = GLASS[i], b = GLASS[(i + 1) % GLASS.length];
+      if ((a[0] <= gx && b[0] >= gx) || (b[0] <= gx && a[0] >= gx)) { var y = a[0] === b[0] ? Math.min(a[1], b[1]) : a[1] + (b[1] - a[1]) * (gx - a[0]) / (b[0] - a[0]); if (y < lo) lo = y; if (y > hi) hi = y; } }
+    return hi > lo ? [lo, hi] : null;
+  }
   function size() {
     var r = cv.getBoundingClientRect(); if (r.width < 4) return;
     dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    pitch = H / ROWS; COLS = Math.floor(W / pitch); grid = new Float32Array(COLS * ROWS);
+    var kx = W / BW, ky = H / BH, g0 = 306.5, g1 = 721.5, mid = span(512), inset = 3.5;
+    pitch = (mid[1] - mid[0] - inset * 2) * ky / ROWS; COLS = Math.max(8, Math.round((g1 - g0) * kx / pitch)); grid = new Float32Array(COLS * ROWS);
+    PX = new Float32Array(COLS * ROWS); PY = new Float32Array(COLS * ROWS); PR = new Float32Array(COLS * ROWS);
+    for (var c = 0; c < COLS; c++) { var gx = g0 + (c + .5) / COLS * (g1 - g0), sp = span(gx) || mid, top = sp[0] + inset, bot = Math.max(top + 2, sp[1] - inset), lp = (bot - top) * ky / ROWS;
+      for (var r = 0; r < ROWS; r++) { var i = r * COLS + c; PX[i] = (gx - BX) * kx; PY[i] = (top + (r + .5) / ROWS * (bot - top) - BY) * ky; PR[i] = Math.max(.6, Math.min(pitch, lp) * .34); } }
   }
   function put(c, r, v) { if (c >= 0 && c < COLS && r >= 0 && r < ROWS) { var i = r * COLS + c; if (v > grid[i]) grid[i] = v; } }
   function stamp(cols, c0, r0, v) { for (var i = 0; i < cols.length; i++) for (var r = 0; r < 7; r++) if (cols[i] >> r & 1) put(c0 + i, r0 + r, v); }
-  var MSG = textCols('  LDB LAB  ·  APPLIED AI  ·  MODELS YOU CAN WATCH THINK  ·  '), WORD = textCols('LDB LAB');
+  var MSG = textCols('  ENTITY ONLINE  ·  LDB LAB  ·  APPLIED AI  ·  MODELS YOU CAN WATCH THINK  ·  '), WORD = textCols('LDB LAB'), NAME = textCols('ENTITY');
   /* the scenes, played in a loop */
   var scenes = [
     { d: 9, f: function (t) { stamp(MSG, COLS - Math.floor(t * 15) % (MSG.length + COLS), 3, 1); } },           /* scrolling ticker */
@@ -999,6 +1014,9 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
     { d: 5, f: function (t) {                                                                                     /* a spectrum, as if listening */
       for (var c = 0; c < COLS; c++) { var u = c / COLS, h = (.35 + .3 * Math.sin(u * 9 + t * 3.1) * Math.sin(u * 3.3 - t * 1.7) + .25 * Math.sin(u * 23 + t * 7)) * ROWS * Math.min(1, t * 1.5, (5 - t) * 1.5);
         for (var r = 0; r < Math.min(ROWS, Math.max(0, h)); r++) put(c, ROWS - 1 - r, r > ROWS * .62 ? 1 : .7); } } },
+    { d: 3.2, f: function (t) {                                                                                   /* ENTITY, waking up */
+      var c0 = Math.floor((COLS - NAME.length) / 2), on = t < .9 ? (Math.floor(t * 9) % 2 ? .25 : 1) : 1;
+      stamp(NAME, c0, 3, on * Math.min(1, (3.2 - t) * 2)); } },
     { d: 3.6, f: function (t) {                                                                                   /* a scanner sweep with a trail */
       var p = (Math.sin(t * 2.2 - Math.PI / 2) * .5 + .5) * (COLS - 1);
       for (var c = 0; c < COLS; c++) { var v = Math.max(0, 1 - Math.abs(c - p) / 7); if (v > 0) for (var r = 3; r < 10; r++) put(c, r, v * (r === 6 ? 1 : .75)); } } }
@@ -1018,13 +1036,13 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
   }
   function draw(tt) {
     x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
-    var ox = (W - COLS * pitch) / 2, rad = pitch * .34;
+
     x.fillStyle = 'rgba(190,214,228,.07)';                                                                         /* the unlit matrix behind the glass */
-    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) { x.beginPath(); x.arc(ox + (c + .5) * pitch, (r + .5) * pitch, rad * .8, 0, 6.283); x.fill(); }
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) { var j = r * COLS + c; x.beginPath(); x.arc(PX[j], PY[j], PR[j] * .8, 0, 6.283); x.fill(); }
     x.save(); x.shadowColor = 'rgba(160,220,232,.9)'; x.shadowBlur = pitch * 1.6;
     for (var r2 = 0; r2 < ROWS; r2++) for (var c2 = 0; c2 < COLS; c2++) { var v = grid[r2 * COLS + c2]; if (v < .04) continue;
       x.fillStyle = 'rgba(' + Math.round(200 + 40 * v) + ',' + Math.round(232 + 18 * v) + ',' + Math.round(240 + 12 * v) + ',' + Math.min(1, v * 1.1).toFixed(2) + ')';
-      x.beginPath(); x.arc(ox + (c2 + .5) * pitch, (r2 + .5) * pitch, rad, 0, 6.283); x.fill(); }
+      var k2 = r2 * COLS + c2; x.beginPath(); x.arc(PX[k2], PY[k2], PR[k2], 0, 6.283); x.fill(); }
     x.restore();
     var g = x.createLinearGradient(0, 0, W * .6, H);                                                              /* a soft reflection across the glass */
     g.addColorStop(0, 'rgba(255,255,255,.10)'); g.addColorStop(.35, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,0)');
@@ -1036,73 +1054,72 @@ var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : {
   go();
 })();
 
-/* ---------- closing banner: gradient descent on a real loss surface ---------- */
+/* ---------- closing banner: a sea of simulation, a living grid with agents racing across it ---------- */
 (function () {
-  var cv = document.getElementById('descent'); if (!cv) return;
-  var x = cv.getContext('2d'), base = document.createElement('canvas'), bx = base.getContext('2d');
-  var W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  /* a bumpy bowl: one deep minimum, two shallower traps, and a gentle tilt */
-  var WELLS = [[.72, .58, .18, 1.25], [.3, .42, .11, .7], [.5, .2, .09, .55], [.16, .78, .08, .45]];
-  function f(u, v) { var z = .9 * ((u - .62) * (u - .62) * .9 + (v - .55) * (v - .55) * 1.6);
-    for (var i = 0; i < WELLS.length; i++) { var w = WELLS[i], d = ((u - w[0]) * (u - w[0]) + (v - w[1]) * (v - w[1])) / (w[2] * w[2]); z -= w[3] * Math.exp(-d) * .5; }
-    return z + .06 * Math.sin(u * 13) * Math.sin(v * 11); }
-  function grad(u, v) { var e = .002; return [(f(u + e, v) - f(u - e, v)) / (2 * e), (f(u, v + e) - f(u, v - e)) / (2 * e)]; }
-  function ink() { return getComputedStyle(cv).color || 'rgb(242,244,245)'; }
-  function mint() { return getComputedStyle(document.documentElement).getPropertyValue('--mint').trim() || '#8FC3BA'; }
-  function contours() {
-    base.width = cv.width; base.height = cv.height; bx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var step = Math.max(6, W / 180), nx = Math.ceil(W / step) + 1, ny = Math.ceil(H / step) + 1, z = new Float32Array(nx * ny), lo = 1e9, hi = -1e9;
-    for (var j = 0; j < ny; j++) for (var i = 0; i < nx; i++) { var q = f(i * step / W, j * step / H); z[j * nx + i] = q; if (q < lo) lo = q; if (q > hi) hi = q; }
-    var col = ink(), N = 22;
-    for (var k = 1; k < N; k++) {
-      var lv = lo + (hi - lo) * Math.pow(k / N, 1.6);              /* tighter lines near the bottom, where it matters */
-      bx.strokeStyle = col; bx.globalAlpha = .07 + .16 * (1 - k / N); bx.lineWidth = k % 5 === 0 ? 1.1 : .7; bx.beginPath();
-      for (var jj = 0; jj < ny - 1; jj++) for (var ii = 0; ii < nx - 1; ii++) {                                    /* marching squares */
-        var a = z[jj * nx + ii], b = z[jj * nx + ii + 1], c = z[(jj + 1) * nx + ii + 1], d = z[(jj + 1) * nx + ii], pts = [], X = ii * step, Y = jj * step;
-        if ((a < lv) !== (b < lv)) pts.push([X + step * (lv - a) / (b - a), Y]);
-        if ((b < lv) !== (c < lv)) pts.push([X + step, Y + step * (lv - b) / (c - b)]);
-        if ((d < lv) !== (c < lv)) pts.push([X + step * (lv - d) / (c - d), Y + step]);
-        if ((a < lv) !== (d < lv)) pts.push([X, Y + step * (lv - a) / (d - a)]);
-        if (pts.length >= 2) { bx.moveTo(pts[0][0], pts[0][1]); bx.lineTo(pts[1][0], pts[1][1]); }
-        if (pts.length === 4) { bx.moveTo(pts[2][0], pts[2][1]); bx.lineTo(pts[3][0], pts[3][1]); } }
-      bx.stroke(); }
-    bx.globalAlpha = 1;
+  var cv = document.getElementById('grid'); if (!cv) return;
+  var x = cv.getContext('2d'), W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, T = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var CAMH = 1.6, SPEED = 1.15, ZN = .6, ZF = 34, XS = 22, F = 0, HZ = 0;
+  function wave(wx, wz) {                                    /* the surface swells slowly, like a sea */
+    return .32 * Math.sin(wx * .33 + T * .55) + .24 * Math.sin(wz * .29 - T * .8) + .1 * Math.sin((wx - wz) * .7 + T * 1.25); }
+  function proj(wx, wz) { var z = wz - T * SPEED; if (z < ZN) return null; return [W / 2 + wx / z * F, HZ + (CAMH - wave(wx, wz)) / z * F, z]; }
+  function fog(z) { return Math.max(0, Math.min(1, (ZF - z) / (ZF * .7))) * Math.min(1, (z - ZN) * 1.4); }
+  /* agents: light trails that run along the grid lines and turn at the crossings */
+  var COLS = ['143,226,238', '236,244,248', '143,195,186'], runners = [];
+  function spawn(r, i) { r.c = COLS[i % COLS.length]; r.x = Math.round((Math.random() - .5) * 16); r.z = Math.round(T * SPEED + 3 + Math.random() * 15);
+    var d = Math.floor(Math.random() * 3); r.dx = d === 0 ? 1 : d === 1 ? -1 : 0; r.dz = r.dx ? 0 : -1; r.v = 4 + Math.random() * 3; r.trail = []; r.next = 1; r.age = 0; return r; }
+  function stepRunners(dt) {
+    runners.forEach(function (r, i) {
+      r.age += dt; var mv = r.v * dt; r.x += r.dx * mv; r.z += r.dz * mv; r.next -= mv;
+      if (r.next <= 0) {                                      /* at a crossing: snap, and sometimes turn */
+        r.x = Math.round(r.x); r.z = Math.round(r.z); r.next = 1;
+        if (Math.random() < .28) { if (r.dx) { r.dz = Math.random() < .7 ? -1 : 1; r.dx = 0; } else { r.dx = Math.random() < .5 ? 1 : -1; r.dz = 0; } } }
+      r.trail.push([r.x, r.z]); if (r.trail.length > 70) r.trail.shift();
+      if (r.z - T * SPEED < ZN + .2 || r.z - T * SPEED > ZF || Math.abs(r.x) > XS || r.age > 16) spawn(r, i); });
   }
-  var balls = [];
-  function spawn(b) { var a = Math.random() * 6.283; b.u = .62 + Math.cos(a) * (.35 + Math.random() * .12); b.v = .55 + Math.sin(a) * (.36 + Math.random() * .1);
-    b.u = Math.min(.97, Math.max(.03, b.u)); b.v = Math.min(.95, Math.max(.05, b.v)); b.vu = 0; b.vv = 0; b.trail = []; b.rest = 0; b.age = 0; return b; }
-  function size() {
-    var r = cv.getBoundingClientRect(); if (r.width < 4) return false;
-    dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    contours(); if (!balls.length) for (var i = 0; i < 3; i++) { var b = spawn({}); b.age = -i * 1.6; balls.push(b); }
-    return true;
-  }
-  function step(dt) {
-    balls.forEach(function (b) { b.age += dt; if (b.age < 0) return;
-      for (var s = 0; s < 3; s++) { var g = grad(b.u, b.v); b.vu = b.vu * .94 - g[0] * .0009; b.vv = b.vv * .94 - g[1] * .0009; b.u += b.vu; b.v += b.vv; }   /* gradient descent with momentum */
-      b.trail.push([b.u, b.v]); if (b.trail.length > 160) b.trail.shift();
-      if (Math.hypot(b.vu, b.vv) < .00012) b.rest += dt; if (b.rest > 1.4 || b.age > 14) spawn(b); });
-  }
+  function size() { var b = cv.getBoundingClientRect(); if (b.width < 4) return false; dpr = Math.min(2, window.devicePixelRatio || 1); W = b.width; H = b.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); F = Math.max(W, H * 1.4) * .55; HZ = H * .3;
+    if (!runners.length) for (var i = 0; i < 6; i++) runners.push(spawn({}, i)); return true; }
+  function line(pts, col, a, w) { var started = false; x.strokeStyle = 'rgba(' + col + ',' + a.toFixed(3) + ')'; x.lineWidth = w; x.beginPath();
+    pts.forEach(function (p) { if (!p) { started = false; return; } if (started) x.lineTo(p[0], p[1]); else { x.moveTo(p[0], p[1]); started = true; } }); x.stroke(); }
   function draw() {
-    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height); x.drawImage(base, 0, 0);
-    x.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var col = ink();
-    balls.forEach(function (b, i) { if (b.age < 0 || !b.trail.length) return;
-      var mc = mint(); x.strokeStyle = i === 0 ? mc : col; x.lineWidth = 1.4;
-      for (var k = 1; k < b.trail.length; k++) { x.globalAlpha = k / b.trail.length * (i === 0 ? .9 : .5); x.beginPath();
-        x.moveTo(b.trail[k - 1][0] * W, b.trail[k - 1][1] * H); x.lineTo(b.trail[k][0] * W, b.trail[k][1] * H); x.stroke(); }
-      x.globalAlpha = 1; var p = b.trail[b.trail.length - 1], fade = Math.min(1, b.age * 2);
-      x.fillStyle = i === 0 ? mc : col; x.globalAlpha = fade; x.beginPath(); x.arc(p[0] * W, p[1] * H, 4, 0, 6.283); x.fill();
-      x.globalAlpha = .18 * fade; x.beginPath(); x.arc(p[0] * W, p[1] * H, 11, 0, 6.283); x.fill(); x.globalAlpha = 1; });
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+    var hg = x.createLinearGradient(0, HZ - 120, 0, HZ + 160);                     /* the glow where the sea meets the sky */
+    hg.addColorStop(0, 'rgba(120,200,220,0)'); hg.addColorStop(.42, 'rgba(120,200,220,.16)'); hg.addColorStop(.5, 'rgba(190,235,245,.22)'); hg.addColorStop(1, 'rgba(120,200,220,0)');
+    x.fillStyle = hg; x.fillRect(0, HZ - 120, W, 280);
+    var hl = x.createLinearGradient(0, 0, W, 0);                                    /* a bright horizon line */
+    hl.addColorStop(0, 'rgba(170,235,248,0)'); hl.addColorStop(.5, 'rgba(200,245,252,.85)'); hl.addColorStop(1, 'rgba(170,235,248,0)');
+    x.fillStyle = hl; x.fillRect(0, HZ + CAMH / ZF * F - 1, W, 1.5);
+    x.lineCap = 'round';
+    var z0 = Math.floor(T * SPEED + ZN);
+    for (var wz = z0; wz < T * SPEED + ZF; wz++) {                                  /* lines across */
+      var p0 = proj(0, wz); if (!p0) continue; var pts = [];
+      for (var wx = -XS; wx <= XS; wx += .5) pts.push(proj(wx, wz));
+      line(pts, '150,225,240', .85 * fog(p0[2]), Math.max(.6, 4.5 / p0[2])); }
+    for (var gx = -XS; gx <= XS; gx++) {                                            /* lines into the distance */
+      var pts2 = [], zz; for (zz = z0; zz < T * SPEED + ZF; zz += .5) pts2.push(proj(gx, zz));
+      for (var s = 1; s < pts2.length; s++) { var a = pts2[s - 1], b = pts2[s]; if (!a || !b) continue;
+        x.strokeStyle = 'rgba(150,225,240,' + (.8 * fog(b[2])).toFixed(3) + ')'; x.lineWidth = Math.max(.6, 4.5 / b[2]); x.beginPath(); x.moveTo(a[0], a[1]); x.lineTo(b[0], b[1]); x.stroke(); } }
+    x.globalCompositeOperation = 'lighter';                                          /* the agents, glowing */
+    runners.forEach(function (r) { var n = r.trail.length; if (n < 2) return;
+      var CH = 8, seg = Math.ceil(n / CH);                                        /* drawn in a few chunks so the trail fades without beading */
+      for (var ch = 0; ch < CH; ch++) { var s0 = ch * seg, s1 = Math.min(n - 1, s0 + seg); if (s1 <= s0) continue;
+        var pts3 = []; for (var k = s0; k <= s1; k++) pts3.push(proj(r.trail[k][0], r.trail[k][1]));
+        var ref = pts3[pts3.length - 1] || pts3[0]; if (!ref) continue;
+        var f = Math.pow((ch + 1) / CH, .8) * fog(ref[2]), wdt = Math.min(4.5, Math.max(1.2, 10 / ref[2]));
+        x.lineCap = 'butt'; x.lineJoin = 'round';
+        line(pts3, r.c, f * .28, wdt * 4); line(pts3, r.c, f * .95, wdt); line(pts3, '255,255,255', f * .7, Math.max(.8, wdt * .35)); }
+      var hp = proj(r.x, r.z); if (hp) { var rr = Math.min(5, Math.max(1.5, 10 / hp[2])), fg = fog(hp[2]);
+        x.fillStyle = 'rgba(' + r.c + ',' + (.25 * fg).toFixed(3) + ')'; x.beginPath(); x.arc(hp[0], hp[1], rr * 3, 0, 6.283); x.fill();
+        x.fillStyle = 'rgba(255,255,255,' + (.95 * fg).toFixed(3) + ')'; x.beginPath(); x.arc(hp[0], hp[1], rr, 0, 6.283); x.fill(); } });
+    x.globalCompositeOperation = 'source-over';
   }
   function frame(now) { raf = 0; if (!on) return; var dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
     if (!W && !size()) { raf = requestAnimationFrame(frame); return; }
-    step(dt); draw(); if (!reduce) raf = requestAnimationFrame(frame); }
+    T += dt; stepRunners(dt); draw(); if (!reduce) raf = requestAnimationFrame(frame); }
   addEventListener('resize', function () { W = 0; if (on && !raf) raf = requestAnimationFrame(frame); });
-  matchMedia('(prefers-color-scheme: light)').addEventListener && matchMedia('(prefers-color-scheme: light)').addEventListener('change', function () { W = 0; if (on && !raf) raf = requestAnimationFrame(frame); });
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { on = e[0].isIntersecting; if (on && !raf) { last = 0; raf = requestAnimationFrame(frame); } }, { rootMargin: '120px' }).observe(cv);
   else { on = true; raf = requestAnimationFrame(frame); }
-  if (reduce) { on = true; size(); for (var i = 0; i < 400; i++) step(.016); draw(); }
+  if (reduce) { on = true; size(); for (var i = 0; i < 120; i++) { T += .016; stepRunners(.016); } draw(); }
 })();
 
 /* =====================================================================
