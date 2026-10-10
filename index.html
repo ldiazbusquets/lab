@@ -15,319 +15,319 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
-<meta name="theme-color" content="#141F23">
+<meta name="theme-color" content="#6E808E">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Bai+Jamjuree:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #141F23; --bg2: #0F181C; --s1: #1A262B; --s2: #213036; --s3: #2A3940; --ln: rgba(255,255,255,.07); --ln2: rgba(255,255,255,.13);
-    --ink: #EEF2F3; --t2: #9BA8AD; --t3: #66757B; --pill: #26343A; --pill-on: #56636A;
-    --orange: #EA6A35; --green: #5BD47A; --red: #F0555A; --blue: #7FB2FF;
-    --disp: "Bruno Ace SC", "Bai Jamjuree", system-ui, sans-serif; --sans: "Bai Jamjuree", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; --max: 1240px; --g: clamp(16px, 4vw, 40px); }
+  :root { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --s3: #23272A; --ln: rgba(255,255,255,.08); --ln2: rgba(255,255,255,.14);
+    --ink: #F2F4F5; --t2: #A3ADB4; --t3: #6A747B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; --orange: #F29A4A;
+    --steel: linear-gradient(180deg, #6E808E 0%, #5B6C78 20%, #47545F 44%, #303B43 70%, #24292C 88%, #0B0C0D 100%);
+    --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+    --max: 1240px; --g: clamp(18px, 4vw, 44px); }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
   a { color: inherit; text-decoration: none; }
   img { display: block; max-width: 100%; }
-  :focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; border-radius: 6px; }
+  :focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; border-radius: 8px; }
   .w { max-width: var(--max); margin: 0 auto; padding: 0 var(--g); }
-  .disp { font-family: var(--disp); font-weight: 400; letter-spacing: .01em; }
-  .mono { font-family: var(--mono); }
-  .chip { display: inline-flex; align-items: center; gap: 8px; font: 500 11.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--t2); background: var(--pill); padding: 7px 13px; border-radius: 999px; }
-  .chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(91,212,122,.18); }
-  .b { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 400 13px var(--disp); letter-spacing: .04em; padding: 13px 20px; border-radius: 11px; border: 0; cursor: pointer; white-space: nowrap; transition: background .18s, transform .18s; color: var(--ink); background: var(--pill); }
-  .b:hover { background: var(--pill-on); }
-  .b.wh { background: #fff; color: #10181C; }
-  .b.wh:hover { background: #E2E8EA; }
-  .b.sm { padding: 10px 15px; font-size: 12px; border-radius: 10px; }
-  .ticks { height: 12px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.28) 0 1px, transparent 1px 8px); -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
-  .ticks.big { height: 16px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.4) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 8px); background-size: 100% 16px, 100% 9px; background-repeat: no-repeat; background-position: 0 0, 0 7px; }
+  .lbl { display: inline-flex; align-items: center; gap: 9px; font: 400 11.5px var(--mono); letter-spacing: .04em; color: var(--t2); }
+  .lbl::before { content: ""; width: 6px; height: 6px; background: var(--ink); border-radius: 1px; }
+  h2.h { font: 300 clamp(30px, 3.8vw, 50px)/1.12 var(--sans); letter-spacing: -.025em; margin: 14px 0 0; }
+  h2.h em { font-style: normal; color: #7D878E; }
+  .lead { color: var(--t2); font-size: clamp(15px, 1.25vw, 17px); max-width: 560px; margin: 16px 0 0; }
+
+  /* buttons: pills, the main one carries an icon disc */
+  .pill { display: inline-flex; align-items: center; gap: 10px; font: 500 14px var(--sans); padding: 6px 18px 6px 6px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: background .2s, border-color .2s, transform .2s; }
+  .pill .ic { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex: none; transition: transform .3s; }
+  .pill:hover .ic { transform: rotate(-45deg); }
+  .pill.lt { background: rgba(236,240,243,.92); color: #121416; }
+  .pill.lt .ic { background: #121416; color: #ECF0F3; }
+  .pill.lt:hover { background: #fff; }
+  .pill.gl { background: rgba(255,255,255,.07); border-color: var(--ln2); color: var(--ink); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); padding: 6px 18px; min-height: 46px; }
+  .pill.gl .ic { background: rgba(255,255,255,.1); width: 30px; height: 30px; margin-left: -12px; }
+  .pill.gl:hover { background: rgba(255,255,255,.13); }
+  .pill.sm { font-size: 13px; padding: 4px 15px 4px 4px; } .pill.sm .ic { width: 28px; height: 28px; }
+  .pill.gl.sm { padding: 4px 14px; min-height: 38px; }
 
   /* header */
-  header.top { position: fixed; top: 0; left: 0; right: 0; z-index: 40; transition: background .25s, border-color .25s; border-bottom: 1px solid transparent; }
-  header.top.scrolled { background: rgba(20,31,35,.82); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: var(--ln); }
-  header.top .w { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 76px; gap: 16px; }
-  .logo { display: inline-flex; align-items: center; gap: 10px; font: 400 19px var(--disp); letter-spacing: .04em; white-space: nowrap; justify-self: start; }
-  .logo span { color: var(--t2); }
-  .nav { display: flex; gap: 6px; }
-  .nav a { font: 400 12.5px var(--disp); letter-spacing: .05em; color: var(--t2); padding: 11px 18px; border-radius: 10px; background: rgba(38,52,58,.7); transition: background .18s, color .18s; }
-  .nav a:hover { color: var(--ink); background: var(--s3); }
-  .nav a.on { color: var(--ink); background: var(--pill-on); }
-  .hr { justify-self: end; display: flex; gap: 8px; }
+  header.top { position: fixed; top: 0; left: 0; right: 0; z-index: 40; transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
+  header.top.scrolled { background: rgba(11,12,13,.72); -webkit-backdrop-filter: blur(18px) saturate(1.2); backdrop-filter: blur(18px) saturate(1.2); border-color: var(--ln); }
+  header.top .w { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 74px; gap: 16px; max-width: 1400px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; font: 600 17px var(--sans); letter-spacing: -.01em; white-space: nowrap; justify-self: start; }
+  .logo span { font-weight: 300; color: rgba(242,244,245,.7); }
+  .nav { display: flex; gap: 30px; }
+  .nav a { font: 400 13.5px var(--sans); color: rgba(242,244,245,.62); transition: color .2s; padding: 6px 0; }
+  .nav a:hover { color: var(--ink); }
+  .nav a.on { color: var(--mint); }
+  .hr { justify-self: end; display: flex; gap: 10px; align-items: center; }
   .menu { display: none; }
-  @media (max-width: 1000px) { .nav a { padding: 10px 13px; } .hr .gh { display: none; } }
+  @media (max-width: 960px) { .nav { gap: 20px; } .hr .gh { display: none; } }
   @media (max-width: 820px) {
-    header.top { background: rgba(20,31,35,.88); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-color: var(--ln); }
+    header.top { background: rgba(11,12,13,.6); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
     header.top .w { grid-template-columns: 1fr auto; height: 64px; }
-    .nav { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 6px; background: rgba(20,31,35,.97); border-bottom: 1px solid var(--ln); padding: 12px var(--g) 16px; }
-    .nav.open { display: flex; } .nav a { padding: 13px 16px; }
+    .nav { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 0; background: rgba(11,12,13,.97); border-bottom: 1px solid var(--ln); padding: 6px var(--g) 14px; }
+    .nav.open { display: flex; } .nav a { padding: 14px 0; border-bottom: 1px solid var(--ln); font-size: 15px; } .nav a:last-child { border: 0; }
     .menu { display: inline-flex; } .hr .ms { display: none; }
   }
 
-  /* hero */
-  .hero { position: relative; padding: 150px 0 0; text-align: center; overflow: hidden; }
-  .hero::before { content: ""; position: absolute; inset: -20% -10% auto; height: 900px; background: radial-gradient(800px 420px at 50% 22%, rgba(80,100,108,.35), transparent 70%), radial-gradient(600px 300px at 20% 60%, rgba(234,106,53,.06), transparent 70%); pointer-events: none; }
-  .hero h1 { position: relative; font: 400 clamp(34px, 6.2vw, 86px)/1.04 var(--disp); letter-spacing: .01em; margin: 18px auto 18px; max-width: 1100px; }
-  .hero h1 span { display: block; }
-  .hero .sub { position: relative; color: var(--t2); font-size: clamp(15px, 1.4vw, 18px); margin: 0 auto 30px; max-width: 640px; padding: 0 16px; }
-  .hero .cta { position: relative; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 0 16px; }
-  .stage { position: relative; max-width: 1320px; margin: 46px auto 0; padding: 0 var(--g); }
-  .feedwrap { position: relative; border-radius: 22px; overflow: hidden; background: #0B1114; border: 1px solid var(--ln); box-shadow: 0 60px 120px -50px rgba(0,0,0,.8); }
-  .feed { position: relative; aspect-ratio: 21 / 9; cursor: crosshair; }
+  /* hero: steel gradient, particle wordmark, live feed in the middle */
+  .hero { position: relative; min-height: max(720px, 100svh); background: var(--steel); overflow: hidden; isolation: isolate; }
+  .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(70% 55% at 50% 38%, rgba(255,255,255,.08), transparent 70%); pointer-events: none; }
+  #wordmark { position: absolute; left: 0; right: 0; top: clamp(70px, 9vh, 100px); width: 100%; height: clamp(150px, 24vw, 330px); z-index: 0; }
+  .hero .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .stage { position: absolute; z-index: 1; left: 50%; top: clamp(180px, 22vw, 290px); transform: translateX(-50%); width: min(560px, 46vw); }
+  .feedwrap { position: relative; border-radius: 26px; overflow: hidden; background: #1A1F23; box-shadow: 0 50px 90px -30px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08); }
+  .feed { position: relative; aspect-ratio: 4 / 3.3; cursor: crosshair; }
   .feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .feed::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(20,31,35,.35), transparent 22%, transparent 70%, rgba(20,31,35,.75)), radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(15,24,28,.55)); }
-  .feed.thermal::after { background: linear-gradient(180deg, rgba(20,31,35,.25), transparent 25%, transparent 75%, rgba(20,31,35,.6)); }
-  .fhud { position: absolute; z-index: 3; display: flex; gap: 8px; align-items: center; }
-  .fhud.tl { top: 16px; left: 16px; } .fhud.tr { top: 16px; right: 16px; }
-  .fhud .chip { background: rgba(20,31,35,.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); }
-  .fhud .chip b { font-weight: 500; color: var(--ink); } .fhud .chip span { color: var(--t2); }
-  .modes { position: absolute; z-index: 4; right: 16px; bottom: 16px; display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(20,31,35,.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-  .modes button { font: 400 11px var(--disp); letter-spacing: .05em; color: var(--t2); cursor: pointer; background: transparent; border: 0; padding: 8px 12px; border-radius: 9px; }
+  .feed::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(36,41,44,.25), transparent 30%, transparent 62%, rgba(20,24,27,.85)), linear-gradient(180deg, rgba(110,128,142,.18), rgba(36,41,44,.18)); mix-blend-mode: normal; }
+  .feed.thermal::after { background: linear-gradient(180deg, transparent 60%, rgba(20,24,27,.7)); }
+  .fchip { position: absolute; z-index: 3; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 8px; font: 400 11.5px var(--mono); color: var(--ink); padding: 6px 11px; border-radius: 999px; background: rgba(20,24,27,.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .fchip i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .fchip span { color: var(--t2); }
+  .fstats { position: absolute; z-index: 3; left: 14px; right: 14px; bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; pointer-events: none; }
+  .fstats .nums { display: flex; gap: 18px; }
+  .fstats .nums div { font: 300 26px/1 var(--sans); letter-spacing: -.02em; }
+  .fstats .nums small { display: block; font: 400 10.5px var(--mono); color: var(--t2); margin-top: 5px; letter-spacing: .02em; }
+  .modes { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(20,24,27,.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); pointer-events: auto; }
+  .modes button { font: 500 11.5px var(--sans); color: var(--t2); cursor: pointer; background: transparent; border: 0; padding: 7px 11px; border-radius: 999px; }
   .modes button:hover { color: var(--ink); }
-  .modes button[aria-pressed="true"] { background: var(--pill-on); color: var(--ink); }
-  .wire { position: relative; height: 70px; margin-top: -1px; }
-  .wire svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hudrow { display: grid; grid-template-columns: 1fr 1fr 200px 1fr 1fr; align-items: end; gap: 24px; text-align: left; margin-top: -8px; }
-  .hudrow .st b { display: block; font: 400 clamp(24px, 2.6vw, 34px)/1.1 var(--disp); letter-spacing: .02em; }
-  .hudrow .st span { display: block; color: var(--t2); font-size: 17px; margin-top: 4px; }
-  .hudrow .ticks { grid-column: span 2; margin-top: 22px; }
-  .compass { grid-row: span 2; justify-self: center; align-self: center; width: 150px; height: 150px; position: relative; }
-  .compass svg { width: 100%; height: 100%; }
-  .compass .rot { transform-origin: 75px 75px; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
-  .compass .lab { position: absolute; left: 0; right: 0; top: -20px; text-align: center; font-size: 12px; color: var(--ink); }
-  @media (max-width: 900px) {
-    .hero { padding-top: 112px; }
-    .feed { aspect-ratio: 4 / 3; }
-    .hudrow { grid-template-columns: 1fr 1fr; gap: 18px 16px; }
-    .compass { display: none; } .hudrow .ticks { grid-column: 1 / -1; margin-top: 0; }
-    .wire { display: none; } .hudrow { margin-top: 22px; }
-    .fhud.tr { display: none; }
+  .modes button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
+  .hcopy { position: absolute; z-index: 2; left: var(--g); bottom: clamp(48px, 8vh, 80px); max-width: 420px; }
+  .hcopy .k { font: 400 13px var(--sans); color: rgba(242,244,245,.75); margin: 0 0 14px; }
+  .hcopy h1 { font: 300 clamp(36px, 4.2vw, 60px)/1.04 var(--sans); letter-spacing: -.03em; margin: 0; }
+  .hcopy h1 span { display: block; } .hcopy h1 span:last-child { color: rgba(242,244,245,.62); }
+  .hcopy p { font-size: 13.5px; color: rgba(242,244,245,.7); margin: 22px 0 22px 0; max-width: 300px; line-height: 1.5; }
+  .hcopy .cta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .scard { position: absolute; z-index: 2; right: var(--g); bottom: clamp(48px, 8vh, 80px); width: 230px; padding: 18px; border-radius: 22px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .scard .tp { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+  .scard .tp svg { width: 34px; height: 34px; }
+  .scard .nx { width: 34px; height: 34px; border-radius: 50%; border: 0; background: transparent; color: var(--t2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s, color .2s; }
+  .scard .nx:hover { background: rgba(255,255,255,.1); color: var(--ink); }
+  .scard .it { display: grid; grid-template-columns: 8px 1fr; gap: 10px; align-items: start; min-height: 60px; }
+  .scard .it i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); margin-top: 6px; }
+  .scard .it b { display: block; font: 400 11.5px var(--mono); letter-spacing: .03em; text-transform: uppercase; }
+  .scard .it span { display: block; font-size: 12.5px; color: var(--t2); margin-top: 4px; line-height: 1.45; }
+  .scard .bar { display: flex; gap: 4px; margin-top: 16px; }
+  .scard .bar i { flex: 1; height: 2px; border-radius: 1px; background: rgba(255,255,255,.18); transition: background .3s; }
+  .scard .bar i.on { background: var(--ink); }
+  @media (max-width: 980px) {
+    .hero { min-height: 0; padding: 92px 0 40px; }
+    #wordmark { position: relative; top: 0; height: 26vw; }
+    .stage { position: relative; left: 0; top: 0; transform: none; width: auto; margin: -8vw var(--g) 0; }
+    .hcopy, .scard { position: relative; left: 0; right: 0; bottom: 0; margin: 34px var(--g) 0; max-width: none; }
+    .scard { width: auto; }
   }
+  @media (max-width: 520px) { .fstats .nums div { font-size: 20px; } .fstats .nums { gap: 12px; } .modes button { padding: 6px 9px; font-size: 11px; } }
 
-  /* section scaffolding */
-  section.s { position: relative; padding: clamp(90px, 11vw, 150px) 0 0; scroll-margin-top: 40px; }
-  .center { text-align: center; }
-  .h2d { font: 400 clamp(28px, 4.2vw, 56px)/1.08 var(--disp); letter-spacing: .01em; margin: 0; }
-  .h2d span { display: block; }
-  .lead { color: var(--t2); font-size: clamp(15px, 1.3vw, 17px); max-width: 620px; margin: 14px auto 0; }
-  .big2 { font: 500 clamp(24px, 3vw, 40px)/1.28 var(--sans); letter-spacing: -.005em; margin: 0; }
-  .big2 em { font-style: normal; color: #7C8A90; }
+  /* sections */
+  section.s { position: relative; padding: clamp(96px, 11vw, 150px) 0 0; scroll-margin-top: 40px; }
+  .shead { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; flex-wrap: wrap; }
+  .shead > div { max-width: 640px; }
 
-  /* build: tools and agents carousel */
-  .intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); gap: 40px; align-items: start; }
-  .intro .l .disp { font-size: clamp(20px, 2vw, 26px); line-height: 1.25; }
-  .intro .l p { color: var(--t2); font-size: 14px; max-width: 280px; margin: 12px 0 0; }
-  .intro .r .chip { margin: 0 0 18px; }
-  @media (max-width: 860px) { .intro { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
-  .car { position: relative; margin-top: 64px; padding: 70px 0 30px; overflow: hidden; }
-  .car::before { content: ""; position: absolute; left: -30%; right: -30%; top: 0; height: 1400px; border-radius: 50%; background: radial-gradient(ellipse 50% 46% at 50% 50%, rgba(255,255,255,0) 98%, rgba(255,255,255,.35) 99.4%, transparent 100%), radial-gradient(ellipse at 50% 0%, #5E6A70 0%, #3A464C 14%, #222E33 34%, rgba(20,31,35,0) 62%); opacity: .75; pointer-events: none; }
-  .track { position: relative; display: flex; gap: 18px; padding: 30px 0; transition: transform .6s cubic-bezier(.2,.75,.2,1); will-change: transform; }
-  .card { position: relative; flex: 0 0 300px; height: 380px; border-radius: 22px; overflow: hidden; background: linear-gradient(180deg, #4C585E, #24313A); border: 1px solid rgba(255,255,255,.12); transform: scale(.9); opacity: .78; transition: transform .6s cubic-bezier(.2,.75,.2,1), opacity .4s, box-shadow .4s; cursor: pointer; display: flex; flex-direction: column; }
-  .card.on { transform: scale(1.06); opacity: 1; box-shadow: 0 40px 90px -30px rgba(0,0,0,.85); z-index: 2; }
-  .card .im { position: relative; flex: 1; overflow: hidden; }
-  .card .im img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: saturate(1.05) contrast(1.02); transition: transform .8s; }
-  .card:hover .im img { transform: scale(1.04); }
-  .card .im::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(26,38,43,0) 30%, rgba(26,38,43,.9) 72%, #1A262B 100%); }
-  .card .tx { position: relative; padding: 0 20px 20px; margin-top: -54px; background: linear-gradient(180deg, rgba(26,38,43,0), #1A262B 40px); }
-  .card .k { font: 500 10.5px var(--mono); letter-spacing: .1em; color: var(--t2); }
-  .card h3 { font: 600 21px/1.15 var(--sans); text-transform: uppercase; letter-spacing: .01em; margin: 6px 0 4px; }
-  .card p { font-size: 13px; color: var(--t2); margin: 0; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .card .go { position: absolute; top: 16px; right: 16px; z-index: 2; width: 38px; height: 38px; border-radius: 9px; background: var(--orange); display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(.8); transition: opacity .3s, transform .3s; }
-  .card.on .go { opacity: 1; transform: none; }
-  .carnav { display: flex; justify-content: center; gap: 10px; margin-top: 26px; position: relative; }
-  .carnav button { width: 56px; height: 56px; border-radius: 13px; border: 0; cursor: pointer; background: var(--pill); color: var(--ink); display: flex; align-items: center; justify-content: center; transition: background .18s; }
-  .carnav button:hover { background: var(--pill-on); }
-  .carnav button.nx { background: #fff; color: #10181C; }
-  .dots { display: flex; justify-content: center; gap: 6px; margin-top: 18px; position: relative; }
-  .dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--s3); transition: width .3s, background .3s; }
-  .dots i.on { width: 22px; background: var(--ink); }
-  @media (max-width: 560px) { .card { flex-basis: 250px; height: 330px; } }
+  /* featured cards (three across) */
+  .feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 48px; }
+  .fc { position: relative; display: flex; flex-direction: column; }
+  .fc .im { position: relative; aspect-ratio: 4 / 3.1; border-radius: 18px; overflow: hidden; background: var(--s1); border: 1px solid var(--ln); }
+  .fc .im img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(.25) brightness(.8); transition: transform .8s cubic-bezier(.2,.7,.2,1), filter .4s; }
+  .fc .im::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,12,13,.05), rgba(11,12,13,.65)); }
+  .fc:hover .im img { transform: scale(1.04); filter: grayscale(0) brightness(.9); }
+  .fc .gl { position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2; padding: 12px 14px; border-radius: 14px; background: rgba(20,22,24,.62); border: 1px solid rgba(255,255,255,.1); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; }
+  .fc .gl b { font-weight: 500; } .fc .gl span { color: var(--t2); font: 400 11px var(--mono); }
+  .fc h3 { font: 500 16px var(--sans); margin: 16px 0 4px; }
+  .fc p { margin: 0; color: var(--t2); font-size: 14px; }
+  @media (max-width: 900px) { .feat { grid-template-columns: minmax(0, 1fr); } }
 
-  /* course: numbered rows */
-  .rows { margin-top: 64px; border-top: 1px solid var(--ln); }
+  /* tabbed showcase */
+  .tabsx { display: flex; gap: 26px; border-bottom: 1px solid var(--ln); margin-top: 44px; overflow-x: auto; scrollbar-width: none; }
+  .tabsx::-webkit-scrollbar { display: none; }
+  .tabsx button { font: 400 14px var(--sans); color: var(--t3); background: none; border: 0; padding: 0 0 14px; cursor: pointer; white-space: nowrap; position: relative; transition: color .2s; }
+  .tabsx button:hover { color: var(--t2); }
+  .tabsx button[aria-selected="true"] { color: var(--ink); }
+  .tabsx button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--ink); }
+  .tabsx .sep { width: 1px; background: var(--ln2); margin: 2px 0 14px; flex: none; }
+  .show { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; margin-top: 30px; }
+  .show .im { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; background: var(--s1); border: 1px solid var(--ln); }
+  .show .im img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .45s, transform .9s cubic-bezier(.2,.7,.2,1); }
+  .show .im img.out { opacity: 0; transform: scale(1.03); }
+  .show .im::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(11,12,13,.55)); pointer-events: none; }
+  .show .k { font: 400 11.5px var(--mono); color: var(--t3); letter-spacing: .04em; }
+  .show h3 { font: 400 clamp(22px, 2.2vw, 30px)/1.2 var(--sans); letter-spacing: -.02em; margin: 10px 0 12px; }
+  .show p { color: var(--t2); margin: 0 0 26px; }
+  .show .facts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 26px; }
+  .show .facts2 div { padding: 12px 14px; border-radius: 14px; background: var(--s1); border: 1px solid var(--ln); }
+  .show .facts2 small { display: block; font: 400 10.5px var(--mono); color: var(--t3); letter-spacing: .04em; }
+  .show .facts2 b { font: 400 15px var(--sans); }
+  @media (max-width: 900px) { .show { grid-template-columns: minmax(0, 1fr); } }
+
+  /* course rows */
+  .rows { margin-top: 56px; border-top: 1px solid var(--ln); }
   .rw { border-bottom: 1px solid var(--ln); }
-  .rh { display: grid; grid-template-columns: 64px minmax(0, 1fr) 110px minmax(0, 2fr) 44px; gap: 24px; align-items: center; padding: 26px 0; cursor: pointer; background: none; border: 0; width: 100%; text-align: left; color: inherit; font: inherit; }
-  .rh .n { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--ln2); display: flex; align-items: center; justify-content: center; font: 400 22px var(--disp); color: var(--t2); background: var(--bg2); transition: color .2s, border-color .2s; }
-  .rh .meta { font: 500 11.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--t3); }
-  .rh .th { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 1px solid var(--ln2); box-shadow: 0 0 0 6px rgba(255,255,255,.025); }
-  .rh .th img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
-  .rh h3 { font: 500 clamp(17px, 1.8vw, 22px)/1.2 var(--sans); text-transform: uppercase; letter-spacing: .02em; margin: 0 0 6px; }
-  .rh p { margin: 0; color: var(--t2); font-size: 14.5px; }
-  .rh .ar { width: 40px; height: 40px; border-radius: 9px; background: var(--pill); display: flex; align-items: center; justify-content: center; transition: background .2s, transform .3s; }
-  .rh:hover .n, .rw.open .n { color: var(--ink); border-color: rgba(255,255,255,.3); }
-  .rh:hover .th img { transform: scale(1.08); }
-  .rh:hover .ar { background: var(--pill-on); }
-  .rw.open .ar { transform: rotate(90deg); background: var(--orange); }
+  .rh { display: grid; grid-template-columns: 64px minmax(0, 1fr) 96px minmax(0, 2fr) 44px; gap: 24px; align-items: center; padding: 24px 0; cursor: pointer; background: none; border: 0; width: 100%; text-align: left; color: inherit; font: inherit; }
+  .rh .n { font: 300 30px var(--sans); color: var(--t3); transition: color .2s; }
+  .rh .meta { font: 400 11.5px var(--mono); color: var(--t3); letter-spacing: .03em; }
+  .rh .th { width: 88px; height: 88px; border-radius: 50%; overflow: hidden; border: 1px solid var(--ln2); }
+  .rh .th img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.7) brightness(.85); transition: transform .6s, filter .4s; }
+  .rh .ht { display: block; font: 400 clamp(18px, 1.8vw, 23px)/1.2 var(--sans); letter-spacing: -.015em; margin: 0 0 6px; }
+  .rh .pd { display: block; margin: 0; color: var(--t2); font-size: 14.5px; }
+  .rh .ar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--ln2); display: flex; align-items: center; justify-content: center; transition: background .2s, transform .35s, border-color .2s; }
+  .rh:hover .n, .rw.open .n { color: var(--ink); }
+  .rh:hover .th img, .rw.open .th img { transform: scale(1.06); filter: none; }
+  .rh:hover .ar { background: rgba(255,255,255,.08); }
+  .rw.open .ar { transform: rotate(90deg); background: var(--ink); color: #121416; border-color: var(--ink); }
   .mods { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.7,.2,1); }
   .rw.open .mods { grid-template-rows: 1fr; }
   .mods > div { overflow: hidden; }
-  .mods ul { list-style: none; margin: 0 0 26px; padding: 0 0 0 88px; display: grid; gap: 8px; }
-  .mods li a { display: grid; grid-template-columns: 90px minmax(0, 260px) minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 14px 18px; border-radius: 14px; background: var(--s1); border: 1px solid var(--ln); transition: background .18s, border-color .18s; }
+  .mods ul { list-style: none; margin: 0 0 24px; padding: 0 0 0 88px; display: grid; gap: 8px; }
+  .mods li a { display: grid; grid-template-columns: 84px minmax(0, 250px) minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 14px 18px; border-radius: 14px; background: var(--s1); border: 1px solid var(--ln); transition: background .2s, border-color .2s; }
   .mods li a:hover { background: var(--s2); border-color: var(--ln2); }
-  .mods li .id { font: 500 11.5px var(--mono); color: var(--t3); letter-spacing: .06em; }
-  .mods li .t { font-weight: 600; }
+  .mods li .id { font: 400 11.5px var(--mono); color: var(--t3); }
+  .mods li .t { font-weight: 500; }
   .mods li .d { color: var(--t2); font-size: 14px; }
-  .mods li .o { font: 400 11px var(--disp); letter-spacing: .05em; color: var(--ink); }
+  .mods li .o { font: 500 13px var(--sans); color: var(--ink); }
   @media (max-width: 900px) {
-    .rh { grid-template-columns: 52px 72px minmax(0, 1fr) 40px; gap: 14px; padding: 20px 0; }
-    .rh .meta { display: none; } .rh .th { width: 72px; height: 72px; } .rh .n { width: 44px; height: 44px; font-size: 18px; }
-    .rh p { font-size: 13.5px; }
-    .mods ul { padding-left: 0; } .mods li a { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; } .mods li .id { grid-column: 1 / -1; } .mods li .d { grid-column: 1; }
-    .mods li .o { grid-row: 2 / span 2; grid-column: 2; }
+    .rh { grid-template-columns: 36px 64px minmax(0, 1fr) 36px; gap: 14px; padding: 18px 0; }
+    .rh .meta { display: none; } .rh .th { width: 64px; height: 64px; } .rh .n { font-size: 22px; } .rh .ar { width: 34px; height: 34px; }
+    .rh .pd { font-size: 13.5px; }
+    .mods ul { padding-left: 0; } .mods li a { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; } .mods li .id { grid-column: 1 / -1; } .mods li .d { grid-column: 1; } .mods li .o { grid-row: 2 / span 2; grid-column: 2; }
   }
 
-  /* simulation dashboard */
-  .frame { position: relative; margin: 60px auto 0; max-width: 1180px; padding: 34px; border-radius: 36px; background: linear-gradient(160deg, #8C969B 0%, #4F5B61 18%, #2A363C 42%, #1D292E 100%); }
-  .frame::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(500px 220px at 50% 0%, rgba(255,255,255,.35), transparent 70%); pointer-events: none; }
-  .app { position: relative; border-radius: 22px; background: #0E161A; border: 1px solid rgba(255,255,255,.08); overflow: hidden; }
-  .abar { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--ln); }
-  .abar .logo { font-size: 16px; }
-  .abar .pills { display: flex; gap: 6px; margin: 0 auto; }
-  .abar .pills button { font: 400 11.5px var(--disp); letter-spacing: .05em; color: var(--t2); background: var(--pill); border: 0; padding: 10px 15px; border-radius: 10px; cursor: pointer; }
-  .abar .pills button[aria-pressed="true"] { background: var(--pill-on); color: var(--ink); }
-  .abar .ch { display: flex; gap: 6px; }
-  .abar .kv { display: flex; align-items: center; gap: 9px; padding: 7px 12px; border-radius: 10px; background: var(--pill); }
-  .abar .kv small { display: block; font: 500 9.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--t2); }
-  .abar .kv b { display: block; font: 400 12px var(--disp); letter-spacing: .04em; }
-  .abar .ib { width: 40px; height: 40px; border-radius: 10px; background: var(--pill); border: 0; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .abar .ib:hover { background: var(--pill-on); }
-  .abody { position: relative; }
-  #mc { display: block; width: 100%; height: clamp(300px, 38vw, 470px); }
-  .legend { position: absolute; top: 16px; left: 16px; width: 210px; padding: 14px; border-radius: 14px; background: rgba(26,38,43,.78); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--ln); font-size: 12.5px; }
-  .legend h4 { margin: 0 0 10px; font: 400 11.5px var(--disp); letter-spacing: .05em; padding-bottom: 8px; border-bottom: 1px solid var(--ln); }
-  .legend .li { display: flex; align-items: center; gap: 10px; color: var(--t2); margin: 6px 0; }
-  .legend .li i { width: 16px; height: 2px; border-radius: 1px; }
-  .legend label { display: flex; justify-content: space-between; font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--t2); margin: 12px 0 4px; }
-  .legend label b { color: var(--ink); font-weight: 500; }
-  .legend input { width: 100%; accent-color: var(--orange); }
-  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 0 16px 16px; margin-top: -10px; position: relative; }
-  .tile { padding: 14px 16px 16px; border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)), #18232A; border: 1px solid var(--ln); min-height: 150px; min-width: 0; }
-  .tile h4 { margin: 0 0 12px; font: 400 11.5px var(--disp); letter-spacing: .05em; display: flex; justify-content: space-between; gap: 8px; }
-  .tile h4 span { font: 500 10px var(--mono); color: var(--t3); letter-spacing: .06em; }
-  .tile .bv { font: 400 30px/1 var(--disp); letter-spacing: .01em; }
-  .tile .bv small { font-size: 14px; color: var(--t2); }
-  .tile .nt { font-size: 12.5px; color: var(--t2); margin: 8px 0 0; }
-  .bars .br { margin: 7px 0; }
-  .bars .br div { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--t2); margin-bottom: 4px; }
-  .bars .br div b { font: 500 11px var(--mono); color: var(--ink); background: rgba(234,106,53,.22); padding: 1px 6px; border-radius: 5px; }
-  .bars .br i { display: block; height: 7px; border-radius: 4px; background: linear-gradient(90deg, rgba(234,106,53,.25), var(--orange)); transition: width .8s cubic-bezier(.2,.7,.2,1); }
-  .gauge { display: block; width: 100%; max-width: 190px; margin: -4px auto 0; }
-  .hist { display: block; width: 100%; height: 86px; }
-  .simnote { font-size: 12.5px; color: var(--t3); text-align: center; margin: 18px auto 0; max-width: 720px; }
-  @media (max-width: 900px) {
-    .frame { padding: 12px; border-radius: 24px; } .app { border-radius: 16px; }
-    .abar .pills, .abar .ch .kv:nth-child(2) { display: none; } .abar { justify-content: space-between; }
-    .legend { position: relative; top: 0; left: 0; width: auto; margin: 12px; }
-    .tiles { grid-template-columns: 1fr 1fr; margin-top: 0; }
-  }
+  /* simulation dashboard (glass, monochrome chrome, colourful data) */
+  .dash { margin-top: 48px; border-radius: 30px; padding: 14px; background: linear-gradient(180deg, #2A3034, #121415 60%); border: 1px solid var(--ln); box-shadow: 0 60px 120px -60px rgba(0,0,0,.9); }
+  .abar { display: flex; align-items: center; gap: 14px; padding: 8px 8px 14px; flex-wrap: wrap; }
+  .abar .logo { font-size: 15px; padding-left: 6px; }
+  .seg { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.06); margin: 0 auto; }
+  .seg button { font: 500 13px var(--sans); color: var(--t2); background: none; border: 0; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: rgba(255,255,255,.14); color: var(--ink); }
+  .abar .ch { display: flex; gap: 6px; align-items: center; }
+  .kv { padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.06); font: 400 12px var(--mono); color: var(--t2); white-space: nowrap; }
+  .kv b { color: var(--ink); font-weight: 400; }
+  .ib { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.06); border: 0; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ib:hover { background: rgba(255,255,255,.14); }
+  .dgrid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 10px; }
+  .panel { border-radius: 22px; background: rgba(20,22,24,.9); border: 1px solid var(--ln); padding: 16px 18px; min-width: 0; position: relative; }
+  .panel h4 { margin: 0 0 12px; font: 400 15px var(--sans); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .panel h4 span { font: 400 10.5px var(--mono); color: var(--t3); }
+  .side { display: grid; gap: 10px; align-content: start; }
+  .big3 { font: 300 46px/1 var(--sans); letter-spacing: -.03em; }
+  .big3 small { font-size: 22px; color: var(--t3); }
+  .nt { font-size: 12.5px; color: var(--t2); margin: 8px 0 0; }
+  .legend .li { display: flex; align-items: center; gap: 10px; color: var(--t2); margin: 7px 0; font-size: 13px; }
+  .legend .li i { width: 18px; height: 2px; border-radius: 1px; flex: none; }
+  .legend label { display: flex; justify-content: space-between; font: 400 11px var(--mono); color: var(--t2); margin: 16px 0 6px; }
+  .legend label b { color: var(--ink); font-weight: 400; }
+  .legend input { width: 100%; accent-color: #ECF0F3; }
+  .chartp { padding: 0; overflow: hidden; }
+  .chartp h4 { position: absolute; left: 18px; top: 16px; z-index: 2; }
+  #mc { display: block; width: 100%; height: clamp(320px, 36vw, 470px); }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+  .hist { display: block; width: 100%; height: 90px; }
+  .gauge { display: block; width: 100%; max-width: 200px; margin: 0 auto; }
+  .bars .br { margin: 9px 0; }
+  .bars .br div { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--t2); margin-bottom: 5px; }
+  .bars .br div b { font: 400 12px var(--mono); color: var(--ink); }
+  .bars .br i { display: block; height: 4px; border-radius: 2px; background: linear-gradient(90deg, rgba(236,240,243,.25), #ECF0F3); transition: width .8s cubic-bezier(.2,.7,.2,1); }
+  .simnote { font-size: 12.5px; color: var(--t3); margin: 18px 4px 0; }
+  @media (max-width: 900px) { .dgrid { grid-template-columns: minmax(0, 1fr); } .side { grid-template-columns: 1fr 1fr; } .tiles { grid-template-columns: minmax(0, 1fr); } .seg { margin: 0; } .abar .ch .kv { display: none; } }
+  @media (max-width: 520px) { .side { grid-template-columns: minmax(0, 1fr); } }
 
   /* statement */
-  .stmt { text-wrap: balance; text-align: center; font: 400 clamp(22px, 4.3vw, 60px)/1.1 var(--disp); letter-spacing: .01em; margin: 0; }
-  .stmt span { color: #59676D; }
-  .stmt + .ticks { margin-top: 40px; }
+  .stmt { font: 300 clamp(30px, 5.4vw, 78px)/1.08 var(--sans); letter-spacing: -.035em; margin: 0; text-wrap: balance; }
+  .stmt span { color: #4E575D; }
 
   /* agents spotlight */
-  .spot { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 40px; align-items: center; }
-  .spot .orb { position: relative; width: clamp(240px, 26vw, 320px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #0E161A; box-shadow: 0 0 0 1px var(--ln2), 0 0 0 14px rgba(255,255,255,.02), 0 0 0 15px var(--ln); }
+  .spot { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 48px; align-items: center; }
+  .spot .orb { position: relative; width: clamp(240px, 24vw, 310px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #0F1112; box-shadow: 0 0 0 1px var(--ln2), 0 0 0 16px rgba(255,255,255,.02), 0 0 0 17px var(--ln); }
   .spot .orb canvas { width: 100%; height: 100%; display: block; }
-  .spot .orb::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(14,22,26,.85)); pointer-events: none; }
-  .spot .r p { color: var(--t2); margin: 0 0 22px; max-width: 360px; }
-  @media (max-width: 900px) { .spot { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; } .spot .r p { margin-left: auto; margin-right: auto; } }
+  .spot .orb::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, transparent 52%, rgba(15,17,18,.9)); pointer-events: none; }
+  .spot .r p { color: var(--t2); margin: 0 0 24px; max-width: 360px; }
+  @media (max-width: 900px) { .spot { grid-template-columns: minmax(0, 1fr); justify-items: start; } }
 
-  /* catalog */
-  .tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 13px; background: var(--pill); margin-top: 30px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  /* index */
+  .tabs { display: inline-flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.06); margin-top: 30px; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
-  .tabs button { font: 400 12px var(--disp); letter-spacing: .05em; color: var(--t2); background: none; border: 0; padding: 10px 15px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+  .tabs button { font: 500 13px var(--sans); color: var(--t2); background: none; border: 0; padding: 9px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
   .tabs button:hover { color: var(--ink); }
-  .tabs button[aria-selected="true"] { color: var(--ink); background: var(--pill-on); }
-  .tabs i { font: 500 10.5px var(--mono); font-style: normal; color: var(--t3); margin-left: 7px; }
-  .tabs button[aria-selected="true"] i { color: var(--t2); }
-  table.cat { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 14.5px; margin-top: 18px; }
-  table.cat th { text-align: left; font: 500 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--t3); padding: 4px 16px; white-space: nowrap; }
-  table.cat td { padding: 15px 16px; vertical-align: middle; background: var(--s1); border-top: 1px solid var(--ln); border-bottom: 1px solid var(--ln); }
-  table.cat td:first-child { border-left: 1px solid var(--ln); border-radius: 14px 0 0 14px; }
-  table.cat td:last-child { border-right: 1px solid var(--ln); border-radius: 0 14px 14px 0; }
-  table.cat tr.row { cursor: pointer; }
-  table.cat tr.row:hover td { background: var(--s2); }
-  table.cat tr.grp td { background: none; border: 0; padding: 24px 6px 2px; font: 400 12px var(--disp); letter-spacing: .05em; color: var(--t2); }
-  td.id { font: 500 11.5px var(--mono); color: var(--t3); width: 104px; white-space: nowrap; }
-  td.t { font-weight: 600; width: 250px; }
+  .tabs button[aria-selected="true"] { color: #121416; background: rgba(236,240,243,.92); }
+  .tabs i { font: 400 10.5px var(--mono); font-style: normal; opacity: .6; margin-left: 6px; }
+  table.cat { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-top: 22px; }
+  table.cat th { text-align: left; font: 400 11px var(--mono); letter-spacing: .03em; color: var(--t3); padding: 10px 14px; border-bottom: 1px solid var(--ln); white-space: nowrap; }
+  table.cat td { padding: 16px 14px; vertical-align: middle; border-bottom: 1px solid var(--ln); }
+  table.cat tr.row { cursor: pointer; transition: background .15s; }
+  table.cat tr.row:hover td { background: rgba(255,255,255,.03); }
+  table.cat tr.grp td { padding: 30px 14px 10px; font: 400 12px var(--mono); color: var(--t2); }
+  td.id { font: 400 11.5px var(--mono); color: var(--t3); width: 100px; white-space: nowrap; }
+  td.t { font-weight: 500; width: 250px; }
   td.d { color: var(--t2); }
   td.m { width: 180px; }
-  .tag { display: inline-block; font: 500 11px/1.5 var(--mono); color: var(--t2); background: var(--pill); padding: 3px 9px; border-radius: 7px; white-space: nowrap; }
-  td.st { width: 124px; font: 500 11.5px var(--mono); color: var(--t2); white-space: nowrap; }
-  td.st::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 8px; vertical-align: 1px; box-shadow: 0 0 0 3px rgba(91,212,122,.15); }
-  td.go { text-align: right; width: 84px; white-space: nowrap; font: 400 11px var(--disp); letter-spacing: .05em; color: var(--t2); }
+  .tag { display: inline-block; font: 400 11px/1.5 var(--mono); color: var(--t2); border: 1px solid var(--ln2); padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  td.st { width: 120px; font: 400 11.5px var(--mono); color: var(--t2); white-space: nowrap; }
+  td.st::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 8px; vertical-align: 1px; }
+  td.go { text-align: right; width: 84px; white-space: nowrap; font: 500 13px var(--sans); color: var(--t2); }
   tr.row:hover td.go { color: var(--ink); }
   @media (max-width: 1000px) { td.m, th.m { display: none; } td.t { width: 200px; } }
-  @media (max-width: 700px) {
-    table.cat thead { display: none; } td.d, td.st { display: none; } td.id { width: 80px; } td.t { width: auto; } td.go { width: 64px; }
-    table.cat td { padding: 13px 12px; }
-  }
+  @media (max-width: 700px) { table.cat thead { display: none; } td.d, td.st { display: none; } td.id { width: 76px; } td.t { width: auto; } td.go { width: 60px; } table.cat td { padding: 14px 8px; } }
 
   /* console */
-  .term { background: #0C1316; border: 1px solid var(--ln); border-radius: 18px; font: 400 13px/1.65 var(--mono); color: #C4CFD3; overflow: hidden; margin-top: 30px; text-align: left; }
-  .tbar { display: flex; justify-content: space-between; align-items: center; min-height: 46px; padding: 0 16px; border-bottom: 1px solid var(--ln); font-size: 12px; color: var(--t2); }
+  .term { background: #0F1112; border: 1px solid var(--ln); border-radius: 22px; font: 400 13px/1.65 var(--mono); color: #BFC7CC; overflow: hidden; margin-top: 34px; }
+  .tbar { display: flex; justify-content: space-between; align-items: center; min-height: 46px; padding: 0 18px; border-bottom: 1px solid var(--ln); font-size: 12px; color: var(--t3); }
   .tbar .dots { display: flex; gap: 6px; } .tbar .dots i { display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--s3); }
-  .tbody { height: 300px; overflow-y: auto; padding: 14px 18px 4px; white-space: pre-wrap; word-break: break-word; scrollbar-width: thin; scrollbar-color: var(--s3) transparent; }
-  .tbody .ps1, .tin .ps1 { color: var(--orange); }
+  .tbody { height: 300px; overflow-y: auto; padding: 14px 20px 4px; white-space: pre-wrap; word-break: break-word; scrollbar-width: thin; scrollbar-color: var(--s3) transparent; }
+  .tbody .ps1, .tin .ps1 { color: var(--mint); }
   .tbody .dim { color: var(--t3); } .tbody .hi { color: var(--ink); } .tbody .ok { color: var(--green); } .tbody .warn { color: var(--t2); } .tbody .err { color: var(--red); }
   .tbody a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--ln2); text-underline-offset: 3px; }
   .tbody .acc { color: var(--ink) !important; }
   .nf { display: flex; align-items: center; gap: 28px; margin: 4px 0 2px; white-space: pre-wrap; }
   .nf .orb { width: 140px; height: 140px; flex: none; }
   @media (max-width: 560px) { .nf { flex-direction: column; align-items: flex-start; gap: 10px; } .nf .orb { width: 100px; height: 100px; } .tbody { height: 260px; } }
-  .tin { display: flex; gap: 10px; padding: 4px 18px 16px; }
-  .tin input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--ink); font: inherit; caret-color: var(--orange); padding: 0; }
-  .chips2 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; justify-content: center; }
-  .chips2 button { font: 500 11.5px var(--mono); color: var(--t2); background: var(--pill); border: 0; border-radius: 8px; padding: 7px 12px; cursor: pointer; }
-  .chips2 button:hover { color: var(--ink); background: var(--pill-on); }
+  .tin { display: flex; gap: 10px; padding: 4px 20px 16px; }
+  .tin input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--ink); font: inherit; caret-color: var(--mint); padding: 0; }
+  .chips2 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .chips2 button { font: 400 12px var(--mono); color: var(--t2); background: rgba(255,255,255,.05); border: 1px solid var(--ln); border-radius: 999px; padding: 6px 13px; cursor: pointer; }
+  .chips2 button:hover { color: var(--ink); background: rgba(255,255,255,.1); }
 
   /* about */
   .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
-  .two p { color: var(--t2); margin: 16px 0 0; }
-  .facts { display: grid; gap: 8px; }
-  .facts > div:not(.note) { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 14px 16px; border-radius: 14px; background: var(--s1); border: 1px solid var(--ln); font-size: 14.5px; }
-  .facts > div span:first-child { font: 500 10.5px/2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--t3); }
+  .two p { color: var(--t2); margin: 18px 0 0; }
+  .facts { display: grid; gap: 0; border-top: 1px solid var(--ln); }
+  .facts > div:not(.note) { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--ln); font-size: 14.5px; }
+  .facts > div span:first-child { font: 400 11px/2 var(--mono); color: var(--t3); }
   .facts > div span:last-child { color: var(--t2); }
-  .note { border-radius: 14px; border: 1px solid rgba(234,106,53,.35); background: rgba(234,106,53,.07); padding: 14px 16px; color: var(--t2); font-size: 14px; margin-top: 8px; }
-  .note b { color: var(--ink); font-weight: 600; }
+  .note { border-radius: 16px; border: 1px solid var(--ln2); background: rgba(255,255,255,.03); padding: 14px 16px; color: var(--t2); font-size: 14px; margin-top: 18px; }
+  .note b { color: var(--ink); font-weight: 500; }
   @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
 
   /* closing banner and footer */
-  .cta2 { position: relative; margin-top: clamp(90px, 11vw, 150px); min-height: 520px; display: flex; align-items: flex-end; overflow: hidden; }
-  .cta2 .bg { position: absolute; inset: 0; background: url(img/cta.webp) center 40% / cover no-repeat; }
-  .cta2 .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg) 0%, rgba(20,31,35,.35) 30%, rgba(20,31,35,.4) 60%, var(--bg2) 100%); }
-  .cta2 .w { position: relative; width: 100%; padding-bottom: 70px; }
-  .cta2 .logo { font-size: 22px; margin-bottom: 26px; }
-  .cta2 h2 { font: 400 clamp(28px, 4vw, 52px)/1.1 var(--disp); margin: 0 0 14px; }
-  .cta2 h2 span { display: block; color: #C2CBCE; }
-  .cta2 p { color: var(--t2); margin: 0 0 26px; max-width: 520px; }
-  footer { background: var(--bg2); position: relative; overflow: hidden; }
-  footer .ticks { margin-bottom: 50px; }
+  .cta2 { position: relative; margin-top: clamp(96px, 11vw, 150px); min-height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
+  .cta2 .bg { position: absolute; inset: 0; background: url(img/cta.webp) center 40% / cover no-repeat; filter: grayscale(.85) brightness(.9); }
+  .cta2 .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg) 0%, rgba(48,59,67,.45) 35%, rgba(71,84,95,.35) 60%, var(--bg) 100%); }
+  .cta2 .w { position: relative; width: 100%; padding-bottom: 80px; }
+  .cta2 h2 { font: 300 clamp(34px, 5vw, 66px)/1.05 var(--sans); letter-spacing: -.03em; margin: 0 0 18px; }
+  .cta2 h2 span { color: rgba(242,244,245,.6); }
+  .cta2 p { color: rgba(242,244,245,.75); margin: 0 0 28px; max-width: 460px; }
+  footer { position: relative; overflow: hidden; padding-top: 70px; }
   .fgrid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
-  .fgrid h5 { font: 400 14px var(--disp); letter-spacing: .05em; margin: 0 0 16px; }
-  .fgrid p { margin: 0 0 12px; font-size: 14px; color: var(--t2); }
+  .fgrid h5 { font: 400 11.5px var(--mono); color: var(--t3); margin: 0 0 16px; }
+  .fgrid p { margin: 0 0 11px; font-size: 14px; color: var(--t2); }
   .fgrid a:hover { color: var(--ink); }
-  .fgrid .big2 { font-size: 22px; }
-  .fbar { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--ln); margin-top: 50px; padding: 22px 0 10px; font-size: 13px; color: var(--t3); }
-  .wm { position: relative; display: flex; justify-content: center; padding: 30px 0 0; user-select: none; overflow: hidden; }
-  .wm span { font: 400 clamp(56px, 15.2vw, 240px)/.86 var(--disp); letter-spacing: .02em; color: transparent; background: linear-gradient(180deg, #8696A0 0%, #3B4A51 70%, rgba(15,24,28,0) 100%); -webkit-background-clip: text; background-clip: text; display: inline-block; transition: filter .35s ease-out, transform .35s ease-out; will-change: filter; }
+  .fgrid .big4 { font: 300 26px/1.25 var(--sans); letter-spacing: -.02em; color: var(--ink); margin: 0; }
+  .fgrid .big4 em { font-style: normal; color: #6E787F; }
+  .fbar { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--ln); margin-top: 56px; padding: 22px 0 10px; font-size: 13px; color: var(--t3); }
+  .wm { display: flex; justify-content: center; padding: 40px 0 0; user-select: none; overflow: hidden; }
+  .wm span { font: 500 clamp(80px, 21vw, 330px)/.8 var(--sans); letter-spacing: -.06em; color: transparent; background: linear-gradient(180deg, #6E808E 0%, #303B43 75%, rgba(11,12,13,0) 100%); -webkit-background-clip: text; background-clip: text; display: inline-block; will-change: filter; }
   @media (max-width: 860px) { .fgrid { grid-template-columns: 1fr 1fr; } .fgrid > div:first-child { grid-column: 1 / -1; } }
   .hide { display: none !important; }
-  .rv { opacity: 0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .rv { opacity: 0; transform: translateY(26px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
   .rv.in { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .rv { opacity: 1; transform: none; transition: none; } .track, .card { transition: none; } }
-
-  #learn .h2d { font-size: clamp(26px, 3.4vw, 46px); }
+  @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } }
 </style>
 </head>
 <body>
 <header class="top"><div class="w">
-  <a class="logo" href="#top" aria-label="LDB Lab, back to top"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> LDB <span>Lab</span></a>
+  <a class="logo" href="#top" aria-label="LDB Lab, back to top"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg> LDB <span>Lab</span></a>
   <nav class="nav" id="nav" aria-label="Sections">
     <a href="#course" data-go="course" data-nav="course">Course</a>
     <a href="#tools" data-go="tools" data-nav="tools">Tools</a>
@@ -336,117 +336,106 @@
     <a href="#about" data-nav="about">About</a>
   </nav>
   <div class="hr">
-    <a class="b sm gh" href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a>
-    <a class="b sm wh ms" href="/">Main site</a>
-    <button class="b sm menu" type="button" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
+    <a class="pill gl sm gh" href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a>
+    <a class="pill lt sm ms" href="/"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Main site</a>
+    <button class="pill gl sm menu" type="button" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
   </div>
 </div></header>
 
 <main>
 <section class="hero" id="top" aria-label="Introduction">
-  <span class="chip"><i></i>Applied AI &middot; Luis Diaz Busquets</span>
-  <h1><span>Applied AI</span><span>Laboratory</span></h1>
-  <p class="sub">Build every model. Train every agent. Test every decision, live in your browser.</p>
-  <div class="cta"><a class="b wh" href="learn.html">Start the course</a><a class="b" href="#tools" data-go="tools">Explore tools</a></div>
-
+  <canvas id="wordmark" aria-hidden="true"></canvas>
+  <span class="sr">LDB Lab</span>
   <div class="stage">
     <div class="feedwrap">
       <div class="feed" id="feed">
         <canvas id="scene" aria-hidden="true"></canvas>
         <canvas id="hud" aria-hidden="true"></canvas>
-        <div class="fhud tl"><span class="chip"><i></i><b id="camName">CAM-00</b> <span id="camPlace">Connecting</span></span></div>
-        <div class="fhud tr"><span class="chip">YOLOX-tiny &middot; on your device</span></div>
-        <div class="modes" role="group" aria-label="Camera mode">
-          <button type="button" data-mode="optical" aria-pressed="true">Optical</button>
-          <button type="button" data-mode="thermal" aria-pressed="false">Thermal</button>
-          <button type="button" id="pauseBtn" aria-pressed="false">Pause</button>
+        <div class="fchip"><i></i><b id="camName">CAM-00</b> <span id="camPlace">Connecting</span></div>
+        <div class="fstats">
+          <div class="nums" aria-live="off"><div><span id="stTr">00</span><small>tracked</small></div><div><span id="stPe">00</span><small>people</small></div><div><span id="stIn">—</span><small>inference</small></div></div>
+          <div class="modes" role="group" aria-label="Camera mode">
+            <button type="button" data-mode="optical" aria-pressed="true">Optical</button>
+            <button type="button" data-mode="thermal" aria-pressed="false">Thermal</button>
+            <button type="button" id="pauseBtn" aria-pressed="false">Pause</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="wire" aria-hidden="true">
-      <svg viewBox="0 0 1000 70" preserveAspectRatio="none"><path d="M10 46 H360 C392 46 404 34 418 6 M990 46 H640 C608 46 596 34 582 6" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>
-      <span style="position:absolute;left:1%;top:42px;width:7px;height:7px;border-radius:50%;background:#EA6A35"></span>
-      <span style="position:absolute;left:19%;top:42px;width:7px;height:7px;border-radius:50%;background:#5BD47A"></span>
-      <span style="position:absolute;right:19%;top:42px;width:7px;height:7px;border-radius:50%;background:#F0555A"></span>
-      <span style="position:absolute;right:1%;top:42px;width:7px;height:7px;border-radius:50%;background:#5BD47A"></span>
-    </div>
-    <div class="hudrow w" style="padding:0">
-      <div class="st"><b id="stTr">00</b><span>Tracked objects</span></div>
-      <div class="st"><b id="stPe">00</b><span>People</span></div>
-      <div class="compass" aria-hidden="true"><div class="lab">North</div>
-        <svg viewBox="0 0 150 150"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EA6A35" stop-opacity=".5"/><stop offset="1" stop-color="#EA6A35" stop-opacity="0"/></linearGradient></defs>
-          <path d="M75 75 L40 150 H110 Z" fill="url(#cg)" opacity=".5"/>
-          <polygon points="75,4 71,11 79,11" fill="#EEF2F3"/>
-          <g class="rot" id="crot"><circle cx="75" cy="75" r="56" fill="none" stroke="rgba(255,255,255,.25)"/>
-            <g stroke="rgba(255,255,255,.45)" stroke-width="1"><line x1="75" y1="15" x2="75" y2="23"/><line x1="135" y1="75" x2="127" y2="75"/><line x1="75" y1="135" x2="75" y2="127"/><line x1="15" y1="75" x2="23" y2="75"/></g>
-            <g fill="#9BA8AD" font-family="Geist Mono, monospace" font-size="9" text-anchor="middle"><text x="75" y="34" fill="#F0555A">N</text><text x="118" y="78">E</text><text x="75" y="122">S</text><text x="32" y="78">W</text></g>
-            <circle cx="75" cy="75" r="64" fill="none" stroke="rgba(255,255,255,.18)" stroke-dasharray="1 5.7"/></g>
-          <text id="cdeg" x="75" y="80" text-anchor="middle" fill="#EEF2F3" font-family="Bai Jamjuree, sans-serif" font-size="15">0°</text></svg>
-      </div>
-      <div class="st"><b id="stIn">—</b><span>Inference time</span></div>
-      <div class="st"><b>06</b><span>Camera feeds</span></div>
-      <div class="ticks"></div><div class="ticks"></div>
-      <span class="hide" id="stVe"></span>
-    </div>
+    <span class="hide" id="stVe"></span>
     <div class="hide" aria-hidden="true"><span id="feedNo"></span><span id="clock"></span><span id="stats"></span><span id="pcount"></span><table><tbody id="plist"></tbody></table><div id="loglines"></div></div>
   </div>
+
+  <div class="hcopy">
+    <p class="k">Applied AI &middot; Luis Diaz Busquets</p>
+    <h1><span>Machine learning</span><span>you can watch</span><span>think.</span></h1>
+    <p>A 14-module course, learning agents and finance tools, all running live in your browser.</p>
+    <div class="cta"><a class="pill lt" href="learn.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Start the course</a><a class="pill gl" href="#tools" data-go="tools">Explore tools</a></div>
+  </div>
+
+  <div class="scard" aria-label="What is inside">
+    <div class="tp"><svg viewBox="0 0 34 34" aria-hidden="true"><g stroke="#F2F4F5" stroke-width="1.4" stroke-linecap="round" fill="none"><circle cx="17" cy="17" r="5"/><path d="M17 3v6M17 25v6M3 17h6M25 17h6M7.1 7.1l4.2 4.2M22.7 22.7l4.2 4.2M26.9 7.1l-4.2 4.2M11.3 22.7l-4.2 4.2"/></g></svg>
+      <button class="nx" type="button" id="scNext" aria-label="Next"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <div class="it"><i></i><div><b id="scb">01 / 14 course modules</b><span id="scs">&nbsp;</span></div></div>
+    <div class="bar"><i class="on"></i><i></i><i></i><i></i></div>
+  </div>
 </section>
 
-<section class="s" id="build" aria-label="Finance tools and learning agents"><span id="tools"></span><span id="agents"></span>
-  <div class="w intro rv">
-    <div class="l"><div class="disp">Built from<br>first principles</div><p>Not demos of someone else's API: every model on these pages is written from scratch.</p></div>
-    <div class="r"><span class="chip">Finance tools &amp; learning agents</span>
-      <p class="big2">Tools that price, quote and size risk, <em>and agents that learn from their own mistakes, judged on data they never saw.</em></p></div>
+<section class="s" id="start" aria-label="Start here"><div class="w">
+  <div class="rv"><span class="lbl">Start here</span><h2 class="h">Three pieces <em>worth your time.</em></h2></div>
+  <div class="feat rv"><a class="fc" href="options.html"><div class="im"><img src="img/options.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Open the tool</b><span>TOOL-01 &rarr;</span></div></div><h3>Options builder</h3><p>Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</p></a><a class="fc" href="trader.html"><div class="im"><img src="img/trader.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-01 &rarr;</span></div></div><h3>Market trader</h3><p>A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</p></a><a class="fc" href="montecarlo.html"><div class="im"><img src="img/montecarlo.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-04 &rarr;</span></div></div><h3>Retirement simulator</h3><p>Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</p></a></div>
+</div></section>
+
+<section class="s" id="build" aria-label="Finance tools and learning agents"><span id="tools"></span><span id="agents"></span><div class="w">
+  <div class="rv"><span class="lbl">Finance tools &amp; learning agents</span><h2 class="h">Tools that price risk, <em>and agents that learn from their own mistakes.</em></h2></div>
+  <div class="tabsx" id="stabs" role="tablist" aria-label="Tools and agents"><button type="button" role="tab" aria-selected="true">Options builder</button><button type="button" role="tab" aria-selected="false">Market maker</button><button type="button" role="tab" aria-selected="false">Kelly challenge</button><span class="sep" aria-hidden="true"></span><button type="button" role="tab" aria-selected="false">Market trader</button><button type="button" role="tab" aria-selected="false">Day trader</button><button type="button" role="tab" aria-selected="false">Sports-market model</button><button type="button" role="tab" aria-selected="false">Retirement simulator</button><button type="button" role="tab" aria-selected="false">Landlord</button></div>
+  <div class="show rv">
+    <div class="im"><img id="simg" src="img/options.webp" alt="" width="760" height="570"></div>
+    <div><div class="k" id="sk">&nbsp;</div><h3 id="st">&nbsp;</h3><p id="sd">&nbsp;</p><div class="facts2" id="sf"></div>
+      <a class="pill lt" id="sa" href="options.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tx">Open the tool</span></a></div>
   </div>
-  <div class="car rv" aria-roledescription="carousel">
-    <div class="track" id="track"><a class="card" href="options.html" aria-label="Options builder"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/options.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">TOOL-01 &middot; FINANCE TOOL</div><h3>Options builder</h3><p>Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</p></div></a><a class="card" href="market-maker.html" aria-label="Market maker"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/market-maker.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">TOOL-02 &middot; FINANCE TOOL</div><h3>Market maker</h3><p>Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.</p></div></a><a class="card" href="kelly.html" aria-label="Kelly challenge"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/kelly.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">TOOL-03 &middot; FINANCE TOOL</div><h3>Kelly challenge</h3><p>The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.</p></div></a><a class="card" href="trader.html" aria-label="Market trader"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/trader.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">AGENT-01 &middot; LEARNING AGENT</div><h3>Market trader</h3><p>A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</p></div></a><a class="card" href="daytrader.html" aria-label="Day trader"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/daytrader.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">AGENT-02 &middot; LEARNING AGENT</div><h3>Day trader</h3><p>A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.</p></div></a><a class="card" href="betting.html" aria-label="Sports-market model"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/betting.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">AGENT-03 &middot; LEARNING AGENT</div><h3>Sports-market model</h3><p>Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.</p></div></a><a class="card" href="montecarlo.html" aria-label="Retirement simulator"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/montecarlo.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">AGENT-04 &middot; LEARNING AGENT</div><h3>Retirement simulator</h3><p>Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</p></div></a><a class="card" href="landlord.html" aria-label="Landlord"><span class="go"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="im"><img src="img/landlord.webp" alt="" loading="lazy" width="760" height="570"></div><div class="tx"><div class="k">AGENT-05 &middot; LEARNING AGENT</div><h3>Landlord</h3><p>A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.</p></div></a></div>
-    <div class="carnav"><button type="button" id="prev" aria-label="Previous"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4M9 5 4 10l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" id="next" class="nx" aria-label="Next"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-    <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  </div>
-</section>
+</div></section>
 
 <section class="s" id="course" aria-label="The course"><span id="mods"></span><div class="w">
-  <div class="center rv"><span class="chip">The course &middot; 14 modules</span>
-    <h2 class="h2d" style="margin-top:20px"><span>From first principles</span><span>to infrastructure</span></h2>
-    <p class="lead">Five tracks, one idea per module, every one interactive. Open a track to see its modules.</p></div>
-  <div class="rows"><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">1</span><span class="meta">2 modules &middot; live</span><span class="th"><img src="img/track-t1.webp" alt="" loading="lazy" width="320" height="320"></span><span><h3>ML foundations</h3><p>How a model learns from its own errors, and the classic methods behind credit scores and fraud alerts.</p></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="learn.html"><span class="id">MOD-01</span><span class="t">How models learn</span><span class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</span><span class="o">Open &rarr;</span></a></li><li><a href="classic.html"><span class="id">MOD-02</span><span class="t">Classic machine learning</span><span class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">2</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t2.webp" alt="" loading="lazy" width="320" height="320"></span><span><h3>Deep learning</h3><p>Neurons, layers and backpropagation: how networks read images and turn words into numbers.</p></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="nn.html"><span class="id">MOD-03</span><span class="t">Neural networks</span><span class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</span><span class="o">Open &rarr;</span></a></li><li><a href="cnn.html"><span class="id">MOD-04</span><span class="t">Seeing with networks</span><span class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</span><span class="o">Open &rarr;</span></a></li><li><a href="emb.html"><span class="id">MOD-05</span><span class="t">Embeddings</span><span class="d">How words, images and documents become lists of numbers where similar things sit close together.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">3</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t3.webp" alt="" loading="lazy" width="320" height="320"></span><span><h3>Generative AI</h3><p>Transformers, diffusion and fine-tuning: how a text predictor becomes an assistant.</p></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="llm.html"><span class="id">MOD-06</span><span class="t">How an LLM works</span><span class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</span><span class="o">Open &rarr;</span></a></li><li><a href="diff.html"><span class="id">MOD-07</span><span class="t">Diffusion</span><span class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</span><span class="o">Open &rarr;</span></a></li><li><a href="assistant.html"><span class="id">MOD-08</span><span class="t">From predictor to assistant</span><span class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">4</span><span class="meta">5 modules &middot; live</span><span class="th"><img src="img/track-t4.webp" alt="" loading="lazy" width="320" height="320"></span><span><h3>AI infrastructure</h3><p>GPUs, training at scale, serving, retrieval and agents: what it takes to run AI for real.</p></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="gpu.html"><span class="id">MOD-09</span><span class="t">Why AI runs on GPUs</span><span class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</span><span class="o">Open &rarr;</span></a></li><li><a href="scale.html"><span class="id">MOD-10</span><span class="t">Training at scale</span><span class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</span><span class="o">Open &rarr;</span></a></li><li><a href="serve.html"><span class="id">MOD-11</span><span class="t">How models are served</span><span class="d">Memory per model, batching, latency and what each answer costs to run.</span><span class="o">Open &rarr;</span></a></li><li><a href="rag.html"><span class="id">MOD-12</span><span class="t">How AI looks things up</span><span class="d">Retrieval (RAG), the technique behind chatting with your own documents.</span><span class="o">Open &rarr;</span></a></li><li><a href="agents.html"><span class="id">MOD-13</span><span class="t">How agents work</span><span class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">5</span><span class="meta">1 module &middot; live</span><span class="th"><img src="img/track-t5.webp" alt="" loading="lazy" width="320" height="320"></span><span><h3>Evaluation</h3><p>How to tell whether a model is actually good, and exactly where it breaks.</p></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="eval.html"><span class="id">MOD-14</span><span class="t">Evaluation and failure</span><span class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div></div>
+  <div class="shead rv"><div><span class="lbl">The course &middot; 14 modules</span><h2 class="h">From first principles <em>to infrastructure.</em></h2></div>
+    <p class="lead" style="max-width:380px">Five tracks, one idea per module, every one interactive. Open a track to see its modules.</p></div>
+  <div class="rows"><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">01</span><span class="meta">2 modules &middot; live</span><span class="th"><img src="img/track-t1.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">ML foundations</span><span class="pd">How a model learns from its own errors, and the classic methods behind credit scores and fraud alerts.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="learn.html"><span class="id">MOD-01</span><span class="t">How models learn</span><span class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</span><span class="o">Open &rarr;</span></a></li><li><a href="classic.html"><span class="id">MOD-02</span><span class="t">Classic machine learning</span><span class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">02</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t2.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Deep learning</span><span class="pd">Neurons, layers and backpropagation: how networks read images and turn words into numbers.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="nn.html"><span class="id">MOD-03</span><span class="t">Neural networks</span><span class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</span><span class="o">Open &rarr;</span></a></li><li><a href="cnn.html"><span class="id">MOD-04</span><span class="t">Seeing with networks</span><span class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</span><span class="o">Open &rarr;</span></a></li><li><a href="emb.html"><span class="id">MOD-05</span><span class="t">Embeddings</span><span class="d">How words, images and documents become lists of numbers where similar things sit close together.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">03</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t3.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Generative AI</span><span class="pd">Transformers, diffusion and fine-tuning: how a text predictor becomes an assistant.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="llm.html"><span class="id">MOD-06</span><span class="t">How an LLM works</span><span class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</span><span class="o">Open &rarr;</span></a></li><li><a href="diff.html"><span class="id">MOD-07</span><span class="t">Diffusion</span><span class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</span><span class="o">Open &rarr;</span></a></li><li><a href="assistant.html"><span class="id">MOD-08</span><span class="t">From predictor to assistant</span><span class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">04</span><span class="meta">5 modules &middot; live</span><span class="th"><img src="img/track-t4.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">AI infrastructure</span><span class="pd">GPUs, training at scale, serving, retrieval and agents: what it takes to run AI for real.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="gpu.html"><span class="id">MOD-09</span><span class="t">Why AI runs on GPUs</span><span class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</span><span class="o">Open &rarr;</span></a></li><li><a href="scale.html"><span class="id">MOD-10</span><span class="t">Training at scale</span><span class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</span><span class="o">Open &rarr;</span></a></li><li><a href="serve.html"><span class="id">MOD-11</span><span class="t">How models are served</span><span class="d">Memory per model, batching, latency and what each answer costs to run.</span><span class="o">Open &rarr;</span></a></li><li><a href="rag.html"><span class="id">MOD-12</span><span class="t">How AI looks things up</span><span class="d">Retrieval (RAG), the technique behind chatting with your own documents.</span><span class="o">Open &rarr;</span></a></li><li><a href="agents.html"><span class="id">MOD-13</span><span class="t">How agents work</span><span class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">05</span><span class="meta">1 module &middot; live</span><span class="th"><img src="img/track-t5.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Evaluation</span><span class="pd">How to tell whether a model is actually good, and exactly where it breaks.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="eval.html"><span class="id">MOD-14</span><span class="t">Evaluation and failure</span><span class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div></div>
 </div></section>
 
 <section class="s" id="sim" aria-label="Monte Carlo simulation"><div class="w">
-  <div class="center rv"><h2 class="h2d"><span>Every outcome.</span><span>Fully simulated.</span></h2>
-    <p class="lead">Monte Carlo is how risk desks see thousands of futures at once. Here are 400 of them, drawn live on your device.</p>
-    <div style="margin-top:26px"><a class="b wh" href="montecarlo.html">Open the retirement simulator</a></div></div>
-  <div class="frame rv">
-    <div class="app">
-      <div class="abar">
-        <span class="logo"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> LDB <span>Lab</span></span>
-        <div class="pills" id="hz" role="group" aria-label="Horizon"><button type="button" data-y="1" aria-pressed="true">1 year</button><button type="button" data-y="3" aria-pressed="false">3 years</button><button type="button" data-y="5" aria-pressed="false">5 years</button></div>
-        <div class="ch"><span class="kv"><span><small>Horizon</small><b id="kvHz">1 year</b></span></span><span class="kv"><span><small>Volatility</small><b id="kvSig">30%</b></span></span>
-          <button class="ib" type="button" id="rerun" aria-label="Run a new simulation"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-      </div>
-      <div class="abody">
-        <canvas id="mc" aria-label="400 simulated stock price paths"></canvas>
-        <div class="legend"><h4>Legend</h4>
+  <div class="shead rv"><div><span class="lbl">Monte Carlo</span><h2 class="h">Every outcome, <em>fully simulated.</em></h2>
+    <p class="lead">Risk desks look at thousands of possible futures at once. Here are 400 of them, drawn live on your device.</p></div>
+    <a class="pill gl" href="montecarlo.html">Open the retirement simulator</a></div>
+  <div class="dash rv">
+    <div class="abar">
+      <span class="logo"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg> LDB <span>Lab</span></span>
+      <div class="seg" id="hz" role="group" aria-label="Horizon"><button type="button" data-y="1" aria-pressed="true">1 year</button><button type="button" data-y="3" aria-pressed="false">3 years</button><button type="button" data-y="5" aria-pressed="false">5 years</button></div>
+      <div class="ch"><span class="kv">horizon <b id="kvHz">1 year</b></span><span class="kv">volatility <b id="kvSig">30%</b></span>
+        <button class="ib" type="button" id="rerun" aria-label="Run a new simulation"><svg width="17" height="17" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    </div>
+    <div class="dgrid">
+      <div class="side">
+        <div class="panel"><h4>Median outcome <span>of 400</span></h4><div class="big3" id="tMed">—</div><p class="nt" id="tMedN">&nbsp;</p></div>
+        <div class="panel legend"><h4>Legend</h4>
           <div class="li"><i style="background:#fff;height:3px"></i>Average path</div>
           <div class="li"><i style="background:linear-gradient(90deg,#F48FB1,#FFE082,#81E6A0,#82B8FF,#C59BF5)"></i>One simulated path</div>
-          <div class="li"><i style="background:repeating-linear-gradient(90deg,#EA6A35 0 4px,transparent 4px 8px)"></i>Starting price</div>
-          <label for="vol">Volatility <b id="volv">30%</b></label><input type="range" id="vol" min="10" max="60" step="5" value="30">
-        </div>
+          <div class="li"><i style="background:repeating-linear-gradient(90deg,#fff 0 4px,transparent 4px 8px);opacity:.6"></i>Starting price</div>
+          <label for="vol">Volatility <b id="volv">30%</b></label><input type="range" id="vol" min="10" max="60" step="5" value="30"></div>
       </div>
-      <div class="tiles">
-        <div class="tile"><h4>Distribution<span>final price</span></h4><canvas class="hist" id="hist" aria-hidden="true"></canvas><p class="nt">Orange line: where it started.</p></div>
-        <div class="tile"><h4>Median outcome<span>of 400</span></h4><div class="bv" id="tMed">—</div><p class="nt" id="tMedN">&nbsp;</p></div>
-        <div class="tile"><h4>Chance of a loss<span>ends below start</span></h4>
-          <svg class="gauge" viewBox="0 0 190 105" aria-hidden="true"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#5BD47A"/><stop offset=".55" stop-color="#F2B04C"/><stop offset="1" stop-color="#F0555A"/></linearGradient></defs>
-            <path d="M25 90 A70 70 0 0 1 165 90" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10" stroke-linecap="round"/>
-            <path d="M25 90 A70 70 0 0 1 165 90" fill="none" stroke="url(#gg)" stroke-width="3" stroke-linecap="round"/>
-            <circle id="gNeedle" cx="25" cy="90" r="6" fill="#EEF2F3" stroke="#0E161A" stroke-width="3"/>
-            <text id="tLoss" x="95" y="84" text-anchor="middle" fill="#EEF2F3" font-family="Bruno Ace SC, sans-serif" font-size="26">—</text></svg></div>
-        <div class="tile bars"><h4>Range of outcomes<span>after the horizon</span></h4>
-          <div class="br"><div><span>Worst 5%</span><b id="b5v">—</b></div><i id="b5" style="width:0"></i></div>
-          <div class="br"><div><span>Median</span><b id="b50v">—</b></div><i id="b50" style="width:0"></i></div>
-          <div class="br"><div><span>Best 5%</span><b id="b95v">—</b></div><i id="b95" style="width:0"></i></div></div>
-      </div>
+      <div class="panel chartp"><h4>Price paths <span>&nbsp;$100 stock</span></h4><canvas id="mc" aria-label="400 simulated stock price paths"></canvas></div>
+    </div>
+    <div class="tiles">
+      <div class="panel"><h4>Distribution <span>final price</span></h4><canvas class="hist" id="hist" aria-hidden="true"></canvas><p class="nt">White line: where it started.</p></div>
+      <div class="panel"><h4>Chance of a loss <span>ends below start</span></h4>
+        <svg class="gauge" viewBox="0 0 190 105" aria-hidden="true"><defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#6BD38A"/><stop offset=".55" stop-color="#F2C14C"/><stop offset="1" stop-color="#F06262"/></linearGradient></defs>
+          <path d="M25 90 A70 70 0 0 1 165 90" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10" stroke-linecap="round"/>
+          <path d="M25 90 A70 70 0 0 1 165 90" fill="none" stroke="url(#gg)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle id="gNeedle" cx="25" cy="90" r="6" fill="#F2F4F5" stroke="#141618" stroke-width="3"/>
+          <text id="tLoss" x="95" y="84" text-anchor="middle" fill="#F2F4F5" font-family="Manrope, sans-serif" font-weight="300" font-size="30">—</text></svg></div>
+      <div class="panel bars"><h4>Range of outcomes <span>after the horizon</span></h4>
+        <div class="br"><div><span>Worst 5%</span><b id="b5v">—</b></div><i id="b5" style="width:0"></i></div>
+        <div class="br"><div><span>Median</span><b id="b50v">—</b></div><i id="b50" style="width:0"></i></div>
+        <div class="br"><div><span>Best 5%</span><b id="b95v">—</b></div><i id="b95" style="width:0"></i></div></div>
     </div>
   </div>
   <p class="simnote">A hypothetical $100 stock with an 8% yearly drift, simulated with geometric Brownian motion. An illustration of risk, not a forecast.</p>
@@ -454,19 +443,17 @@
 
 <section class="s" aria-label="Statement"><div class="w">
   <p class="stmt rv">Learn it. <span>/</span> Build it. <span>/</span> Test it.</p>
-  <div class="ticks big"></div>
 </div></section>
 
 <section class="s" id="learn" aria-label="Learning agents"><div class="w spot rv">
-  <div><h2 class="h2d"><span>Agents that</span><span>learn from</span><span>mistakes</span></h2></div>
+  <div><span class="lbl">Self-training</span><h2 class="h">Agents that learn <em>from their mistakes.</em></h2></div>
   <div class="orb"><canvas id="orb" aria-hidden="true"></canvas></div>
   <div class="r"><p>Five agents start knowing nothing, practise on simulated markets, leagues and board games, and are always scored on data they never trained on. Each page lists the mistakes they learned from.</p>
-    <a class="b wh" href="#agents" data-go="agents">Train an agent</a></div>
+    <a class="pill lt" href="#agents" data-go="agents"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Train an agent</a></div>
 </div></section>
 
 <section class="s" id="catalog" aria-label="Full index"><span id="games"></span><span id="arcade"></span><span id="train"></span><div class="w">
-  <div class="center rv"><h2 class="h2d"><span>Everything</span><span>in the lab</span></h2>
-    <p class="lead">All 29 modules, tools, agents and games in one place.</p>
+  <div class="rv"><span class="lbl">Index</span><h2 class="h">Everything <em>in the lab.</em></h2>
     <div class="tabs" role="tablist" aria-label="Filter the index"><button type="button" role="tab" data-tab="all" aria-selected="true">All<i>29</i></button><button type="button" role="tab" data-tab="course" aria-selected="false">Course<i>14</i></button><button type="button" role="tab" data-tab="tools" aria-selected="false">Finance tools<i>3</i></button><button type="button" role="tab" data-tab="agents" aria-selected="false">Agents<i>5</i></button><button type="button" role="tab" data-tab="games" aria-selected="false">Games<i>7</i></button></div></div>
   <table class="cat">
     <thead><tr><th>ID</th><th>Name</th><th class="d">What you do</th><th class="m">Method</th><th>Status</th><th></th></tr></thead>
@@ -508,9 +495,8 @@
   </table>
 </div></section>
 
-<section class="s" id="console" aria-label="Console"><div class="w center">
-  <span class="chip">Command line</span>
-  <h2 class="h2d" style="margin-top:20px;font-size:clamp(22px,2.6vw,34px)"><span>Or explore from the console</span></h2>
+<section class="s" id="console" aria-label="Console"><div class="w">
+  <span class="lbl">Console</span><h2 class="h">Or explore <em>from the command line.</em></h2>
   <div class="term" id="term">
     <div class="tbar"><span class="dots"><i></i><i></i><i></i></span><span>luis@ldb-lab: ~</span><span>ldb-sh</span></div>
     <div class="tbody" id="tout" aria-live="polite"></div>
@@ -520,8 +506,7 @@
 </div></section>
 
 <section class="s" id="about" aria-label="About"><div class="w two rv">
-  <div><span class="chip">About</span>
-    <h2 class="h2d" style="margin-top:20px;font-size:clamp(24px,3vw,40px)"><span>Why this exists</span></h2>
+  <div><span class="lbl">About</span><h2 class="h">Why this <em>exists.</em></h2>
     <p>I study finance at Bryant University, with minors in Applied AI and Law. I built the Lab to understand these models well enough to build them myself, and to test where they help with real financial decisions and where they do not.</p>
     <p>Each agent page reports what the agent got wrong, not just what it got right, and compares it with simple rules a person could follow.</p></div>
   <div class="facts">
@@ -535,33 +520,37 @@
 </main>
 
 <section class="cta2" aria-label="Get started">
-  <div class="bg" role="img" aria-label="Container ship and tugboats seen from above, colour-graded dark"></div>
+  <div class="bg" role="img" aria-label="Container ship and tugboats seen from above"></div>
   <div class="w rv">
-    <div class="logo"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> LDB <span>Lab</span></div>
-    <h2><span>Ready to see how</span>models really work?</h2>
+    <span class="lbl" style="color:rgba(242,244,245,.8)">Beyond the demo</span>
+    <h2 style="margin-top:16px">See how models <span>really work.</span></h2>
     <p>Start with a single line and a loss function. Finish with agents, retrieval and the hardware it all runs on.</p>
-    <a class="b wh" href="learn.html">Start the course <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="pill lt" href="learn.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Start the course</a>
   </div>
 </section>
 
 <footer><div class="w">
-  <div class="ticks"></div>
   <div class="fgrid">
-    <div><p class="big2" style="color:var(--ink)">Glad you stopped by. <em>Let's talk models.</em></p><p style="margin-top:14px">Built by Luis Diaz Busquets. Runs entirely in your browser.</p></div>
+    <div><p class="big4">Glad you stopped by. <em>Let's talk models.</em></p><p style="margin-top:16px">Built by Luis Diaz Busquets. Runs entirely in your browser.</p></div>
     <div><h5>Lab</h5><p><a href="#course" data-go="course">Course</a></p><p><a href="#tools" data-go="tools">Finance tools</a></p><p><a href="#agents" data-go="agents">Agents</a></p><p><a href="#games" data-go="games">Games</a></p></div>
     <div><h5>Start here</h5><p><a href="learn.html">How models learn</a></p><p><a href="options.html">Options builder</a></p><p><a href="montecarlo.html">Retirement simulator</a></p><p><a href="llm.html">How an LLM works</a></p></div>
     <div><h5>Elsewhere</h5><p><a href="/">Main site</a></p><p><a href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a></p><p><a href="https://www.linkedin.com/in/luis-diaz-busquets" rel="noopener">LinkedIn</a></p></div>
   </div>
   <div class="fbar"><span>No cookies, no tracking</span><span>&copy; <span id="yr"></span> Luis Diaz Busquets</span><span>Simulated data. Not investment advice.</span></div>
 </div>
-<div class="wm" id="wm" aria-hidden="true"><span>L</span><span>D</span><span>B</span><span>&nbsp;</span><span>L</span><span>A</span><span>B</span></div>
+<div class="wm" id="wm" aria-hidden="true"><span>l</span><span>d</span><span>b</span><span>&nbsp;</span><span>l</span><span>a</span><span>b</span></div>
 </footer>
 
+<script>window.LDB_SHOW = [{"id": "TOOL-01", "img": "options", "title": "Options builder", "desc": "Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.", "href": "options.html", "kind": "Finance tool", "facts": [["Pricing", "Black-Scholes"], ["Strategies", "12 presets"]]}, {"id": "TOOL-02", "img": "market-maker", "title": "Market maker", "desc": "Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.", "href": "market-maker.html", "kind": "Finance tool", "facts": [["Fair value", "Exact Bayesian"], ["Game", "8 rounds"]]}, {"id": "TOOL-03", "img": "kelly", "title": "Kelly challenge", "desc": "The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.", "href": "kelly.html", "kind": "Finance tool", "facts": [["Players simulated", "2,000"], ["Bankroll cap", "$250"]]}, {"id": "AGENT-01", "img": "trader", "title": "Market trader", "desc": "A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.", "href": "trader.html", "kind": "Learning agent", "facts": [["Method", "Q-learning"], ["Judged on", "40 unseen years"]]}, {"id": "AGENT-02", "img": "daytrader", "title": "Day trader", "desc": "A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.", "href": "daytrader.html", "kind": "Learning agent", "facts": [["Model", "Online neural net"], ["Judged on", "30 unseen days"]]}, {"id": "AGENT-03", "img": "betting", "title": "Sports-market model", "desc": "Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.", "href": "betting.html", "kind": "Learning agent", "facts": [["League", "20 clubs"], ["Sizing", "Fractional Kelly"]]}, {"id": "AGENT-04", "img": "montecarlo", "title": "Retirement simulator", "desc": "Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.", "href": "montecarlo.html", "kind": "Learning agent", "facts": [["Test futures", "2,000"], ["Planner", "Cross-entropy"]]}, {"id": "AGENT-05", "img": "landlord", "title": "Landlord", "desc": "A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.", "href": "landlord.html", "kind": "Learning agent", "facts": [["Method", "Genetic algorithm"], ["Population", "24 strategies"]]}]; window.LDB_STATS = [["01 / 14 course modules", "From a single neuron to agents and the GPUs they run on."], ["02 / 5 learning agents", "Trained live, judged on data they never saw."], ["03 / 3 finance tools", "Options, market making and bet sizing, with the maths shown."], ["04 / 7 games", "Blackjack to chess, with the odds switched on."]];</script>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
-/* ---------- header, navigation, catalog, carousel, course rows ---------- */
+/* ---------- header, navigation, catalog, showcase, course rows ---------- */
 (function () {
+  /* always open at the top: no automatic jumps on load or reload */
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+  if (location.hash) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  scrollTo(0, 0);
   var head = document.querySelector('header.top'), nav = document.getElementById('nav'), menu = document.getElementById('menuBtn');
   var links = nav.querySelectorAll('a[data-nav]');
   function onScroll() { head.classList.toggle('scrolled', scrollY > 20); spy(); }
@@ -582,26 +571,29 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     r.addEventListener('click', function (e) { if (e.target.closest('a')) return; if (e.metaKey || e.ctrlKey) window.open(r.dataset.href, '_blank'); else location.href = r.dataset.href; });
   });
 
-  /* carousel */
-  var track = document.getElementById('track'), cards = track ? track.querySelectorAll('.card') : [], dots = document.querySelectorAll('.dots i'), ci = 2;
-  function place() {
-    if (!cards.length) return;
-    var c = cards[ci], vw = track.parentElement.clientWidth, off = c.offsetLeft + c.offsetWidth / 2 - vw / 2;
-    track.style.transform = 'translateX(' + (-off) + 'px)';
-    cards.forEach(function (x, i) { x.classList.toggle('on', i === ci); x.setAttribute('aria-current', i === ci ? 'true' : 'false'); });
-    dots.forEach(function (d, i) { d.classList.toggle('on', i === ci); });
+  /* tabbed showcase of tools and agents */
+  var stabs = document.querySelectorAll('#stabs button'), sdata = window.LDB_SHOW || [], ci = 0;
+  function go(i) {
+    if (!sdata.length) return; ci = (i + sdata.length) % sdata.length; var d = sdata[ci], img = document.getElementById('simg');
+    stabs.forEach(function (b, k) { b.setAttribute('aria-selected', k === ci ? 'true' : 'false'); });
+    img.classList.add('out');
+    setTimeout(function () { img.src = 'img/' + d.img + '.webp'; img.alt = d.title + ' page'; img.onload = function () { img.classList.remove('out'); }; if (img.complete) img.classList.remove('out'); }, 180);
+    document.getElementById('sk').textContent = d.id + ' · ' + d.kind; document.getElementById('st').textContent = d.title; document.getElementById('sd').textContent = d.desc;
+    document.getElementById('sf').innerHTML = d.facts.map(function (f) { return '<div><small>' + f[0] + '</small><b>' + f[1] + '</b></div>'; }).join('');
+    var a = document.getElementById('sa'); a.href = d.href; a.querySelector('.tx').textContent = d.kind === 'Learning agent' ? 'Train this agent' : 'Open the tool';
+    spy();
   }
-  function go(i) { ci = (i + cards.length) % cards.length; place(); spy(); }
-  window.ldbCar = go;
-  if (cards.length) {
-    document.getElementById('prev').addEventListener('click', function () { go(ci - 1); });
-    document.getElementById('next').addEventListener('click', function () { go(ci + 1); });
-    cards.forEach(function (c, i) { c.addEventListener('click', function (e) { if (i !== ci) { e.preventDefault(); go(i); } }); });
-    var sx = null; track.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
-    track.addEventListener('touchend', function (e) { if (sx == null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) go(ci + (dx < 0 ? 1 : -1)); sx = null; });
-    addEventListener('resize', function () { clearTimeout(place.t); place.t = setTimeout(place, 100); });
-    place(); requestAnimationFrame(place);
-  }
+  stabs.forEach(function (b, k) { b.addEventListener('click', function () { go(k); }); });
+  if (sdata.length) go(0);
+
+  /* hero stat card */
+  var SC = window.LDB_STATS || [], sci = 0, scTimer = null;
+  function sc(i) { if (!SC.length) return; sci = (i + SC.length) % SC.length; var d = SC[sci];
+    document.getElementById('scb').textContent = d[0]; document.getElementById('scs').textContent = d[1];
+    document.querySelectorAll('.scard .bar i').forEach(function (b, k) { b.classList.toggle('on', k === sci); }); }
+  var scn = document.getElementById('scNext');
+  if (scn) { scn.addEventListener('click', function () { sc(sci + 1); clearInterval(scTimer); }); sc(0);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) scTimer = setInterval(function () { sc(sci + 1); }, 4500); }
 
   /* course rows open to show their modules */
   document.querySelectorAll('.rw .rh').forEach(function (h) {
@@ -615,26 +607,24 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     if (r[0] === 'build') go(r[1]);
     if (r[0] === 'catalog') setTab(r[1]);
     var el = document.getElementById(r[0]);
-    if (el) { var y = el.getBoundingClientRect().top + scrollY - (r[0] === 'build' ? 20 : 60); scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' }); }
-    try { history.replaceState(null, '', '#' + k); } catch (e) {}
+    if (el) { var y = el.getBoundingClientRect().top + scrollY - 40; scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' }); }
     return true;
   }
   document.querySelectorAll('a[data-go]').forEach(function (a) {
     a.addEventListener('click', function (e) { if (route(a.dataset.go, true)) { e.preventDefault(); closeMenu(); } });
   });
   nav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
-  addEventListener('hashchange', function () { route(location.hash.slice(1), false); });
+  
 
   function spy() {
     var y = innerHeight * .35, cur = '';
-    [['build', 'build'], ['course', 'course'], ['sim', ''], ['learn', ''], ['catalog', 'cat'], ['console', ''], ['about', 'about']].forEach(function (p) { var el = document.getElementById(p[0]); if (el && el.getBoundingClientRect().top < y) cur = p[1]; });
+    [['start', ''], ['build', 'build'], ['course', 'course'], ['sim', ''], ['learn', ''], ['catalog', 'cat'], ['console', ''], ['about', 'about']].forEach(function (p) { var el = document.getElementById(p[0]); if (el && el.getBoundingClientRect().top < y) cur = p[1]; });
     if (cur === 'build') cur = ci < 3 ? 'tools' : 'agents';
     if (cur === 'cat') cur = tab === 'games' ? 'games' : '';
     if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) cur = 'about';
     links.forEach(function (a) { a.classList.toggle('on', a.dataset.nav === cur); });
   }
   setTab('all'); onScroll();
-  if (location.hash) { var h = location.hash.slice(1); if (document.readyState === 'complete') route(h, false); else addEventListener('load', function () { setTimeout(function () { route(h, false); }, 60); }); }
 
   /* reveal on scroll */
   var rv = document.querySelectorAll('.rv');
@@ -657,7 +647,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
         var r = s.getBoundingClientRect(), c = r.left + r.width / 2, b;
         if (mx >= 0) b = Math.min(14, Math.abs(mx - c) / 40);
         else { var ph = (t * .45 - i / L.length) % 1.6; b = ph > 0 && ph < .45 ? 14 * Math.sin(ph / .45 * Math.PI) : 0; }
-        s.style.filter = 'blur(' + b.toFixed(1) + 'px)'; s.style.transform = 'translateY(' + (b * .6).toFixed(1) + 'px)';
+        s.style.filter = 'blur(' + b.toFixed(1) + 'px)'; 
       });
       requestAnimationFrame(frame);
     }
@@ -682,31 +672,31 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   function draw() {
     var dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight; if (W < 10) return;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); var x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var narrow = W < 700, L = narrow ? 48 : 282, Rr = 20, T = narrow ? 14 : 20, B = 30;
-    x.fillStyle = '#0B1216'; x.fillRect(0, 0, W, H);
+    var narrow = W < 700, L = narrow ? 46 : 58, Rr = 18, T = 52, B = 30;
+    x.fillStyle = '#141618'; x.fillRect(0, 0, W, H);
     var fin = paths.map(function (p) { return p[steps]; }).sort(function (a, b) { return a - b; }), top = q(fin, .995) * 1.05;
     var X = function (i) { return L + i / steps * (W - L - Rr); }, Y = function (v) { return T + (1 - v / top) * (H - T - B); };
     var st = Math.pow(10, Math.floor(Math.log10(top / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return top / s <= 6; })[0] || st * 10;
     x.font = '10.5px "Geist Mono", ui-monospace, monospace'; x.textAlign = 'right';
-    for (var t = 0; t <= top; t += st) { var y = Math.round(Y(t)) + .5; x.strokeStyle = 'rgba(255,255,255,.06)'; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(L, y); x.lineTo(W - Rr, y); x.stroke(); x.setLineDash([]); x.fillStyle = '#5E6D73'; x.fillText('$' + Math.round(t), L - 8, y + 3); }
+    for (var t = 0; t <= top; t += st) { var y = Math.round(Y(t)) + .5; x.strokeStyle = 'rgba(255,255,255,.06)'; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(L, y); x.lineTo(W - Rr, y); x.stroke(); x.setLineDash([]); x.fillStyle = '#6A747B'; x.fillText('$' + Math.round(t), L - 8, y + 3); }
     x.textAlign = 'center'; var lab = years === 1 ? [0, 63, 126, 189, 252] : null;
     for (var yr = 0; yr <= years; yr++) { var ii = yr * 252, xx = Math.round(X(ii)) + .5; if (ii > steps) break; x.strokeStyle = 'rgba(255,255,255,.05)'; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(xx, T); x.lineTo(xx, H - B); x.stroke(); x.setLineDash([]); }
-    (lab || Array.from({ length: years + 1 }, function (_, k) { return k * 252; })).forEach(function (ii) { x.fillStyle = '#5E6D73'; x.fillText(years === 1 ? (ii === 0 ? 'today' : 'day ' + ii) : (ii === 0 ? 'today' : 'year ' + ii / 252), X(ii), H - 10); });
+    (lab || Array.from({ length: years + 1 }, function (_, k) { return k * 252; })).forEach(function (ii) { x.fillStyle = '#6A747B'; x.fillText(years === 1 ? (ii === 0 ? 'today' : 'day ' + ii) : (ii === 0 ? 'today' : 'year ' + ii / 252), X(ii), H - 10); });
     var upto = Math.max(1, Math.round(steps * prog));
     x.save(); x.beginPath(); x.rect(L, T, W - L - Rr, H - T - B); x.clip();
     x.lineWidth = 1; x.lineJoin = 'round'; x.globalAlpha = .55;
     var stride = Math.max(1, Math.round(steps / (W - L - Rr)));
     for (var k = 0; k < N; k++) { var p = paths[k]; x.strokeStyle = PAL[k % PAL.length]; x.beginPath(); x.moveTo(X(0), Y(p[0])); for (var i = stride; i <= upto; i += stride) x.lineTo(X(i), Y(p[i])); x.lineTo(X(upto), Y(p[upto])); x.stroke(); }
     x.globalAlpha = 1;
-    [['#0B1216', 6], ['#FFFFFF', 2.4]].forEach(function (s) { x.strokeStyle = s[0]; x.lineWidth = s[1]; x.beginPath(); x.moveTo(X(0), Y(mean[0])); for (var i = 1; i <= upto; i++) x.lineTo(X(i), Y(mean[i])); x.stroke(); });
-    var ys = Math.round(Y(S0)) + .5; x.strokeStyle = 'rgba(234,106,53,.75)'; x.setLineDash([5, 5]); x.lineWidth = 1; x.beginPath(); x.moveTo(L, ys); x.lineTo(W - Rr, ys); x.stroke(); x.setLineDash([]);
+    [['#141618', 6], ['#FFFFFF', 2.4]].forEach(function (s) { x.strokeStyle = s[0]; x.lineWidth = s[1]; x.beginPath(); x.moveTo(X(0), Y(mean[0])); for (var i = 1; i <= upto; i++) x.lineTo(X(i), Y(mean[i])); x.stroke(); });
+    var ys = Math.round(Y(S0)) + .5; x.strokeStyle = 'rgba(255,255,255,.55)'; x.setLineDash([5, 5]); x.lineWidth = 1; x.beginPath(); x.moveTo(L, ys); x.lineTo(W - Rr, ys); x.stroke(); x.setLineDash([]);
     x.restore();
-    if (prog >= 1) { x.fillStyle = '#EA6A35'; x.font = '10.5px "Geist Mono", ui-monospace, monospace'; x.textAlign = 'right'; x.fillText('start $' + S0, W - Rr - 6, ys - 6); }
+    if (prog >= 1) { x.fillStyle = 'rgba(255,255,255,.7)'; x.font = '10.5px "Geist Mono", ui-monospace, monospace'; x.textAlign = 'right'; x.fillText('start $' + S0, W - Rr - 6, ys - 6); }
   }
   function tiles() {
     var fin = paths.map(function (p) { return p[steps]; }).sort(function (a, b) { return a - b; });
     var med = q(fin, .5), avg = mean[steps], loss = fin.filter(function (v) { return v < S0; }).length / N, p5 = q(fin, .05), p95 = q(fin, .95);
-    document.getElementById('tMed').innerHTML = '$' + Math.round(med) + ' <small>median</small>';
+    document.getElementById('tMed').innerHTML = '$' + Math.round(med) + '<small>.' + String(Math.round(med * 10) % 10) + '</small>';
     document.getElementById('tMedN').textContent = 'Average $' + avg.toFixed(0) + ', pulled up by a few big winners. Start $' + S0 + '.';
     document.getElementById('tLoss').textContent = Math.round(loss * 100) + '%';
     var a = Math.PI * (1 - loss), r = 70, gx = 95 + r * Math.cos(a), gy = 90 - r * Math.sin(a);
@@ -717,7 +707,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     var x = hc.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); var nb = 24, lo = q(fin, .01), hi = q(fin, .99), cnt = new Array(nb).fill(0);
     fin.forEach(function (v) { var k = Math.floor((v - lo) / (hi - lo) * nb); if (k >= 0 && k < nb) cnt[k]++; }); var cm = Math.max.apply(null, cnt), bw = W / nb;
     cnt.forEach(function (c, k) { var h = c / cm * (H - 4); x.fillStyle = PAL[k % PAL.length]; x.globalAlpha = .85; x.fillRect(k * bw + 1, H - h, bw - 2, h); });
-    x.globalAlpha = 1; var sx = (S0 - lo) / (hi - lo) * W; x.fillStyle = '#EA6A35'; x.fillRect(Math.round(sx), 0, 1.5, H);
+    x.globalAlpha = 1; var sx = (S0 - lo) / (hi - lo) * W; x.fillStyle = '#FFFFFF'; x.fillRect(Math.round(sx), 0, 1.5, H);
     document.getElementById('kvSig').textContent = Math.round(sig * 100) + '%';
   }
   function run(animate) {
@@ -743,20 +733,64 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   var x = cv.getContext('2d'), n = 14, cells = [], t0 = performance.now(), on = false, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   for (var i = 0; i < n * n; i++) cells.push(Math.random());
   function target(i, j) { var a = (i + j) / (2 * n - 2), b = Math.exp(-((i - 9) * (i - 9) + (j - 4) * (j - 4)) / 12); return Math.min(1, .15 + .7 * a * a + .6 * b); }
-  var C0 = [28, 42, 49], C1 = [79, 127, 168], C2 = [234, 106, 53];
+  var C0 = [22, 25, 27], C1 = [96, 114, 128], C2 = [190, 228, 220];
   function col(v) { var a = v < .55 ? C0 : C1, b = v < .55 ? C1 : C2, k = v < .55 ? v / .55 : (v - .55) / .45; return 'rgb(' + [0, 1, 2].map(function (i) { return Math.round(a[i] + (b[i] - a[i]) * k); }).join(',') + ')'; }
   function frame(now) {
     if (!on) return; var S = cv.clientWidth, dpr = Math.min(2, devicePixelRatio || 1); if (cv.width !== S * dpr) { cv.width = S * dpr; cv.height = S * dpr; }
-    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.fillStyle = '#0E161A'; x.fillRect(0, 0, S, S);
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.fillStyle = '#0F1112'; x.fillRect(0, 0, S, S);
     var t = ((now - t0) / 1000) % 9, k = Math.min(1, t / 6), g = S / n, ep = Math.floor(t / 9 * 2400 + 1);
     for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) { var id = i * n + j, tg = target(i, j); cells[id] += (tg + (1 - k) * (Math.random() - .5) * .9 - cells[id]) * .08; x.fillStyle = col(Math.max(0, Math.min(1, cells[id]))); x.fillRect(j * g + 1.5, i * g + 1.5, g - 3, g - 3); }
     var sy = (t / 9) * S * 1.2 - S * .1; x.fillStyle = 'rgba(255,255,255,.06)'; x.fillRect(0, sy, S, 2);
-    x.fillStyle = 'rgba(14,22,26,.7)'; x.fillRect(S / 2 - 66, S - 58, 132, 24); x.fillStyle = '#EEF2F3'; x.font = '11px "Geist Mono", monospace'; x.textAlign = 'center'; x.fillText('episode ' + ep.toLocaleString(), S / 2, S - 42);
+    x.fillStyle = 'rgba(15,17,18,.72)'; x.fillRect(S / 2 - 66, S - 58, 132, 24); x.fillStyle = '#F2F4F5'; x.font = '11px "Geist Mono", monospace'; x.textAlign = 'center'; x.fillText('episode ' + ep.toLocaleString(), S / 2, S - 42);
     if (t > 8.9) { cells = cells.map(function () { return Math.random(); }); }
     requestAnimationFrame(frame);
   }
   if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { var v = es[0].isIntersecting; if (v && !on) { on = true; requestAnimationFrame(frame); } if (!v) on = false; }).observe(cv);
   if (reduce) { on = true; frame(performance.now() + 7000); on = false; }
+})();
+
+/* ---------- hero wordmark: particles that scatter around the cursor and drift in and out of focus ---------- */
+(function () {
+  var cv = document.getElementById('wordmark'); if (!cv) return;
+  var x = cv.getContext('2d'), bl = document.createElement('canvas'), bx = bl.getContext('2d'), P = [], W = 0, H = 0, dpr = 1, mx = -9999, my = -9999, on = false, t0 = performance.now(), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function build() {
+    W = cv.clientWidth; H = cv.clientHeight; dpr = Math.min(2, devicePixelRatio || 1); if (W < 10 || H < 10) return;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    var o = document.createElement('canvas'), ox = o.getContext('2d', { willReadFrequently: true }); o.width = W; o.height = H;
+    var fs = H * 1.05; ox.font = '500 ' + fs + 'px Manrope, system-ui, sans-serif'; if ('letterSpacing' in ox) ox.letterSpacing = (-fs * .055) + 'px';
+    var tw = ox.measureText('LDB LAB').width; fs *= Math.min(1, W * .92 / tw); ox.font = '500 ' + fs + 'px Manrope, system-ui, sans-serif'; if ('letterSpacing' in ox) ox.letterSpacing = (-fs * .055) + 'px';
+    ox.textAlign = 'center'; ox.textBaseline = 'alphabetic'; ox.fillStyle = '#fff'; ox.fillText('LDB LAB', W / 2, H * .86);
+    var d = ox.getImageData(0, 0, W, H).data, gap = Math.max(3, Math.round(W / 300)); P = [];
+    for (var yy = 0; yy < H; yy += gap) for (var xx = 0; xx < W; xx += gap) if (d[(yy * W + xx) * 4 + 3] > 128) P.push({ x: xx + (Math.random() - .5) * 60, y: yy + (Math.random() - .5) * 60, ox: xx, oy: yy, vx: 0, vy: 0, s: .7 + Math.random() * .8 });
+  }
+  function frame(now) {
+    if (!on) return; var t = (now - t0) / 1000, R = Math.max(90, W * .09), sweep = (Math.sin(t * .35) * .55 + .5) * W;
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+    var g = gapSize();
+    for (var i = 0; i < P.length; i++) { var p = P[i], dx = p.x - mx, dy = p.y - my, d2 = dx * dx + dy * dy;
+      if (d2 < R * R) { var dd = Math.sqrt(d2) || 1, f = (1 - dd / R) * 7; p.vx += dx / dd * f; p.vy += dy / dd * f - .4; }
+      p.vx += (p.ox - p.x) * .045; p.vy += (p.oy - p.y) * .045; p.vx *= .84; p.vy *= .84; p.x += p.vx; p.y += p.vy; }
+    /* blurred layer: the letters out of focus */
+    if (bl.width !== cv.width) { bl.width = cv.width; bl.height = cv.height; }
+    bx.setTransform(dpr, 0, 0, dpr, 0, 0); bx.clearRect(0, 0, W, H); bx.fillStyle = 'rgba(176,192,204,.6)';
+    for (var a = 0; a < P.length; a++) { var q = P[a]; bx.fillRect(q.x, q.y, g, g); }
+    x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'blur(' + (Math.max(2, 9 - t * 3) * dpr).toFixed(1) + 'px)'; x.drawImage(bl, 0, 0); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    /* sharp layer: in focus near the cursor and along a slow sweep */
+    x.filter = 'none';
+    for (var b = 0; b < P.length; b++) { var r = P[b], fx = Math.max(0, 1 - Math.abs(r.ox - (mx > -999 ? mx : sweep)) / (W * .16)), moving = Math.min(1, Math.abs(r.vx) + Math.abs(r.vy));
+      var al = Math.min(.95, fx * .8 + moving * .9) * Math.min(1, t / 1.2); if (al < .03) continue;
+      x.fillStyle = 'rgba(214,224,231,' + al.toFixed(2) + ')'; x.fillRect(r.x, r.y, g * r.s, g * r.s); }
+    requestAnimationFrame(frame);
+  }
+  function gapSize() { return Math.max(1.6, W / 520); }
+  var hero = document.querySelector('.hero');
+  hero.addEventListener('pointermove', function (e) { var r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
+  hero.addEventListener('pointerleave', function () { mx = -9999; my = -9999; });
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(build, 150); });
+  function start() { build(); if (reduce) { P.forEach(function (p) { p.x = p.ox; p.y = p.oy; }); on = true; t0 = performance.now() - 5000; frame(performance.now()); on = false; return; }
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { var v = es[0].isIntersecting; if (v && !on) { on = true; requestAnimationFrame(frame); } if (!v) on = false; }).observe(cv);
+    else { on = true; requestAnimationFrame(frame); } }
+  if (document.fonts && document.fonts.load) document.fonts.load('500 100px Manrope').then(start, start); else start();
 })();
 
 /* =====================================================================
@@ -792,7 +826,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   var hc = document.getElementById('hud'), hx = hc.getContext('2d');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var touch = window.matchMedia('(hover: none)').matches;
-  var ACC = '234,106,53', LOCK = '234,106,53';
+  var ACC = '143,195,186', LOCK = '143,195,186';
   var mode = 'optical', paused = reduce;
   var W = 1, H = 1, dpr = 1, S = .6;
   function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -814,7 +848,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   /* ---------- classes: what the detector can name ---------- */
   var GROUP = { person: 'p', bicycle: 'v', car: 'v', motorcycle: 'v', airplane: 'v', bus: 'v', train: 'v', truck: 'v', boat: 'v',
     bird: 'a', cat: 'a', dog: 'a', horse: 'a', sheep: 'a', cow: 'a', elephant: 'a', bear: 'a', zebra: 'a', giraffe: 'a' };
-  var GCOL = { p: '238,242,243', v: '155,212,255', a: '155,212,255', o: '155,168,173' };
+  var GCOL = { p: '242,244,245', v: '196,212,222', a: '196,212,222', o: '163,173,180' };
   var CODE = { person: 'PER', bicycle: 'BIK', car: 'CAR', motorcycle: 'MOT', airplane: 'AIR', bus: 'BUS', train: 'TRN', truck: 'TRK', boat: 'BOA',
     bird: 'BRD', cat: 'CAT', dog: 'DOG', horse: 'HRS', sheep: 'SHP', cow: 'COW', 'traffic light': 'SIG', 'stop sign': 'SGN',
     backpack: 'BAG', handbag: 'BAG', suitcase: 'LUG', umbrella: 'UMB', 'cell phone': 'PHN', bench: 'BNC' };
@@ -1112,7 +1146,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     hx.strokeStyle = 'rgba(255,255,255,.75)'; hx.lineWidth = 1; hx.beginPath();
     hx.moveTo(x - 9, y + .5); hx.lineTo(x - 3, y + .5); hx.moveTo(x + 3, y + .5); hx.lineTo(x + 9, y + .5);
     hx.moveTo(x + .5, y - 9); hx.lineTo(x + .5, y - 3); hx.moveTo(x + .5, y + 3); hx.lineTo(x + .5, y + 9); hx.stroke();
-    if (hover && hover !== lock) tag(x + 14, y - 6, 'Click to select ' + label(hover), 'rgba(20,31,35,.88)', '#EEF2F3');
+    if (hover && hover !== lock) tag(x + 14, y - 6, 'Click to select ' + label(hover), 'rgba(18,20,21,.85)', '#F2F4F5');
   }
   function drawInset(t, k) {
     if (W < 700 || sc.width < 2) return;
@@ -1198,11 +1232,11 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   }
   function drawNoSignal() {
     var cw = sc.width, ch = sc.height, dead = FEEDS.every(function (f, i) { return bad[i]; });
-    sx.setTransform(1, 0, 0, 1, 0, 0); sx.fillStyle = '#0B1114'; sx.fillRect(0, 0, cw, ch);
+    sx.setTransform(1, 0, 0, 1, 0, 0); sx.fillStyle = '#1A1F23'; sx.fillRect(0, 0, cw, ch);
     if (dead && camName.textContent !== 'Offline') { camName.textContent = 'Offline'; camPlace.textContent = 'No camera feed'; }
     hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, W, H);
     hx.textAlign = 'center';
-    hx.fillStyle = 'rgba(238,242,243,.85)'; hx.font = '500 13px "Bai Jamjuree", system-ui, sans-serif';
+    hx.fillStyle = 'rgba(242,244,245,.85)'; hx.font = '500 13px "Manrope", system-ui, sans-serif';
     hx.fillText(dead ? 'Camera feed unavailable on this device' : 'Connecting to camera feed', W / 2, H / 2 - 4);
     hx.fillStyle = 'rgba(160,167,176,.8)'; hx.font = '400 11px "Geist Mono", ui-monospace, monospace';
     hx.fillText(dead ? 'The rest of the Lab works normally' : 'Loading video' + '...'.slice(0, 1 + Math.floor(T * 2) % 3), W / 2, H / 2 + 16);
@@ -1220,7 +1254,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     grain(.25 * (1 - Math.abs(sw.t - .3) / .35));
     hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, W, H);
     var f = FEEDS[sw.to];
-    tag(W / 2 - 100, H / 2, 'Switching to ' + f.cam + ' · ' + f.place, 'rgba(20,31,35,.9)', '#EEF2F3');
+    tag(W / 2 - 100, H / 2, 'Switching to ' + f.cam + ' · ' + f.place, 'rgba(18,20,21,.85)', '#F2F4F5');
     drawAxes();
     if (sw.t > .65) sw = null;
     return [];
@@ -1281,7 +1315,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       }
       drawInset(lock, k);
     }
-    if (!model) { hx.font = '600 11px "Geist Mono", ui-monospace, monospace'; tag(12, H - 14, detFailed ? 'Detector unavailable on this device' : dlPct >= 0 ? 'Loading detector ' + dlPct + '%' : 'Starting detector...', 'rgba(20,31,35,.85)', '#9BA8AD'); }
+    if (!model) { hx.font = '600 11px "Geist Mono", ui-monospace, monospace'; tag(12, H - 14, detFailed ? 'Detector unavailable on this device' : dlPct >= 0 ? 'Loading detector ' + dlPct + '%' : 'Starting detector...', 'rgba(18,20,21,.8)', '#A3ADB4'); }
     drawAxes();
     if (mouse.in && !touch) drawCursor(hover);
     if (hover && mouse.down) { lock = hover; lockSince = T; manual = true; log('LOCK', 'manual lock on ' + label(lock) + ' (' + lock.cls + ')'); }
@@ -1436,7 +1470,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '<span class="dim">Browser</span>  ' + browser(),
         '<span class="dim">Screen</span>   ' + screen.width + 'x' + screen.height,
         '<span class="dim">Uptime</span>   ' + uptime(),
-        '<span class="dim">Theme</span>    slate'];
+        '<span class="dim">Theme</span>    steel'];
       setTimeout(startOrbs, 0);
       return '<div class="nf"><canvas class="orb" aria-hidden="true"></canvas><div class="nfi">' + info.join('\n') + '</div></div>';
     },
