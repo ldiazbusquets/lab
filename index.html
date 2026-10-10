@@ -15,7 +15,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
-<meta name="theme-color" content="#6E808E">
+<meta name="theme-color" content="#6E808E" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#8597A4" media="(prefers-color-scheme: light)">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -87,6 +87,13 @@
   .hero:not(.has3d) #wordmark { top: clamp(84px, 11vh, 120px); height: min(27vw, 33vh); }
   .stage.head { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); width: min(760px, 58vw); height: min(92%, 860px); pointer-events: none; }
   .stage.head canvas, .stage.head img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: center bottom; -webkit-mask: linear-gradient(180deg, #000 72%, transparent 99%); mask: linear-gradient(180deg, #000 72%, transparent 99%); }
+  /* the helmet, with a dot-matrix display living inside its visor glass */
+  .stage.helm { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); height: min(82%, 800px); aspect-ratio: 1; pointer-events: none; }
+  .stage.helm img { width: 100%; height: 100%; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,.35)); animation: helmIn 1.4s cubic-bezier(.2,.7,.2,1) both; }
+  .stage.helm .visor { position: absolute; left: 29.1%; top: 37.5%; width: 42.19%; height: 10.74%; -webkit-mask: url(img/visor.png) center / 100% 100% no-repeat; mask: url(img/visor.png) center / 100% 100% no-repeat; animation: helmIn 1.4s .5s ease both; }
+  .hero.has3d .stage.helm { display: none; }
+  @keyframes helmIn { from { opacity: 0; transform: translateY(18px); } }
+  @media (prefers-reduced-motion: reduce) { .stage.helm img, .stage.helm .visor { animation: none; } }
   @media (max-width: 1200px) and (min-width: 981px) { .stage.head { width: min(520px, 44vw); left: 54%; } }
   .fchip { display: inline-flex; align-items: center; gap: 8px; font: 400 11.5px var(--mono); color: var(--ink); padding: 7px 12px; border-radius: 999px; background: rgba(20,24,27,.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
   .fchip i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
@@ -117,6 +124,7 @@
     .hero { min-height: 0; padding: 92px 0 40px; }
     #wordmark { position: relative; top: 0; height: 26vw; }
     .stage.head { position: relative; left: 0; bottom: auto; transform: none; width: min(560px, 100%); height: auto; aspect-ratio: 7 / 8; margin: -10vw auto 0; }
+    .stage.helm { position: relative; left: 0; transform: none; width: min(440px, 88%); height: auto; margin: -6vw auto -4px; }
     .hcopy, .scard { position: relative; left: 0; right: 0; bottom: 0; margin: 34px var(--g) 0; max-width: none; }
     .scard { width: auto; }
   }
@@ -192,7 +200,10 @@
   .rw { border-bottom: 1px solid var(--ln); }
   .rh { display: grid; grid-template-columns: 64px minmax(0, 1fr) 96px minmax(0, 2fr) 44px; gap: 24px; align-items: center; padding: 24px 0; cursor: pointer; background: none; border: 0; width: 100%; text-align: left; color: inherit; font: inherit; }
   .rh .n { font: 300 30px var(--sans); color: var(--t3); transition: color .2s; }
-  .rh .meta { font: 400 11.5px var(--mono); color: var(--t3); letter-spacing: .03em; }
+  .rh .meta { display: flex; align-items: center; gap: 10px; font: 400 14px var(--sans); color: var(--t2); }
+  .rh .meta b { font: 300 22px/1 var(--sans); letter-spacing: -.02em; color: var(--ink); margin-right: -4px; }
+  .rh .meta i { font: 500 11.5px var(--sans); font-style: normal; color: var(--ink); padding: 3px 10px 3px 20px; border-radius: 999px; background: rgba(255,255,255,.07); position: relative; }
+  .rh .meta i::before { content: ""; position: absolute; left: 9px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--green); }
   .rh .th { width: 88px; height: 88px; border-radius: 50%; overflow: hidden; border: 1px solid var(--ln2); }
   .rh .th img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.7) brightness(.85); transition: transform .6s, filter .4s; }
   .rh .ht { display: block; font: 400 clamp(18px, 1.8vw, 23px)/1.2 var(--sans); letter-spacing: -.015em; margin: 0 0 6px; }
@@ -288,8 +299,8 @@
   td.t { font-weight: 500; width: 250px; }
   td.d { color: var(--t2); }
   td.m { width: 180px; }
-  .tag { display: inline-block; font: 400 11px/1.5 var(--mono); color: var(--t2); border: 1px solid var(--ln2); padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
-  td.st { width: 120px; font: 400 11.5px var(--mono); color: var(--t2); white-space: nowrap; }
+  .tag { display: inline-block; font: 500 12.5px/1.5 var(--sans); color: var(--t2); border: 1px solid var(--ln2); padding: 3px 11px; border-radius: 999px; white-space: nowrap; }
+  td.st { width: 110px; font: 500 13px var(--sans); color: var(--ink); white-space: nowrap; }
   td.st::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 8px; vertical-align: 1px; }
   td.go { text-align: right; width: 84px; white-space: nowrap; font: 500 13px var(--sans); color: var(--t2); }
   tr.row:hover td.go { color: var(--ink); }
@@ -327,12 +338,13 @@
 
   /* closing banner and footer */
   .cta2 { position: relative; margin-top: clamp(96px, 11vw, 150px); min-height: 540px; display: flex; align-items: flex-end; overflow: hidden; }
-  .cta2 .bg { position: absolute; inset: 0; background: url(img/cta.webp) center 40% / cover no-repeat; filter: grayscale(.85) brightness(.9); }
-  .cta2 .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg) 0%, rgba(48,59,67,.45) 35%, rgba(71,84,95,.35) 60%, var(--bg) 100%); }
+  .cta2 { background: radial-gradient(60% 70% at 70% 55%, rgba(110,128,142,.22), transparent 70%); }
+  .cta2 .bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; color: var(--ink); -webkit-mask: linear-gradient(180deg, transparent, #000 18%, #000 80%, transparent); mask: linear-gradient(180deg, transparent, #000 18%, #000 80%, transparent); }
+  .cta2 .w { pointer-events: none; } .cta2 .w a { pointer-events: auto; }
   .cta2 .w { position: relative; width: 100%; padding-bottom: 80px; }
   .cta2 h2 { font: 300 clamp(34px, 5vw, 66px)/1.05 var(--sans); letter-spacing: -.03em; margin: 0 0 18px; }
-  .cta2 h2 span { color: rgba(242,244,245,.6); }
-  .cta2 p { color: rgba(242,244,245,.75); margin: 0 0 28px; max-width: 460px; }
+  .cta2 h2 span { color: var(--t2); }
+  .cta2 p { color: var(--t2); margin: 0 0 28px; max-width: 470px; }
   footer { position: relative; overflow: hidden; padding-top: 70px; }
   .fgrid { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
   .fgrid h5 { font: 400 11.5px var(--mono); color: var(--t3); margin: 0 0 16px; }
@@ -350,6 +362,76 @@
   @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } }
   [hidden] { display: none !important; }
   @media (max-width: 980px) { .hero:not(.has3d) #wordmark { top: 0; height: 26vw; margin-bottom: 8px; } }
+
+  /* ---------- light: brushed silver, the same grey-blue steel, dark glass only where something is a screen ---------- */
+  :root { color-scheme: dark; }
+  @media (prefers-color-scheme: light) {
+    :root { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --s3: #D5DBDF; --ln: rgba(24,34,44,.09); --ln2: rgba(24,34,44,.16);
+      --ink: #15191C; --t2: #56616A; --t3: #8A949B; --mint: #3D8A7E; --green: #2E9E58; --red: #D64545;
+      --steel: linear-gradient(180deg, #8597A4 0%, #9AAAB5 18%, #B7C3CB 40%, #D3DAE0 64%, #E6EAED 84%, #ECEEF0 100%); }
+    body { background: var(--bg) radial-gradient(120% 60% at 50% 0%, #F4F6F7, transparent 70%) no-repeat; }
+    ::selection { background: rgba(110,128,142,.3); }
+    /* screens keep their dark glass: the camera, the simulator, the agent orb, the console, image captions */
+    .vision, .dash, .term, .spot .orb, .fc .gl, .show .im {
+      --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --s3: #23272A; --ln: rgba(255,255,255,.08); --ln2: rgba(255,255,255,.14);
+      --ink: #F2F4F5; --t2: #A3ADB4; --t3: #6A747B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; color: var(--ink); }
+    .dash { box-shadow: 0 50px 100px -50px rgba(30,42,52,.55), 0 0 0 1px rgba(24,34,44,.12); }
+    .term { box-shadow: 0 40px 80px -48px rgba(30,42,52,.5); }
+    .spot .orb { box-shadow: 0 0 0 1px rgba(24,34,44,.16), 0 0 0 16px rgba(24,34,44,.03), 0 0 0 17px rgba(24,34,44,.09), 0 30px 70px -30px rgba(30,42,52,.5); }
+
+    /* header and buttons */
+    header.top.scrolled { background: rgba(236,238,240,.74); }
+    .logo span { color: rgba(21,25,28,.62); }
+    .nav a { color: rgba(21,25,28,.62); }
+    .nav a.on { color: var(--ink); }
+    .nav a.on::after { content: ""; display: block; height: 1.5px; margin-top: 3px; border-radius: 1px; background: var(--ink); }
+    @media (max-width: 820px) { header.top { background: rgba(236,238,240,.72); } .nav { background: rgba(240,242,244,.98); } .nav a.on::after { display: none; } }
+    .pill.lt { background: #15191C; color: #F2F4F5; box-shadow: 0 10px 24px -12px rgba(21,25,28,.55); }
+    .pill.lt .ic { background: #F2F4F5; color: #15191C; }
+    .pill.lt:hover { background: #262C31; }
+    .pill.gl { background: rgba(255,255,255,.5); border-color: rgba(24,34,44,.14); }
+    .pill.gl .ic { background: rgba(24,34,44,.08); }
+    .pill.gl:hover { background: rgba(255,255,255,.8); }
+
+    /* hero */
+    .hero::after { background: radial-gradient(70% 55% at 50% 38%, rgba(255,255,255,.35), transparent 70%); }
+    .hcopy .k { color: rgba(21,25,28,.66); }
+    .hcopy h1 span:last-child { color: rgba(21,25,28,.45); }
+    .hcopy p { color: rgba(21,25,28,.7); }
+    .stage.helm img { filter: drop-shadow(0 40px 50px rgba(40,54,66,.35)); }
+    .scard { background: rgba(255,255,255,.42); border-color: rgba(255,255,255,.75); box-shadow: 0 20px 50px -30px rgba(30,42,52,.45); }
+    .scard .tp svg g { stroke: var(--ink); }
+    .scard .nx:hover { background: rgba(24,34,44,.08); }
+    .scard .bar i { background: rgba(24,34,44,.14); }
+
+    /* sections */
+    h2.h em { color: #8C969D; }
+    .stmt span { color: #A9B2B8; }
+    .fc .im, .show .im { border-color: rgba(24,34,44,.1); box-shadow: 0 30px 60px -40px rgba(30,42,52,.5); }
+    .fc .im img { filter: grayscale(.2) brightness(.92); }
+    .fc .im::after { background: linear-gradient(180deg, rgba(11,12,13,0), rgba(11,12,13,.45)); }
+    .show .im::after { background: radial-gradient(120% 90% at 50% 40%, transparent 60%, rgba(11,12,13,.3)); }
+    .show .facts2 div, .mods li a { background: var(--s1); box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; }
+    .mods li a:hover { background: #fff; }
+    .rh .meta i { background: rgba(24,34,44,.07); }
+    .rh .th { border-color: rgba(24,34,44,.14); }
+    .rh .th img { filter: grayscale(.6) brightness(1); }
+    .rh:hover .ar { background: rgba(24,34,44,.06); }
+    .rw.open .ar { color: var(--bg); }
+    .tabs, .seg { background: rgba(24,34,44,.06); }
+    .tabs button[aria-selected="true"] { color: #F2F4F5; background: #15191C; }
+    table.cat tr.row:hover td { background: rgba(24,34,44,.035); }
+    .chips2 button { background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.12); }
+    .chips2 button:hover { background: #fff; }
+    .note { background: rgba(255,255,255,.55); }
+    .vision { background: #0F1112; }
+    @media (max-width: 820px) { .vision { background: #0B0C0D; } }
+
+    /* closing banner and footer */
+    .cta2 { background: radial-gradient(60% 70% at 70% 55%, rgba(133,151,164,.25), transparent 70%); }
+    .fgrid .big4 em { color: #8C969D; }
+    .wm span { background: linear-gradient(180deg, #8597A4 0%, #B7C3CB 70%, rgba(236,238,240,0) 100%); -webkit-background-clip: text; background-clip: text; }
+  }
 </style>
 <style id="ldb-pt">@view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
@@ -392,6 +474,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   <span class="sr">LDB Lab</span>
   <!-- 3D hero scene from Unicorn Studio. To switch it on, paste your project's embed ID between the quotes on the next line. -->
   <div class="unicorn" id="unicorn" data-project=""></div>
+  <div class="stage helm" aria-hidden="true"><img src="img/helmet.webp" alt="" width="880" height="880" fetchpriority="high"><canvas class="visor" id="visor"></canvas></div>
 
   <div class="hcopy">
     <p class="k">Applied AI &middot; Luis Diaz Busquets</p>
@@ -416,7 +499,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <section class="s" id="course" aria-label="The course"><span id="mods"></span><div class="w">
   <div class="shead rv"><div><span class="lbl">The course &middot; 14 modules</span><h2 class="h">From first principles <em>to infrastructure.</em></h2></div>
     <p class="lead" style="max-width:380px">Five tracks, one idea per module, every one interactive. Open a track to see its modules.</p></div>
-  <div class="rows"><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">01</span><span class="meta">2 modules &middot; live</span><span class="th"><img src="img/track-t1.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">ML foundations</span><span class="pd">How a model learns from its own errors, and the classic methods behind credit scores and fraud alerts.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="learn.html"><span class="id">MOD-01</span><span class="t">How models learn</span><span class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</span><span class="o">Open &rarr;</span></a></li><li><a href="classic.html"><span class="id">MOD-02</span><span class="t">Classic machine learning</span><span class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">02</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t2.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Deep learning</span><span class="pd">Neurons, layers and backpropagation: how networks read images and turn words into numbers.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="nn.html"><span class="id">MOD-03</span><span class="t">Neural networks</span><span class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</span><span class="o">Open &rarr;</span></a></li><li><a href="cnn.html"><span class="id">MOD-04</span><span class="t">Seeing with networks</span><span class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</span><span class="o">Open &rarr;</span></a></li><li><a href="emb.html"><span class="id">MOD-05</span><span class="t">Embeddings</span><span class="d">How words, images and documents become lists of numbers where similar things sit close together.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">03</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t3.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Generative AI</span><span class="pd">Transformers, diffusion and fine-tuning: how a text predictor becomes an assistant.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="llm.html"><span class="id">MOD-06</span><span class="t">How an LLM works</span><span class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</span><span class="o">Open &rarr;</span></a></li><li><a href="diff.html"><span class="id">MOD-07</span><span class="t">Diffusion</span><span class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</span><span class="o">Open &rarr;</span></a></li><li><a href="assistant.html"><span class="id">MOD-08</span><span class="t">From predictor to assistant</span><span class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">04</span><span class="meta">5 modules &middot; live</span><span class="th"><img src="img/track-t4.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">AI infrastructure</span><span class="pd">GPUs, training at scale, serving, retrieval and agents: what it takes to run AI for real.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="gpu.html"><span class="id">MOD-09</span><span class="t">Why AI runs on GPUs</span><span class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</span><span class="o">Open &rarr;</span></a></li><li><a href="scale.html"><span class="id">MOD-10</span><span class="t">Training at scale</span><span class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</span><span class="o">Open &rarr;</span></a></li><li><a href="serve.html"><span class="id">MOD-11</span><span class="t">How models are served</span><span class="d">Memory per model, batching, latency and what each answer costs to run.</span><span class="o">Open &rarr;</span></a></li><li><a href="rag.html"><span class="id">MOD-12</span><span class="t">How AI looks things up</span><span class="d">Retrieval (RAG), the technique behind chatting with your own documents.</span><span class="o">Open &rarr;</span></a></li><li><a href="agents.html"><span class="id">MOD-13</span><span class="t">How agents work</span><span class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">05</span><span class="meta">1 module &middot; live</span><span class="th"><img src="img/track-t5.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Evaluation</span><span class="pd">How to tell whether a model is actually good, and exactly where it breaks.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="eval.html"><span class="id">MOD-14</span><span class="t">Evaluation and failure</span><span class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div></div>
+  <div class="rows"><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">01</span><span class="meta"><b>2</b> modules<i>Live</i></span><span class="th"><img src="img/track-t1.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">ML foundations</span><span class="pd">How a model learns from its own errors, and the classic methods behind credit scores and fraud alerts.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="learn.html"><span class="id">MOD-01</span><span class="t">How models learn</span><span class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</span><span class="o">Open &rarr;</span></a></li><li><a href="classic.html"><span class="id">MOD-02</span><span class="t">Classic machine learning</span><span class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">02</span><span class="meta"><b>3</b> modules<i>Live</i></span><span class="th"><img src="img/track-t2.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Deep learning</span><span class="pd">Neurons, layers and backpropagation: how networks read images and turn words into numbers.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="nn.html"><span class="id">MOD-03</span><span class="t">Neural networks</span><span class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</span><span class="o">Open &rarr;</span></a></li><li><a href="cnn.html"><span class="id">MOD-04</span><span class="t">Seeing with networks</span><span class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</span><span class="o">Open &rarr;</span></a></li><li><a href="emb.html"><span class="id">MOD-05</span><span class="t">Embeddings</span><span class="d">How words, images and documents become lists of numbers where similar things sit close together.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">03</span><span class="meta"><b>3</b> modules<i>Live</i></span><span class="th"><img src="img/track-t3.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Generative AI</span><span class="pd">Transformers, diffusion and fine-tuning: how a text predictor becomes an assistant.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="llm.html"><span class="id">MOD-06</span><span class="t">How an LLM works</span><span class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</span><span class="o">Open &rarr;</span></a></li><li><a href="diff.html"><span class="id">MOD-07</span><span class="t">Diffusion</span><span class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</span><span class="o">Open &rarr;</span></a></li><li><a href="assistant.html"><span class="id">MOD-08</span><span class="t">From predictor to assistant</span><span class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">04</span><span class="meta"><b>5</b> modules<i>Live</i></span><span class="th"><img src="img/track-t4.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">AI infrastructure</span><span class="pd">GPUs, training at scale, serving, retrieval and agents: what it takes to run AI for real.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="gpu.html"><span class="id">MOD-09</span><span class="t">Why AI runs on GPUs</span><span class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</span><span class="o">Open &rarr;</span></a></li><li><a href="scale.html"><span class="id">MOD-10</span><span class="t">Training at scale</span><span class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</span><span class="o">Open &rarr;</span></a></li><li><a href="serve.html"><span class="id">MOD-11</span><span class="t">How models are served</span><span class="d">Memory per model, batching, latency and what each answer costs to run.</span><span class="o">Open &rarr;</span></a></li><li><a href="rag.html"><span class="id">MOD-12</span><span class="t">How AI looks things up</span><span class="d">Retrieval (RAG), the technique behind chatting with your own documents.</span><span class="o">Open &rarr;</span></a></li><li><a href="agents.html"><span class="id">MOD-13</span><span class="t">How agents work</span><span class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">05</span><span class="meta"><b>1</b> module<i>Live</i></span><span class="th"><img src="img/track-t5.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Evaluation</span><span class="pd">How to tell whether a model is actually good, and exactly where it breaks.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="eval.html"><span class="id">MOD-14</span><span class="t">Evaluation and failure</span><span class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div></div>
 </div></section>
 
 <section class="s" id="tools" aria-label="Finance tools"><div class="w">
@@ -493,7 +576,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <canvas id="hud" aria-hidden="true"></canvas>
   </div>
   <div class="vtop">
-    <div class="fchip"><i></i><b id="camName">CAM-00</b> <span id="camPlace">Connecting</span></div>
+    <span class="hide"><b id="camName"></b><span id="camPlace"></span></span><span></span>
     <span class="vtag">YOLOX-tiny &middot; running on your device</span>
   </div>
   <div class="vbot">
@@ -519,38 +602,38 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <thead><tr><th>ID</th><th>Name</th><th class="d">What you do</th><th class="m">Method</th><th>Status</th><th></th></tr></thead>
     <tbody>
 <tr class="grp" data-cat="course"><td colspan="6">Course modules &middot; 14</td></tr>
-<tr class="row" data-cat="course" data-tag="ML foundations" data-href="learn.html"><td class="id">MOD-01</td><td class="t"><a href="learn.html">How models learn</a></td><td class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</td><td class="m"><span class="tag">ML foundations</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="ML foundations" data-href="classic.html"><td class="id">MOD-02</td><td class="t"><a href="classic.html">Classic machine learning</a></td><td class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</td><td class="m"><span class="tag">ML foundations</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Deep learning" data-href="nn.html"><td class="id">MOD-03</td><td class="t"><a href="nn.html">Neural networks</a></td><td class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</td><td class="m"><span class="tag">Deep learning</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Deep learning" data-href="cnn.html"><td class="id">MOD-04</td><td class="t"><a href="cnn.html">Seeing with networks</a></td><td class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</td><td class="m"><span class="tag">Deep learning</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Deep learning" data-href="emb.html"><td class="id">MOD-05</td><td class="t"><a href="emb.html">Embeddings</a></td><td class="d">How words, images and documents become lists of numbers where similar things sit close together.</td><td class="m"><span class="tag">Deep learning</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Generative AI" data-href="llm.html"><td class="id">MOD-06</td><td class="t"><a href="llm.html">How an LLM works</a></td><td class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</td><td class="m"><span class="tag">Generative AI</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Generative AI" data-href="diff.html"><td class="id">MOD-07</td><td class="t"><a href="diff.html">Diffusion</a></td><td class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</td><td class="m"><span class="tag">Generative AI</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Generative AI" data-href="assistant.html"><td class="id">MOD-08</td><td class="t"><a href="assistant.html">From predictor to assistant</a></td><td class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</td><td class="m"><span class="tag">Generative AI</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="gpu.html"><td class="id">MOD-09</td><td class="t"><a href="gpu.html">Why AI runs on GPUs</a></td><td class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="scale.html"><td class="id">MOD-10</td><td class="t"><a href="scale.html">Training at scale</a></td><td class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="serve.html"><td class="id">MOD-11</td><td class="t"><a href="serve.html">How models are served</a></td><td class="d">Memory per model, batching, latency and what each answer costs to run.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="rag.html"><td class="id">MOD-12</td><td class="t"><a href="rag.html">How AI looks things up</a></td><td class="d">Retrieval (RAG), the technique behind chatting with your own documents.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="agents.html"><td class="id">MOD-13</td><td class="t"><a href="agents.html">How agents work</a></td><td class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="course" data-tag="Evaluation" data-href="eval.html"><td class="id">MOD-14</td><td class="t"><a href="eval.html">Evaluation and failure</a></td><td class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</td><td class="m"><span class="tag">Evaluation</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="ML foundations" data-href="learn.html"><td class="id">MOD-01</td><td class="t"><a href="learn.html">How models learn</a></td><td class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</td><td class="m"><span class="tag">ML foundations</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="ML foundations" data-href="classic.html"><td class="id">MOD-02</td><td class="t"><a href="classic.html">Classic machine learning</a></td><td class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</td><td class="m"><span class="tag">ML foundations</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Deep learning" data-href="nn.html"><td class="id">MOD-03</td><td class="t"><a href="nn.html">Neural networks</a></td><td class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</td><td class="m"><span class="tag">Deep learning</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Deep learning" data-href="cnn.html"><td class="id">MOD-04</td><td class="t"><a href="cnn.html">Seeing with networks</a></td><td class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</td><td class="m"><span class="tag">Deep learning</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Deep learning" data-href="emb.html"><td class="id">MOD-05</td><td class="t"><a href="emb.html">Embeddings</a></td><td class="d">How words, images and documents become lists of numbers where similar things sit close together.</td><td class="m"><span class="tag">Deep learning</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Generative AI" data-href="llm.html"><td class="id">MOD-06</td><td class="t"><a href="llm.html">How an LLM works</a></td><td class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</td><td class="m"><span class="tag">Generative AI</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Generative AI" data-href="diff.html"><td class="id">MOD-07</td><td class="t"><a href="diff.html">Diffusion</a></td><td class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</td><td class="m"><span class="tag">Generative AI</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Generative AI" data-href="assistant.html"><td class="id">MOD-08</td><td class="t"><a href="assistant.html">From predictor to assistant</a></td><td class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</td><td class="m"><span class="tag">Generative AI</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="gpu.html"><td class="id">MOD-09</td><td class="t"><a href="gpu.html">Why AI runs on GPUs</a></td><td class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="scale.html"><td class="id">MOD-10</td><td class="t"><a href="scale.html">Training at scale</a></td><td class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="serve.html"><td class="id">MOD-11</td><td class="t"><a href="serve.html">How models are served</a></td><td class="d">Memory per model, batching, latency and what each answer costs to run.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="rag.html"><td class="id">MOD-12</td><td class="t"><a href="rag.html">How AI looks things up</a></td><td class="d">Retrieval (RAG), the technique behind chatting with your own documents.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="AI infrastructure" data-href="agents.html"><td class="id">MOD-13</td><td class="t"><a href="agents.html">How agents work</a></td><td class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</td><td class="m"><span class="tag">AI infrastructure</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="course" data-tag="Evaluation" data-href="eval.html"><td class="id">MOD-14</td><td class="t"><a href="eval.html">Evaluation and failure</a></td><td class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</td><td class="m"><span class="tag">Evaluation</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
 <tr class="grp" data-cat="tools"><td colspan="6">Finance tools &middot; 3</td></tr>
-<tr class="row" data-cat="tools" data-tag="Black-Scholes" data-href="options.html"><td class="id">TOOL-01</td><td class="t"><a href="options.html">Options builder</a></td><td class="d">Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</td><td class="m"><span class="tag">Black-Scholes</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="tools" data-tag="Bayesian quoting" data-href="market-maker.html"><td class="id">TOOL-02</td><td class="t"><a href="market-maker.html">Market maker</a></td><td class="d">Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.</td><td class="m"><span class="tag">Bayesian quoting</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
-<tr class="row" data-cat="tools" data-tag="Kelly criterion" data-href="kelly.html"><td class="id">TOOL-03</td><td class="t"><a href="kelly.html">Kelly challenge</a></td><td class="d">The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.</td><td class="m"><span class="tag">Kelly criterion</span></td><td class="st">Live</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="tools" data-tag="Black-Scholes" data-href="options.html"><td class="id">TOOL-01</td><td class="t"><a href="options.html">Options builder</a></td><td class="d">Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</td><td class="m"><span class="tag">Black-Scholes</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="tools" data-tag="Bayesian quoting" data-href="market-maker.html"><td class="id">TOOL-02</td><td class="t"><a href="market-maker.html">Market maker</a></td><td class="d">Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.</td><td class="m"><span class="tag">Bayesian quoting</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
+<tr class="row" data-cat="tools" data-tag="Kelly criterion" data-href="kelly.html"><td class="id">TOOL-03</td><td class="t"><a href="kelly.html">Kelly challenge</a></td><td class="d">The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.</td><td class="m"><span class="tag">Kelly criterion</span></td><td class="st">Active</td><td class="go">Open &rarr;</td></tr>
 <tr class="grp" data-cat="agents"><td colspan="6">Learning agents &middot; 5</td></tr>
-<tr class="row" data-cat="agents" data-tag="Q-learning" data-href="trader.html"><td class="id">AGENT-01</td><td class="t"><a href="trader.html">Market trader</a></td><td class="d">A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</td><td class="m"><span class="tag">Q-learning</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
-<tr class="row" data-cat="agents" data-tag="Neural network" data-href="daytrader.html"><td class="id">AGENT-02</td><td class="t"><a href="daytrader.html">Day trader</a></td><td class="d">A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.</td><td class="m"><span class="tag">Neural network</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
-<tr class="row" data-cat="agents" data-tag="Online ratings" data-href="betting.html"><td class="id">AGENT-03</td><td class="t"><a href="betting.html">Sports-market model</a></td><td class="d">Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.</td><td class="m"><span class="tag">Online ratings</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
-<tr class="row" data-cat="agents" data-tag="Monte Carlo" data-href="montecarlo.html"><td class="id">AGENT-04</td><td class="t"><a href="montecarlo.html">Monte Carlo planner</a></td><td class="d">Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</td><td class="m"><span class="tag">Monte Carlo</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
-<tr class="row" data-cat="agents" data-tag="Genetic algorithm" data-href="landlord.html"><td class="id">AGENT-05</td><td class="t"><a href="landlord.html">Landlord</a></td><td class="d">A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.</td><td class="m"><span class="tag">Genetic algorithm</span></td><td class="st">Trains live</td><td class="go">Train &rarr;</td></tr>
+<tr class="row" data-cat="agents" data-tag="Q-learning" data-href="trader.html"><td class="id">AGENT-01</td><td class="t"><a href="trader.html">Market trader</a></td><td class="d">A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</td><td class="m"><span class="tag">Q-learning</span></td><td class="st">Active</td><td class="go">Train &rarr;</td></tr>
+<tr class="row" data-cat="agents" data-tag="Neural network" data-href="daytrader.html"><td class="id">AGENT-02</td><td class="t"><a href="daytrader.html">Day trader</a></td><td class="d">A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.</td><td class="m"><span class="tag">Neural network</span></td><td class="st">Active</td><td class="go">Train &rarr;</td></tr>
+<tr class="row" data-cat="agents" data-tag="Online ratings" data-href="betting.html"><td class="id">AGENT-03</td><td class="t"><a href="betting.html">Sports-market model</a></td><td class="d">Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.</td><td class="m"><span class="tag">Online ratings</span></td><td class="st">Active</td><td class="go">Train &rarr;</td></tr>
+<tr class="row" data-cat="agents" data-tag="Monte Carlo" data-href="montecarlo.html"><td class="id">AGENT-04</td><td class="t"><a href="montecarlo.html">Monte Carlo planner</a></td><td class="d">Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</td><td class="m"><span class="tag">Monte Carlo</span></td><td class="st">Active</td><td class="go">Train &rarr;</td></tr>
+<tr class="row" data-cat="agents" data-tag="Genetic algorithm" data-href="landlord.html"><td class="id">AGENT-05</td><td class="t"><a href="landlord.html">Landlord</a></td><td class="d">A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.</td><td class="m"><span class="tag">Genetic algorithm</span></td><td class="st">Active</td><td class="go">Train &rarr;</td></tr>
 <tr class="grp" data-cat="games"><td colspan="6">Games, just for fun &middot; 7</td></tr>
-<tr class="row" data-cat="games" data-tag="Expected value" data-href="blackjack.html"><td class="id">GAME-01</td><td class="t"><a href="blackjack.html">Blackjack</a></td><td class="d">Six-deck blackjack with the exact expected value of every move, the basic strategy chart and a Hi-Lo count.</td><td class="m"><span class="tag">Expected value</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
-<tr class="row" data-cat="games" data-tag="Monte Carlo equity" data-href="poker.html"><td class="id">GAME-02</td><td class="t"><a href="poker.html">Texas Hold&#x27;em</a></td><td class="d">No-limit hold&#x27;em against three bots, with live equity, outs, pot odds and a suggested move.</td><td class="m"><span class="tag">Monte Carlo equity</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
-<tr class="row" data-cat="games" data-tag="Alpha-beta search" data-href="chess.html"><td class="id">GAME-03</td><td class="t"><a href="chess.html">Chess</a></td><td class="d">A home-built engine at five levels, with an evaluation bar, best-move hints and a grade for every move.</td><td class="m"><span class="tag">Alpha-beta search</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
-<tr class="row" data-cat="games" data-tag="Beam-search planner" data-href="uno-chess.html"><td class="id">GAME-04</td><td class="t"><a href="uno-chess.html">UNO Chess: hand rules</a></td><td class="d">Hold three cards and match the pile: move up to three times, skip your opponent, or move one of their pieces.</td><td class="m"><span class="tag">Beam-search planner</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
-<tr class="row" data-cat="games" data-tag="Beam-search planner" data-href="uno-chess-draw.html"><td class="id">GAME-05</td><td class="t"><a href="uno-chess-draw.html">UNO Chess: draw rules</a></td><td class="d">One shared deck, one card per turn: +2 and +4 revive lost pieces, and Reverse swaps sides.</td><td class="m"><span class="tag">Beam-search planner</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
-<tr class="row" data-cat="games" data-tag="Exact probability" data-href="minesweeper.html"><td class="id">GAME-06</td><td class="t"><a href="minesweeper.html">Minesweeper</a></td><td class="d">The exact chance of a mine under every square, a solver to watch, and the logic behind each move.</td><td class="m"><span class="tag">Exact probability</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
-<tr class="row" data-cat="games" data-tag="Game-tree solver" data-href="connect4.html"><td class="id">GAME-07</td><td class="t"><a href="connect4.html">Connect Four</a></td><td class="d">A solved game: every column labelled win, draw or loss once it can be searched to the end.</td><td class="m"><span class="tag">Game-tree solver</span></td><td class="st">Playable</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Expected value" data-href="blackjack.html"><td class="id">GAME-01</td><td class="t"><a href="blackjack.html">Blackjack</a></td><td class="d">Six-deck blackjack with the exact expected value of every move, the basic strategy chart and a Hi-Lo count.</td><td class="m"><span class="tag">Expected value</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Monte Carlo equity" data-href="poker.html"><td class="id">GAME-02</td><td class="t"><a href="poker.html">Texas Hold&#x27;em</a></td><td class="d">No-limit hold&#x27;em against three bots, with live equity, outs, pot odds and a suggested move.</td><td class="m"><span class="tag">Monte Carlo equity</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Alpha-beta search" data-href="chess.html"><td class="id">GAME-03</td><td class="t"><a href="chess.html">Chess</a></td><td class="d">A home-built engine at five levels, with an evaluation bar, best-move hints and a grade for every move.</td><td class="m"><span class="tag">Alpha-beta search</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Beam-search planner" data-href="uno-chess.html"><td class="id">GAME-04</td><td class="t"><a href="uno-chess.html">UNO Chess: hand rules</a></td><td class="d">Hold three cards and match the pile: move up to three times, skip your opponent, or move one of their pieces.</td><td class="m"><span class="tag">Beam-search planner</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Beam-search planner" data-href="uno-chess-draw.html"><td class="id">GAME-05</td><td class="t"><a href="uno-chess-draw.html">UNO Chess: draw rules</a></td><td class="d">One shared deck, one card per turn: +2 and +4 revive lost pieces, and Reverse swaps sides.</td><td class="m"><span class="tag">Beam-search planner</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Exact probability" data-href="minesweeper.html"><td class="id">GAME-06</td><td class="t"><a href="minesweeper.html">Minesweeper</a></td><td class="d">The exact chance of a mine under every square, a solver to watch, and the logic behind each move.</td><td class="m"><span class="tag">Exact probability</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
+<tr class="row" data-cat="games" data-tag="Game-tree solver" data-href="connect4.html"><td class="id">GAME-07</td><td class="t"><a href="connect4.html">Connect Four</a></td><td class="d">A solved game: every column labelled win, draw or loss once it can be searched to the end.</td><td class="m"><span class="tag">Game-tree solver</span></td><td class="st">Active</td><td class="go">Play &rarr;</td></tr>
     </tbody>
   </table>
 </div></section>
@@ -580,11 +663,11 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 </main>
 
 <section class="cta2" aria-label="Get started">
-  <div class="bg" role="img" aria-label="Container ship and tugboats seen from above"></div>
+  <canvas class="bg" id="descent" role="img" aria-label="Animated contour map of a loss surface, with dots rolling downhill to its lowest point"></canvas>
   <div class="w rv">
-    <span class="lbl" style="color:rgba(242,244,245,.8)">Beyond the demo</span>
-    <h2 style="margin-top:16px">See how models <span>really work.</span></h2>
-    <p>Start with a single line and a loss function. Finish with agents, retrieval and the hardware it all runs on.</p>
+    <span class="lbl">Gradient descent, live</span>
+    <h2 style="margin-top:16px">Every model learns <span>by rolling downhill.</span></h2>
+    <p>Each line is a level of error. The dots follow the slope to the lowest point they can find, and some get stuck in a shallower one. Training a model is exactly this, in millions of dimensions. Module 01 starts here.</p>
     <a class="pill lt" href="learn.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Start the course</a>
   </div>
 </section>
@@ -605,6 +688,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
+var lightQ = window.matchMedia ? matchMedia('(prefers-color-scheme: light)') : { matches: false };
 /* ---------- header, navigation, catalog, showcase, course rows ---------- */
 (function () {
   /* always open at the top: no automatic jumps on load or reload */
@@ -825,8 +909,12 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     var o = document.createElement('canvas'), ox = o.getContext('2d', { willReadFrequently: true }); o.width = W; o.height = H;
     var fs = H * 1.05; ox.font = '500 ' + fs + 'px Manrope, system-ui, sans-serif'; if ('letterSpacing' in ox) ox.letterSpacing = (-fs * .055) + 'px';
-    var tw = ox.measureText('LDB LAB').width; fs *= Math.min(1, W * .92 / tw); ox.font = '500 ' + fs + 'px Manrope, system-ui, sans-serif'; if ('letterSpacing' in ox) ox.letterSpacing = (-fs * .055) + 'px';
-    ox.textAlign = 'center'; ox.textBaseline = 'alphabetic'; ox.fillStyle = '#fff'; ox.fillText('LDB LAB', W / 2, H * .86);
+    /* two words with a clear gap between them, so it reads LDB / LAB rather than one word */
+    var gapK = .42, w1 = ox.measureText('LDB').width, w2 = ox.measureText('LAB').width, tw = w1 + w2 + fs * gapK;
+    fs *= Math.min(1, W * .92 / tw); ox.font = '500 ' + fs + 'px Manrope, system-ui, sans-serif'; if ('letterSpacing' in ox) ox.letterSpacing = (-fs * .055) + 'px';
+    w1 = ox.measureText('LDB').width; w2 = ox.measureText('LAB').width; tw = w1 + w2 + fs * gapK;
+    ox.textAlign = 'left'; ox.textBaseline = 'alphabetic'; ox.fillStyle = '#fff';
+    var x0 = (W - tw) / 2; ox.fillText('LDB', x0, H * .86); ox.fillText('LAB', x0 + w1 + fs * gapK, H * .86);
     var d = ox.getImageData(0, 0, W, H).data, gap = Math.max(3, Math.round(W / 300)); P = [];
     for (var yy = 0; yy < H; yy += gap) for (var xx = 0; xx < W; xx += gap) if (d[(yy * W + xx) * 4 + 3] > 128) P.push({ x: xx + (Math.random() - .5) * 60, y: yy + (Math.random() - .5) * 60, ox: xx, oy: yy, vx: 0, vy: 0, s: .7 + Math.random() * .8 });
   }
@@ -839,14 +927,14 @@ document.getElementById('yr').textContent = new Date().getFullYear();
       p.vx += (p.ox - p.x) * .045; p.vy += (p.oy - p.y) * .045; p.vx *= .84; p.vy *= .84; p.x += p.vx; p.y += p.vy; }
     /* blurred layer: the letters out of focus */
     if (bl.width !== cv.width) { bl.width = cv.width; bl.height = cv.height; }
-    bx.setTransform(dpr, 0, 0, dpr, 0, 0); bx.clearRect(0, 0, W, H); bx.fillStyle = 'rgba(176,192,204,.6)';
+    bx.setTransform(dpr, 0, 0, dpr, 0, 0); bx.clearRect(0, 0, W, H); var LT = lightQ.matches; bx.fillStyle = LT ? 'rgba(255,255,255,.72)' : 'rgba(176,192,204,.6)';
     for (var a = 0; a < P.length; a++) { var q = P[a]; bx.fillRect(q.x, q.y, g, g); }
     x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'blur(' + (Math.max(2, 9 - t * 3) * dpr).toFixed(1) + 'px)'; x.drawImage(bl, 0, 0); x.setTransform(dpr, 0, 0, dpr, 0, 0);
     /* sharp layer: in focus near the cursor and along a slow sweep */
     x.filter = 'none';
     for (var b = 0; b < P.length; b++) { var r = P[b], fx = Math.max(0, 1 - Math.abs(r.ox - (mx > -999 ? mx : sweep)) / (W * .16)), moving = Math.min(1, Math.abs(r.vx) + Math.abs(r.vy));
       var al = Math.min(.95, fx * .8 + moving * .9) * Math.min(1, t / 1.2); if (al < .03) continue;
-      x.fillStyle = 'rgba(214,224,231,' + al.toFixed(2) + ')'; x.fillRect(r.x, r.y, g * r.s, g * r.s); }
+      x.fillStyle = (LT ? 'rgba(255,255,255,' : 'rgba(214,224,231,') + al.toFixed(2) + ')'; x.fillRect(r.x, r.y, g * r.s, g * r.s); }
     requestAnimationFrame(frame);
   }
   function gapSize() { return Math.max(1.6, W / 520); }
@@ -877,6 +965,146 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   document.head.appendChild(s);
 })();
 
+/* ---------- the helmet's visor: a dot-matrix display drawn on a canvas, masked to the glass ---------- */
+(function () {
+  var cv = document.getElementById('visor'); if (!cv) return;
+  var x = cv.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* 5 x 7 pixel font: each glyph is seven rows of five bits */
+  var F = { A: '0e11111f111111', B: '1e11111e11111e', C: '0e11101010110e', D: '1e11111111111e', E: '1f10101e10101f', F: '1f10101e101010', G: '0e11101711110f', H: '1111111f111111',
+    I: '0e04040404040e', J: '0702020202120c', K: '11121418141211', L: '1010101010101f', M: '111b1515111111', N: '11191513111111', O: '0e11111111110e', P: '1e11111e101010',
+    Q: '0e11111115120d', R: '1e11111e141211', S: '0f10100e01011e', T: '1f040404040404', U: '1111111111110e', V: '11111111110a04', W: '11111115151b11', X: '11110a040a1111',
+    Y: '11110a04040404', Z: '1f01020408101f', '0': '0e11131519110e', '1': '040c040404040e', '2': '0e11010204081f', '3': '1f02040201110e', '4': '02060a121f0202', '5': '1f101e0101110e',
+    '6': '0608101e11110e', '7': '1f010204080808', '8': '0e11110e11110e', '9': '0e11110f01020c', ' ': '00000000000000', '.': '0000000000000c', ':': '000c0c000c0c00', '-': '0000001f000000',
+    '/': '01010204081010', '%': '18190204081303', '>': '08040201020408', '·': '00000004000000' };
+  function glyph(c) { var h = F[c] || F[' '], r = []; for (var i = 0; i < 7; i++) r.push(parseInt(h.substr(i * 2, 2), 16)); return r; }
+  function textCols(s) { var cols = []; s.split('').forEach(function (c) { var g = glyph(c); for (var b = 4; b >= 0; b--) { var col = 0; for (var r = 0; r < 7; r++) if (g[r] >> b & 1) col |= 1 << r; cols.push(col); } cols.push(0); }); return cols; }
+  var ROWS = 13, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null;
+  function size() {
+    var r = cv.getBoundingClientRect(); if (r.width < 4) return;
+    dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    pitch = H / ROWS; COLS = Math.floor(W / pitch); grid = new Float32Array(COLS * ROWS);
+  }
+  function put(c, r, v) { if (c >= 0 && c < COLS && r >= 0 && r < ROWS) { var i = r * COLS + c; if (v > grid[i]) grid[i] = v; } }
+  function stamp(cols, c0, r0, v) { for (var i = 0; i < cols.length; i++) for (var r = 0; r < 7; r++) if (cols[i] >> r & 1) put(c0 + i, r0 + r, v); }
+  var MSG = textCols('  LDB LAB  ·  APPLIED AI  ·  MODELS YOU CAN WATCH THINK  ·  '), WORD = textCols('LDB LAB');
+  /* the scenes, played in a loop */
+  var scenes = [
+    { d: 9, f: function (t) { stamp(MSG, COLS - Math.floor(t * 15) % (MSG.length + COLS), 3, 1); } },           /* scrolling ticker */
+    { d: 4.2, f: function (t) {                                                                                   /* the name builds in, column by column */
+      var c0 = Math.floor((COLS - WORD.length) / 2), shown = Math.min(WORD.length, Math.floor(t * 22));
+      stamp(WORD.slice(0, shown), c0, 3, 1);
+      if (shown < WORD.length) for (var r = 2; r < 11; r++) put(c0 + shown, r, .9);
+      if (t > 2.6) { var k = (t - 2.6) / 1.6; for (var r2 = 0; r2 < ROWS; r2++) put(Math.floor(k * (COLS + 8)) - 4, r2, .55); } } },
+    { d: 5, f: function (t) {                                                                                     /* a spectrum, as if listening */
+      for (var c = 0; c < COLS; c++) { var u = c / COLS, h = (.35 + .3 * Math.sin(u * 9 + t * 3.1) * Math.sin(u * 3.3 - t * 1.7) + .25 * Math.sin(u * 23 + t * 7)) * ROWS * Math.min(1, t * 1.5, (5 - t) * 1.5);
+        for (var r = 0; r < Math.min(ROWS, Math.max(0, h)); r++) put(c, ROWS - 1 - r, r > ROWS * .62 ? 1 : .7); } } },
+    { d: 3.6, f: function (t) {                                                                                   /* a scanner sweep with a trail */
+      var p = (Math.sin(t * 2.2 - Math.PI / 2) * .5 + .5) * (COLS - 1);
+      for (var c = 0; c < COLS; c++) { var v = Math.max(0, 1 - Math.abs(c - p) / 7); if (v > 0) for (var r = 3; r < 10; r++) put(c, r, v * (r === 6 ? 1 : .75)); } } }
+  ];
+  var si = 0, st = 0, last = 0, on = true, raf = 0;
+  function frame(now) {
+    raf = 0; if (!on) return;
+    var dt = Math.min(.05, (now - last) / 1000 || .016); last = now; st += dt;
+    if (!grid) size();
+    if (grid) {
+      for (var i = 0; i < grid.length; i++) grid[i] *= .6;                                                       /* LEDs fade, not snap */
+      if (reduce) { stamp(WORD, Math.floor((COLS - WORD.length) / 2), 3, 1); }
+      else { if (st > scenes[si].d) { st = 0; si = (si + 1) % scenes.length; } scenes[si].f(st); }
+      draw(now / 1000);
+    }
+    if (!reduce) raf = requestAnimationFrame(frame);
+  }
+  function draw(tt) {
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+    var ox = (W - COLS * pitch) / 2, rad = pitch * .34;
+    x.fillStyle = 'rgba(190,214,228,.07)';                                                                         /* the unlit matrix behind the glass */
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) { x.beginPath(); x.arc(ox + (c + .5) * pitch, (r + .5) * pitch, rad * .8, 0, 6.283); x.fill(); }
+    x.save(); x.shadowColor = 'rgba(160,220,232,.9)'; x.shadowBlur = pitch * 1.6;
+    for (var r2 = 0; r2 < ROWS; r2++) for (var c2 = 0; c2 < COLS; c2++) { var v = grid[r2 * COLS + c2]; if (v < .04) continue;
+      x.fillStyle = 'rgba(' + Math.round(200 + 40 * v) + ',' + Math.round(232 + 18 * v) + ',' + Math.round(240 + 12 * v) + ',' + Math.min(1, v * 1.1).toFixed(2) + ')';
+      x.beginPath(); x.arc(ox + (c2 + .5) * pitch, (r2 + .5) * pitch, rad, 0, 6.283); x.fill(); }
+    x.restore();
+    var g = x.createLinearGradient(0, 0, W * .6, H);                                                              /* a soft reflection across the glass */
+    g.addColorStop(0, 'rgba(255,255,255,.10)'); g.addColorStop(.35, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+  }
+  function go() { if (!raf && on) raf = requestAnimationFrame(frame); }
+  addEventListener('resize', function () { grid = null; if (reduce) go(); });
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { on = e[0].isIntersecting; if (on) { last = 0; go(); } }).observe(cv);
+  go();
+})();
+
+/* ---------- closing banner: gradient descent on a real loss surface ---------- */
+(function () {
+  var cv = document.getElementById('descent'); if (!cv) return;
+  var x = cv.getContext('2d'), base = document.createElement('canvas'), bx = base.getContext('2d');
+  var W = 0, H = 0, dpr = 1, on = false, raf = 0, last = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* a bumpy bowl: one deep minimum, two shallower traps, and a gentle tilt */
+  var WELLS = [[.72, .58, .18, 1.25], [.3, .42, .11, .7], [.5, .2, .09, .55], [.16, .78, .08, .45]];
+  function f(u, v) { var z = .9 * ((u - .62) * (u - .62) * .9 + (v - .55) * (v - .55) * 1.6);
+    for (var i = 0; i < WELLS.length; i++) { var w = WELLS[i], d = ((u - w[0]) * (u - w[0]) + (v - w[1]) * (v - w[1])) / (w[2] * w[2]); z -= w[3] * Math.exp(-d) * .5; }
+    return z + .06 * Math.sin(u * 13) * Math.sin(v * 11); }
+  function grad(u, v) { var e = .002; return [(f(u + e, v) - f(u - e, v)) / (2 * e), (f(u, v + e) - f(u, v - e)) / (2 * e)]; }
+  function ink() { return getComputedStyle(cv).color || 'rgb(242,244,245)'; }
+  function mint() { return getComputedStyle(document.documentElement).getPropertyValue('--mint').trim() || '#8FC3BA'; }
+  function contours() {
+    base.width = cv.width; base.height = cv.height; bx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var step = Math.max(6, W / 180), nx = Math.ceil(W / step) + 1, ny = Math.ceil(H / step) + 1, z = new Float32Array(nx * ny), lo = 1e9, hi = -1e9;
+    for (var j = 0; j < ny; j++) for (var i = 0; i < nx; i++) { var q = f(i * step / W, j * step / H); z[j * nx + i] = q; if (q < lo) lo = q; if (q > hi) hi = q; }
+    var col = ink(), N = 22;
+    for (var k = 1; k < N; k++) {
+      var lv = lo + (hi - lo) * Math.pow(k / N, 1.6);              /* tighter lines near the bottom, where it matters */
+      bx.strokeStyle = col; bx.globalAlpha = .07 + .16 * (1 - k / N); bx.lineWidth = k % 5 === 0 ? 1.1 : .7; bx.beginPath();
+      for (var jj = 0; jj < ny - 1; jj++) for (var ii = 0; ii < nx - 1; ii++) {                                    /* marching squares */
+        var a = z[jj * nx + ii], b = z[jj * nx + ii + 1], c = z[(jj + 1) * nx + ii + 1], d = z[(jj + 1) * nx + ii], pts = [], X = ii * step, Y = jj * step;
+        if ((a < lv) !== (b < lv)) pts.push([X + step * (lv - a) / (b - a), Y]);
+        if ((b < lv) !== (c < lv)) pts.push([X + step, Y + step * (lv - b) / (c - b)]);
+        if ((d < lv) !== (c < lv)) pts.push([X + step * (lv - d) / (c - d), Y + step]);
+        if ((a < lv) !== (d < lv)) pts.push([X, Y + step * (lv - a) / (d - a)]);
+        if (pts.length >= 2) { bx.moveTo(pts[0][0], pts[0][1]); bx.lineTo(pts[1][0], pts[1][1]); }
+        if (pts.length === 4) { bx.moveTo(pts[2][0], pts[2][1]); bx.lineTo(pts[3][0], pts[3][1]); } }
+      bx.stroke(); }
+    bx.globalAlpha = 1;
+  }
+  var balls = [];
+  function spawn(b) { var a = Math.random() * 6.283; b.u = .62 + Math.cos(a) * (.35 + Math.random() * .12); b.v = .55 + Math.sin(a) * (.36 + Math.random() * .1);
+    b.u = Math.min(.97, Math.max(.03, b.u)); b.v = Math.min(.95, Math.max(.05, b.v)); b.vu = 0; b.vv = 0; b.trail = []; b.rest = 0; b.age = 0; return b; }
+  function size() {
+    var r = cv.getBoundingClientRect(); if (r.width < 4) return false;
+    dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    contours(); if (!balls.length) for (var i = 0; i < 3; i++) { var b = spawn({}); b.age = -i * 1.6; balls.push(b); }
+    return true;
+  }
+  function step(dt) {
+    balls.forEach(function (b) { b.age += dt; if (b.age < 0) return;
+      for (var s = 0; s < 3; s++) { var g = grad(b.u, b.v); b.vu = b.vu * .94 - g[0] * .0009; b.vv = b.vv * .94 - g[1] * .0009; b.u += b.vu; b.v += b.vv; }   /* gradient descent with momentum */
+      b.trail.push([b.u, b.v]); if (b.trail.length > 160) b.trail.shift();
+      if (Math.hypot(b.vu, b.vv) < .00012) b.rest += dt; if (b.rest > 1.4 || b.age > 14) spawn(b); });
+  }
+  function draw() {
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height); x.drawImage(base, 0, 0);
+    x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var col = ink();
+    balls.forEach(function (b, i) { if (b.age < 0 || !b.trail.length) return;
+      var mc = mint(); x.strokeStyle = i === 0 ? mc : col; x.lineWidth = 1.4;
+      for (var k = 1; k < b.trail.length; k++) { x.globalAlpha = k / b.trail.length * (i === 0 ? .9 : .5); x.beginPath();
+        x.moveTo(b.trail[k - 1][0] * W, b.trail[k - 1][1] * H); x.lineTo(b.trail[k][0] * W, b.trail[k][1] * H); x.stroke(); }
+      x.globalAlpha = 1; var p = b.trail[b.trail.length - 1], fade = Math.min(1, b.age * 2);
+      x.fillStyle = i === 0 ? mc : col; x.globalAlpha = fade; x.beginPath(); x.arc(p[0] * W, p[1] * H, 4, 0, 6.283); x.fill();
+      x.globalAlpha = .18 * fade; x.beginPath(); x.arc(p[0] * W, p[1] * H, 11, 0, 6.283); x.fill(); x.globalAlpha = 1; });
+  }
+  function frame(now) { raf = 0; if (!on) return; var dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
+    if (!W && !size()) { raf = requestAnimationFrame(frame); return; }
+    step(dt); draw(); if (!reduce) raf = requestAnimationFrame(frame); }
+  addEventListener('resize', function () { W = 0; if (on && !raf) raf = requestAnimationFrame(frame); });
+  matchMedia('(prefers-color-scheme: light)').addEventListener && matchMedia('(prefers-color-scheme: light)').addEventListener('change', function () { W = 0; if (on && !raf) raf = requestAnimationFrame(frame); });
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { on = e[0].isIntersecting; if (on && !raf) { last = 0; raf = requestAnimationFrame(frame); } }, { rootMargin: '120px' }).observe(cv);
+  else { on = true; raf = requestAnimationFrame(frame); }
+  if (reduce) { on = true; size(); for (var i = 0; i < 400; i++) step(.016); draw(); }
+})();
+
 /* =====================================================================
    Live feeds: real recorded clips that rotate, with a real object
    detector (YOLOX-tiny, running in the browser on ONNX Runtime) that
@@ -888,7 +1116,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 var FEEDS = [
   { src: 'feeds/street.mp4',  cam: 'CAM-07', place: 'Times Square, NYC', tiles: true,
     classes: ['person', 'handbag', 'backpack', 'suitcase', 'umbrella', 'car', 'truck', 'bus', 'bicycle', 'motorcycle', 'traffic light'] },
-  { src: 'feeds/highway.mp4', cam: 'CAM-12', place: 'Highway interchange', tiles: 'grid',
+  { src: 'feeds/highway.mp4', cam: 'CAM-12', place: 'Highway interchange', tiles: 'grid', motion: true,
     classes: ['car', 'truck', 'bus', 'motorcycle'] },
   { src: 'feeds/airport.mp4', cam: 'CAM-21', place: 'Airport apron', secs: 8,
     classes: ['airplane', 'truck', 'car', 'bus', 'person'] },
@@ -930,10 +1158,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   }
 
   /* ---------- classes: what the detector can name ---------- */
-  var GROUP = { person: 'p', bicycle: 'v', car: 'v', motorcycle: 'v', airplane: 'v', bus: 'v', train: 'v', truck: 'v', boat: 'v',
+  var GROUP = { vehicle: 'v', person: 'p', bicycle: 'v', car: 'v', motorcycle: 'v', airplane: 'v', bus: 'v', train: 'v', truck: 'v', boat: 'v',
     bird: 'a', cat: 'a', dog: 'a', horse: 'a', sheep: 'a', cow: 'a', elephant: 'a', bear: 'a', zebra: 'a', giraffe: 'a' };
   var GCOL = { p: '242,244,245', v: '196,212,222', a: '196,212,222', o: '163,173,180' };
-  var CODE = { person: 'PER', bicycle: 'BIK', car: 'CAR', motorcycle: 'MOT', airplane: 'AIR', bus: 'BUS', train: 'TRN', truck: 'TRK', boat: 'BOA',
+  var CODE = { vehicle: 'VEH', person: 'PER', bicycle: 'BIK', car: 'CAR', motorcycle: 'MOT', airplane: 'AIR', bus: 'BUS', train: 'TRN', truck: 'TRK', boat: 'BOA',
     bird: 'BRD', cat: 'CAT', dog: 'DOG', horse: 'HRS', sheep: 'SHP', cow: 'COW', 'traffic light': 'SIG', 'stop sign': 'SGN',
     backpack: 'BAG', handbag: 'BAG', suitcase: 'LUG', umbrella: 'UMB', 'cell phone': 'PHN', bench: 'BNC' };
   function grp(cls) { return GROUP[cls] || 'o'; }
@@ -948,7 +1176,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     nx.putImageData(nd, 0, 0); noise.push(nc);
   }
   var tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true }), LUT = null;
-  var hot = document.createElement('canvas'), hx2 = hot.getContext('2d');
+  var thS = document.createElement('canvas'), thx = thS.getContext('2d', { willReadFrequently: true }), thH = document.createElement('canvas'), thhx = thH.getContext('2d'), bgM = null, bgFeed = -1, bgN = 0, bgMask = null;
   function thermalLUT() {
     /* white-hot greyscale: every pixel mapped through a contrast curve, warm (bright) is white, cold is black */
     var L = []; for (var i = 0; i < 256; i++) { var t = i / 255, u = t * t * (3 - 2 * t), v = Math.round(8 + 244 * (u * .7 + Math.pow(t, 1.4) * .3)); L.push([v, v, v]); } return L;
@@ -1010,8 +1238,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     preloadAfter(i);   /* start loading the next clip in the background */
     if (first) loadModel();
   }
+  var HOLD = /[?&]hold/.test(location.search);
+  window.ldbStats = function () { return { ids: nextId - 101, live: tracks.filter(function (t) { return t.hits >= 2; }).length, infer: Math.round(infer), cur: cur }; };
   function maybeSwitch() {
-    if (sw || paused || cur < 0 || T - shownAt < (FEEDS[cur].secs || CLIP_SECONDS)) return;
+    if (sw || paused || HOLD || cur < 0 || T - shownAt < (FEEDS[cur].secs || CLIP_SECONDS)) return;
     var n = nextIndex();
     if (n === -2) return;
     if (n < 0 || n === cur) { shownAt = T; return; }
@@ -1138,10 +1368,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   }
 
   /* ---------- tracker: an alpha-beta filter per object, matched in two passes (confident boxes, then weak ones) ---------- */
-  function predictBox(t, at) { var dt = Math.max(0, Math.min(1, at - t.tCap)); return [t.tb[0] + t.vx * dt, t.tb[1] + t.vy * dt, t.tb[2] + (t.vw || 0) * dt, t.tb[3] + (t.vh || 0) * dt]; }
-  function updateTrack(t, b, tCap, score) {
+  function predictBox(t, at) { var dt = Math.max(-1, Math.min(1, at - t.tCap));   /* also backwards, to match a detection taken before the track's last update */ return [t.tb[0] + t.vx * dt, t.tb[1] + t.vy * dt, t.tb[2] + (t.vw || 0) * dt, t.tb[3] + (t.vh || 0) * dt]; }
+  function updateTrack(t, b, tCap, score, trust) {
     var dt = Math.max(.03, tCap - t.tCap), pr = predictBox(t, tCap);
-    var A = t.hits < 3 ? .85 : .55, B = t.hits < 3 ? .5 : .18;               /* trust new tracks' measurements more */
+    var A = trust || (t.hits < 3 ? .85 : .55), B = t.hits < 3 ? .5 : .18;               /* trust new tracks' measurements more */
     var pcx = pr[0] + pr[2] / 2, pcy = pr[1] + pr[3] / 2, mcx = b[0] + b[2] / 2, mcy = b[1] + b[3] / 2;
     var rx = mcx - pcx, ry = mcy - pcy, rw = b[2] - pr[2], rh = b[3] - pr[3];
     var ncx = pcx + A * rx, ncy = pcy + A * ry, nw = pr[2] + A * rw, nh = pr[3] + A * rh;
@@ -1154,7 +1384,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   function associate(dets, pool, minIou, tCap) {
     var pairs = [];
     dets.forEach(function (d, i) { pool.forEach(function (t, j) {
-      if (t.m || t.cls !== d.class) return; var pr = predictBox(t, tCap), v = iou(pr, d.bbox);
+      if (t.m || (t.cls !== d.class && !(t.g === 'v' && grp(d.class) === 'v'))) return;   /* a car seen as a truck is still the same vehicle */ var pr = predictBox(t, tCap), v = iou(pr, d.bbox);
       if (v < minIou) {                                                    /* small, fast objects: fall back to centre distance */
         var dd = Math.hypot(pr[0] + pr[2] / 2 - d.bbox[0] - d.bbox[2] / 2, pr[1] + pr[3] / 2 - d.bbox[1] - d.bbox[3] / 2), gate = Math.max(d.bbox[2], d.bbox[3]) * 1.2;
         if (dd < gate && d.bbox[2] < pr[2] * 2 && d.bbox[2] > pr[2] * .5) v = minIou * .99 * (1 - dd / gate) + .001; else return;
@@ -1162,7 +1392,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       pairs.push([v, i, j]); }); });
     pairs.sort(function (a, b) { return b[0] - a[0]; });
     var usedD = {}, left = [];
-    pairs.forEach(function (p) { var d = dets[p[1]], t = pool[p[2]]; if (usedD[p[1]] || t.m) return; usedD[p[1]] = 1; updateTrack(t, d.bbox, tCap, d.score); });
+    pairs.forEach(function (p) { var d = dets[p[1]], t = pool[p[2]]; if (usedD[p[1]] || t.m) return; usedD[p[1]] = 1;
+      if (t.tCap > tCap + .02) { t.s = t.s * .6 + d.score * .4; t.m = true; t.miss = 0; t.hits++; t.seen = Math.max(t.seen, tCap); }   /* motion already placed it more recently: keep that position */
+      else updateTrack(t, d.bbox, tCap, d.score); t.net = tCap;
+      if (d.class !== t.cls && (t.mot || d.score > t.s + .1)) { t.cls = d.class; t.g = grp(d.class); } t.mot = false; });
     dets.forEach(function (d, i) { if (!usedD[i]) left.push(d); });
     return left;
   }
@@ -1172,16 +1405,16 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var hi = preds.filter(function (p) { return p.score >= TH; }), lo = preds.filter(function (p) { return p.score < TH; });
     var leftHi = associate(hi, tracks, .2, tCap);                               /* pass 1: confident boxes */
     associate(lo, tracks.filter(function (t) { return t.hits >= 3; }), .35, tCap);   /* pass 2: weak boxes rescue known objects through occlusion */
-    leftHi.forEach(function (p) { tracks.push({ id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, seen: tCap, vx: 0, vy: 0, vw: 0, vh: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] }); });
+    leftHi.forEach(function (p) { mStat.newY = (mStat.newY || 0) + 1; tracks.push({ net: tCap, id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, seen: tCap, vx: 0, vy: 0, vw: 0, vh: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] }); });
     tracks.forEach(function (t) { if (!t.m) { t.miss++; var pr = predictBox(t, tCap); t.tb = pr; t.tCap = tCap; t.vx *= .7; t.vy *= .7; } else if (t.hits === 3) log('DETECT', t.cls + ' ' + label(t) + ' conf ' + t.s.toFixed(2), 300); });
     tracks = tracks.filter(function (t) {
-      var gone = tCap - t.seen > (t.hits > 8 ? 1.1 : .5) || (t.hits < 3 && t.miss > 1);
+      var gone = tCap - t.seen > Math.max(t.hits > 8 ? 1.1 : .5, cycleS * (t.hits > 8 ? 3 : 2.2)) || (t.hits < 3 && t.miss > 1);   /* patience scales with how often the detector reports */
       if (gone) { if (t.hits > 6) log('LOST', label(t) + ' left frame or occluded', 700); if (t === lock) lock = null; return false; }
       return true;
     });
     /* two tracks on the same object: keep the older one */
     tracks.sort(function (a, b) { return a.id - b.id; });
-    tracks = tracks.filter(function (t, i) { for (var j = 0; j < i; j++) { var o = tracks[j]; if (o.cls === t.cls && iou(o.tb, t.tb) > .7) { if (t === lock) lock = o; return false; } } return true; });
+    tracks = tracks.filter(function (t, i) { for (var j = 0; j < i; j++) { var o = tracks[j]; if ((o.cls === t.cls || (o.g === 'v' && t.g === 'v')) && iou(o.tb, t.tb) > (o.g === 'v' ? .45 : .7)) { if (t === lock) lock = o; return false; } } return true; });
   }
   function findFaces(src) {
     var people = tracks.filter(function (t) { return t.cls === 'person' && t.m && t.tb[3] >= 36 && t.hits >= 3 && t.s >= .4; })
@@ -1203,8 +1436,9 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var regions = [[0, 0, W0, H0]];
     var tl = FEEDS[cur].tiles;
     /* zoomed tiles find small, distant objects, but cost extra passes: only on devices fast enough to afford them */
-    if (tl && !touch && cycle % 2 === 0) {
+    if (tl && !touch && (cycle % 2 === 0 || (tl === 'grid' && regionMs >= 45))) {
       if (tl === 'grid' && regionMs < 45) { var tw = W0 * .4, th = H0 * .55; [0, H0 - th].forEach(function (y) { [0, (W0 - tw) / 2, W0 - tw].forEach(function (x) { regions.push([x, y, tw, th]); }); }); }
+      else if (tl === 'grid') { var tw2 = W0 * .4, th2 = H0 * .55, G = []; [0, H0 - th2].forEach(function (y) { [0, (W0 - tw2) / 2, W0 - tw2].forEach(function (x) { G.push([x, y, tw2, th2]); }); }); regions.push(G[tileK++ % G.length]); }
       else if (regionMs < 90) regions.push([0, 0, W0 * .58, H0], [W0 * .42, 0, W0 * .58, H0]);
     }
     var chain = Promise.resolve();
@@ -1213,15 +1447,109 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       var ms = performance.now() - t0, per = ms / regions.length;
       infer = infer ? infer * .8 + per * .2 : per;
       regionMs = regionMs ? regionMs * .7 + per * .3 : per;
+      var cyc = (performance.now() - lastCyc) / 1000; lastCyc = performance.now(); if (cyc < 5) cycleS = cycleS * .7 + cyc * .3;
       onDetections(merge(all), src, tCap);
       if ((faceNet || faceReady) && cycle % 3 === 0) return findFaces(src);
     }).then(function () { detBusy = false; detOnce = true; setTimeout(detLoop, touch ? 120 : 0); })
       .catch(function (e) { detBusy = false; setTimeout(detLoop, 600); });
   }
-  var detOnce = false, regionMs = 0, faceReady = false;
+  var cycleS = .2, lastCyc = 0, tileK = 0, detOnce = false, regionMs = 0, faceReady = false;
   function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
   /* download a model with a progress readout */
   var dlPct = -1, detFailed = false;
+  /* ---------- motion: a second, classical detector for fixed traffic cameras ----------
+     Far-off cars at night are a few pixels wide, too small for the network on the full frame. A learned picture of the
+     empty road (background subtraction, corrected for slow camera drift) finds everything that moves; a blob only counts
+     once it has travelled steadily for several frames, which throws out flickering lamps and compression noise.
+     Confirmed blobs keep vehicle tracks alive between detector passes, and start tracks the network missed. */
+  var mC = document.createElement('canvas'), mX = mC.getContext('2d', { willReadFrequently: true }), MW = 320, MH = 180;
+  mC.width = MW; mC.height = MH; var mH = document.createElement('canvas'), mHx = mH.getContext('2d'); mH.width = MW * 2; mH.height = MH * 2;
+  mX.imageSmoothingQuality = mHx.imageSmoothingQuality = 'high'; var mLast = null;
+  var mStatN = { newM: 0, lostM: 0 }, mStat = {}, mLastShift = [0, 0], mBg = null, mFeed = -1, mN = 0, mT = 0, mTracks = [], mNext = 1, mPrev = null;
+  function mGray(d) { var g = new Float32Array(MW * MH); for (var i = 0, p = 0; i < g.length; i++, p += 4) g[i] = d[p] * .3 + d[p + 1] * .59 + d[p + 2] * .11; return g; }
+  function mShift(a, b, R) {                                   /* the small camera drift between the background and this frame */
+    var best = 1e18, bx = 0, by = 0; R = R || 2;
+    for (var dy = -R; dy <= R; dy++) for (var dx = -R; dx <= R; dx++) {
+      var e = 0; for (var y = R + 4; y < MH - R - 4; y += R > 2 ? 4 : 3) { var ra = y * MW, rb = (y + dy) * MW + dx; for (var x = R + 4; x < MW - R - 4; x += 3) e += Math.abs(a[ra + x] - b[rb + x]); }
+      if (e < best) { best = e; bx = dx; by = dy; } }
+    return [bx, by];
+  }
+  function mBlobs(g) {
+    var n = MW * MH, m = new Uint8Array(n), m2 = new Uint8Array(n), i, x, y;
+    for (y = 1; y < MH - 1; y++) for (x = 1; x < MW - 1; x++) { i = y * MW + x;           /* nearest match within a pixel: edges that only shimmer with the camera's drift are not motion */
+      var gi = g[i], e = Math.abs(gi - mBg[i]);
+      if (e > 12) e = Math.min(e, Math.abs(gi - mBg[i - 1]), Math.abs(gi - mBg[i + 1]), Math.abs(gi - mBg[i - MW]), Math.abs(gi - mBg[i + MW]));
+      m[i] = e > 12 ? 1 : 0; }
+    for (y = 1; y < MH - 1; y++) for (x = 1; x < MW - 1; x++) { i = y * MW + x;          /* erode: single noisy pixels vanish */
+      m2[i] = m[i] && (m[i - 1] + m[i + 1] + m[i - MW] + m[i + MW]) >= 2 ? 1 : 0; }
+    for (y = 1; y < MH - 1; y++) for (x = 1; x < MW - 1; x++) { i = y * MW + x;          /* dilate: a car's lights and body join up */
+      m[i] = m2[i] || m2[i - 1] || m2[i + 1] || m2[i - MW] || m2[i + MW] ? 1 : 0; }
+    var lab = new Int32Array(n), out = [], st = new Int32Array(n);
+    for (i = 0; i < n; i++) { if (!m[i] || lab[i]) continue;
+      var sp = 0, x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1, cnt = 0; st[sp++] = i; lab[i] = 1;
+      while (sp) { var q = st[--sp], qx = q % MW, qy = (q / MW) | 0; cnt++;
+        if (qx < x0) x0 = qx; if (qx > x1) x1 = qx; if (qy < y0) y0 = qy; if (qy > y1) y1 = qy;
+        [q - 1, q + 1, q - MW, q + MW].forEach(function (r) { if (r >= 0 && r < n && m[r] && !lab[r]) { lab[r] = 1; st[sp++] = r; } }); }
+      var bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+      if (bh > bw * 1.5) bh = Math.round(bw * 1.15);                           /* a headlight beam on the road, not the car */
+      if (cnt >= 6 && bw <= 64 && bh <= 40 && cnt >= bw * bh * .18) out.push([x0, y0, bw, bh]); }
+    return out;
+  }
+  function motionTick() {
+    var f = FEEDS[cur]; if (!f || !f.motion || !video || video.readyState < 2 || paused || sw) return;
+    if (T - mT < .08) return; mT = T; var mt0 = performance.now();
+    var W0 = video.videoWidth, H0 = video.videoHeight; if (!W0) return;
+    mHx.drawImage(video, 0, 0, MW * 2, MH * 2); mX.drawImage(mH, 0, 0, MW, MH);           /* two halving steps average the pixels, so compression noise does not alias into fake motion */
+    var g = mGray(mX.getImageData(0, 0, MW, MH).data);
+    if (mLast && mLast.length === g.length) for (var z = 0; z < g.length; z++) { var gz = g[z]; g[z] = (gz + mLast[z]) * .5; mLast[z] = gz; } else mLast = g.slice();
+    var looped = mPrev && Math.abs(video.currentTime - mPrev) > 1, wide = 0;
+    if (!mBg || mFeed !== cur) { mBg = g; mFeed = cur; mN = 0; mTracks = []; }
+    else if (looped) { mTracks = []; wide = 7; }                          /* the clip restarted: re-align the learned road instead of relearning it */
+    mPrev = video.currentTime; mN++;
+    if (mN > 2) { var s = mShift(g, mBg, wide); mLastShift = s; if (s[0] || s[1]) { var nb = new Float32Array(mBg.length);   /* move the background with the camera */
+      for (var y = 0; y < MH; y++) for (var x = 0; x < MW; x++) { var sy = Math.min(MH - 1, Math.max(0, y + s[1])), sx2 = Math.min(MW - 1, Math.max(0, x + s[0])); nb[y * MW + x] = mBg[sy * MW + sx2]; }
+      mBg = nb; mTracks.forEach(function (t) { t.x0 -= s[0]; t.y0 -= s[1]; }); } }
+    var blobs = mN > 12 ? mBlobs(g) : [], rate = mN < 12 ? .25 : .05;
+    for (var i = 0; i < g.length; i++) mBg[i] += (g[i] - mBg[i]) * rate;
+    /* link blobs frame to frame by predicted position */
+    var used = {}, pairs = [];
+    mTracks.forEach(function (t, j) { var px = t.cx + t.vx, py = t.cy + t.vy, gate = Math.max(6, Math.max(t.w, t.h) * 1.4);
+      blobs.forEach(function (b, k) { var d = Math.hypot(b[0] + b[2] / 2 - px, b[1] + b[3] / 2 - py); if (d < gate) pairs.push([d, j, k]); }); });
+    pairs.sort(function (a, b) { return a[0] - b[0]; });
+    var usedT = {};
+    pairs.forEach(function (p) { if (usedT[p[1]] || used[p[2]]) return; usedT[p[1]] = used[p[2]] = 1;
+      var t = mTracks[p[1]], b = blobs[p[2]], cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2;
+      t.path = (t.path || 0) + Math.hypot(cx - t.cx, cy - t.cy); t.vx = t.vx * .6 + (cx - t.cx) * .4; t.vy = t.vy * .6 + (cy - t.cy) * .4; t.cx = cx; t.cy = cy;
+      t.w = t.w * .6 + b[2] * .4; t.h = t.h * .6 + b[3] * .4; t.hits++; t.miss = 0; });
+    mTracks.forEach(function (t, j) { if (!usedT[j]) { t.miss++; t.cx += t.vx; t.cy += t.vy; } });
+    blobs.forEach(function (b, k) { if (!used[k]) mTracks.push({ id: mNext++, cx: b[0] + b[2] / 2, cy: b[1] + b[3] / 2, x0: b[0] + b[2] / 2, y0: b[1] + b[3] / 2, w: b[2], h: b[3], vx: 0, vy: 0, hits: 1, miss: 0 }); });
+    mTracks = mTracks.filter(function (t) { return t.miss <= 4 && t.cx > -10 && t.cx < MW + 10 && t.cy > -10 && t.cy < MH + 10; });
+    mStat = { life: mStatN.life, newY: mStat.newY, newM: mStatN.newM, lostM: mStatN.lostM, blobs: blobs.length, mt: mTracks.length, ok: 0, shift: mLastShift };
+    /* hand confirmed movers to the main tracker */
+    var kx = W0 / MW, ky = H0 / MH;
+    mTracks.forEach(function (t) {
+      t.ok = t.hits >= 4 && t.miss <= (t.ok ? 2 : 0) && Math.hypot(t.vx, t.vy) >= .25;
+      var net = Math.hypot(t.cx - t.x0, t.cy - t.y0); if (!(net >= Math.max(4, t.hits * .2) && net >= (t.path || 0) * .6)) t.ok = false;   /* steady travel in one direction: a flickering lamp jitters in place */
+      if (!t.ok) return; mStat.ok++;
+      var bw = Math.max(t.w, 5) * kx, bh = Math.max(t.h, 4) * ky, box = [t.cx * kx - bw / 2, t.cy * ky - bh / 2, bw, bh];
+      var best = null, bv = 0;
+      if (t.tr) tracks.forEach(function (tr) { if (tr.id === t.tr && tr.mFrame !== mN) { best = tr; bv = 1; } });   /* the vehicle this blob already belongs to */
+      if (!best) tracks.forEach(function (tr) { if (tr.g !== 'v' || tr.mFrame === mN) return; var pr = predictBox(tr, T), v = iou(pr, box);
+        if (v < .1) { var d = Math.hypot(pr[0] + pr[2] / 2 - box[0] - bw / 2, pr[1] + pr[3] / 2 - box[1] - bh / 2), gt = Math.max(bw, bh, pr[2]) * (T - (tr.mT || 0) > .15 ? 1.6 : .8);   /* a vehicle that just slipped out of view gets a wider search */
+          if (d < gt) v = .1 * (1 - d / gt) + .01; }
+        if (v > bv) { bv = v; best = tr; } });
+      if (best) {                                            /* keep the network's box size when it has one; follow the blob's position */
+        var pb = predictBox(best, T), keep = best.net && T - best.net < 1.5, nb2 = keep ? [box[0] + bw / 2 - pb[2] / 2, box[1] + bh / 2 - pb[3] / 2, pb[2], pb[3]] : box;
+        var h0 = best.hits; updateTrack(best, nb2, T, best.mot ? Math.min(.9, .35 + t.hits * .025) : best.s, .8); best.hits = Math.max(h0, Math.min(h0 + 1, 12)); best.mFrame = mN; best.mT = T; t.tr = best.id;
+      } else if (!tracks.some(function (tr) { return iou(tr.tb, box) > .05; })) { mStatN.newM++;
+        t.tr = nextId; tracks.push({ id: nextId++, cls: 'vehicle', g: 'v', vb: box.slice(), tb: box.slice(), tCap: T, seen: T, vx: t.vx * kx / .08 * .5, vy: t.vy * ky / .08 * .5, vw: 0, vh: 0, s: Math.min(.9, .35 + t.hits * .025), m: true, miss: 0, hits: 3, trail: [], mot: true, mFrame: mN, mT: T, born: T });
+      }
+    });
+    mStat.ms = Math.round((mStat.ms || 0) * .8 + (performance.now() - mt0) * .2);
+    /* motion-only tracks the blobs stopped confirming fade out here, since the detector may be slow to report */
+    tracks = tracks.filter(function (tr) { var gone = tr.mot && T - tr.seen > 1.2; if (gone) { mStatN.lostM++; var L = T - (tr.born || T); mStatN.life = mStatN.life || [0, 0, 0, 0]; mStatN.life[L < .5 ? 0 : L < 1 ? 1 : L < 3 ? 2 : 3]++; } if (gone && tr === lock) lock = null; return !gone; });
+  }
+  window.ldbMotion = function () { return mStat; };
   function fetchModel(url) {
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error(url + ' not found (' + r.status + ')');
@@ -1293,19 +1621,29 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     hx.moveTo(x + .5, y - 9); hx.lineTo(x + .5, y - 3); hx.moveTo(x + .5, y + 3); hx.lineTo(x + .5, y + 9); hx.stroke();
     if (hover && hover !== lock) tag(x + 14, y - 6, 'Click to select ' + label(hover), 'rgba(18,20,21,.85)', '#F2F4F5');
   }
+  var insetA = 0, insetLast = null;
   function drawInset(t, k) {
     if (W < 700 || sc.width < 2) return;
-    var iw = 220, ih = 150, ix = W - iw - 28, iy = 92;
-    var b = t.b, cxm = (b[0] + b[2]) / 2, cym = (b[1] + b[3]) / 2, span = Math.max(40, (b[3] - b[1]) * 1.7, (b[2] - b[0]) * 1.2 * ih / iw);
-    var swd = span * iw / ih;
-    hx.save(); hx.globalAlpha = Math.min(1, k * 1.5);
-    hx.fillStyle = '#000'; hx.fillRect(ix, iy, iw, ih);
-    hx.drawImage(sc, (cxm - swd / 2) * S, (cym - span / 2) * S, swd * S, span * S, ix, iy, iw, ih);
-        hx.strokeStyle = 'rgba(' + LOCK + ',.8)'; hx.lineWidth = 1; hx.strokeRect(ix + .5, iy + .5, iw - 1, ih - 1);
-    hx.beginPath(); hx.moveTo(ix + iw / 2 - 10, iy + ih / 2); hx.lineTo(ix + iw / 2 + 10, iy + ih / 2); hx.moveTo(ix + iw / 2, iy + ih / 2 - 10); hx.lineTo(ix + iw / 2, iy + ih / 2 + 10); hx.stroke();
-    tag(ix, iy - 2, 'ZOOM ' + (ih / span).toFixed(1) + 'x  ' + label(t), 'rgba(' + LOCK + ',.9)', '#fff');
+    var iw = 220, ih = 150, ix = W - iw - 28, iy = 92, ok = false, sx0 = 0, sy0 = 0, swd = 0, span = 0, zoom = 0;
+    if (t && t.b) {
+      var b = t.b, bw = b[2] - b[0], bh = b[3] - b[1], cxm = (b[0] + b[2]) / 2, cym = (b[1] + b[3]) / 2;
+      span = Math.max(40, bh * 1.7, bw * 1.25 * ih / iw); swd = span * iw / ih; zoom = ih / span;
+      /* only zoom when it adds something: real magnification, a settled track, the whole object in frame, and not hiding under the panel */
+      var inFrame = b[0] > 6 && b[1] > 6 && b[2] < W - 6 && b[3] < H - 6;
+      var underPanel = b[2] > ix - 10 && b[1] < iy + ih + 10;
+      ok = zoom >= 1.4 && span <= H * .8 && swd <= W * .8 && t.hits >= 8 && T - t.seen < .5 && inFrame && !underPanel;
+      if (ok) { sx0 = Math.max(0, Math.min(W - swd, cxm - swd / 2)); sy0 = Math.max(0, Math.min(H - span, cym - span / 2)); insetLast = [sx0, sy0, swd, span, zoom, label(t), b.slice()]; }
+    }
+    insetA += ((ok ? 1 : 0) - insetA) * .12;
+    if (insetA < .02 || !insetLast) return;
+    var L = insetLast;
+    hx.save(); hx.globalAlpha = insetA * Math.min(1, k * 1.5);
+    hx.fillStyle = '#0F1112'; hx.fillRect(ix, iy, iw, ih);
+    hx.drawImage(sc, L[0] * S, L[1] * S, L[2] * S, L[3] * S, ix, iy, iw, ih);
+    hx.strokeStyle = 'rgba(' + LOCK + ',.8)'; hx.lineWidth = 1; hx.strokeRect(ix + .5, iy + .5, iw - 1, ih - 1);
+    tag(ix, iy - 2, 'ZOOM ' + L[4].toFixed(1) + 'x  ' + L[5], 'rgba(' + LOCK + ',.9)', '#fff');
+    if (ok) { hx.strokeStyle = 'rgba(' + LOCK + ',.35)'; hx.setLineDash([3, 4]); hx.beginPath(); hx.moveTo(L[6][2] + 4, L[6][1]); hx.lineTo(ix, iy + ih / 2); hx.stroke(); hx.setLineDash([]); }
     hx.restore();
-    hx.strokeStyle = 'rgba(' + LOCK + ',.35)'; hx.setLineDash([3, 4]); hx.beginPath(); hx.moveTo(b[2] + 4, b[1]); hx.lineTo(ix, iy + ih / 2); hx.stroke(); hx.setLineDash([]);
   }
 
   /* faces: Vigil-style digital static over each face found, following the person between face checks */
@@ -1361,13 +1699,54 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var cw = sc.width, ch = sc.height;
     sx.setTransform(1, 0, 0, 1, 0, 0);
     if (mode === 'thermal') {
-      if (!LUT) LUT = thermalLUT();
-      tmp.width = cw; tmp.height = ch;
-      tx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, tmp.width, tmp.height);
-      var img = tx.getImageData(0, 0, tmp.width, tmp.height), d = img.data;
-      for (var i = 0; i < d.length; i += 4) { var c = LUT[(d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11) | 0]; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; }
-      tx.putImageData(img, 0, 0);
-      sx.drawImage(tmp, 0, 0, cw, ch);
+      /* white-hot thermal: a cold, soft base image, with heat taken from what is actually warm in the scene.
+         Moving bodies are found by comparing each frame with a learned picture of the empty scene (background
+         subtraction), so people and cars glow in their real outlines, not as boxes or blobs. */
+      var bw = Math.max(8, Math.round(cw / 4)), bh = Math.max(8, Math.round(ch / 4));
+      if (thS.width !== bw || thS.height !== bh) { thS.width = bw; thS.height = bh; thH.width = bw; thH.height = bh; bgM = null; }
+      thx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, bw, bh);
+      var src = thx.getImageData(0, 0, bw, bh).data, n = bw * bh;
+      if (!bgM || bgFeed !== cur) { bgM = new Float32Array(n); for (var q = 0; q < n; q++) bgM[q] = src[q * 4] * .3 + src[q * 4 + 1] * .59 + src[q * 4 + 2] * .11; bgFeed = cur; bgN = 0; bgMask = new Float32Array(n); }
+      bgN++;
+      /* where tracked people, animals and vehicles are, at this resolution */
+      bgMask.fill(0); var kx = bw / cw * S, ky = bh / ch * S;
+      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return;
+        var x0 = Math.max(0, Math.floor(t.b[0] * kx) - 1), y0 = Math.max(0, Math.floor(t.b[1] * ky) - 1), x1 = Math.min(bw - 1, Math.ceil(t.b[2] * kx) + 1), y1 = Math.min(bh - 1, Math.ceil(t.b[3] * ky) + 1);
+        for (var yy = y0; yy <= y1; yy++) for (var xx = x0; xx <= x1; xx++) bgMask[yy * bw + xx] = 1; });
+      var diffs = new Float32Array(n), moving = 0, rate = bgN < 25 ? .25 : paused ? 0 : .012;
+      for (var i = 0; i < n; i++) { var l = src[i * 4] * .3 + src[i * 4 + 1] * .59 + src[i * 4 + 2] * .11, dd = Math.abs(l - bgM[i]);
+        if (!bgMask[i] || bgN < 25) bgM[i] += (l - bgM[i]) * rate;          /* the background only learns where nobody is standing */
+        diffs[i] = dd; if (dd > 22) moving++; }
+      var camMoving = moving > n * .3;                                        /* a moving camera: trust the detector boxes instead */
+      /* heat: motion outside, and inside each tracked body the pixels that differ from what surrounds it, shaped like a body */
+      var heat = new Float32Array(n);
+      if (!camMoving) for (var j = 0; j < n; j++) heat[j] = Math.min(1, Math.max(0, (diffs[j] - 14) / 34)) * (bgMask[j] ? 1 : .35);
+      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return;
+        var x0 = Math.max(1, Math.floor(t.b[0] * kx)), y0 = Math.max(1, Math.floor(t.b[1] * ky)), x1 = Math.min(bw - 2, Math.ceil(t.b[2] * kx)), y1 = Math.min(bh - 2, Math.ceil(t.b[3] * ky));
+        var w = x1 - x0, h = y1 - y0; if (w < 2 || h < 3) return;
+        var sum = 0, cnt = 0, xx, yy;                                             /* the colour of what is around the body */
+        for (xx = x0 - 1; xx <= x1 + 1; xx++) { [y0 - 1, y1 + 1].forEach(function (y) { if (y >= 0 && y < bh && xx >= 0 && xx < bw) { var p = (y * bw + xx) * 4; sum += src[p] * .3 + src[p + 1] * .59 + src[p + 2] * .11; cnt++; } }); }
+        for (yy = y0; yy <= y1; yy++) { [x0 - 1, x1 + 1].forEach(function (x) { if (x >= 0 && x < bw) { var p = (yy * bw + x) * 4; sum += src[p] * .3 + src[p + 1] * .59 + src[p + 2] * .11; cnt++; } }); }
+        var ring = cnt ? sum / cnt : 0, person = t.g === 'p' || t.g === 'a';
+        for (yy = y0; yy <= y1; yy++) for (xx = x0; xx <= x1; xx++) {
+          var u = (xx - x0) / w - .5, v = (yy - y0) / h, prior;
+          if (person) { var hd = 1 - Math.hypot(u / .16, (v - .11) / .1), body = 1 - Math.abs(u) / (v < .62 ? .24 : .17) - Math.max(0, .2 - v) * 6; prior = Math.max(hd, body); }
+          else prior = 1 - Math.max(Math.abs(u) / .48, Math.abs(v - .5) / .46);
+          prior = Math.min(1, Math.max(0, prior * 4));
+          if (prior <= 0) continue;
+          var p = (yy * bw + xx) * 4, l = src[p] * .3 + src[p + 1] * .59 + src[p + 2] * .11, seg = Math.min(1, Math.max(0, (Math.abs(l - ring) - 6) / 30));
+          var k2 = yy * bw + xx, hv = prior * (.45 + .55 * Math.max(seg, heat[k2]));
+          if (person && v < .22) hv = Math.max(hv, prior * .9);                     /* faces and necks run hottest */
+          if (hv > heat[k2]) heat[k2] = hv; } });
+      var out = thhx.createImageData(bw, bh), o = out.data;
+      for (var q2 = 0; q2 < n; q2++) { var vv = Math.round(255 * Math.min(1, heat[q2])); o[q2 * 4] = o[q2 * 4 + 1] = o[q2 * 4 + 2] = vv; o[q2 * 4 + 3] = 255; }
+      thhx.putImageData(out, 0, 0);
+      sx.filter = 'grayscale(1) contrast(.72) brightness(.3) blur(' + Math.max(.6, cw / 900).toFixed(1) + 'px)';
+      sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
+      sx.save(); sx.globalCompositeOperation = 'screen';
+      sx.filter = 'blur(' + Math.max(1.5, cw / 260).toFixed(1) + 'px)'; sx.drawImage(thH, 0, 0, cw, ch);
+      sx.filter = 'blur(' + Math.max(5, cw / 70).toFixed(1) + 'px)'; sx.globalAlpha = .5; sx.drawImage(thH, 0, 0, cw, ch);
+      sx.restore(); sx.filter = 'none';
     } else {
       sx.filter = 'grayscale(1) contrast(1.15) brightness(.92)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
@@ -1399,7 +1778,6 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     grain(.25 * (1 - Math.abs(sw.t - .3) / .35));
     hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, W, H);
     var f = FEEDS[sw.to];
-    tag(W / 2 - 100, H / 2, 'Switching to ' + f.cam + ' · ' + f.place, 'rgba(18,20,21,.85)', '#F2F4F5');
     drawAxes();
     if (sw.t > .65) sw = null;
     return [];
@@ -1414,7 +1792,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       if (t.tt > .2) { t.tt = 0; t.trail.push([t.vb[0] + t.vb[2] / 2, t.vb[1] + t.vb[3]]); if (t.trail.length > 18) t.trail.shift(); }
     });
     hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, W, H);
-    var vis = tracks.filter(function (t) { return t.hits >= 2 && t.b[2] > 0 && t.b[0] < W && t.b[3] > 0 && t.b[1] < H; });
+    var fresh = FEEDS[cur] && FEEDS[cur].motion ? Math.max(.4, cycleS * 1.6) : 1e9;   /* traffic cameras: moving vehicles are shown only while the motion layer confirms them, so a slow detector never leaves boxes behind */
+    var vis = tracks.filter(function (t) { return t.hits >= 2 && T - t.seen < fresh && (fresh > 1e8 || T - (t.mT || -9) < .4 || (Math.hypot(t.vx, t.vy) < t.tb[2] * .4 && t.s >= .5)) && t.b[2] > 0 && t.b[0] < W && t.b[3] > 0 && t.b[1] < H; });
     var hover = null, hd = 46, placed = [];
     if (mouse.in) vis.forEach(function (t) { var mx = (t.b[0] + t.b[2]) / 2, my = (t.b[1] + t.b[3]) / 2, d = Math.hypot(mx - mouse.x, my - mouse.y); if (d < hd) { hd = d; hover = t; } });
     if (lock && vis.indexOf(lock) < 0) lock = null;
@@ -1459,7 +1838,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         
       }
       drawInset(lock, k);
-    }
+    } else drawInset(null, 1);
     if (!model) { hx.font = '600 11px "Geist Mono", ui-monospace, monospace'; tag(12, H - 14, detFailed ? 'Detector unavailable on this device' : dlPct >= 0 ? 'Loading detector ' + dlPct + '%' : 'Starting detector...', 'rgba(18,20,21,.8)', '#A3ADB4'); }
     drawAxes();
     if (mouse.in && !touch) drawCursor(hover);
@@ -1497,7 +1876,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var vis;
     if (sw) vis = drawSwitch(dt);
     else if (!video) vis = drawNoSignal();
-    else { drawVideo(); blurFaces(); vis = drawHud(dt); maybeSwitch(); }
+    else { drawVideo(); motionTick(); blurFaces(); vis = drawHud(dt); maybeSwitch(); }
     if (Math.floor(T / 6) !== Math.floor((T - dt) / 6) && video) log('SYS', 'frame ' + Math.round(T * 30) + '  objects ' + vis.length + '  ' + Math.round(fps) + ' fps' + (model ? '  inference ' + Math.round(infer) + ' ms' : ''));
     txtT += dt; if (txtT > .25) { txtT = 0; updateText(vis); }
   }
@@ -1545,7 +1924,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   resize();
   setPaused(paused);
   log('SYS', 'LDB-Track v0.5 started, ' + FEEDS.length + ' feeds configured');
-  make(0);
+  var fq = /[?&]feed=(\d)/.exec(location.search); make(fq ? Math.min(FEEDS.length - 1, +fq[1]) : 0);
   requestAnimationFrame(function (t) { last = t; loop(t); });
 
 })();
