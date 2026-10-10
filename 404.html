@@ -16,7 +16,12 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#6E808E" media="(prefers-color-scheme: dark)"><meta name="theme-color" content="#8597A4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#6E808E"><script>(function () {   /* light from 7 am to 7 pm on the visitor's own clock, dark the rest of the day (add ?theme=light or ?theme=dark to force one) */
+  var q = /[?&]theme=(light|dark)/.exec(location.search);
+  function set() { var h = new Date().getHours(), lt = q ? q[1] === 'light' : h >= 7 && h < 19, d = document.documentElement;
+    d.classList.toggle('lt', lt); var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#8597A4' : '#6E808E'; }
+  set(); setInterval(set, 60000); window.ldbSetTheme = set;
+})();</script>
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,14 +49,12 @@
   .links a { font: 500 13.5px var(--disp); padding: 10px 18px; border: 1px solid var(--ln2); background: rgba(255,255,255,.07); border-radius: 999px; }
   .links a:hover { background: rgba(255,255,255,.14); }
   .links a.p { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
-  @media (prefers-color-scheme: light) {
-    :root { --s1: #F6F7F8; --ln: rgba(24,34,44,.09); --ln2: rgba(24,34,44,.16); --ink: #15191C; }
-    body { background: linear-gradient(180deg, #8597A4 0%, #B7C3CB 35%, #E1E6E9 70%, #ECEEF0 100%) fixed; }
-    .logo span, .k, p { color: rgba(21,25,28,.66); }
-    .links a { background: rgba(255,255,255,.5); }
-    .links a:hover { background: rgba(255,255,255,.85); }
-    .links a.p { background: #15191C; color: #F2F4F5; }
-  }
+  html.lt { --s1: #F6F7F8; --ln: rgba(24,34,44,.09); --ln2: rgba(24,34,44,.16); --ink: #15191C; color-scheme: light; }
+  html.lt body { background: linear-gradient(180deg, #8597A4 0%, #B7C3CB 35%, #E1E6E9 70%, #ECEEF0 100%) fixed; }
+  html.lt .logo span, html.lt .k, html.lt p { color: rgba(21,25,28,.66); }
+  html.lt .links a { background: rgba(255,255,255,.5); }
+  html.lt .links a:hover { background: rgba(255,255,255,.85); }
+  html.lt .links a.p { background: #15191C; color: #F2F4F5; }
 </style>
 <style id="ldb-pt">@view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
