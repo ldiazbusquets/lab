@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Signal lost | LDB Lab</title>
+<title>Page not found | LDB Lab</title>
 <meta name="description" content="This page does not exist in the LDB Lab.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LDB Lab">
-<meta property="og:title" content="Signal lost | LDB Lab">
+<meta property="og:title" content="Page not found | LDB Lab">
 <meta property="og:description" content="This page does not exist in the LDB Lab.">
 <meta property="og:url" content="https://ldiazbusquets.github.io/lab/404.html">
 <meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
@@ -16,55 +16,46 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#0D0F12">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Manrope:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --ink: #F4F4F4; --soft: #9A9AA0; --dim: #5E5E64; --line: rgba(255,255,255,.12); --acc: #5B9FE0; --lock: #FF5A4E; --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
+  :root { --bg: #0D0F12; --s1: #14171B; --ln: #262B32; --ln2: #343A43; --ink: #E7E9EC; --t2: #A0A7B0; --t3: #6E757F; --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
-  body { margin: 0; background: #000; color: var(--ink); font: 400 1rem/1.6 "Manrope", Arial, sans-serif; display: flex; align-items: center; justify-content: center; padding: 24px 16px; overflow-x: clip; }
-  body::before { content: ""; position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(rgba(91,159,224,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(91,159,224,.06) 1px, transparent 1px); background-size: 48px 48px; }
-  canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; opacity: .5; }
-  main { width: min(640px, 100%); border: 1px solid rgba(91,159,224,.4); background: rgba(0,0,0,.7); padding: clamp(20px, 5vw, 40px); position: relative; }
-  .k { font: 600 .74rem var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--lock); margin: 0 0 10px; }
-  .k::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--lock); margin-right: 8px; animation: rec 1.2s steps(2) infinite; }
-  @keyframes rec { 50% { opacity: .2; } }
-  h1 { font: 800 clamp(3.4rem, 14vw, 6rem)/1 "Archivo", sans-serif; font-stretch: 125%; margin: 0; }
-  h1 span { color: var(--acc); }
-  p { color: #C9CDD3; margin: 12px 0 0; }
-  pre { font: 500 .78rem/1.7 var(--mono); color: var(--soft); background: #050608; border: 1px solid var(--line); padding: 12px 14px; margin: 18px 0 0; overflow-x: auto; white-space: pre-wrap; }
-  pre b { color: var(--acc); font-weight: 600; } pre i { color: var(--lock); font-style: normal; }
-  .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-  .links a { font: 600 .72rem "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; color: var(--ink); padding: 10px 16px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; }
-  .links a.p { background: var(--acc); border-color: var(--acc); color: #000; }
-  .links a:hover { border-color: var(--acc); }
-  @media (prefers-reduced-motion: reduce) { .k::before { animation: none; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.6 "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
+  a { color: inherit; text-decoration: none; }
+  header { border-bottom: 1px solid var(--ln); }
+  header div { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 32px); height: 56px; display: flex; align-items: center; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .logo i { width: 16px; height: 16px; border: 1.5px solid var(--ink); position: relative; }
+  .logo i::after { content: ""; position: absolute; inset: 3.5px; background: var(--ink); }
+  .logo span { color: var(--t3); font-weight: 500; }
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 16px; }
+  .box { width: min(560px, 100%); }
+  .k { font: 500 11.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--t3); margin: 0 0 10px; }
+  h1 { font: 500 clamp(30px, 6vw, 44px)/1.1 "Inter", sans-serif; letter-spacing: -.025em; margin: 0; }
+  p { color: var(--t2); margin: 14px 0 0; }
+  code { font: 400 13px var(--mono); color: var(--ink); background: var(--s1); border: 1px solid var(--ln); border-radius: 2px; padding: 1px 6px; word-break: break-all; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .links a { font: 500 13.5px "Inter", sans-serif; padding: 8px 14px; border: 1px solid var(--ln2); border-radius: 3px; }
+  .links a:hover { background: #1A1E23; }
+  .links a.p { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 </style>
 </head>
 <body>
-<canvas id="noise" aria-hidden="true"></canvas>
+<header><div><a class="logo" href="/lab/"><i></i>LDB <span>Lab</span></a></div></header>
 <main>
-  <p class="k">CAM-404 &middot; no signal</p>
-  <h1>4<span>0</span>4</h1>
-  <p>This page is not in the Lab. It may have moved, or the link has a typo.</p>
-  <pre id="trace"><b>luis@ldb-lab:~$</b> open <span id="path">/lab/...</span>
-<i>error</i>: no such file
-<b>luis@ldb-lab:~$</b> ls
-index.html  modules/  arcade/  self-training/</pre>
-  <div class="links"><a class="p" href="/lab/">Lab home</a><a href="/lab/#mods">Modules</a><a href="/lab/#arcade">Arcade</a><a href="/">Main site</a></div>
+  <div class="box">
+    <p class="k">Error 404</p>
+    <h1>This page is not in the Lab.</h1>
+    <p>Nothing lives at <code id="path">this address</code>. It may have moved, or the link has a typo.</p>
+    <div class="links"><a class="p" href="/lab/">Lab home</a><a href="/lab/#course">Course</a><a href="/lab/#tools">Finance tools</a><a href="/lab/#agents">Agents</a><a href="/">Main site</a></div>
+  </div>
 </main>
-<script>
-  document.getElementById('path').textContent = location.pathname;
-  (function () {
-    var c = document.getElementById('noise'), x = c.getContext('2d'), reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function size() { c.width = innerWidth / 3; c.height = innerHeight / 3; } size(); addEventListener('resize', size);
-    function frame() { var d = x.createImageData(c.width, c.height), a = d.data; for (var i = 0; i < a.length; i += 4) { var v = Math.random() * 40; a[i] = a[i + 1] = v; a[i + 2] = v * 1.4; a[i + 3] = 255; } x.putImageData(d, 0, 0); if (!reduce) setTimeout(function () { requestAnimationFrame(frame); }, 80); }
-    frame();
-  })();
-</script>
+<script>document.getElementById('path').textContent = location.pathname;</script>
 </body>
 </html>
