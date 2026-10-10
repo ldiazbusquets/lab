@@ -104,9 +104,6 @@
   .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(70% 55% at 50% 38%, rgba(255,255,255,.08), transparent 70%); pointer-events: none; }
   #wordmark { position: absolute; left: 0; right: 0; top: clamp(70px, 9vh, 100px); width: 100%; height: clamp(150px, 24vw, 330px); z-index: 0; }
   .hero .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .unicorn { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity 1.2s ease; }
-  .unicorn.on { opacity: 1; }
-  .hero.has3d #wordmark { opacity: 0; }
   .hero:not(.has3d) #wordmark { top: clamp(84px, 11vh, 120px); height: min(27vw, 33vh); }
   .stage.head { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); width: min(760px, 58vw); height: min(92%, 860px); pointer-events: none; }
   .stage.head canvas, .stage.head img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: center bottom; -webkit-mask: linear-gradient(180deg, #000 72%, transparent 99%); mask: linear-gradient(180deg, #000 72%, transparent 99%); }
@@ -114,7 +111,6 @@
   .stage.helm { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); height: min(82%, 800px); aspect-ratio: 1; pointer-events: none; }
   .stage.helm img { width: 100%; height: 100%; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,.35)); animation: helmIn 1.4s cubic-bezier(.2,.7,.2,1) both; }
   .stage.helm .visor { position: absolute; left: 29.1%; top: 37.5%; width: 42.19%; height: 10.74%; -webkit-mask: url(data:image/png;base64,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) center / 100% 100% no-repeat; mask: url(data:image/png;base64,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) center / 100% 100% no-repeat; animation: helmIn 1.4s .5s ease both; }
-  .hero.has3d .stage.helm { display: none; }
   @keyframes helmIn { from { opacity: 0; transform: translateY(18px); } }
   @media (prefers-reduced-motion: reduce) { .stage.helm img, .stage.helm .visor { animation: none; } }
   @media (max-width: 1200px) and (min-width: 981px) { .stage.head { width: min(520px, 44vw); left: 54%; } }
@@ -510,8 +506,6 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 <section class="hero" id="top" aria-label="Introduction">
   <canvas id="wordmark" aria-hidden="true"></canvas>
   <span class="sr">LDB Lab</span>
-  <!-- 3D hero scene from Unicorn Studio. To switch it on, paste your project's embed ID between the quotes on the next line. -->
-  <div class="unicorn" id="unicorn" data-project=""></div>
   <div class="stage helm" aria-hidden="true"><img src="img/helmet.webp" alt="" width="880" height="880" fetchpriority="high"><canvas class="visor" id="visor"></canvas></div>
 
   <div class="hcopy">
@@ -986,23 +980,6 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
   if (document.fonts && document.fonts.load) document.fonts.load('500 100px Manrope').then(start, start); else start();
 })();
 
-/* ---------- hero 3D scene: a Unicorn Studio project, loaded only when an embed ID is set ---------- */
-(function () {
-  var box = document.getElementById('unicorn'); if (!box) return;
-  var id = (box.getAttribute('data-project') || '').trim(); if (!id) return;
-  var hero = document.querySelector('.hero');
-  box.setAttribute('data-us-project', id);
-  box.setAttribute('data-us-production', 'true');
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.4.0/dist/unicornStudio.umd.js';
-  s.onload = function () {
-    if (!window.UnicornStudio) return;
-    UnicornStudio.init().then(function () { box.classList.add('on'); hero.classList.add('has3d'); }).catch(function () { box.remove(); });
-  };
-  s.onerror = function () { box.remove(); };
-  document.head.appendChild(s);
-})();
-
 /* ---------- the helmet's visor: a dot-matrix display drawn on a canvas, masked to the glass ---------- */
 (function () {
   var cv = document.getElementById('visor'); if (!cv) return;
@@ -1321,10 +1298,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     preloadAfter(i);   /* start loading the next clip in the background */
     if (first) loadModel();
   }
-  var HOLD = /[?&]hold/.test(location.search);
-  window.ldbStats = function () { return { ids: nextId - 101, live: tracks.filter(function (t) { return t.hits >= 2; }).length, infer: Math.round(infer), cur: cur }; };
   function maybeSwitch() {
-    if (sw || paused || HOLD || cur < 0 || T - shownAt < (FEEDS[cur].secs || CLIP_SECONDS)) return;
+    if (sw || paused || cur < 0 || T - shownAt < (FEEDS[cur].secs || CLIP_SECONDS)) return;
     var n = nextIndex();
     if (n === -2) return;
     if (n < 0 || n === cur) { shownAt = T; return; }
@@ -1383,7 +1358,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     '    }).catch(function (x) { postMessage({ t: "r", id: m.id, err: String(x) }); });',
     '  } };'
   ].join('\n');
-  var worker = null, wReq = {}, wId = 0, useWorker = !/[?&]noworker/.test(location.search);
+  var worker = null, wReq = {}, wId = 0, useWorker = true;
   function wCall(msg, transfer) { return new Promise(function (res, rej) { msg.id = ++wId; wReq[msg.id] = [res, rej]; worker.postMessage(msg, transfer || []); }); }
   var GRID = null;
   function gridFor(sz) { if (GRID) return GRID; var X = [], Y = [], Z = []; [8, 16, 32].forEach(function (s) { var g = sz / s; for (var y = 0; y < g; y++) for (var x = 0; x < g; x++) { X.push(x); Y.push(y); Z.push(s); } }); GRID = [X, Y, Z]; return GRID; }
@@ -1488,7 +1463,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var hi = preds.filter(function (p) { return p.score >= TH; }), lo = preds.filter(function (p) { return p.score < TH; });
     var leftHi = associate(hi, tracks, .2, tCap);                               /* pass 1: confident boxes */
     associate(lo, tracks.filter(function (t) { return t.hits >= 3; }), .35, tCap);   /* pass 2: weak boxes rescue known objects through occlusion */
-    leftHi.forEach(function (p) { mStat.newY = (mStat.newY || 0) + 1; tracks.push({ net: tCap, id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, seen: tCap, vx: 0, vy: 0, vw: 0, vh: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] }); });
+    leftHi.forEach(function (p) { tracks.push({ net: tCap, id: nextId++, cls: p.class, g: grp(p.class), vb: p.bbox.slice(), tb: p.bbox.slice(), tCap: tCap, seen: tCap, vx: 0, vy: 0, vw: 0, vh: 0, s: p.score, m: true, miss: 0, hits: 1, trail: [] }); });
     tracks.forEach(function (t) { if (!t.m) { t.miss++; var pr = predictBox(t, tCap); t.tb = pr; t.tCap = tCap; t.vx *= .7; t.vy *= .7; } else if (t.hits === 3) log('DETECT', t.cls + ' ' + label(t) + ' conf ' + t.s.toFixed(2), 300); });
     tracks = tracks.filter(function (t) {
       var gone = tCap - t.seen > Math.max(t.hits > 8 ? 1.1 : .5, cycleS * (t.hits > 8 ? 3 : 2.2)) || (t.hits < 3 && t.miss > 1);   /* patience scales with how often the detector reports */
@@ -1548,7 +1523,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   var mC = document.createElement('canvas'), mX = mC.getContext('2d', { willReadFrequently: true }), MW = 320, MH = 180;
   mC.width = MW; mC.height = MH; var mH = document.createElement('canvas'), mHx = mH.getContext('2d'); mH.width = MW * 2; mH.height = MH * 2;
   mX.imageSmoothingQuality = mHx.imageSmoothingQuality = 'high'; var mLast = null;
-  var mStatN = { newM: 0, lostM: 0 }, mStat = {}, mLastShift = [0, 0], mBg = null, mFeed = -1, mN = 0, mT = 0, mTracks = [], mNext = 1, mPrev = null;
+  mBg = null, mFeed = -1, mN = 0, mT = 0, mTracks = [], mNext = 1, mPrev = null;
   function mGray(d) { var g = new Float32Array(MW * MH); for (var i = 0, p = 0; i < g.length; i++, p += 4) g[i] = d[p] * .3 + d[p + 1] * .59 + d[p + 2] * .11; return g; }
   function mShift(a, b, R) {                                   /* the small camera drift between the background and this frame */
     var best = 1e18, bx = 0, by = 0; R = R || 2;
@@ -1589,7 +1564,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     if (!mBg || mFeed !== cur) { mBg = g; mFeed = cur; mN = 0; mTracks = []; }
     else if (looped) { mTracks = []; wide = 7; }                          /* the clip restarted: re-align the learned road instead of relearning it */
     mPrev = video.currentTime; mN++;
-    if (mN > 2) { var s = mShift(g, mBg, wide); mLastShift = s; if (s[0] || s[1]) { var nb = new Float32Array(mBg.length);   /* move the background with the camera */
+    if (mN > 2) { var s = mShift(g, mBg, wide); if (s[0] || s[1]) { var nb = new Float32Array(mBg.length);   /* move the background with the camera */
       for (var y = 0; y < MH; y++) for (var x = 0; x < MW; x++) { var sy = Math.min(MH - 1, Math.max(0, y + s[1])), sx2 = Math.min(MW - 1, Math.max(0, x + s[0])); nb[y * MW + x] = mBg[sy * MW + sx2]; }
       mBg = nb; mTracks.forEach(function (t) { t.x0 -= s[0]; t.y0 -= s[1]; }); } }
     var blobs = mN > 12 ? mBlobs(g) : [], rate = mN < 12 ? .25 : .05;
@@ -1607,13 +1582,12 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     mTracks.forEach(function (t, j) { if (!usedT[j]) { t.miss++; t.cx += t.vx; t.cy += t.vy; } });
     blobs.forEach(function (b, k) { if (!used[k]) mTracks.push({ id: mNext++, cx: b[0] + b[2] / 2, cy: b[1] + b[3] / 2, x0: b[0] + b[2] / 2, y0: b[1] + b[3] / 2, w: b[2], h: b[3], vx: 0, vy: 0, hits: 1, miss: 0 }); });
     mTracks = mTracks.filter(function (t) { return t.miss <= 4 && t.cx > -10 && t.cx < MW + 10 && t.cy > -10 && t.cy < MH + 10; });
-    mStat = { life: mStatN.life, newY: mStat.newY, newM: mStatN.newM, lostM: mStatN.lostM, blobs: blobs.length, mt: mTracks.length, ok: 0, shift: mLastShift };
     /* hand confirmed movers to the main tracker */
     var kx = W0 / MW, ky = H0 / MH;
     mTracks.forEach(function (t) {
       t.ok = t.hits >= 4 && t.miss <= (t.ok ? 2 : 0) && Math.hypot(t.vx, t.vy) >= .25;
       var net = Math.hypot(t.cx - t.x0, t.cy - t.y0); if (!(net >= Math.max(4, t.hits * .2) && net >= (t.path || 0) * .6)) t.ok = false;   /* steady travel in one direction: a flickering lamp jitters in place */
-      if (!t.ok) return; mStat.ok++;
+      if (!t.ok) return;
       var bw = Math.max(t.w, 5) * kx, bh = Math.max(t.h, 4) * ky, box = [t.cx * kx - bw / 2, t.cy * ky - bh / 2, bw, bh];
       var best = null, bv = 0;
       if (t.tr) tracks.forEach(function (tr) { if (tr.id === t.tr && tr.mFrame !== mN) { best = tr; bv = 1; } });   /* the vehicle this blob already belongs to */
@@ -1624,15 +1598,13 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       if (best) {                                            /* keep the network's box size when it has one; follow the blob's position */
         var pb = predictBox(best, T), keep = best.net && T - best.net < 1.5, nb2 = keep ? [box[0] + bw / 2 - pb[2] / 2, box[1] + bh / 2 - pb[3] / 2, pb[2], pb[3]] : box;
         var h0 = best.hits; updateTrack(best, nb2, T, best.mot ? Math.min(.9, .35 + t.hits * .025) : best.s, .8); best.hits = Math.max(h0, Math.min(h0 + 1, 12)); best.mFrame = mN; best.mT = T; t.tr = best.id;
-      } else if (!tracks.some(function (tr) { return iou(tr.tb, box) > .05; })) { mStatN.newM++;
-        t.tr = nextId; tracks.push({ id: nextId++, cls: 'vehicle', g: 'v', vb: box.slice(), tb: box.slice(), tCap: T, seen: T, vx: t.vx * kx / .08 * .5, vy: t.vy * ky / .08 * .5, vw: 0, vh: 0, s: Math.min(.9, .35 + t.hits * .025), m: true, miss: 0, hits: 3, trail: [], mot: true, mFrame: mN, mT: T, born: T });
+      } else if (!tracks.some(function (tr) { return iou(tr.tb, box) > .05; })) {
+        t.tr = nextId; tracks.push({ id: nextId++, cls: 'vehicle', g: 'v', vb: box.slice(), tb: box.slice(), tCap: T, seen: T, vx: t.vx * kx / .08 * .5, vy: t.vy * ky / .08 * .5, vw: 0, vh: 0, s: Math.min(.9, .35 + t.hits * .025), m: true, miss: 0, hits: 3, trail: [], mot: true, mFrame: mN, mT: T });
       }
     });
-    mStat.ms = Math.round((mStat.ms || 0) * .8 + (performance.now() - mt0) * .2);
     /* motion-only tracks the blobs stopped confirming fade out here, since the detector may be slow to report */
-    tracks = tracks.filter(function (tr) { var gone = tr.mot && T - tr.seen > 1.2; if (gone) { mStatN.lostM++; var L = T - (tr.born || T); mStatN.life = mStatN.life || [0, 0, 0, 0]; mStatN.life[L < .5 ? 0 : L < 1 ? 1 : L < 3 ? 2 : 3]++; } if (gone && tr === lock) lock = null; return !gone; });
+    tracks = tracks.filter(function (tr) { var gone = tr.mot && T - tr.seen > 1.2; if (gone && tr === lock) lock = null; return !gone; });
   }
-  window.ldbMotion = function () { return mStat; };
   function fetchModel(url) {
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error(url + ' not found (' + r.status + ')');
@@ -2007,7 +1979,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   resize();
   setPaused(paused);
   log('SYS', 'LDB-Track v0.5 started, ' + FEEDS.length + ' feeds configured');
-  var fq = /[?&]feed=(\d)/.exec(location.search); make(fq ? Math.min(FEEDS.length - 1, +fq[1]) : 0);
+  make(0);
   requestAnimationFrame(function (t) { last = t; loop(t); });
 
 })();

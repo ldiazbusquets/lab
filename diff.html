@@ -15,7 +15,24 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
-<meta name="theme-color" content="#6E808E">
+<meta name="theme-color" content="#6E808E"><script id="ldb-theme-js">(function () {   /* same rule as the main site: light from 7 am to 7 pm on the visitor's device, dark otherwise; a manual pick lasts for the visit, until the next 7 am or 7 pm switch */
+  var root = document.documentElement, q = /[?&]theme=(light|dark)/.exec(location.search);
+  function byHour() { var h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; }
+  function chosen() { if (q) return q[1];
+    try { var raw = (sessionStorage.getItem('theme') || '').split('|'); if (raw[0] && raw[1] === byHour()) return raw[0]; sessionStorage.removeItem('theme'); } catch (e) {}
+    return null; }
+  function apply(t) { var lt = t === 'light', changed = root.classList.contains('lt') !== lt;
+    root.classList.toggle('lt', lt); root.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#D5DDE3' : '#6E808E';
+    var b = document.getElementById('themeBtn'); if (b) b.setAttribute('aria-label', lt ? 'Switch to dark' : 'Switch to light');
+    if (changed) window.dispatchEvent(new Event('themechange')); }
+  apply(chosen() || byHour());
+  window.ldbToggleTheme = function () { var next = root.classList.contains('lt') ? 'dark' : 'light';
+    try { sessionStorage.setItem('theme', next + '|' + byHour()); } catch (e) {} q = null;
+    root.classList.add('theming'); apply(next); setTimeout(function () { root.classList.remove('theming'); }, 700); };
+  document.addEventListener('DOMContentLoaded', function () { var b = document.getElementById('themeBtn'); if (b) { b.addEventListener('click', window.ldbToggleTheme); apply(root.classList.contains('lt') ? 'light' : 'dark'); } });
+  setInterval(function () { if (!chosen()) apply(byHour()); }, 60000);   /* follows the clock while the page stays open */
+})();</script>
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -363,6 +380,56 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   });
   addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
 })();</script>
+
+
+
+
+<style id="ldb-theme-css">
+  .tbtn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; cursor: pointer; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: background .2s, transform .3s; flex: none; }
+  .tbtn:hover { background: rgba(255,255,255,.14); } .tbtn:active { transform: scale(.92); }
+  .tbtn svg { width: 16px; height: 16px; display: block; } .tbtn .sun { display: none; }
+  html.lt .tbtn .sun { display: block; } html.lt .tbtn .moon { display: none; }
+  html.lt .tbtn { background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.14); } html.lt .tbtn:hover { background: #fff; }
+  html.theming, html.theming * { transition: background-color .5s ease, color .5s ease, border-color .5s ease !important; }
+  /* light: brushed silver chrome; charts, boards and live panels keep their dark glass */
+  html.lt { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --gs1: #F6F7F8; --gs2: #FFFFFF; --ln2: rgba(24,34,44,.16); --gln2: rgba(24,34,44,.16); --pill: rgba(24,34,44,.06); --pill-on: rgba(24,34,44,.1);
+    --ink: #15191C; --soft: #56616A; --dim: #7D878F; --line: rgba(24,34,44,.1); --acc: #3D8A7E; --mint: #3D8A7E; }
+  html.lt body { background: linear-gradient(180deg, #D5DDE3 0, #DFE5E9 220px, #E8ECEF 520px, #ECEEF0 820px) no-repeat, #ECEEF0 !important; color: var(--ink); }
+  html.lt .panel, html.lt canvas.plot, html.lt #mapc, html.lt #attc, html.lt .toast { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
+  html.lt .panel, html.lt .box { box-shadow: 0 30px 60px -40px rgba(30,42,52,.45); }
+  html.lt nav { background: transparent; }
+  html.lt.scrolled nav, html.lt nav.scrolled { background: rgba(236,238,240,.95) !important; -webkit-backdrop-filter: blur(18px) saturate(1.2) !important; backdrop-filter: blur(18px) saturate(1.2) !important; border-color: rgba(24,34,44,.1) !important; }
+  html.lt .mark span, html.lt .mark em { color: rgba(21,25,28,.62); }
+  html.lt .btn { background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.14); color: var(--ink); }
+  html.lt .btn:hover { background: #fff; }
+  html.lt .btn.main { background: #15191C; color: #F2F4F5; border-color: transparent; }
+  html.lt .eyebrow { color: rgba(21,25,28,.7); }
+  html.lt h1 { color: var(--ink); }
+  html.lt h1 span, html.lt h1 em { color: rgba(21,25,28,.45); }
+  html.lt h2 span { color: #8C969D !important; }
+  html.lt .lede { color: rgba(21,25,28,.72); }
+  html.lt .specs span { color: rgba(21,25,28,.66); background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.12); }
+  html.lt .ws { background: rgba(24,34,44,.06); }
+  html.lt .ws a { color: rgba(21,25,28,.6); } html.lt .ws a:hover { background: rgba(24,34,44,.06); color: var(--ink); }
+  html.lt .ws a.on { background: #15191C; color: #F2F4F5; }
+  html.lt .edu, html.lt .note-box { background: rgba(255,255,255,.55); }
+  html.lt .seg { background: rgba(24,34,44,.06); }
+  html.lt .seg button[aria-pressed="true"] { background: #15191C; color: #F2F4F5; }
+  html.lt .tog { background: rgba(255,255,255,.55) !important; }
+  html.lt .act { background: rgba(255,255,255,.55); }
+  html.lt .act.primary { background: #15191C; color: #F2F4F5; }
+  html.lt .panel .act, html.lt canvas.plot .act, html.lt #mapc .act, html.lt #attc .act, html.lt .toast .act { background: rgba(255,255,255,.07); color: #F2F4F5; border-color: rgba(255,255,255,.14); }
+  html.lt .panel .act.primary, html.lt canvas.plot .act.primary, html.lt #mapc .act.primary, html.lt #attc .act.primary, html.lt .toast .act.primary { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
+  html.lt .panel .seg button[aria-pressed="true"], html.lt canvas.plot .seg button[aria-pressed="true"], html.lt #mapc .seg button[aria-pressed="true"], html.lt #attc .seg button[aria-pressed="true"], html.lt .toast .seg button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
+  html.lt input[type=range] { accent-color: #47545F; }
+  html.lt .panel input[type=range], html.lt canvas.plot input[type=range], html.lt #mapc input[type=range], html.lt #attc input[type=range], html.lt .toast input[type=range] { accent-color: #ECF0F3; }
+  html.lt footer { border-color: rgba(24,34,44,.1); }
+  /* sticky question bars: frosted silver, white fields */
+  html.lt .prompt, html.lt .cfg { background: rgba(236,238,240,.95) !important; border-color: rgba(24,34,44,.1) !important; color: var(--ink); }
+  html.lt .prompt input, html.lt .cfg input, html.lt .cfg select { background: #fff; color: var(--ink); border-color: rgba(24,34,44,.16); }
+  html.lt .prompt button, html.lt .cfg button { background: rgba(255,255,255,.7); color: var(--ink); border-color: rgba(24,34,44,.14); }
+  html.lt .prompt button.primary, html.lt .cfg button.primary, html.lt .prompt .primary { background: #15191C !important; color: #F2F4F5 !important; }
+</style>
 <body>
 
 <nav><div class="in">
@@ -374,6 +441,12 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </div>
   </div>
   <div class="right">
+    <button class="tbtn" type="button" id="themeBtn" aria-label="Switch between light and dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
+    
+    
+    
+    
+    
     <a class="btn" href="./#course">&larr; Course</a>
     <a class="btn main" href="/">Main site &rarr;</a>
   </div>
