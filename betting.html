@@ -15,83 +15,81 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-train.png">
-<meta name="theme-color" content="#0D0F12">
+<meta name="theme-color" content="#141F23">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Bai+Jamjuree:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0D0F12; --s1: #14171B; --s2: #1A1E23; --ln2: #343A43;
-    --ink: #E7E9EC; --soft: #A0A7B0; --dim: #6E757F; --line: #262B32;
-    --acc: #4C90F0; --crim: #4C90F0; --bone: #E7E9EC; --teal: #32A467; --mag: #A97BD6; --gold: #EC9A3C; --good: #32A467; --lock: #E76A6E; --warm: #EC9A3C;
-    --g: clamp(16px, 4vw, 32px); --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; --sans: "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    --bg: #141F23; --s1: #1A262B; --s2: #213036; --ln2: rgba(255,255,255,.13); --pill: #26343A; --pill-on: #56636A; --orange: #EA6A35;
+    --ink: #EEF2F3; --soft: #9BA8AD; --dim: #66757B; --line: rgba(255,255,255,.08);
+    --acc: #7FB2FF; --crim: #7FB2FF; --bone: #EEF2F3; --teal: #5BD47A; --mag: #C39BF0; --gold: #F2B04C; --good: #5BD47A; --lock: #F0555A; --warm: #F2B04C;
+    --g: clamp(16px, 4vw, 32px); --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; --sans: "Bai Jamjuree", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --disp: "Bruno Ace SC", "Bai Jamjuree", sans-serif;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 15px/1.55 var(--sans); -webkit-font-smoothing: antialiased; background: var(--bg); }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 15.5px/1.55 var(--sans); -webkit-font-smoothing: antialiased; background: radial-gradient(1200px 600px at 50% -10%, #1E2C32 0%, rgba(20,31,35,0) 70%), var(--bg); background-attachment: fixed; }
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
   button, input, select { font-family: inherit; }
-  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(13,15,18,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-  nav .in { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 var(--g); gap: 12px; max-width: 1500px; margin: 0 auto; }
-  .mark { display: inline-flex; align-items: center; gap: 10px; font: 600 15px var(--sans); letter-spacing: .01em; text-decoration: none; white-space: nowrap; }
-  .mark i { width: 16px; height: 16px; border: 1.5px solid var(--ink); position: relative; flex: none; }
-  .mark i::after { content: ""; position: absolute; inset: 3.5px; background: var(--ink); }
-  .mark span { color: var(--dim); font-weight: 500; }
-  .mark em { font: 400 13.5px var(--sans); font-style: normal; color: var(--soft); padding-left: 12px; margin-left: 2px; border-left: 1px solid var(--line); }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(20,31,35,.82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 var(--g); gap: 12px; max-width: 1500px; margin: 0 auto; }
+  .mark { display: inline-flex; align-items: center; gap: 10px; font: 400 17px var(--disp); letter-spacing: .04em; text-decoration: none; white-space: nowrap; }
+      .mark span { color: var(--soft); }
+  .mark em { font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; font-style: normal; color: var(--soft); padding: 6px 11px; margin-left: 6px; border-radius: 999px; background: var(--pill); }
   nav .right { display: flex; gap: 8px; align-items: center; }
-  .btn { font: 500 13.5px var(--sans); text-decoration: none; white-space: nowrap; padding: 7px 14px; border: 1px solid var(--ln2); border-radius: 3px; background: transparent; color: var(--ink); }
+  .btn { font: 400 12px var(--disp); letter-spacing: .04em; text-decoration: none; white-space: nowrap; padding: 10px 16px; border: 0; border-radius: 10px; background: var(--pill); color: var(--ink); }
   .btn:hover { background: var(--s2); }
-  .btn.main { background: var(--ink); color: #0D0F12; border-color: var(--ink); }
+  .btn.main { background: #fff; color: #10181C; }
   @media (max-width: 640px) { nav .right .btn.main { display: none; } .mark em { display: none; } }
-  .page { padding: 80px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .page { padding: 96px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
   .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin: 8px 0 18px; }
-  .eyebrow { font: 500 11.5px var(--mono); color: var(--dim); letter-spacing: .08em; text-transform: uppercase; margin: 0 0 8px; }
-  h1 { font: 500 clamp(1.9rem, 3.6vw, 2.6rem)/1.08 var(--sans); letter-spacing: -.025em; margin: 0; color: var(--ink); }
+  .eyebrow { font: 500 11.5px var(--mono); color: var(--soft); letter-spacing: .1em; text-transform: uppercase; margin: 0 0 12px; display: inline-flex; padding: 6px 12px; border-radius: 999px; background: var(--pill); }
+  h1 { font: 400 clamp(1.8rem, 3.4vw, 2.6rem)/1.1 var(--disp); letter-spacing: .01em; margin: 0; color: var(--ink); }
   .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .seg { display: inline-flex; border: 1px solid var(--ln2); border-radius: 3px; flex-wrap: wrap; overflow: hidden; }
-  .seg button { background: transparent; border: 0; color: var(--soft); font: 500 12px var(--mono); letter-spacing: .02em; padding: 7px 11px; cursor: pointer; }
+  .seg { display: inline-flex; gap: 3px; padding: 3px; border: 0; border-radius: 11px; background: var(--pill); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; border-radius: 8px; color: var(--soft); font: 500 12px var(--mono); letter-spacing: .02em; padding: 7px 11px; cursor: pointer; }
   .seg button:hover { color: var(--ink); background: var(--s2); }
-  .seg button[aria-pressed="true"] { background: var(--ink); color: #0D0F12; }
-  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ln2); border-radius: 3px; padding: 6px 10px 6px 8px; cursor: pointer; font: 500 12px var(--mono); color: var(--soft); background: transparent; }
+  .seg button[aria-pressed="true"] { background: var(--pill-on); color: var(--ink); }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 0; background: var(--pill) !important; border-radius: 10px; padding: 6px 10px 6px 8px; cursor: pointer; font: 500 12px var(--mono); color: var(--soft); background: transparent; }
   .tog i { width: 28px; height: 16px; border-radius: 9px; background: var(--ln2); position: relative; transition: background .2s; }
   .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
-  .tog[aria-pressed="true"] { color: var(--ink); } .tog[aria-pressed="true"] i { background: var(--acc); } .tog[aria-pressed="true"] i::after { transform: translateX(12px); }
+  .tog[aria-pressed="true"] { color: var(--ink); } .tog[aria-pressed="true"] i { background: var(--orange); } .tog[aria-pressed="true"] i::after { transform: translateX(12px); }
   .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
   body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
   @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
   .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .box { background: var(--s1); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; position: relative; min-width: 0; }
+  .box { background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.008)), var(--s1); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; position: relative; min-width: 0; }
   .bh { display: flex; justify-content: space-between; gap: 10px; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin: -2px 0 12px; }
   .bh span:last-child { color: var(--dim); text-align: right; }
-  .big { font: 500 1.9rem/1.1 var(--mono); letter-spacing: -.02em; color: var(--ink); }
+  .big { font: 400 1.9rem/1.1 var(--disp); letter-spacing: .01em; color: var(--ink); }
   .why { font-size: 14px; color: var(--soft); margin: 10px 0 0; }
   .note { font-size: 12.5px; color: var(--dim); margin: 8px 0 0; }
   .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stat2 div, .stat3 div { border: 1px solid var(--line); border-radius: 3px; background: var(--bg); padding: 9px 10px; min-width: 0; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); border-radius: 10px; background: rgba(15,24,28,.6); padding: 10px 12px; min-width: 0; }
   .stat2 span, .stat3 span { display: block; font: 500 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-bottom: 2px; }
-  .stat2 b, .stat3 b { font: 500 16px var(--mono); color: var(--ink); }
+  .stat2 b, .stat3 b { font: 400 16px var(--disp); letter-spacing: .02em; color: var(--ink); }
   b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
-  .act { padding: 9px 14px; font: 500 13px var(--sans); color: var(--ink); background: transparent; border: 1px solid var(--ln2); border-radius: 3px; cursor: pointer; transition: background .15s, border-color .15s; }
-  .act:hover:not(:disabled) { background: var(--s2); border-color: #4A515B; } .act:disabled { opacity: .35; cursor: default; }
-  .act.primary { background: var(--ink); border-color: var(--ink); color: #0D0F12; }
-  .act.primary:hover:not(:disabled) { background: #fff; }
+  .act { padding: 10px 15px; font: 400 12px var(--disp); letter-spacing: .04em; color: var(--ink); background: var(--pill); border: 0; border-radius: 10px; cursor: pointer; transition: background .15s, border-color .15s; }
+  .act:hover:not(:disabled) { background: var(--pill-on); } .act:disabled { opacity: .35; cursor: default; }
+  .act.primary { background: #fff; color: #10181C; }
+  .act.primary:hover:not(:disabled) { background: #E3E9EB; }
   .act.hint { box-shadow: 0 0 0 2px var(--acc); }
   .act kbd { font: 500 10px var(--mono); opacity: .55; margin-left: 6px; }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .panel { background: var(--s1); border: 1px solid var(--line); border-radius: 4px; padding: clamp(14px, 2.2vw, 22px); position: relative; min-width: 0; }
-  input[type=range] { accent-color: var(--acc); }
-  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--s2); border: 1px solid var(--ln2); border-left: 2px solid var(--warm); color: var(--ink); font: 500 13px var(--sans); padding: 9px 14px; border-radius: 3px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .panel { background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.008)), var(--s1); border: 1px solid var(--line); border-radius: 18px; padding: clamp(14px, 2.2vw, 22px); position: relative; min-width: 0; }
+  input[type=range] { accent-color: var(--orange); }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--s2); border: 1px solid var(--ln2); border-left: 2px solid var(--warm); color: var(--ink); font: 500 13px var(--sans); padding: 10px 16px; border-radius: 10px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
   .toast.on { opacity: 1; }
   .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 24px; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--line); }
   @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
-  .explain h3 { font: 500 17px var(--sans); margin: 0 0 6px; }
+  .explain h3 { font: 600 18px var(--sans); margin: 0 0 6px; }
   .explain p { color: var(--soft); font-size: 14.5px; margin: 0 0 10px; }
   .explain .k { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin: 0 0 6px; }
-  .edu { margin-top: 28px; border: 1px solid var(--line); border-left: 2px solid var(--warm); background: var(--s1); border-radius: 2px; padding: 12px 16px; color: var(--soft); font-size: 13.5px; }
+  .edu { margin-top: 28px; border: 1px solid var(--line); border-left: 2px solid var(--orange); background: var(--s1); border-radius: 12px; padding: 12px 16px; color: var(--soft); font-size: 13.5px; }
   .edu b { color: var(--ink); font-weight: 500; }
   footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
   footer a { color: var(--soft); text-decoration: none; }
@@ -138,7 +136,7 @@
 </head>
 <body>
 <nav><div class="in">
-  <a class="mark" href="./"><i></i>LDB <span>Lab</span><em>Agents</em></a>
+  <a class="mark" href="./"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.2" fill="currentColor"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>LDB <span>Lab</span><em>Agents</em></a>
   <div class="right">
     <a class="btn" href="./#agents">&larr; Agents</a>
     <a class="btn main" href="/">Main site &rarr;</a>
@@ -236,8 +234,8 @@ function lineChart(svg, series, opts) {
   var ticks = []; if (opts.log) { [1e-3, .01, .1, .25, .5, 1, 2, 4, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7].forEach(function (t) { var l = Math.log(t); if (l >= y0 && l <= y1) ticks.push(t); }); }
   else { var span = y1 - y0, st = Math.pow(10, Math.floor(Math.log10(span / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return span / s <= 6; })[0] || st * 10; for (var t = Math.ceil(y0 / st) * st; t <= y1; t += st) ticks.push(+t.toFixed(10)); }
   var yf = opts.yfmt || function (v) { return Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : +v.toFixed(3); };
-  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#6E757F" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
-  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#6E757F" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
+  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#66757B" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
+  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#66757B" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
   series.forEach(function (s, k) { var p = pts[k].filter(function (q) { return isFinite(q[1]); }); if (!p.length) return;
     if (s.dots) { p.forEach(function (q) { h += '<circle cx="' + X(q[0]).toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="' + (s.r || 2.5) + '" fill="' + s.color + '"/>'; }); return; }
     var d = p.map(function (q, i) { return (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ' ' + Y(q[1]).toFixed(1); }).join('');
@@ -291,26 +289,26 @@ function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach
   }
   function draw() {
     var marks = []; for (var i = 1; i < bankHist.length; i++) if (i % 38 === 0) marks.push({ x0: i - .5, x1: i + .5, color: 'rgba(255,255,255,.08)' });
-    lineChart($('bank'), [{ data: bankHist.map(function () { return 1000; }), color: '#6E757F', dash: '4 4', width: 1 }, { data: bankHist, color: '#4C90F0', width: 2 }], { log: true, bands: marks, yfmt: function (v) { return '$' + (v >= 1000 ? (v / 1000) + 'k' : v); } });
-    legend($('bankLeg'), [['bankroll', '#4C90F0'], ['starting $1,000', '#6E757F', 1]]); $('brTag').textContent = money(bank);
+    lineChart($('bank'), [{ data: bankHist.map(function () { return 1000; }), color: '#66757B', dash: '4 4', width: 1 }, { data: bankHist, color: '#7FB2FF', width: 2 }], { log: true, bands: marks, yfmt: function (v) { return '$' + (v >= 1000 ? (v / 1000) + 'k' : v); } });
+    legend($('bankLeg'), [['bankroll', '#7FB2FF'], ['starting $1,000', '#66757B', 1]]); $('brTag').textContent = money(bank);
     var done = seasonLL.filter(function (x) { return x.n; });
-    lineChart($('ll'), [{ data: done.map(function (x) { return [x.s, x.t / x.n]; }), color: '#A0A7B0', dash: '4 4', width: 1.3 }, { data: done.map(function (x) { return [x.s, x.b / x.n]; }), color: '#EC9A3C', width: 1.8 }, { data: done.map(function (x) { return [x.s, x.a / x.n]; }), color: '#4C90F0', width: 2.2 }], { yfmt: function (v) { return v.toFixed(3); } });
-    legend($('llLeg'), [['bettor', '#4C90F0'], ['bookmaker', '#EC9A3C'], ['perfect knowledge', '#A0A7B0', 1]]);
+    lineChart($('ll'), [{ data: done.map(function (x) { return [x.s, x.t / x.n]; }), color: '#9BA8AD', dash: '4 4', width: 1.3 }, { data: done.map(function (x) { return [x.s, x.b / x.n]; }), color: '#F2B04C', width: 1.8 }, { data: done.map(function (x) { return [x.s, x.a / x.n]; }), color: '#7FB2FF', width: 2.2 }], { yfmt: function (v) { return v.toFixed(3); } });
+    legend($('llLeg'), [['bettor', '#7FB2FF'], ['bookmaker', '#F2B04C'], ['perfect knowledge', '#9BA8AD', 1]]);
     var recent = calib.filter(function (c) { return c[2] >= season - 1; }), bins = []; for (var b = 0; b < 10; b++) bins.push([0, 0, 0]);
     recent.forEach(function (c) { var k = Math.min(9, Math.floor(c[0] * 10)); bins[k][0] += c[0]; bins[k][1] += c[1]; bins[k][2]++; });
     var pts = bins.filter(function (x) { return x[2] >= 15; }).map(function (x) { return [x[0] / x[2], x[1] / x[2]]; });
-    lineChart($('cal'), [{ data: [[0, 0], [1, 1]], color: '#6E757F', dash: '4 4', width: 1 }, { data: pts, color: '#4C90F0', width: 2 }, { data: pts, color: '#4C90F0', dots: true, r: 3.5 }], { yMin: 0, yMax: 1, yfmt: function (v) { return Math.round(v * 100) + '%'; }, xlabels: [[0, '0%'], [.5, 'it says 50%'], [1, '100%']] });
-    legend($('calLeg'), [['how often it happened', '#4C90F0'], ['perfectly honest', '#6E757F', 1]]);
+    lineChart($('cal'), [{ data: [[0, 0], [1, 1]], color: '#66757B', dash: '4 4', width: 1 }, { data: pts, color: '#7FB2FF', width: 2 }, { data: pts, color: '#7FB2FF', dots: true, r: 3.5 }], { yMin: 0, yMax: 1, yfmt: function (v) { return Math.round(v * 100) + '%'; }, xlabels: [[0, '0%'], [.5, 'it says 50%'], [1, '100%']] });
+    legend($('calLeg'), [['how often it happened', '#7FB2FF'], ['perfectly honest', '#66757B', 1]]);
     var sc = truth.map(function (t, i) { return [t, arate[i]]; }), mt = mean(truth), ma = mean(Array.prototype.slice.call(arate)), cov = 0, vt = 0, va = 0; sc.forEach(function (p) { cov += (p[0] - mt) * (p[1] - ma); vt += (p[0] - mt) * (p[0] - mt); va += (p[1] - ma) * (p[1] - ma); });
     var r = va && vt ? cov / Math.sqrt(vt * va) : 0; $('corr').textContent = 'correlation ' + r.toFixed(2);
-    lineChart($('sc'), [{ data: sc, color: '#4C90F0', dots: true, r: 4 }], { yfmt: function (v) { return v.toFixed(1); } });
+    lineChart($('sc'), [{ data: sc, color: '#7FB2FF', dots: true, r: 4 }], { yfmt: function (v) { return v.toFixed(1); } });
     $('season').textContent = season; $('round').textContent = round;
     var staked = bets.reduce(function (s, x) { return s + x.stake; }, 0), ret = bets.reduce(function (s, x) { return s + (x.won ? x.stake * x.odds : 0); }, 0), w = bets.filter(function (x) { return x.won; }).length;
     $('roi').textContent = staked ? fmtPct(ret / staked - 1) : '-'; $('roi').className = staked ? (ret >= staked ? 'pos' : 'neg') : ''; $('nb').textContent = bets.length; $('wr').textContent = bets.length ? Math.round(w / bets.length * 100) + '%' : '-'; $('ao').textContent = bets.length ? mean(bets.map(function (x) { return x.odds; })).toFixed(2) : '-';
     var lastS = done[done.length - 1]; $('verdict').textContent = !bets.length && season === 1 && !round ? 'Press Play. The bettor starts believing every club is equal.' : !lastS ? '' : (lastS.a < lastS.b ? 'Its forecasts are now better than the bookmaker’s, ' : 'The bookmaker still forecasts better overall, ') + (ret >= staked ? (lastS.a < lastS.b ? 'and its bets are in profit after the margin.' : 'but the bettor is in profit by betting only where the bookmaker lags.') : book === 2 ? 'and against a sharp bookmaker even good forecasts rarely beat the margin. Try the soft bookmaker.' : 'so betting is still losing to the margin. Ratings improve each season.');
     $('lessons').innerHTML = lessons.length ? lessons.map(function (l) { return '<div class="' + (l.good ? 'good' : '') + '">' + l.t + '</div>'; }).join('') : '<div class="good">No lessons yet.</div>';
     var nr = fixtures[round] || schedule()[0]; $('next').innerHTML = nr.slice(0, 4).map(function (m) { var pa = probs(arate[m[0]] - arate[m[1]] + ahome, acut), pb = probs(brate[m[0]] - brate[m[1]] + HOME, CUT);
-      return '<div class="good" style="border-color:rgba(76,144,240,.5)"><b>' + NAMES[m[0]] + '</b> v <b>' + NAMES[m[1]] + '</b><br>bettor ' + pa.map(function (p) { return Math.round(p * 100); }).join(' / ') + ' &middot; bookmaker ' + (book === 2 ? 'sharp' : pb.map(function (p) { return Math.round(p * 100); }).join(' / ')) + '</div>'; }).join('') + '<p class="note">Home win / draw / away win, in percent.</p>';
+      return '<div class="good" style="border-color:rgba(127,178,255,.5)"><b>' + NAMES[m[0]] + '</b> v <b>' + NAMES[m[1]] + '</b><br>bettor ' + pa.map(function (p) { return Math.round(p * 100); }).join(' / ') + ' &middot; bookmaker ' + (book === 2 ? 'sharp' : pb.map(function (p) { return Math.round(p * 100); }).join(' / ')) + '</div>'; }).join('') + '<p class="note">Home win / draw / away win, in percent.</p>';
   }
   var loop = Loop(function () { playRound(); if (bank < 1) return false; }, draw), running = false, slowT = null;
   function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : 'Play seasons'; $('live').classList.toggle('on', on); loop.stop(); clearInterval(slowT); if (!on) return; if (speed === 'slow') slowT = setInterval(function () { playRound(); draw(); }, 400); else { loop.setBudget(6); loop.start(); } }
