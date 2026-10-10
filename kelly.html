@@ -148,6 +148,21 @@
   .over > div { background: var(--s1) !important; border: 1px solid var(--ln2) !important; border-radius: 4px; }
   .coin { background: radial-gradient(circle at 35% 30%, #3A4049, #191C1E 70%) !important; border: 1px solid rgba(255,255,255,.2) !important; color: var(--ink) !important; font: 300 1.9rem var(--sans) !important; box-shadow: none !important; }
 </style>
+<style id="ldb-pt">@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+body { animation: ldbIn .45s ease both; }
+@keyframes ldbIn { from { opacity: 0; } }
+html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
+@media (prefers-reduced-motion: reduce) { body { animation: none; } html.ldb-out body { transition: none; } }</style>
+<script id="ldb-pt-js">(function () {
+  if ('PageRevealEvent' in window) return; /* the browser already cross-fades between pages */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
+    var u = new URL(a.href, location.href); if (u.origin !== location.origin || (u.pathname === location.pathname && u.hash)) return;
+    e.preventDefault(); document.documentElement.classList.add('ldb-out'); setTimeout(function () { location.href = u.href; }, 200);
+  });
+  addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
+})();</script>
 </head>
 <body>
 <nav><div class="in">

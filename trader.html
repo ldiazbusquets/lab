@@ -142,6 +142,21 @@
   nav { background: transparent; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; transition: background .3s, border-color .3s; }
   html.scrolled nav { background: rgba(11,12,13,.72); border-color: var(--line); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
 </style>
+<style id="ldb-pt">@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+body { animation: ldbIn .45s ease both; }
+@keyframes ldbIn { from { opacity: 0; } }
+html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
+@media (prefers-reduced-motion: reduce) { body { animation: none; } html.ldb-out body { transition: none; } }</style>
+<script id="ldb-pt-js">(function () {
+  if ('PageRevealEvent' in window) return; /* the browser already cross-fades between pages */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
+    var u = new URL(a.href, location.href); if (u.origin !== location.origin || (u.pathname === location.pathname && u.hash)) return;
+    e.preventDefault(); document.documentElement.classList.add('ldb-out'); setTimeout(function () { location.href = u.href; }, 200);
+  });
+  addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
+})();</script>
 </head>
 <body>
 <nav><div class="in">

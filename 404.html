@@ -45,6 +45,21 @@
   .links a:hover { background: rgba(255,255,255,.14); }
   .links a.p { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
 </style>
+<style id="ldb-pt">@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+body { animation: ldbIn .45s ease both; }
+@keyframes ldbIn { from { opacity: 0; } }
+html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
+@media (prefers-reduced-motion: reduce) { body { animation: none; } html.ldb-out body { transition: none; } }</style>
+<script id="ldb-pt-js">(function () {
+  if ('PageRevealEvent' in window) return; /* the browser already cross-fades between pages */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
+    var u = new URL(a.href, location.href); if (u.origin !== location.origin || (u.pathname === location.pathname && u.hash)) return;
+    e.preventDefault(); document.documentElement.classList.add('ldb-out'); setTimeout(function () { location.href = u.href; }, 200);
+  });
+  addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
+})();</script>
 </head>
 <body>
 <header><div><a class="logo" href="/lab/"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg>LDB <span>Lab</span></a></div></header>

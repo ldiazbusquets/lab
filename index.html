@@ -29,6 +29,8 @@
     --max: 1240px; --g: clamp(18px, 4vw, 44px); }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
   a { color: inherit; text-decoration: none; }
   img { display: block; max-width: 100%; }
@@ -79,21 +81,14 @@
   .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(70% 55% at 50% 38%, rgba(255,255,255,.08), transparent 70%); pointer-events: none; }
   #wordmark { position: absolute; left: 0; right: 0; top: clamp(70px, 9vh, 100px); width: 100%; height: clamp(150px, 24vw, 330px); z-index: 0; }
   .hero .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .stage { position: absolute; z-index: 1; left: 50%; top: clamp(180px, 22vw, 290px); transform: translateX(-50%); width: min(560px, 46vw); }
-  .feedwrap { position: relative; border-radius: 26px; overflow: hidden; background: #1A1F23; box-shadow: 0 50px 90px -30px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08); }
-  .feed { position: relative; aspect-ratio: 4 / 3.3; cursor: crosshair; }
-  .feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .feed::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(36,41,44,.25), transparent 30%, transparent 62%, rgba(20,24,27,.85)), linear-gradient(180deg, rgba(110,128,142,.18), rgba(36,41,44,.18)); mix-blend-mode: normal; }
-  .feed.thermal::after { background: linear-gradient(180deg, transparent 60%, rgba(20,24,27,.7)); }
-  .fchip { position: absolute; z-index: 3; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 8px; font: 400 11.5px var(--mono); color: var(--ink); padding: 6px 11px; border-radius: 999px; background: rgba(20,24,27,.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .stage.head { position: absolute; z-index: 1; left: 50%; bottom: 0; transform: translateX(-50%); width: min(760px, 58vw); height: min(92%, 860px); pointer-events: none; }
+  .stage.head canvas, .stage.head img { width: 100%; height: 100%; display: block; object-fit: contain; object-position: center bottom; -webkit-mask: linear-gradient(180deg, #000 72%, transparent 99%); mask: linear-gradient(180deg, #000 72%, transparent 99%); }
+  @media (max-width: 1200px) and (min-width: 981px) { .stage.head { width: min(520px, 44vw); left: 54%; } }
+  .fchip { display: inline-flex; align-items: center; gap: 8px; font: 400 11.5px var(--mono); color: var(--ink); padding: 7px 12px; border-radius: 999px; background: rgba(20,24,27,.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
   .fchip i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
   .fchip span { color: var(--t2); }
-  .fstats { position: absolute; z-index: 3; left: 14px; right: 14px; bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; pointer-events: none; }
-  .fstats .nums { display: flex; gap: 18px; }
-  .fstats .nums div { font: 300 26px/1 var(--sans); letter-spacing: -.02em; }
-  .fstats .nums small { display: block; font: 400 10.5px var(--mono); color: var(--t2); margin-top: 5px; letter-spacing: .02em; }
-  .modes { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(20,24,27,.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); pointer-events: auto; }
-  .modes button { font: 500 11.5px var(--sans); color: var(--t2); cursor: pointer; background: transparent; border: 0; padding: 7px 11px; border-radius: 999px; }
+  .modes { display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(20,24,27,.6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.1); }
+  .modes button { font: 500 13px var(--sans); color: var(--t2); cursor: pointer; background: transparent; border: 0; padding: 9px 15px; border-radius: 999px; transition: background .2s, color .2s; }
   .modes button:hover { color: var(--ink); }
   .modes button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
   .hcopy { position: absolute; z-index: 2; left: var(--g); bottom: clamp(48px, 8vh, 80px); max-width: 420px; }
@@ -117,16 +112,41 @@
   @media (max-width: 980px) {
     .hero { min-height: 0; padding: 92px 0 40px; }
     #wordmark { position: relative; top: 0; height: 26vw; }
-    .stage { position: relative; left: 0; top: 0; transform: none; width: auto; margin: -8vw var(--g) 0; }
+    .stage.head { position: relative; left: 0; bottom: auto; transform: none; width: min(560px, 100%); height: auto; aspect-ratio: 7 / 8; margin: -10vw auto 0; }
     .hcopy, .scard { position: relative; left: 0; right: 0; bottom: 0; margin: 34px var(--g) 0; max-width: none; }
     .scard { width: auto; }
   }
-  @media (max-width: 520px) { .fstats .nums div { font-size: 20px; } .fstats .nums { gap: 12px; } .modes button { padding: 6px 9px; font-size: 11px; } }
+
 
   /* sections */
   section.s { position: relative; padding: clamp(96px, 11vw, 150px) 0 0; scroll-margin-top: 40px; }
   .shead { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; flex-wrap: wrap; }
   .shead > div { max-width: 640px; }
+
+  /* computer vision: the camera feed, full width */
+  .vision { position: relative; margin-top: clamp(96px, 11vw, 150px); height: min(100svh, 60vw); min-height: 560px; background: #0F1112; overflow: hidden; isolation: isolate; scroll-margin-top: 0; }
+  .vision .feed { position: absolute; inset: 0; cursor: crosshair; }
+  .vision .feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .vision::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(11,12,13,.75) 0%, rgba(11,12,13,0) 18%, rgba(11,12,13,0) 55%, rgba(11,12,13,.88) 100%), linear-gradient(90deg, rgba(11,12,13,.55), rgba(11,12,13,0) 45%); }
+  .vtop { position: absolute; z-index: 2; top: 24px; left: var(--g); right: var(--g); display: flex; justify-content: space-between; align-items: center; gap: 12px; pointer-events: none; }
+  .vtag { font: 400 11.5px var(--mono); color: rgba(242,244,245,.75); }
+  .vbot { position: absolute; z-index: 2; left: var(--g); right: var(--g); bottom: clamp(28px, 5vh, 56px); display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; pointer-events: none; }
+  .vcopy { max-width: 460px; } .vcopy p { color: rgba(242,244,245,.75); margin: 14px 0 0; font-size: 14.5px; }
+  .vright { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; pointer-events: auto; }
+  .vright .nums { display: flex; gap: 28px; }
+  .vright .nums div { font: 300 clamp(26px, 2.6vw, 38px)/1 var(--sans); letter-spacing: -.03em; text-align: right; }
+  .vright .nums small { display: block; font: 400 11px var(--mono); color: var(--t2); margin-top: 6px; letter-spacing: .02em; }
+  @media (max-width: 820px) {
+    .vision { height: auto; min-height: 0; aspect-ratio: auto; display: flex; flex-direction: column; background: var(--bg); }
+    .vision .feed { position: relative; inset: auto; aspect-ratio: 4 / 3.4; order: 2; }
+    .vision::after { display: none; }
+    .vtop { position: absolute; top: auto; z-index: 3; }
+    .vbot { position: relative; left: 0; right: 0; bottom: 0; order: 1; flex-direction: column; align-items: flex-start; padding: 0 var(--g) 24px; }
+    .vtop { position: relative; order: 3; left: 0; right: 0; top: 0; padding: 12px var(--g) 0; }
+    .vright { align-items: flex-start; } .vright .nums div { text-align: left; }
+    .vision .modes { position: relative; }
+  }
+  @media (max-width: 420px) { .modes button { padding: 8px 11px; font-size: 12px; } .vtag { display: none; } }
 
   /* featured cards (three across) */
   .feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 48px; }
@@ -239,6 +259,7 @@
   .stmt span { color: #4E575D; }
 
   /* agents spotlight */
+  #agents .showcase { margin-top: 30px; }
   .spot { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 48px; align-items: center; }
   .spot .orb { position: relative; width: clamp(240px, 24vw, 310px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: #0F1112; box-shadow: 0 0 0 1px var(--ln2), 0 0 0 16px rgba(255,255,255,.02), 0 0 0 17px var(--ln); }
   .spot .orb canvas { width: 100%; height: 100%; display: block; }
@@ -323,17 +344,34 @@
   .rv { opacity: 0; transform: translateY(26px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1); }
   .rv.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } }
+  [hidden] { display: none !important; }
 </style>
+<style id="ldb-pt">@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+body { animation: ldbIn .45s ease both; }
+@keyframes ldbIn { from { opacity: 0; } }
+html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
+@media (prefers-reduced-motion: reduce) { body { animation: none; } html.ldb-out body { transition: none; } }</style>
+<script id="ldb-pt-js">(function () {
+  if ('PageRevealEvent' in window) return; /* the browser already cross-fades between pages */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
+    var u = new URL(a.href, location.href); if (u.origin !== location.origin || (u.pathname === location.pathname && u.hash)) return;
+    e.preventDefault(); document.documentElement.classList.add('ldb-out'); setTimeout(function () { location.href = u.href; }, 200);
+  });
+  addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
+})();</script>
 </head>
 <body>
 <header class="top"><div class="w">
-  <a class="logo" href="#top" aria-label="LDB Lab, back to top"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg> LDB <span>Lab</span></a>
+  <a class="logo" href="#top" data-go="top" aria-label="LDB Lab, back to top"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg> LDB <span>Lab</span></a>
   <nav class="nav" id="nav" aria-label="Sections">
     <a href="#course" data-go="course" data-nav="course">Course</a>
     <a href="#tools" data-go="tools" data-nav="tools">Tools</a>
     <a href="#agents" data-go="agents" data-nav="agents">Agents</a>
+    <a href="#vision" data-go="vision" data-nav="vision">Vision</a>
     <a href="#games" data-go="games" data-nav="games">Games</a>
-    <a href="#about" data-nav="about">About</a>
+    <a href="#about" data-go="about" data-nav="about">About</a>
   </nav>
   <div class="hr">
     <a class="pill gl sm gh" href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a>
@@ -343,27 +381,13 @@
 </div></header>
 
 <main>
+
 <section class="hero" id="top" aria-label="Introduction">
   <canvas id="wordmark" aria-hidden="true"></canvas>
   <span class="sr">LDB Lab</span>
-  <div class="stage">
-    <div class="feedwrap">
-      <div class="feed" id="feed">
-        <canvas id="scene" aria-hidden="true"></canvas>
-        <canvas id="hud" aria-hidden="true"></canvas>
-        <div class="fchip"><i></i><b id="camName">CAM-00</b> <span id="camPlace">Connecting</span></div>
-        <div class="fstats">
-          <div class="nums" aria-live="off"><div><span id="stTr">00</span><small>tracked</small></div><div><span id="stPe">00</span><small>people</small></div><div><span id="stIn">—</span><small>inference</small></div></div>
-          <div class="modes" role="group" aria-label="Camera mode">
-            <button type="button" data-mode="optical" aria-pressed="true">Optical</button>
-            <button type="button" data-mode="thermal" aria-pressed="false">Thermal</button>
-            <button type="button" id="pauseBtn" aria-pressed="false">Pause</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <span class="hide" id="stVe"></span>
-    <div class="hide" aria-hidden="true"><span id="feedNo"></span><span id="clock"></span><span id="stats"></span><span id="pcount"></span><table><tbody id="plist"></tbody></table><div id="loglines"></div></div>
+  <div class="stage head">
+    <canvas id="head" aria-label="A chrome helmeted figure, breaking into fragments on one side"></canvas>
+    <img id="headFallback" src="img/head.webp" alt="" hidden width="700" height="800">
   </div>
 
   <div class="hcopy">
@@ -386,20 +410,23 @@
   <div class="feat rv"><a class="fc" href="options.html"><div class="im"><img src="img/options.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Open the tool</b><span>TOOL-01 &rarr;</span></div></div><h3>Options builder</h3><p>Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.</p></a><a class="fc" href="trader.html"><div class="im"><img src="img/trader.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-01 &rarr;</span></div></div><h3>Market trader</h3><p>A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.</p></a><a class="fc" href="montecarlo.html"><div class="im"><img src="img/montecarlo.webp" alt="" loading="lazy" width="760" height="570"><div class="gl"><b>Train the agent</b><span>AGENT-04 &rarr;</span></div></div><h3>Retirement simulator</h3><p>Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.</p></a></div>
 </div></section>
 
-<section class="s" id="build" aria-label="Finance tools and learning agents"><span id="tools"></span><span id="agents"></span><div class="w">
-  <div class="rv"><span class="lbl">Finance tools &amp; learning agents</span><h2 class="h">Tools that price risk, <em>and agents that learn from their own mistakes.</em></h2></div>
-  <div class="tabsx" id="stabs" role="tablist" aria-label="Tools and agents"><button type="button" role="tab" aria-selected="true">Options builder</button><button type="button" role="tab" aria-selected="false">Market maker</button><button type="button" role="tab" aria-selected="false">Kelly challenge</button><span class="sep" aria-hidden="true"></span><button type="button" role="tab" aria-selected="false">Market trader</button><button type="button" role="tab" aria-selected="false">Day trader</button><button type="button" role="tab" aria-selected="false">Sports-market model</button><button type="button" role="tab" aria-selected="false">Retirement simulator</button><button type="button" role="tab" aria-selected="false">Landlord</button></div>
-  <div class="show rv">
-    <div class="im"><img id="simg" src="img/options.webp" alt="" width="760" height="570"></div>
-    <div><div class="k" id="sk">&nbsp;</div><h3 id="st">&nbsp;</h3><p id="sd">&nbsp;</p><div class="facts2" id="sf"></div>
-      <a class="pill lt" id="sa" href="options.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tx">Open the tool</span></a></div>
-  </div>
-</div></section>
-
 <section class="s" id="course" aria-label="The course"><span id="mods"></span><div class="w">
   <div class="shead rv"><div><span class="lbl">The course &middot; 14 modules</span><h2 class="h">From first principles <em>to infrastructure.</em></h2></div>
     <p class="lead" style="max-width:380px">Five tracks, one idea per module, every one interactive. Open a track to see its modules.</p></div>
   <div class="rows"><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">01</span><span class="meta">2 modules &middot; live</span><span class="th"><img src="img/track-t1.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">ML foundations</span><span class="pd">How a model learns from its own errors, and the classic methods behind credit scores and fraud alerts.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="learn.html"><span class="id">MOD-01</span><span class="t">How models learn</span><span class="d">Fit a line by hand, explore the loss landscape, watch gradient descent train it, and see overfitting happen.</span><span class="o">Open &rarr;</span></a></li><li><a href="classic.html"><span class="id">MOD-02</span><span class="t">Classic machine learning</span><span class="d">Decision trees, clustering and nearest neighbours: the workhorse methods behind credit scores and fraud alerts.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">02</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t2.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Deep learning</span><span class="pd">Neurons, layers and backpropagation: how networks read images and turn words into numbers.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="nn.html"><span class="id">MOD-03</span><span class="t">Neural networks</span><span class="d">Neurons, layers and backpropagation, with a small network learning to separate shapes live on the page.</span><span class="o">Open &rarr;</span></a></li><li><a href="cnn.html"><span class="id">MOD-04</span><span class="t">Seeing with networks</span><span class="d">How image models find edges, then parts, then objects: the same kind of detector running in the feed above.</span><span class="o">Open &rarr;</span></a></li><li><a href="emb.html"><span class="id">MOD-05</span><span class="t">Embeddings</span><span class="d">How words, images and documents become lists of numbers where similar things sit close together.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">03</span><span class="meta">3 modules &middot; live</span><span class="th"><img src="img/track-t3.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Generative AI</span><span class="pd">Transformers, diffusion and fine-tuning: how a text predictor becomes an assistant.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="llm.html"><span class="id">MOD-06</span><span class="t">How an LLM works</span><span class="d">Tokens, embeddings, attention and next-token prediction, in a real mini transformer you can type into.</span><span class="o">Open &rarr;</span></a></li><li><a href="diff.html"><span class="id">MOD-07</span><span class="t">Diffusion</span><span class="d">How image generators start from pure noise and clean it up, one step at a time, into a picture.</span><span class="o">Open &rarr;</span></a></li><li><a href="assistant.html"><span class="id">MOD-08</span><span class="t">From predictor to assistant</span><span class="d">Fine-tuning and human feedback: how a raw text predictor becomes a helpful chat assistant.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">04</span><span class="meta">5 modules &middot; live</span><span class="th"><img src="img/track-t4.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">AI infrastructure</span><span class="pd">GPUs, training at scale, serving, retrieval and agents: what it takes to run AI for real.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="gpu.html"><span class="id">MOD-09</span><span class="t">Why AI runs on GPUs</span><span class="d">Matrix maths, memory bandwidth and why one chip family powers almost all of modern AI.</span><span class="o">Open &rarr;</span></a></li><li><a href="scale.html"><span class="id">MOD-10</span><span class="t">Training at scale</span><span class="d">Splitting a model across thousands of chips, and what a frontier training run costs.</span><span class="o">Open &rarr;</span></a></li><li><a href="serve.html"><span class="id">MOD-11</span><span class="t">How models are served</span><span class="d">Memory per model, batching, latency and what each answer costs to run.</span><span class="o">Open &rarr;</span></a></li><li><a href="rag.html"><span class="id">MOD-12</span><span class="t">How AI looks things up</span><span class="d">Retrieval (RAG), the technique behind chatting with your own documents.</span><span class="o">Open &rarr;</span></a></li><li><a href="agents.html"><span class="id">MOD-13</span><span class="t">How agents work</span><span class="d">Models that use tools and take steps, tied to my LADON and HERETIC research agents.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div><div class="rw rv"><button class="rh" type="button" aria-expanded="false"><span class="n">05</span><span class="meta">1 module &middot; live</span><span class="th"><img src="img/track-t5.webp" alt="" loading="lazy" width="320" height="320"></span><span><span class="ht">Evaluation</span><span class="pd">How to tell whether a model is actually good, and exactly where it breaks.</span></span><span class="ar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><div class="mods"><div><ul><li><a href="eval.html"><span class="id">MOD-14</span><span class="t">Evaluation and failure</span><span class="d">Benchmarks, hallucinations and bias: how to tell whether a model is actually good, and where it breaks.</span><span class="o">Open &rarr;</span></a></li></ul></div></div></div></div>
+</div></section>
+
+<section class="s" id="tools" aria-label="Finance tools"><div class="w">
+  <div class="shead rv"><div><span class="lbl">Finance tools</span><h2 class="h">Tools that price, quote <em>and size risk.</em></h2></div>
+    <p class="lead" style="max-width:380px">The maths a desk uses, with every number explained on the page.</p></div>
+  <div class="showcase" data-set="tools">
+    <div class="tabsx" role="tablist" aria-label="Finance tools"><button type="button" role="tab" aria-selected="true">Options builder</button><button type="button" role="tab" aria-selected="false">Market maker</button><button type="button" role="tab" aria-selected="false">Kelly challenge</button></div>
+    <div class="show rv">
+      <div class="im"><img class="simg" src="img/options.webp" alt="" width="760" height="570"></div>
+      <div><div class="k sk">&nbsp;</div><h3 class="st">&nbsp;</h3><p class="sd">&nbsp;</p><div class="facts2 sf"></div>
+        <a class="pill lt sa" href="options.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tx">Open the tool</span></a></div>
+    </div>
+  </div>
 </div></section>
 
 <section class="s" id="sim" aria-label="Monte Carlo simulation"><div class="w">
@@ -441,18 +468,48 @@
   <p class="simnote">A hypothetical $100 stock with an 8% yearly drift, simulated with geometric Brownian motion. An illustration of risk, not a forecast.</p>
 </div></section>
 
-<section class="s" aria-label="Statement"><div class="w">
-  <p class="stmt rv">Learn it. <span>/</span> Build it. <span>/</span> Test it.</p>
+<section class="s" id="agents" aria-label="Learning agents"><span id="train"></span><div class="w">
+  <div class="spot rv">
+    <div><span class="lbl">Learning agents</span><h2 class="h">Agents that learn <em>from their mistakes.</em></h2></div>
+    <div class="orb"><canvas id="orb" aria-hidden="true"></canvas></div>
+    <div class="r"><p>Five agents start knowing nothing, practise on simulated markets, leagues and board games, and are always scored on data they never trained on. Each page lists the mistakes they learned from.</p></div>
+  </div>
+  <div class="showcase" data-set="agents">
+    <div class="tabsx" role="tablist" aria-label="Learning agents"><button type="button" role="tab" aria-selected="true">Market trader</button><button type="button" role="tab" aria-selected="false">Day trader</button><button type="button" role="tab" aria-selected="false">Sports-market model</button><button type="button" role="tab" aria-selected="false">Retirement simulator</button><button type="button" role="tab" aria-selected="false">Landlord</button></div>
+    <div class="show rv">
+      <div class="im"><img class="simg" src="img/trader.webp" alt="" width="760" height="570"></div>
+      <div><div class="k sk">&nbsp;</div><h3 class="st">&nbsp;</h3><p class="sd">&nbsp;</p><div class="facts2 sf"></div>
+        <a class="pill lt sa" href="trader.html"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tx">Train this agent</span></a></div>
+    </div>
+  </div>
 </div></section>
 
-<section class="s" id="learn" aria-label="Learning agents"><div class="w spot rv">
-  <div><span class="lbl">Self-training</span><h2 class="h">Agents that learn <em>from their mistakes.</em></h2></div>
-  <div class="orb"><canvas id="orb" aria-hidden="true"></canvas></div>
-  <div class="r"><p>Five agents start knowing nothing, practise on simulated markets, leagues and board games, and are always scored on data they never trained on. Each page lists the mistakes they learned from.</p>
-    <a class="pill lt" href="#agents" data-go="agents"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Train an agent</a></div>
-</div></section>
+<section class="vision" id="vision" aria-label="Live object detection">
+  <div class="feed" id="feed">
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <canvas id="hud" aria-hidden="true"></canvas>
+  </div>
+  <div class="vtop">
+    <div class="fchip"><i></i><b id="camName">CAM-00</b> <span id="camPlace">Connecting</span></div>
+    <span class="vtag">YOLOX-tiny &middot; running on your device</span>
+  </div>
+  <div class="vbot">
+    <div class="vcopy"><span class="lbl">Computer vision</span><h2 class="h">Real detection, <em>on real footage.</em></h2>
+      <p>Licensed stock footage, analysed live in your browser. Faces are blurred automatically. Click anything to follow it.</p></div>
+    <div class="vright">
+      <div class="nums" aria-live="off"><div><span id="stTr">00</span><small>tracked</small></div><div><span id="stPe">00</span><small>people</small></div><div><span id="stIn">—</span><small>per frame</small></div></div>
+      <div class="modes" role="group" aria-label="Camera mode">
+        <button type="button" data-mode="optical" aria-pressed="true">Optical</button>
+        <button type="button" data-mode="thermal" aria-pressed="false">White hot</button>
+        <button type="button" id="pauseBtn" aria-pressed="false">Pause</button>
+      </div>
+    </div>
+  </div>
+  <span class="hide" id="stVe"></span>
+  <div class="hide" aria-hidden="true"><span id="feedNo"></span><span id="clock"></span><span id="stats"></span><span id="pcount"></span><table><tbody id="plist"></tbody></table><div id="loglines"></div></div>
+</section>
 
-<section class="s" id="catalog" aria-label="Full index"><span id="games"></span><span id="arcade"></span><span id="train"></span><div class="w">
+<section class="s" id="games" aria-label="Full index"><span id="arcade"></span><div class="w">
   <div class="rv"><span class="lbl">Index</span><h2 class="h">Everything <em>in the lab.</em></h2>
     <div class="tabs" role="tablist" aria-label="Filter the index"><button type="button" role="tab" data-tab="all" aria-selected="true">All<i>29</i></button><button type="button" role="tab" data-tab="course" aria-selected="false">Course<i>14</i></button><button type="button" role="tab" data-tab="tools" aria-selected="false">Finance tools<i>3</i></button><button type="button" role="tab" data-tab="agents" aria-selected="false">Agents<i>5</i></button><button type="button" role="tab" data-tab="games" aria-selected="false">Games<i>7</i></button></div></div>
   <table class="cat">
@@ -532,7 +589,7 @@
 <footer><div class="w">
   <div class="fgrid">
     <div><p class="big4">Glad you stopped by. <em>Let's talk models.</em></p><p style="margin-top:16px">Built by Luis Diaz Busquets. Runs entirely in your browser.</p></div>
-    <div><h5>Lab</h5><p><a href="#course" data-go="course">Course</a></p><p><a href="#tools" data-go="tools">Finance tools</a></p><p><a href="#agents" data-go="agents">Agents</a></p><p><a href="#games" data-go="games">Games</a></p></div>
+    <div><h5>Lab</h5><p><a href="#course" data-go="course">Course</a></p><p><a href="#tools" data-go="tools">Tools</a></p><p><a href="#agents" data-go="agents">Agents</a></p><p><a href="#vision" data-go="vision">Vision</a></p><p><a href="#games" data-go="games">Games</a></p></div>
     <div><h5>Start here</h5><p><a href="learn.html">How models learn</a></p><p><a href="options.html">Options builder</a></p><p><a href="montecarlo.html">Retirement simulator</a></p><p><a href="llm.html">How an LLM works</a></p></div>
     <div><h5>Elsewhere</h5><p><a href="/">Main site</a></p><p><a href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a></p><p><a href="https://www.linkedin.com/in/luis-diaz-busquets" rel="noopener">LinkedIn</a></p></div>
   </div>
@@ -541,7 +598,7 @@
 <div class="wm" id="wm" aria-hidden="true"><span>l</span><span>d</span><span>b</span><span>&nbsp;</span><span>l</span><span>a</span><span>b</span></div>
 </footer>
 
-<script>window.LDB_SHOW = [{"id": "TOOL-01", "img": "options", "title": "Options builder", "desc": "Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.", "href": "options.html", "kind": "Finance tool", "facts": [["Pricing", "Black-Scholes"], ["Strategies", "12 presets"]]}, {"id": "TOOL-02", "img": "market-maker", "title": "Market maker", "desc": "Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.", "href": "market-maker.html", "kind": "Finance tool", "facts": [["Fair value", "Exact Bayesian"], ["Game", "8 rounds"]]}, {"id": "TOOL-03", "img": "kelly", "title": "Kelly challenge", "desc": "The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.", "href": "kelly.html", "kind": "Finance tool", "facts": [["Players simulated", "2,000"], ["Bankroll cap", "$250"]]}, {"id": "AGENT-01", "img": "trader", "title": "Market trader", "desc": "A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.", "href": "trader.html", "kind": "Learning agent", "facts": [["Method", "Q-learning"], ["Judged on", "40 unseen years"]]}, {"id": "AGENT-02", "img": "daytrader", "title": "Day trader", "desc": "A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.", "href": "daytrader.html", "kind": "Learning agent", "facts": [["Model", "Online neural net"], ["Judged on", "30 unseen days"]]}, {"id": "AGENT-03", "img": "betting", "title": "Sports-market model", "desc": "Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.", "href": "betting.html", "kind": "Learning agent", "facts": [["League", "20 clubs"], ["Sizing", "Fractional Kelly"]]}, {"id": "AGENT-04", "img": "montecarlo", "title": "Retirement simulator", "desc": "Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.", "href": "montecarlo.html", "kind": "Learning agent", "facts": [["Test futures", "2,000"], ["Planner", "Cross-entropy"]]}, {"id": "AGENT-05", "img": "landlord", "title": "Landlord", "desc": "A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.", "href": "landlord.html", "kind": "Learning agent", "facts": [["Method", "Genetic algorithm"], ["Population", "24 strategies"]]}]; window.LDB_STATS = [["01 / 14 course modules", "From a single neuron to agents and the GPUs they run on."], ["02 / 5 learning agents", "Trained live, judged on data they never saw."], ["03 / 3 finance tools", "Options, market making and bet sizing, with the maths shown."], ["04 / 7 games", "Blackjack to chess, with the odds switched on."]];</script>
+<script>window.LDB_SHOW = {"tools": [{"id": "TOOL-01", "img": "options", "title": "Options builder", "desc": "Build spreads, straddles and condors. Payoff at expiry and today, Black-Scholes prices and the Greeks.", "href": "options.html", "kind": "Finance tool", "facts": [["Pricing", "Black-Scholes"], ["Strategies", "12 presets"]]}, {"id": "TOOL-02", "img": "market-maker", "title": "Market maker", "desc": "Quote a bid and an ask while informed traders pick you off. Live Bayesian fair value and break-even quotes.", "href": "market-maker.html", "kind": "Finance tool", "facts": [["Fair value", "Exact Bayesian"], ["Game", "8 rounds"]]}, {"id": "TOOL-03", "img": "kelly", "title": "Kelly challenge", "desc": "The $25, 60% coin experiment most finance professionals fail: bet sizing against a Kelly benchmark and 2,000 simulated players.", "href": "kelly.html", "kind": "Finance tool", "facts": [["Players simulated", "2,000"], ["Bankroll cap", "$250"]]}], "agents": [{"id": "AGENT-01", "img": "trader", "title": "Market trader", "desc": "A Q-learning agent teaches itself when to be in or out of a market with hidden bull and bear regimes, scored on 40 years it never saw.", "href": "trader.html", "kind": "Learning agent", "facts": [["Method", "Q-learning"], ["Judged on", "40 unseen years"]]}, {"id": "AGENT-02", "img": "daytrader", "title": "Day trader", "desc": "A small neural network learns to forecast one-minute prices from its own errors and trades only when the forecast beats the cost.", "href": "daytrader.html", "kind": "Learning agent", "facts": [["Model", "Online neural net"], ["Judged on", "30 unseen days"]]}, {"id": "AGENT-03", "img": "betting", "title": "Sports-market model", "desc": "Learns the strength of 20 clubs from every result and sizes positions with fractional Kelly only when its price beats the market.", "href": "betting.html", "kind": "Learning agent", "facts": [["League", "20 clubs"], ["Sizing", "Fractional Kelly"]]}, {"id": "AGENT-04", "img": "montecarlo", "title": "Retirement simulator", "desc": "Monte Carlo over thousands of lifetimes, with a planner that learns how much stock to hold and when to trim spending.", "href": "montecarlo.html", "kind": "Learning agent", "facts": [["Test futures", "2,000"], ["Planner", "Cross-entropy"]]}, {"id": "AGENT-05", "img": "landlord", "title": "Landlord", "desc": "A genetic algorithm evolves strategies for a property-trading board game: what to buy, when to build, how to trade.", "href": "landlord.html", "kind": "Learning agent", "facts": [["Method", "Genetic algorithm"], ["Population", "24 strategies"]]}]}; window.LDB_STATS = [["01 / 14 course modules", "From a single neuron to agents and the GPUs they run on."], ["02 / 5 learning agents", "Trained live, judged on data they never saw."], ["03 / 3 finance tools", "Options, market making and bet sizing, with the maths shown."], ["04 / 7 games", "Blackjack to chess, with the odds switched on."]];</script>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
@@ -559,7 +616,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   menu.addEventListener('click', function () { var o = nav.classList.toggle('open'); menu.setAttribute('aria-expanded', o ? 'true' : 'false'); });
 
   /* catalog tabs */
-  var tabs = document.querySelectorAll('.tabs button'), rows = document.querySelectorAll('#catalog tr[data-cat]'), tab = 'all';
+  var tabs = document.querySelectorAll('.tabs button'), rows = document.querySelectorAll('#games tr[data-cat]'), tab = 'all';
   function setTab(k) {
     tab = k;
     tabs.forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tab === k ? 'true' : 'false'); });
@@ -571,20 +628,22 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     r.addEventListener('click', function (e) { if (e.target.closest('a')) return; if (e.metaKey || e.ctrlKey) window.open(r.dataset.href, '_blank'); else location.href = r.dataset.href; });
   });
 
-  /* tabbed showcase of tools and agents */
-  var stabs = document.querySelectorAll('#stabs button'), sdata = window.LDB_SHOW || [], ci = 0;
-  function go(i) {
-    if (!sdata.length) return; ci = (i + sdata.length) % sdata.length; var d = sdata[ci], img = document.getElementById('simg');
-    stabs.forEach(function (b, k) { b.setAttribute('aria-selected', k === ci ? 'true' : 'false'); });
-    img.classList.add('out');
-    setTimeout(function () { img.src = 'img/' + d.img + '.webp'; img.alt = d.title + ' page'; img.onload = function () { img.classList.remove('out'); }; if (img.complete) img.classList.remove('out'); }, 180);
-    document.getElementById('sk').textContent = d.id + ' · ' + d.kind; document.getElementById('st').textContent = d.title; document.getElementById('sd').textContent = d.desc;
-    document.getElementById('sf').innerHTML = d.facts.map(function (f) { return '<div><small>' + f[0] + '</small><b>' + f[1] + '</b></div>'; }).join('');
-    var a = document.getElementById('sa'); a.href = d.href; a.querySelector('.tx').textContent = d.kind === 'Learning agent' ? 'Train this agent' : 'Open the tool';
-    spy();
-  }
-  stabs.forEach(function (b, k) { b.addEventListener('click', function () { go(k); }); });
-  if (sdata.length) go(0);
+  /* tabbed showcases: one for tools, one for agents */
+  var SETS = window.LDB_SHOW || {};
+  document.querySelectorAll('.showcase').forEach(function (box) {
+    var data = SETS[box.dataset.set] || [], btns = box.querySelectorAll('.tabsx button'), img = box.querySelector('.simg'), cur = -1;
+    function show(i) {
+      if (!data.length || i === cur) return; cur = i; var d = data[i];
+      btns.forEach(function (b, k) { b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+      img.classList.add('out');
+      setTimeout(function () { img.onload = function () { img.classList.remove('out'); }; img.src = 'img/' + d.img + '.webp'; img.alt = d.title + ' page'; if (img.complete) img.classList.remove('out'); }, 200);
+      box.querySelector('.sk').textContent = d.id + ' · ' + d.kind; box.querySelector('.st').textContent = d.title; box.querySelector('.sd').textContent = d.desc;
+      box.querySelector('.sf').innerHTML = d.facts.map(function (f) { return '<div><small>' + f[0] + '</small><b>' + f[1] + '</b></div>'; }).join('');
+      var a = box.querySelector('.sa'); a.href = d.href; a.querySelector('.tx').textContent = d.kind === 'Learning agent' ? 'Train this agent' : 'Open the tool';
+    }
+    btns.forEach(function (b, k) { b.addEventListener('click', function () { show(k); }); });
+    show(0);
+  });
 
   /* hero stat card */
   var SC = window.LDB_STATS || [], sci = 0, scTimer = null;
@@ -600,27 +659,32 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     h.addEventListener('click', function () { var rw = h.parentElement, o = !rw.classList.contains('open'); rw.classList.toggle('open', o); h.setAttribute('aria-expanded', o ? 'true' : 'false'); });
   });
 
-  /* routes: old and new section links */
-  var ROUTE = { course: ['course'], mods: ['course'], tools: ['build', 0], agents: ['build', 3], train: ['build', 3], games: ['catalog', 'games'], arcade: ['catalog', 'games'], catalog: ['catalog', 'all'] };
-  function route(k, smooth) {
-    var r = ROUTE[k]; if (!r) return false;
-    if (r[0] === 'build') go(r[1]);
-    if (r[0] === 'catalog') setTab(r[1]);
-    var el = document.getElementById(r[0]);
-    if (el) { var y = el.getBoundingClientRect().top + scrollY - 40; scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' }); }
+  /* in-page links glide to their section instead of jumping */
+  var anim = null;
+  function glide(y) {
+    cancelAnimationFrame(anim); var y0 = scrollY, dy = y - y0; if (Math.abs(dy) < 2) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { scrollTo(0, y); return; }
+    var dur = Math.min(1300, 520 + Math.abs(dy) * .12), t0 = performance.now();
+    function step(now) { var k = Math.min(1, (now - t0) / dur), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; scrollTo(0, y0 + dy * e); if (k < 1) anim = requestAnimationFrame(step); }
+    anim = requestAnimationFrame(step);
+  }
+  ['wheel', 'touchstart', 'keydown'].forEach(function (ev) { addEventListener(ev, function () { cancelAnimationFrame(anim); }, { passive: true }); });
+  function route(k) {
+    if (k === 'games') setTab('games');
+    var el = k === 'top' ? null : document.getElementById(k); if (k !== 'top' && !el) return false;
+    glide(k === 'top' ? 0 : el.getBoundingClientRect().top + scrollY - (k === 'vision' ? 0 : 30));
     return true;
   }
   document.querySelectorAll('a[data-go]').forEach(function (a) {
-    a.addEventListener('click', function (e) { if (route(a.dataset.go, true)) { e.preventDefault(); closeMenu(); } });
+    a.addEventListener('click', function (e) { if (route(a.dataset.go)) { e.preventDefault(); closeMenu(); } });
   });
   nav.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', closeMenu); });
-  
 
   function spy() {
     var y = innerHeight * .35, cur = '';
-    [['start', ''], ['build', 'build'], ['course', 'course'], ['sim', ''], ['learn', ''], ['catalog', 'cat'], ['console', ''], ['about', 'about']].forEach(function (p) { var el = document.getElementById(p[0]); if (el && el.getBoundingClientRect().top < y) cur = p[1]; });
-    if (cur === 'build') cur = ci < 3 ? 'tools' : 'agents';
-    if (cur === 'cat') cur = tab === 'games' ? 'games' : '';
+    ['course', 'tools', 'agents', 'vision', 'games', 'about'].forEach(function (p) { var el = document.getElementById(p); if (el && el.getBoundingClientRect().top < y) cur = p; });
+    if (cur === 'tools' && document.getElementById('sim').getBoundingClientRect().top < y) cur = '';
+    if (cur === 'games' && document.getElementById('console').getBoundingClientRect().top < y) cur = '';
     if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) cur = 'about';
     links.forEach(function (a) { a.classList.toggle('on', a.dataset.nav === cur); });
   }
@@ -630,10 +694,6 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   var rv = document.querySelectorAll('.rv');
   if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' }); rv.forEach(function (el) { io.observe(el); }); }
   else rv.forEach(function (el) { el.classList.add('in'); });
-
-  /* compass follows the cursor across the feed */
-  var feedEl = document.getElementById('feed'), rot = document.getElementById('crot'), deg = document.getElementById('cdeg');
-  if (feedEl && rot) feedEl.addEventListener('pointermove', function (e) { var r = feedEl.getBoundingClientRect(), d = ((e.clientX - r.left) / r.width - .5) * 120; rot.style.transform = 'rotate(' + (-d).toFixed(1) + 'deg)'; deg.textContent = Math.round((d + 360) % 360) + '°'; });
 
   /* footer wordmark: letters come into focus near the cursor */
   var wm = document.getElementById('wm');
@@ -793,6 +853,117 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   if (document.fonts && document.fonts.load) document.fonts.load('500 100px Manrope').then(start, start); else start();
 })();
 
+/* ---------- hero: a chrome, helmeted cyborg bust, ray-marched live in WebGL ---------- */
+(function () {
+  var cv = document.getElementById('head'); if (!cv) return;
+  var fb = document.getElementById('headFallback');
+  var gl = null;
+  try { gl = cv.getContext('webgl', { premultipliedAlpha: false, alpha: true, antialias: false }) || cv.getContext('experimental-webgl'); } catch (e) {}
+  if (!gl) { cv.style.display = 'none'; if (fb) fb.hidden = false; return; }
+  var VS = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  var FS = [
+'precision highp float;',
+'uniform vec2 R;uniform float T;uniform vec2 M;uniform float Q;',
+'float hash(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
+'float noise(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);',
+' return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),',
+'            mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}',
+'float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}',
+'float sEll(vec3 p,vec3 r){float k0=length(p/r),k1=length(p/(r*r));return k0*(k0-1.)/k1;}',
+'float sCap(vec3 p,vec3 a,vec3 b,float r){vec3 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h)-r;}',
+'float sBox(vec3 p,vec3 b){vec3 q=abs(p)-b;return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.);}',
+'float visor(vec3 p){vec2 v=vec2(p.x*(1.+.25*max(0.,-p.y)),p.y+.10);vec2 q=abs(v)-vec2(.26,.20);return length(max(q,0.))+min(max(q.x,q.y),0.)-.2;}',
+'mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}',
+/* the solid bust before it breaks apart */
+'float body(vec3 p){',
+' float h=sEll(p-vec3(0.,.12,-.02),vec3(.58,.67,.64));',
+' h=smin(h,sEll(p-vec3(0.,-.27,.10),vec3(.49,.46,.53)),.20);',
+' h=smin(h,sCap(p,vec3(0.,-.50,-.08),vec3(0.,-1.0,-.10),.235),.16);',
+' h=smin(h,sEll(p-vec3(0.,-1.10,-.12),vec3(.58,.22,.32)),.24);',
+' vec3 q=vec3(abs(p.x),p.y,p.z);',
+' h=smin(h,sCap(q,vec3(.25,-1.16,-.12),vec3(.98,-1.42,-.12),.24),.22);',
+' h=smin(h,sEll(p-vec3(0.,-1.6,-.04),vec3(.9,.45,.40)),.24);',
+' h=max(h,-(p.y+1.78));',
+' h=smin(h,sCap(q,vec3(.52,.02,-.04),vec3(.575,.02,-.04),.12),.07);',
+' return h;}',
+/* where the bust dissolves: the right-hand side, ragged with noise */
+'float erode(vec3 p){return p.x*.9-p.y*.32+.30*noise(p*4.5+vec3(0.,T*.12,0.))-.58;}',
+'float scene(vec3 p,out float mat){',
+' float b=body(p),e=erode(p);',
+' float d=max(b,e);mat=0.;',
+/* drifting cubes in the eroded zone */
+' float s=.075;vec3 c=floor(p/s)+.5;vec3 cp=c*s;',
+' float ec=erode(cp),bc=body(cp);',
+' if(ec>0.&&ec<.5&&bc<.0){float r=hash(c);',
+'  if(r>.35){float drift=ec*.06*(.5+.5*sin(T*.8+r*6.28));vec3 q=p-cp-vec3(drift,-drift*.4,drift*.3);',
+'   q.xy*=rot(r*3.+T*.3*(r-.5));float bx=sBox(q,vec3(s*(.22+.18*(1.-ec*1.6))));',
+'   if(bx<d){d=bx;mat=2.;}}}',
+/* visor band: black glass wrapped around the front */
+' if(mat<1.&&p.z>.08&&visor(p)<0.)mat=1.;',
+' return d*.8;}',
+'vec3 nrm(vec3 p){float m;vec2 e=vec2(.0015,0.);return normalize(vec3(scene(p+e.xyy,m)-scene(p-e.xyy,m),scene(p+e.yxy,m)-scene(p-e.yxy,m),scene(p+e.yyx,m)-scene(p-e.yyx,m)));}',
+/* a monochrome studio: softbox above-left, a bright horizon line, dark floor */
+'vec3 env(vec3 r){',
+' float y=r.y;vec3 c=mix(vec3(.16,.18,.19),vec3(.78,.84,.88),smoothstep(-.45,.75,y));',
+' c=mix(c,vec3(.05,.06,.065),smoothstep(-.05,-.5,y)*.8);',
+' c+=vec3(1.)*smoothstep(.97,1.,dot(r,normalize(vec3(-.55,.7,.45))))*2.2;',
+' c+=vec3(.85,.9,.95)*exp(-abs(y-.04)*22.)*1.1;',
+' c+=vec3(.7,.76,.8)*smoothstep(.86,1.,dot(r,normalize(vec3(.85,.2,.5))))*1.;',
+' c+=vec3(.5)*smoothstep(.9,1.,dot(r,normalize(vec3(.0,-.2,1.))))*.6;',
+' return c;}',
+'void main(){',
+' vec2 uv=(gl_FragCoord.xy*2.-R)/R.y;',
+' vec3 ro=vec3(0.,-.42,3.6),rd=normalize(vec3(uv*.56,-1.));',
+' float ya=M.x*.42-.30+.10*sin(T*.25),pa=M.y*.18+.04*sin(T*.31);',
+' mat2 Ry=rot(ya),Rx=rot(pa);',
+' ro.xz*=Ry;rd.xz*=Ry;ro.yz*=Rx;rd.yz*=Rx;',
+' float t=0.,mat=0.;bool hit=false;',
+' for(int i=0;i<110;i++){vec3 p=ro+rd*t;float d=scene(p,mat);if(d<.0012){hit=true;break;}t+=d;if(t>7.)break;}',
+' if(!hit){gl_FragColor=vec4(0.);return;}',
+' vec3 p=ro+rd*t,n=nrm(p),r=reflect(rd,n);',
+' float fr=pow(1.-max(dot(n,-rd),0.),4.);',
+' vec3 col;',
+' if(mat>1.5){col=env(r)*.85+vec3(.05);}',
+' else if(mat>.5){col=env(r)*(.12+.8*fr)+vec3(.008,.009,.01);',
+'  float sl=smoothstep(.993,1.,dot(r,normalize(vec3(-.55,.7,.45))));col+=sl*.9;',
+'  float led=smoothstep(.022,.012,length(vec2(p.x+.20,p.y-.18)));col+=vec3(.55,.85,.8)*led*1.4;}',
+' else{col=env(r)*(.78+.30*fr)+vec3(.03);',
+'  float seam=smoothstep(.006,.0,abs(p.x))*step(.3,p.y)*step(-.1,p.z);col*=1.-seam*.7;',
+'  float strap=smoothstep(.008,.0,abs(p.z+.06))*step(.12,p.y);col*=1.-strap*.6;',
+'  float rib=smoothstep(.006,.0,abs(length(vec2(abs(p.x)-.52,p.y-.02))-.1))*step(.4,abs(p.x));col*=1.-rib*.6;',
+'  float edge=abs(visor(p));col*=1.-.7*smoothstep(.016,.0,edge)*step(.05,p.z);}',
+' float ao=clamp(.5+.5*n.y,0.,1.);col*=.75+.25*ao;',
+' if(mat<.5||mat>1.5)col=mix(col,vec3(dot(col,vec3(.33))),.7);',
+' col=pow(col,vec3(.92));',
+' gl_FragColor=vec4(col,1.);}'
+  ].join('\n');
+  function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; }
+  var pr;
+  try { pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error('link'); }
+  catch (e) { cv.style.display = 'none'; if (fb) fb.hidden = false; return; }
+  gl.useProgram(pr);
+  var bf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  var uR = gl.getUniformLocation(pr, 'R'), uT = gl.getUniformLocation(pr, 'T'), uM = gl.getUniformLocation(pr, 'M');
+  var scale = 1, mx = 0, my = 0, tx = 0, ty = 0, on = false, t0 = performance.now(), slow = 0, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size() { var dpr = Math.min(1.5, devicePixelRatio || 1) * scale; cv.width = Math.max(2, Math.round(cv.clientWidth * dpr)); cv.height = Math.max(2, Math.round(cv.clientHeight * dpr)); gl.viewport(0, 0, cv.width, cv.height); }
+  size(); addEventListener('resize', function () { clearTimeout(size.t); size.t = setTimeout(size, 150); });
+  addEventListener('pointermove', function (e) { tx = (e.clientX / innerWidth - .5) * 2; ty = (e.clientY / innerHeight - .5) * 2; }, { passive: true });
+  var last = 0;
+  function frame(now) {
+    if (!on) return;
+    var dt = now - last; last = now;
+    if (dt > 45 && ++slow > 20 && scale > .5) { scale -= .15; slow = 0; size(); } else if (dt < 30) slow = Math.max(0, slow - 1);
+    mx += (tx - mx) * .05; my += (ty - my) * .05;
+    gl.uniform2f(uR, cv.width, cv.height); gl.uniform1f(uT, (now - t0) / 1000); gl.uniform2f(uM, mx, -my);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    requestAnimationFrame(frame);
+  }
+  if (reduce) { gl.uniform2f(uR, cv.width, cv.height); gl.uniform1f(uT, 2); gl.uniform2f(uM, 0, 0); gl.drawArrays(gl.TRIANGLES, 0, 3); return; }
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { var v = es[0].isIntersecting; if (v && !on) { on = true; last = performance.now(); requestAnimationFrame(frame); } if (!v) on = false; }).observe(cv);
+  else { on = true; requestAnimationFrame(frame); }
+})();
+
 /* =====================================================================
    Live feeds: real recorded clips that rotate, with a real object
    detector (YOLOX-tiny, running in the browser on ONNX Runtime) that
@@ -864,14 +1035,10 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     nx.putImageData(nd, 0, 0); noise.push(nc);
   }
   var tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true }), LUT = null;
+  var hot = document.createElement('canvas'), hx2 = hot.getContext('2d');
   function thermalLUT() {
-    var stops = [[0, [8, 4, 30]], [.3, [70, 20, 120]], [.55, [190, 40, 90]], [.75, [245, 120, 30]], [.9, [255, 210, 80]], [1, [255, 252, 230]]], L = [];
-    for (var i = 0; i < 256; i++) {
-      var t = i / 255, k = 0; while (k < stops.length - 2 && t > stops[k + 1][0]) k++;
-      var a = stops[k], b = stops[k + 1], u = (t - a[0]) / (b[0] - a[0]);
-      L.push([0, 1, 2].map(function (c) { return Math.round(a[1][c] + (b[1][c] - a[1][c]) * u); }));
-    }
-    return L;
+    /* white hot: brightness stands in for heat, compressed so the scene reads cold and dark */
+    var L = []; for (var i = 0; i < 256; i++) { var t = i / 255, v = Math.round(12 + 64 * Math.pow(t, 1.1)); L.push([v, v, v]); } return L;
   }
   function grain(alpha) {
     sx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1150,7 +1317,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   }
   function drawInset(t, k) {
     if (W < 700 || sc.width < 2) return;
-    var iw = 220, ih = 150, ix = 16, iy = H - ih - 16;
+    var iw = 220, ih = 150, ix = W - iw - 28, iy = 92;
     var b = t.b, cxm = (b[0] + b[2]) / 2, cym = (b[1] + b[3]) / 2, span = Math.max(40, (b[3] - b[1]) * 1.7, (b[2] - b[0]) * 1.2 * ih / iw);
     var swd = span * iw / ih;
     hx.save(); hx.globalAlpha = Math.min(1, k * 1.5);
@@ -1223,6 +1390,20 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       for (var i = 0; i < d.length; i += 4) { var c = LUT[(d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11) | 0]; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; }
       tx.putImageData(img, 0, 0);
       sx.drawImage(tmp, 0, 0, cw, ch);
+      /* people, animals and engines read hot: their own pixels lifted to white, feathered at the edges */
+      sx.save(); sx.globalCompositeOperation = 'screen';
+      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return; var x0 = t.b[0] * S, y0 = t.b[1] * S, x1 = t.b[2] * S, y1 = t.b[3] * S, w = Math.round(x1 - x0), h = Math.round(y1 - y0); if (w < 4 || h < 4) return;
+        var person = t.g === 'p'; hot.width = w; hot.height = h; hx2.globalCompositeOperation = 'source-over';
+        hx2.fillStyle = person ? '#8a8a8a' : '#6a6a6a'; hx2.fillRect(0, 0, w, h); hx2.globalCompositeOperation = 'screen';
+        hx2.filter = 'grayscale(1) brightness(' + (person ? 3.2 : 2.4) + ') contrast(1.3) blur(' + Math.max(.5, w / 70).toFixed(1) + 'px)';
+        hx2.drawImage(tmp, x0 / 2, y0 / 2, w / 2, h / 2, 0, 0, w, h); hx2.filter = 'none';
+        if (person) { var fg = hx2.createRadialGradient(w / 2, h * .1, 0, w / 2, h * .1, Math.max(4, w * .28)); fg.addColorStop(0, 'rgba(255,255,255,.85)'); fg.addColorStop(1, 'rgba(255,255,255,0)'); hx2.fillStyle = fg; hx2.fillRect(0, 0, w, h); }
+        hx2.globalCompositeOperation = 'destination-in';
+        hx2.save(); hx2.translate(w / 2, h / 2); hx2.scale(w / 2, h / 2);
+        var m = hx2.createRadialGradient(0, 0, 0, 0, 0, 1); m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(.62, 'rgba(0,0,0,.9)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+        hx2.fillStyle = m; hx2.fillRect(-1, -1, 2, 2); hx2.restore();
+        sx.drawImage(hot, x0, y0); });
+      sx.restore();
     } else {
       sx.filter = 'grayscale(1) contrast(1.15) brightness(.92)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
@@ -1429,7 +1610,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
         '  games           list the games',
         '  cat <file>      read about.txt, contact.txt or README.md',
         '  neofetch        system summary',
-        '  thermal         switch the camera feed to thermal',
+        '  thermal         switch the camera feed to white-hot thermal',
         '  optical         switch the camera feed back to optical',
         '  next            switch to the next camera feed',
         '  track           jump up to the live feed',
@@ -1475,9 +1656,9 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       return '<div class="nf"><canvas class="orb" aria-hidden="true"></canvas><div class="nfi">' + info.join('\n') + '</div></div>';
     },
     next: function () { var f = window.ldbNextFeed && window.ldbNextFeed(); return f ? '<span class="ok">switching to ' + f.cam + ' ' + esc(f.place) + '</span>' : '<span class="dim">no other feed ready yet</span>'; },
-    thermal: function () { if (window.ldbSetMode) window.ldbSetMode('thermal'); return '<span class="ok">sensor mode set to THERMAL</span>  <span class="dim">(type "track" to look)</span>'; },
+    thermal: function () { if (window.ldbSetMode) window.ldbSetMode('thermal'); return '<span class="ok">sensor mode set to WHITE HOT</span>  <span class="dim">(type "track" to look)</span>'; },
     optical: function () { if (window.ldbSetMode) window.ldbSetMode('optical'); return '<span class="ok">sensor mode set to OPTICAL</span>'; },
-    track: function () { document.getElementById('feed').scrollIntoView({ behavior: 'smooth' }); return '<span class="dim">back to the live feed...</span>'; },
+    track: function () { document.getElementById('vision').scrollIntoView({ behavior: 'smooth' }); return '<span class="dim">back to the live feed...</span>'; },
     main: function () { setTimeout(function () { location.href = '/'; }, 400); return '<span class="dim">opening ldiazbusquets.github.io ...</span>'; },
     github: function () { window.open('https://github.com/ldiazbusquets', '_blank', 'noopener'); return '<span class="dim">opening github.com/ldiazbusquets ...</span>'; },
     date: function () { return new Date().toString(); },
