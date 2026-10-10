@@ -15,11 +15,23 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
-<meta name="theme-color" content="#6E808E"><script>(function () {   /* light from 7 am to 7 pm on the visitor's own clock, dark the rest of the day (add ?theme=light or ?theme=dark to force one) */
-  var q = /[?&]theme=(light|dark)/.exec(location.search);
-  function set() { var h = new Date().getHours(), lt = q ? q[1] === 'light' : h >= 7 && h < 19, d = document.documentElement;
-    d.classList.toggle('lt', lt); var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#8597A4' : '#6E808E'; }
-  set(); setInterval(set, 60000); window.ldbSetTheme = set;
+<meta name="theme-color" content="#6E808E"><script>(function () {   /* same rule as the main site: light from 7 am to 7 pm on the visitor's device, dark otherwise; a manual pick lasts for the visit, until the next 7 am or 7 pm switch */
+  var root = document.documentElement, q = /[?&]theme=(light|dark)/.exec(location.search);
+  function byHour() { var h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; }
+  function chosen() { if (q) return q[1];
+    try { var raw = (sessionStorage.getItem('theme') || '').split('|'); if (raw[0] && raw[1] === byHour()) return raw[0]; sessionStorage.removeItem('theme'); } catch (e) {}
+    return null; }
+  function apply(t) { var lt = t === 'light', changed = root.classList.contains('lt') !== lt;
+    root.classList.toggle('lt', lt); root.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#8597A4' : '#6E808E';
+    var b = document.getElementById('themeBtn'); if (b) b.setAttribute('aria-label', lt ? 'Switch to dark' : 'Switch to light');
+    if (changed) window.dispatchEvent(new Event('themechange')); }
+  apply(chosen() || byHour());
+  window.ldbToggleTheme = function () { var next = root.classList.contains('lt') ? 'dark' : 'light';
+    try { sessionStorage.setItem('theme', next + '|' + byHour()); } catch (e) {} q = null;
+    root.classList.add('theming'); apply(next); setTimeout(function () { root.classList.remove('theming'); }, 700); };
+  document.addEventListener('DOMContentLoaded', function () { var b = document.getElementById('themeBtn'); if (b) { b.addEventListener('click', window.ldbToggleTheme); apply(root.classList.contains('lt') ? 'light' : 'dark'); } });
+  setInterval(function () { if (!chosen()) apply(byHour()); }, 60000);   /* follows the clock while the page stays open */
 })();</script>
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
@@ -72,6 +84,12 @@
   .nav a.on { color: var(--mint); }
   .hr { justify-self: end; display: flex; gap: 10px; align-items: center; }
   .menu { display: none; }
+  .tbtn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; cursor: pointer; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid var(--ln2); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: background .2s, transform .3s; }
+  .tbtn:hover { background: rgba(255,255,255,.14); } .tbtn:active { transform: scale(.92); }
+  .tbtn svg { width: 16px; height: 16px; display: block; } .tbtn .sun { display: none; }
+  html.lt .tbtn .sun { display: block; } html.lt .tbtn .moon { display: none; }
+  html.lt .tbtn { background: rgba(255,255,255,.5); border-color: rgba(24,34,44,.14); } html.lt .tbtn:hover { background: rgba(255,255,255,.85); }
+  html.theming, html.theming * { transition: background-color .5s ease, color .5s ease, border-color .5s ease, fill .5s ease !important; }
   @media (max-width: 960px) { .nav { gap: 20px; } .hr .gh { display: none; } }
   @media (max-width: 820px) {
     header.top { background: rgba(11,12,13,.6); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
@@ -475,6 +493,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <a href="#about" data-go="about" data-nav="about">About</a>
   </nav>
   <div class="hr">
+    <button class="tbtn" type="button" id="themeBtn" aria-label="Switch between light and dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
     <a class="pill gl sm gh" href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a>
     <a class="pill lt sm ms" href="/"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Main site</a>
     <button class="pill gl sm menu" type="button" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -992,9 +1011,10 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
     '/': '01010204081010', '%': '18190204081303', '>': '08040201020408', '·': '00000004000000' };
   function glyph(c) { var h = F[c] || F[' '], r = []; for (var i = 0; i < 7; i++) r.push(parseInt(h.substr(i * 2, 2), 16)); return r; }
   function textCols(s) { var cols = []; s.split('').forEach(function (c) { var g = glyph(c); for (var b = 4; b >= 0; b--) { var col = 0; for (var r = 0; r < 7; r++) if (g[r] >> b & 1) col |= 1 << r; cols.push(col); } cols.push(0); }); return cols; }
-  var ROWS = 13, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null, PX = null, PY = null, PR = null;
-  /* the outline of the visor glass (in the helmet image's pixels), so the matrix bends with it instead of sitting in a flat box */
-  var GLASS = [[306,396],[722,396],[717,423],[705,450],[691,467],[661,469],[632,470],[602,472],[573,472],[543,473],[514,473],[484,473],[454,472],[425,472],[395,470],[366,469],[336,467],[322,450],[311,423]],
+  var ROWS = 11, COLS = 0, pitch = 0, W = 0, H = 0, dpr = 1, grid = null, PX = null, PY = null, PR = null;
+  /* the outline of the visor glass (in the helmet image's pixels), so the matrix bends with it instead of sitting in a flat box.
+     The nose bump is left out on purpose: the grid runs behind it, and the visor mask hides the dots the bump covers */
+  var GLASS = [[306,395],[722,395],[717,423],[705,450],[691,463],[680,468],[670,473],[660,477],[650,480],[640,483],[630,485],[620,487],[610,489],[600,490],[590,491],[560,491],[512,491],[470,491],[440,491],[430,490],[420,489],[410,487],[400,485],[390,483],[380,481],[370,478],[360,475],[347,470],[336,464],[322,450],[311,423]],
     BX = 298, BY = 384, BW = 432, BH = 110;
   function span(gx) {                                         /* top and bottom of the glass at one image column */
     var lo = 1e9, hi = -1e9;
@@ -1006,42 +1026,50 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
     var r = cv.getBoundingClientRect(); if (r.width < 4) return;
     dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    var kx = W / BW, ky = H / BH, g0 = 306.5, g1 = 721.5, mid = span(512), inset = 3.5;
-    pitch = (mid[1] - mid[0] - inset * 2) * ky / ROWS; COLS = Math.max(8, Math.round((g1 - g0) * kx / pitch)); grid = new Float32Array(COLS * ROWS);
+    var kx = W / BW, ky = H / BH, g0 = 313, g1 = 715, mid = span(512), inset = 3.5;
+    pitch = (mid[1] - mid[0] - inset) * ky / ROWS; COLS = Math.max(8, Math.round((g1 - g0) * kx / pitch)); grid = new Float32Array(COLS * ROWS);
     PX = new Float32Array(COLS * ROWS); PY = new Float32Array(COLS * ROWS); PR = new Float32Array(COLS * ROWS);
-    for (var c = 0; c < COLS; c++) { var gx = g0 + (c + .5) / COLS * (g1 - g0), sp = span(gx) || mid, top = sp[0] + inset, bot = Math.max(top + 2, sp[1] - inset), lp = (bot - top) * ky / ROWS;
+    for (var c = 0; c < COLS; c++) { var gx = g0 + (c + .5) / COLS * (g1 - g0), sp = span(gx) || mid, top = sp[0] + inset, bot = Math.max(top + 2, sp[1] + 3.5), lp = (bot - top) * ky / ROWS;
       for (var r = 0; r < ROWS; r++) { var i = r * COLS + c; PX[i] = (gx - BX) * kx; PY[i] = (top + (r + .5) / ROWS * (bot - top) - BY) * ky; PR[i] = Math.max(.6, Math.min(pitch, lp) * .34); } }
   }
   function put(c, r, v) { if (c >= 0 && c < COLS && r >= 0 && r < ROWS) { var i = r * COLS + c; if (v > grid[i]) grid[i] = v; } }
   function stamp(cols, c0, r0, v) { for (var i = 0; i < cols.length; i++) for (var r = 0; r < 7; r++) if (cols[i] >> r & 1) put(c0 + i, r0 + r, v); }
-  var MSG = textCols('  ENTITY ONLINE  ·  LDB LAB  ·  APPLIED AI  ·  MODELS YOU CAN WATCH THINK  ·  '), WORD = textCols('LDB LAB'), NAME = textCols('ENTITY');
-  /* the scenes, played in a loop */
+  var WORD = textCols('LDB LAB'), NAME = textCols('ENTITY'), TICK1 = textCols('ENTITY ONLINE'), TICK2 = textCols('APPLIED AI \u00b7 MODELS YOU CAN WATCH THINK');
+  function R0() { return Math.floor((ROWS - 7) / 2); }                                   /* text sits on the middle rows */
+  var SPD = 26;                                                                          /* ticker speed, columns per second */
+  function ticker(cols) { return { d: function () { return (COLS + cols.length) / SPD + .35; }, f: function (t) { stamp(cols, COLS - Math.floor(t * SPD), R0(), 1); } }; }
+  /* the scenes, played in a loop; each one runs exactly as long as it needs to finish */
   var scenes = [
-    { d: 9, f: function (t) { stamp(MSG, COLS - Math.floor(t * 15) % (MSG.length + COLS), 3, 1); } },           /* scrolling ticker */
-    { d: 4.2, f: function (t) {                                                                                   /* the name builds in, column by column */
-      var c0 = Math.floor((COLS - WORD.length) / 2), shown = Math.min(WORD.length, Math.floor(t * 22));
-      stamp(WORD.slice(0, shown), c0, 3, 1);
-      if (shown < WORD.length) for (var r = 2; r < 11; r++) put(c0 + shown, r, .9);
-      if (t > 2.6) { var k = (t - 2.6) / 1.6; for (var r2 = 0; r2 < ROWS; r2++) put(Math.floor(k * (COLS + 8)) - 4, r2, .55); } } },
-    { d: 5, f: function (t) {                                                                                     /* a spectrum, as if listening */
-      for (var c = 0; c < COLS; c++) { var u = c / COLS, h = (.35 + .3 * Math.sin(u * 9 + t * 3.1) * Math.sin(u * 3.3 - t * 1.7) + .25 * Math.sin(u * 23 + t * 7)) * ROWS * Math.min(1, t * 1.5, (5 - t) * 1.5);
+    ticker(TICK1),                                                                       /* ENTITY ONLINE scrolls fully across */
+    { d: 3.4, f: function (t) {                                                          /* ENTITY, waking up: flickers, holds, fades */
+      var c0 = Math.round((COLS - NAME.length) / 2), on = t < .9 ? (Math.floor(t * 9) % 2 ? .25 : 1) : 1;
+      stamp(NAME, c0, R0(), on * Math.min(1, (3.4 - t) * 2.5)); } },
+    { d: 5, f: function (t) {                                                            /* a spectrum, as if listening; rises and settles back to zero */
+      var env = Math.min(1, t * 1.5, Math.max(0, (4.6 - t) * 1.5));
+      for (var c = 0; c < COLS; c++) { var u = c / COLS, h = (.35 + .3 * Math.sin(u * 9 + t * 3.1) * Math.sin(u * 3.3 - t * 1.7) + .25 * Math.sin(u * 23 + t * 7)) * ROWS * env;
         for (var r = 0; r < Math.min(ROWS, Math.max(0, h)); r++) put(c, ROWS - 1 - r, r > ROWS * .62 ? 1 : .7); } } },
-    { d: 3.2, f: function (t) {                                                                                   /* ENTITY, waking up */
-      var c0 = Math.floor((COLS - NAME.length) / 2), on = t < .9 ? (Math.floor(t * 9) % 2 ? .25 : 1) : 1;
-      stamp(NAME, c0, 3, on * Math.min(1, (3.2 - t) * 2)); } },
-    { d: 3.6, f: function (t) {                                                                                   /* a scanner sweep with a trail */
-      var p = (Math.sin(t * 2.2 - Math.PI / 2) * .5 + .5) * (COLS - 1);
-      for (var c = 0; c < COLS; c++) { var v = Math.max(0, 1 - Math.abs(c - p) / 7); if (v > 0) for (var r = 3; r < 10; r++) put(c, r, v * (r === 6 ? 1 : .75)); } } }
+    ticker(TICK2),
+    { d: function () { return WORD.length / 22 + 2.2 + (COLS + 10) / (COLS + 8) * 1.6; }, f: function (t) {   /* LDB LAB builds in column by column, holds, then a wipe clears it */
+      var c0 = Math.round((COLS - WORD.length) / 2), shown = Math.min(WORD.length, Math.floor(t * 22)), tb = WORD.length / 22, hold = tb + 1.6;
+      var wipe = t > hold ? Math.floor((t - hold) / 1.6 * (COLS + 8)) - 4 : -99;
+      var cut = wipe > -99 ? WORD.slice(Math.max(0, wipe - c0)) : WORD.slice(0, shown);
+      stamp(cut, wipe > -99 ? Math.max(c0, wipe) : c0, R0(), 1);
+      if (shown < WORD.length) for (var r = R0() - 1; r < R0() + 8; r++) put(c0 + shown, r, .9);
+      if (wipe > -99) for (var r2 = 0; r2 < ROWS; r2++) put(wipe, r2, .6); } },
+    { d: 2 * Math.PI / 2.2 * 2, f: function (t) {                                       /* a scanner: exactly two sweeps there and back */
+      var p = (Math.sin(t * 2.2 - Math.PI / 2) * .5 + .5) * (COLS - 1), env = Math.min(1, t * 3, (2 * Math.PI / 2.2 * 2 - t) * 3);
+      for (var c = 0; c < COLS; c++) { var v = Math.max(0, 1 - Math.abs(c - p) / 7) * env; if (v > 0) for (var r = R0(); r < R0() + 7; r++) put(c, r, v * (r === R0() + 3 ? 1 : .75)); } } }
   ];
+  function dur(sc) { return typeof sc.d === 'function' ? sc.d() : sc.d; }
   var si = 0, st = 0, last = 0, on = true, raf = 0;
   function frame(now) {
     raf = 0; if (!on) return;
     var dt = Math.min(.05, (now - last) / 1000 || .016); last = now; st += dt;
     if (!grid) size();
     if (grid) {
-      for (var i = 0; i < grid.length; i++) grid[i] *= .6;                                                       /* LEDs fade, not snap */
-      if (reduce) { stamp(WORD, Math.floor((COLS - WORD.length) / 2), 3, 1); }
-      else { if (st > scenes[si].d) { st = 0; si = (si + 1) % scenes.length; } scenes[si].f(st); }
+      for (var i = 0; i < grid.length; i++) grid[i] *= .45;                                                       /* LEDs fade, not snap */
+      if (reduce) { stamp(NAME, Math.round((COLS - NAME.length) / 2), R0(), 1); }
+      else { if (st > dur(scenes[si])) { st = 0; si = (si + 1) % scenes.length; } scenes[si].f(st); }
       draw(now / 1000);
     }
     if (!reduce) raf = requestAnimationFrame(frame);
