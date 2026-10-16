@@ -250,6 +250,20 @@ footer .wrap { max-width: 1240px; }
 .qrow label, .wpair label, .find label, .hw .top, .doc h4, .lbl, .cfg label { color: var(--soft) !important; }
 </style>
 <script>addEventListener("scroll", function () { document.documentElement.classList.toggle("scrolled", scrollY > 20); }, { passive: true });</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <style id="ldb-pt">@view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
 body { animation: ldbIn .45s ease both; }
@@ -265,11 +279,6 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   });
   addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
 })();</script>
-
-
-
-
-
 <style id="ldb-theme-css">
   .tbtn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; cursor: pointer; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: background .2s, transform .3s; flex: none; }
   .tbtn:hover { background: rgba(255,255,255,.14); } .tbtn:active { transform: scale(.92); }
@@ -329,6 +338,15 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
   <div class="right">
     <button class="tbtn" type="button" id="themeBtn" aria-label="Switch between light and dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -518,6 +536,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </section>
   -->
 
+  <aside id="ldb-try" style="margin:clamp(40px,6vw,72px) auto 0;max-width:1100px;padding:0 clamp(16px,4vw,32px)"><a href="models.html" style="display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;text-decoration:none;color:var(--ink);border:1px solid var(--gln2);border-radius:20px;padding:20px 24px;background:rgba(127,140,150,.06)"><span style="max-width:640px"><span style="display:block;font:400 11.5px var(--mono);color:var(--dim);margin-bottom:6px">Try it on real models &middot; TOOL-04</span><span style="display:block;font-size:15.5px;line-height:1.55;color:var(--soft)">This page runs a tiny model trained from scratch. To see real ones, give a financial headline to FinBERT, BERT, Qwen3 and Llama 3.2 side by side, all running on your device.</span></span><span class="btn main" style="white-space:nowrap">Open the Model Playground &rarr;</span></a></aside>
 </main>
 
 <footer><div class="wrap">
