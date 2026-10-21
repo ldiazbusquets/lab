@@ -291,6 +291,16 @@
   .hw .kind { font-size: .82rem; color: var(--soft); margin: 0 0 10px; }
   .hw .spec { display: flex; justify-content: space-between; gap: 10px; font: 500 .72rem var(--mono); color: var(--dim); margin-top: 7px; }
   .hw .spec b { color: #fff; text-align: right; font-weight: 600; }
+  .hw .art { margin: 2px -16px 0; aspect-ratio: 16 / 9; background: radial-gradient(58% 64% at 50% 58%, rgba(156,201,232,.10), transparent 72%); }
+  .hw .art img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .hw.mine .art { background: radial-gradient(58% 64% at 50% 58%, rgba(224,168,78,.12), transparent 72%); }
+  .rackrow { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 10px 34px; align-items: center; margin-top: 26px; }
+  .rackfig { margin: 0; position: relative; background: radial-gradient(60% 55% at 50% 52%, rgba(156,201,232,.12), transparent 72%), #0B0C0D; border: 1px solid rgba(255,255,255,.1); padding: 10px 10px 14px; }
+  .rackfig img { display: block; width: 100%; height: auto; }
+  .rackfig figcaption { font: 500 .62rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #A3ADB4; text-align: center; margin-top: 6px; }
+  .rackrow .explain { margin-top: 0; }
+  .rackrow .explain p + p { margin-top: 14px; }
+  @media (max-width: 760px) { .rackrow { grid-template-columns: 1fr; } .rackfig { max-width: 320px; margin: 0 auto; } }
   .mbar { height: 4px; background: rgba(255,255,255,.07); margin-top: 4px; }
   .mbar i { display: block; height: 100%; background: var(--acc); }
   .mbar.bw i { background: var(--warm); }
@@ -578,10 +588,13 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <p class="fine">A generic diagram, not any specific product.</p>
     </div>
     <div class="hwgrid" id="hw5"></div>
-    <p class="fine">Specs as published by each manufacturer. Prices are approximate: workstation cards from retail listings, data-centre chips from reported estimates, since they are sold mainly in large systems. Rubin figures are announced, not yet shipping in volume.</p>
-    <div class="explain two">
+    <p class="fine">The pictures are my own 3D renders of each kind of hardware, not photos of the exact products. Specs as published by each manufacturer. Prices are approximate: workstation cards from retail listings, data-centre chips from reported estimates, since they are sold mainly in large systems. Rubin figures are announced, not yet shipping in volume.</p>
+    <div class="rackrow">
+      <figure class="rackfig"><img src="img/hw-nvl72.webp" alt="Illustration of a liquid-cooled AI rack: stacked compute trays, switch trays in the middle and coolant manifolds down the side" width="800" height="1000" loading="lazy" decoding="async"><figcaption>A rack-scale system, rendered</figcaption></figure>
+      <div class="explain">
       <p>Look at the memory column. My RTX 2080 has 8 GB, enough for a small model squeezed to 4-bit. The RTX PRO 6000 workstation card has 96 GB. A single B200 has 192 GB of HBM next to the chip, at 8 TB/s, about 18 times faster than the gaming card's memory.</p>
       <p>The biggest models do not run on one chip at all. NVIDIA's GB200 NVL72 is a single liquid-cooled rack of 72 GPUs wired together so tightly they act like one giant GPU, drawing roughly as much power as 100 homes. Module 10 covers how thousands of these are combined to train a model.</p>
+      </div>
     </div>
   </section>
 
@@ -615,14 +628,14 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 
   /* ---------- hardware, as published by the manufacturers ---------- */
   var HW = [
-    { id: '2080', name: 'GeForce RTX 2080', maker: 'NVIDIA', year: 2018, kind: 'Gaming card (in my homelab)', mem: 8, mt: 'GDDR6', bw: 448, w: 215, price: '$699 at launch' },
-    { id: 'pro6000', name: 'RTX PRO 6000 Blackwell', maker: 'NVIDIA (sold by PNY in the Americas)', year: 2025, kind: 'Workstation card', mem: 96, mt: 'GDDR7', bw: 1792, w: 600, price: 'about $8,400 to $11,000' },
-    { id: 'h100', name: 'H100 SXM', maker: 'NVIDIA', year: 2022, kind: 'Data-centre GPU', mem: 80, mt: 'HBM3', bw: 3350, w: 700, price: 'about $25,000 to $30,000 (reported)' },
-    { id: 'h200', name: 'H200', maker: 'NVIDIA', year: 2024, kind: 'Data-centre GPU', mem: 141, mt: 'HBM3e', bw: 4800, w: 700, price: 'not published' },
-    { id: 'b200', name: 'B200 (Blackwell)', maker: 'NVIDIA', year: 2025, kind: 'Data-centre GPU', mem: 192, mt: 'HBM3e', bw: 8000, w: 1000, price: 'about $30,000 to $40,000 (reported)' },
-    { id: 'mi355', name: 'Instinct MI355X', maker: 'AMD', year: 2025, kind: 'Data-centre GPU', mem: 288, mt: 'HBM3E', bw: 8000, w: 1400, price: 'not published' },
-    { id: 'tpu', name: 'TPU v7 Ironwood', maker: 'Google', year: 2025, kind: 'AI chip, rented through Google Cloud only', mem: 192, mt: 'HBM', bw: 7370, w: null, price: 'not sold' },
-    { id: 'rubin', name: 'Rubin (Vera Rubin platform)', maker: 'NVIDIA', year: 2026, kind: 'Next generation, announced', mem: 288, mt: 'HBM4', bw: null, w: null, price: 'not published' }
+    { id: '2080', name: 'GeForce RTX 2080', maker: 'NVIDIA', year: 2018, kind: 'Gaming card (in my homelab)', mem: 8, mt: 'GDDR6', bw: 448, w: 215, price: '$699 at launch', art: 'Illustration of a dual-fan gaming graphics card' },
+    { id: 'pro6000', name: 'RTX PRO 6000 Blackwell', maker: 'NVIDIA (sold by PNY in the Americas)', year: 2025, kind: 'Workstation card', mem: 96, mt: 'GDDR7', bw: 1792, w: 600, price: 'about $8,400 to $11,000', art: 'Illustration of a blower-style workstation graphics card' },
+    { id: 'h100', name: 'H100 SXM', maker: 'NVIDIA', year: 2022, kind: 'Data-centre GPU', mem: 80, mt: 'HBM3', bw: 3350, w: 700, price: 'about $25,000 to $30,000 (reported)', art: 'Illustration of a data-centre GPU module under a tall finned heatsink' },
+    { id: 'h200', name: 'H200', maker: 'NVIDIA', year: 2024, kind: 'Data-centre GPU', mem: 141, mt: 'HBM3e', bw: 4800, w: 700, price: 'not published', art: 'Illustration of a data-centre GPU module with its cooler removed: one die surrounded by six memory stacks' },
+    { id: 'b200', name: 'B200 (Blackwell)', maker: 'NVIDIA', year: 2025, kind: 'Data-centre GPU', mem: 192, mt: 'HBM3e', bw: 8000, w: 1000, price: 'about $30,000 to $40,000 (reported)', art: 'Illustration of a two-die GPU module with eight memory stacks and its liquid cold plate lifted off' },
+    { id: 'mi355', name: 'Instinct MI355X', maker: 'AMD', year: 2025, kind: 'Data-centre GPU', mem: 288, mt: 'HBM3E', bw: 8000, w: 1400, price: 'not published', art: 'Illustration of an accelerator module built from several chiplets with eight memory stacks' },
+    { id: 'tpu', name: 'TPU v7 Ironwood', maker: 'Google', year: 2025, kind: 'AI chip, rented through Google Cloud only', mem: 192, mt: 'HBM', bw: 7370, w: null, price: 'not sold', art: 'Illustration of a liquid-cooled tray of four AI chips joined by coolant tubes' },
+    { id: 'rubin', name: 'Rubin (Vera Rubin platform)', maker: 'NVIDIA', year: 2026, kind: 'Next generation, announced', mem: 288, mt: 'HBM4', bw: null, w: null, price: 'not published', art: 'Glass outline of a next-generation GPU package, not yet shipping' }
   ];
   var MODELS = [
     { name: 'Lab mini model', p: 867072 }, { name: 'Llama 3.1 8B', p: 8e9 }, { name: 'Llama 3.1 70B', p: 70e9 }, { name: 'Llama 3.1 405B', p: 405e9 }
@@ -754,7 +767,8 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   })();
   $('hw5').innerHTML = HW.map(function (h) {
     var mx = 288, mine = h.id === '2080';
-    return '<div class="hw corners' + (mine ? ' mine' : '') + '"><div class="top"><span>' + h.maker + '</span><span>' + h.year + '</span></div><h3>' + h.name + '</h3><p class="kind">' + h.kind + '</p>' +
+    return '<div class="hw corners' + (mine ? ' mine' : '') + '"><div class="top"><span>' + h.maker + '</span><span>' + h.year + '</span></div>' +
+      '<div class="art"><img src="img/hw-' + h.id + '.webp" alt="' + h.art + '" width="960" height="540" loading="lazy" decoding="async"></div><h3>' + h.name + '</h3><p class="kind">' + h.kind + '</p>' +
       '<div class="spec"><span>Memory</span><b>' + h.mem + ' GB ' + h.mt + '</b></div><div class="mbar"><i style="width:' + (h.mem / mx * 100).toFixed(1) + '%"></i></div>' +
       '<div class="spec"><span>Bandwidth</span><b>' + (h.bw ? (h.bw >= 1000 ? (h.bw / 1000).toFixed(h.bw % 1000 ? 2 : 0).replace(/0$/, '') + ' TB/s' : h.bw + ' GB/s') : 'not yet published') + '</b></div><div class="mbar bw"><i style="width:' + (h.bw ? h.bw / 8000 * 100 : 0).toFixed(1) + '%"></i></div>' +
       '<div class="spec"><span>Power</span><b>' + (h.w ? h.w.toLocaleString() + ' W' : 'not published') + '</b></div>' +
