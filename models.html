@@ -185,6 +185,10 @@
   .guess span.p { border-color: rgba(107,211,138,.45); color: #A8E6BC; } .guess span.n { border-color: rgba(240,98,98,.45); color: #F5A3A3; }
   .chat { font-size: 15px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
   .chat .cur { display: inline-block; width: 7px; height: 15px; background: var(--ink); vertical-align: -2px; margin-left: 2px; animation: pulse .8s step-end infinite; }
+  .pcall { margin: 0 0 10px; font-size: 13.5px; color: var(--soft); }
+  .pcall b { font-weight: 500; background: none !important; } .pcall b.pos { color: #A8E6BC; } .pcall b.neg { color: #F5A3A3; } .pcall b.neu { color: var(--ink); }
+  .pcall span { font: 400 11px var(--mono); color: var(--dim); margin-left: 6px; }
+  .words span.now { outline: 1px dashed rgba(255,255,255,.35); }
   .meta2 { font: 400 11px var(--mono); color: var(--dim); margin: 0; border-top: 1px solid var(--line); padding-top: 12px; }
   .mc .act { align-self: flex-start; }
   .gate { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -512,8 +516,58 @@ function ask(k, h) {
     var clean = text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim();
     chat.innerHTML = esc(clean || '(no answer)'); var c = readCall(clean); board(k, c, c ? null : 'Unclear');
     var s = (performance.now() - t0) / 1000; meta.textContent = n + ' tokens in ' + s.toFixed(1) + ' s · ' + (n / s).toFixed(1) + ' tokens per second on your device';
-    m.busy = false; status(k, 'ok', 'Ready');
+    status(k, 'busy', 'Explaining');
+    return explain(k, h, token, o).then(function () { if (m.tok === token) { m.busy = false; status(k, 'ok', 'Ready'); } });
   }).catch(function (e) { m.busy = false; status(k, 'err', 'Error'); board(k, null, 'Error'); chat.textContent = 'Something went wrong: ' + (e && e.message || e); });
+}
+
+/* ---------- why the chatbot decided: ask for a one-word call, then take each word out and ask again ---------- */
+var PROBE = 'Is this headline most likely good, bad or neutral news for the company’s stock? Answer with exactly one word: good, bad or neutral.';
+function probe(k, h) {
+  var req = { messages: [{ role: 'system', content: PROBE }, { role: 'user', content: 'Headline: ' + h }], max_tokens: 1, temperature: 0, logprobs: true, top_logprobs: 5 };
+  if (k === 'qwen') req.extra_body = { enable_thinking: false };
+  return LLM[k].eng.chat.completions.create(req).then(function (r) {
+    var c = r && r.choices && r.choices[0], lp = c && c.logprobs && c.logprobs.content && c.logprobs.content[0], top = lp && lp.top_logprobs;
+    if (!top || !top.length) throw new Error('no logprobs');
+    var p = { positive: 0, negative: 0, neutral: 0 };
+    top.forEach(function (x) {
+      var t = String(x.token).replace(/^[\s"'*_]+/, '').toLowerCase(), v = Math.exp(x.logprob);
+      if (/^(good|pos|bull|great)/.test(t)) p.positive += v; else if (/^(bad|neg|bear|poor)/.test(t)) p.negative += v; else if (/^neu/.test(t)) p.neutral += v;
+    });
+    var tot = p.positive + p.negative + p.neutral; if (!(tot > 0)) throw new Error('no label');
+    p.positive /= tot; p.negative /= tot; p.neutral /= tot; return p;
+  });
+}
+function explain(k, h, token, o) {
+  var m = LLM[k], words = h.split(/\s+/).filter(Boolean);
+  if (words.length < 2 || words.length > 30) return Promise.resolve();
+  var why = document.createElement('div'); why.className = 'why';
+  why.innerHTML = '<p class="k2">Which words drove its call: asked for a one-word answer, then each word is removed in turn and it is asked again</p><p class="pcall"></p><div class="words">' + esc(h) + '</div>';
+  o.insertBefore(why, o.querySelector('.meta2'));
+  var pc = why.querySelector('.pcall'), wd = why.querySelector('.words');
+  pc.textContent = 'Asking for a one-word call…';
+  return probe(k, h).then(function (base) {
+    if (m.tok !== token) return;
+    var top = ['positive', 'negative', 'neutral'].sort(function (a, b) { return base[b] - base[a]; })[0];
+    pc.innerHTML = 'Asked for one word, it says <b class="' + CALL[top][1] + '">' + ({ positive: 'good', negative: 'bad', neutral: 'neutral' })[top] + '</b> <span>' + Math.round(base[top] * 100) + '% sure</span>';
+    board(k, top);
+    var drops = [], i = 0, col = top === 'positive' ? '107,211,138' : top === 'negative' ? '240,98,98' : '163,173,180';
+    function paint(done) {
+      var mx = Math.max.apply(null, drops.concat([0.0001]));
+      wd.innerHTML = words.map(function (w, j) {
+        var a = j < drops.length ? drops[j] / mx : 0;
+        return '<span' + (j === drops.length && !done ? ' class="now"' : '') + ' style="background:rgba(' + col + ',' + (a * .55).toFixed(2) + ')">' + esc(w) + '</span>';
+      }).join(' ');
+    }
+    function next() {
+      if (m.tok !== token) return;
+      if (i >= words.length) { paint(true); return; }
+      paint(false);
+      var v = words.filter(function (_, j) { return j !== i; }).join(' ');
+      return probe(k, v).then(function (p) { drops.push(Math.max(0, base[top] - p[top])); i++; return next(); });
+    }
+    return next();
+  }).catch(function () { if (why.parentNode) why.parentNode.removeChild(why); });
 }
 
 /* ---------- run everything on the current headline ---------- */
