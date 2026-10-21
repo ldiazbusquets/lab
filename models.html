@@ -321,13 +321,13 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div class="top"><div><p class="kind">Encoder &middot; fine-tuned</p><h3>FinBERT</h3><div class="who">ProsusAI &middot; 110M parameters &middot; ~110 MB</div></div><span class="st" id="st-fin"><i></i>Waiting</span></div>
       <p class="role">BERT fine-tuned on financial news. Reads the whole headline at once and labels it positive, negative or neutral.</p>
       <div class="prog"><b id="pg-fin"></b></div>
-      <div class="out" id="o-fin"><p class="empty">Loads automatically. Pick a headline to see its call.</p></div>
+      <div class="out" id="o-fin"><p class="empty">Loads on its own on computers. Pick a headline to see its call.</p></div>
     </div>
     <div class="panel mc" id="m-bert">
       <div class="top"><div><p class="kind">Encoder &middot; general</p><h3>BERT</h3><div class="who">Google &middot; 110M parameters &middot; ~110 MB</div></div><span class="st" id="st-bert"><i></i>Waiting</span></div>
       <p class="role">The general-purpose original. It was only ever trained to fill in missing words, so we ask it to fill one in.</p>
       <div class="prog"><b id="pg-bert"></b></div>
-      <div class="out" id="o-bert"><p class="empty">Loads automatically. Pick a headline to see its guess.</p></div>
+      <div class="out" id="o-bert"><p class="empty">Loads on its own on computers. Pick a headline to see its guess.</p></div>
     </div>
     <div class="panel mc" id="m-qwen">
       <div class="top"><div><p class="kind">Decoder &middot; chat</p><h3>Qwen3</h3><div class="who">Alibaba &middot; 0.6B parameters &middot; ~335 MB</div></div><span class="st" id="st-qwen"><i></i>Not loaded</span></div>
@@ -427,11 +427,18 @@ function start(k) {
   if (k === 'fin') return finP = loadEnc('fin', 'text-classification', 'Xenova/finbert').then(function (p) { fin = p; return p; });
   return bertP = loadEnc('bert', 'fill-mask', 'Xenova/bert-base-uncased').then(function (p) { bert = p; return p; });
 }
-start('fin'); start('bert');
+/* phones, data saver or low memory: wait for a tap instead of downloading 220 MB on arrival */
+var LIGHT = (function () { var c = navigator.connection || {}; return !!c.saveData || /2g/.test(c.effectiveType || '') || (navigator.deviceMemory && navigator.deviceMemory <= 4) || (matchMedia('(pointer: coarse)').matches && innerWidth < 900); })();
+function gate(k, name) {
+  var o = $('o-' + k); status(k, '', 'Not loaded');
+  o.innerHTML = '<div class="gate"><button type="button" class="act">Load ' + name + ' &middot; 110 MB</button><p>Waits for a tap on phones and data saver. Downloads once, then your browser keeps it.</p></div>';
+  o.querySelector('button').addEventListener('click', function () { o.innerHTML = '<p class="empty">Downloading…</p>'; start(k).then(function () { if (txt.value.trim()) run(); }).catch(function () {}); });
+}
+if (LIGHT) { gate('fin', 'FinBERT'); gate('bert', 'BERT'); } else { start('fin'); start('bert'); }
 
 var LAB = CALL;
 function runFin(h) {
-  var o = $('o-fin'); if (!fin) return finP.then(function () { return runFin(h); }, function () {});
+  var o = $('o-fin'); if (!finP) return Promise.resolve(); if (!fin) return finP.then(function () { return runFin(h); }, function () {});
   o.innerHTML = '<p class="empty">Reading…</p>'; board('fin', null, '…');
   return finP.then(function () { return fin(h, { top_k: 3 }); }).then(function (res) {
     var by = {}; res.forEach(function (r) { by[r.label.toLowerCase()] = r.score; });
@@ -453,7 +460,7 @@ function runFin(h) {
 var POSW = ['good', 'great', 'positive', 'excellent', 'encouraging', 'promising', 'welcome', 'strong', 'exciting', 'fantastic', 'wonderful', 'favorable', 'impressive', 'healthy', 'bullish'];
 var NEGW = ['bad', 'negative', 'terrible', 'worrying', 'disappointing', 'concerning', 'troubling', 'weak', 'alarming', 'grim', 'awful', 'bleak', 'unfavorable', 'devastating', 'bearish'];
 function runBert(h) {
-  var o = $('o-bert'); if (!bert) return bertP.then(function () { return runBert(h); }, function () {});
+  var o = $('o-bert'); if (!bertP) return Promise.resolve(); if (!bert) return bertP.then(function () { return runBert(h); }, function () {});
   o.innerHTML = '<p class="empty">Reading…</p>'; board('bert', null, '…');
   var prompt = h.replace(/\s+$/, '') + (/[.!?]$/.test(h.trim()) ? '' : '.') + ' Overall, this news is [MASK].';
   return bertP.then(function () { return bert(prompt, { top_k: 300 }); }).then(function (res) {

@@ -83,6 +83,14 @@
   .nav a:hover { color: var(--ink); }
   .nav a.on { color: var(--mint); }
   .hr { justify-self: end; display: flex; gap: 10px; align-items: center; }
+  .sites { display: inline-flex; align-items: center; height: 40px; padding: 3px; border-radius: 999px; border: 1px solid var(--ln2); background: rgba(255,255,255,.05); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); white-space: nowrap; }
+  .sites a, .sites b { display: grid; place-items: center; height: 32px; padding: 0 13px; border-radius: 999px; font: 500 13px var(--sans); color: rgba(242,244,245,.8); transition: color .2s, background .2s; }
+  html.lt .sites a { color: rgba(21,25,28,.7); }
+  .sites a:hover { color: var(--ink); background: rgba(255,255,255,.08); }
+  .sites b { background: var(--ink); color: var(--bg); }
+  html.lt .sites { background: rgba(255,255,255,.5); border-color: rgba(24,34,44,.14); } html.lt .sites a:hover { background: rgba(24,34,44,.06); }
+  .msites { display: none; }
+  @media (max-width: 1240px) { .sites b, .hr .gh { display: none; } }
   .menu { display: none; }
   .tbtn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; cursor: pointer; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid var(--ln2); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: background .2s, transform .3s; }
   .tbtn:hover { background: rgba(255,255,255,.14); } .tbtn:active { transform: scale(.92); }
@@ -96,7 +104,8 @@
     header.top .w { grid-template-columns: 1fr auto; height: 64px; }
     .nav { display: none; position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 0; background: rgba(11,12,13,.97); border-bottom: 1px solid var(--ln); padding: 6px var(--g) 14px; }
     .nav.open { display: flex; } .nav a { padding: 14px 0; border-bottom: 1px solid var(--ln); font-size: 15px; } .nav a:last-child { border: 0; }
-    .menu { display: inline-flex; } .hr .ms { display: none; }
+    .menu { display: inline-flex; } .hr .sites { display: none; }
+    .nav.open .msites { display: flex; gap: 6px; margin-top: 12px; } .nav .msites a, .nav .msites b { flex: 1; text-align: center; padding: 11px 0; border: 1px solid var(--ln2); border-radius: 999px; font: 500 14px var(--sans); color: var(--t2); } .nav .msites b { background: var(--ink); color: var(--bg); border-color: transparent; }
   }
 
   /* hero: steel gradient, particle wordmark, live feed in the middle */
@@ -157,6 +166,8 @@
   /* computer vision: the camera feed, full width */
   .vision { position: relative; margin-top: clamp(96px, 11vw, 150px); height: min(100svh, 60vw); min-height: 560px; background: #0F1112; overflow: hidden; isolation: isolate; scroll-margin-top: 0; }
   .vision .feed { position: absolute; inset: 0; cursor: crosshair; }
+  .vision .vgate { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 22px; border-radius: 16px; max-width: calc(100% - 40px); text-align: center; border: 1px solid rgba(255,255,255,.28); background: rgba(18,20,21,.72); color: #E8ECEE; font: 600 12px "Geist Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .vision .vgate small { font-weight: 400; letter-spacing: .02em; text-transform: none; color: #A3ADB4; }
   .vision .feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .vision::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(11,12,13,.75) 0%, rgba(11,12,13,0) 18%, rgba(11,12,13,0) 55%, rgba(11,12,13,.88) 100%), linear-gradient(90deg, rgba(11,12,13,.55), rgba(11,12,13,0) 45%); }
   .vtop { position: absolute; z-index: 2; top: 24px; left: var(--g); right: var(--g); display: flex; justify-content: space-between; align-items: center; gap: 12px; pointer-events: none; }
@@ -492,11 +503,12 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <a href="#vision" data-go="vision" data-nav="vision">Vision</a>
     <a href="#games" data-go="games" data-nav="games">Index</a>
     <a href="#about" data-go="about" data-nav="about">About</a>
+    <div class="msites"><a href="/">Portfolio</a><a href="/finance/">Finance</a><b aria-current="page">Lab</b></div>
   </nav>
   <div class="hr">
     <button class="tbtn" type="button" id="themeBtn" aria-label="Switch between light and dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
     <a class="pill gl sm gh" href="https://github.com/ldiazbusquets" rel="noopener">GitHub</a>
-    <a class="pill lt sm ms" href="/"><span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Main site</a>
+    <span class="sites" role="navigation" aria-label="Luis Diaz Busquets sites"><a href="/">Portfolio</a><a href="/finance/">Finance</a><b aria-current="page">Lab</b></span>
     <button class="pill gl sm menu" type="button" id="menuBtn" aria-expanded="false" aria-controls="nav">Menu</button>
   </div>
 </div></header>
@@ -609,7 +621,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
   <div class="vtop">
     <span class="hide"><b id="camName"></b><span id="camPlace"></span></span><span></span>
-    <span class="vtag">YOLOX-tiny &middot; running on your device</span>
+    <span class="vtag">YOLOX-tiny &middot; running on your device &middot; ~30 MB</span>
   </div>
   <div class="vbot">
     <div class="vcopy"><span class="lbl">Computer vision</span><h2 class="h">Real detection, <em>on real footage.</em></h2>
@@ -1289,7 +1301,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     feedNo.textContent = 'FEED ' + pad(i + 1, 2) + '/' + pad(FEEDS.length, 2);
     log('SYS', (first ? 'feed attached: ' : 'switched to ') + f.cam + ' ' + f.place.toLowerCase() + ', ' + video.videoWidth + 'x' + video.videoHeight);
     preloadAfter(i);   /* start loading the next clip in the background */
-    if (first) loadModel();
+    if (first) wantModel();
   }
   function maybeSwitch() {
     if (sw || paused || cur < 0 || T - shownAt < (FEEDS[cur].secs || CLIP_SECONDS)) return;
@@ -1608,6 +1620,21 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       return pump().then(function () { var u = new Uint8Array(got), o = 0; parts.forEach(function (p) { u.set(p, o); o += p.length; }); return u.buffer; });
     });
   }
+  /* the detector (about 30 MB with its runtime) loads only when the feed is on screen; phones and data saver wait for a tap */
+  var LIGHT = (function () { var c = navigator.connection || {}; return !!c.saveData || /2g/.test(c.effectiveType || '') || (navigator.deviceMemory && navigator.deviceMemory <= 4) || (matchMedia('(pointer: coarse)').matches && innerWidth < 900); })();
+  var modelAsked = false, gateBtn = null;
+  function wantModel() {
+    if (modelAsked) return;
+    if (LIGHT) {
+      if (gateBtn) return;
+      gateBtn = document.createElement('button'); gateBtn.type = 'button'; gateBtn.className = 'vgate';
+      gateBtn.innerHTML = 'Start the detector<small>About 30 MB, downloaded once. Runs on your device.</small>';
+      gateBtn.addEventListener('click', function (e) { e.stopPropagation(); gateBtn.remove(); modelAsked = true; loadModel(); });
+      feed.appendChild(gateBtn); log('SYS', 'detector waiting for a tap (about 30 MB)');
+      return;
+    }
+    modelAsked = true; loadModel();
+  }
   function loadModel() {
     log('SYS', 'loading detector: YOLOX-tiny, 80 COCO classes');
     var t0 = performance.now(), eps = ('gpu' in navigator) ? ['webgpu', 'wasm'] : ['wasm'], threads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
@@ -1887,7 +1914,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
       }
       drawInset(lock, k);
     } else drawInset(null, 1);
-    if (!model) { hx.font = '600 11px "Geist Mono", ui-monospace, monospace'; tag(12, H - 14, detFailed ? 'Detector unavailable on this device' : dlPct >= 0 ? 'Loading detector ' + dlPct + '%' : 'Starting detector...', 'rgba(18,20,21,.8)', '#A3ADB4'); }
+    if (!model) { hx.font = '600 11px "Geist Mono", ui-monospace, monospace'; tag(12, H - 14, detFailed ? 'Detector unavailable on this device' : (LIGHT && !modelAsked) ? 'Detector off until you start it' : dlPct >= 0 ? 'Loading detector ' + dlPct + '%' : 'Starting detector...', 'rgba(18,20,21,.8)', '#A3ADB4'); }
     drawAxes();
     if (mouse.in && !touch) drawCursor(hover);
     if (hover && mouse.down) { lock = hover; lockSince = T; manual = true; log('LOCK', 'manual lock on ' + label(lock) + ' (' + lock.cls + ')'); }
@@ -1905,7 +1932,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var n = { p: 0, v: 0, a: 0, o: 0 }; vis.forEach(function (t) { n[t.g]++; });
     stats.textContent = 'OBJ ' + pad(vis.length, 2) + '  PER ' + pad(n.p, 2) + '  VEH ' + pad(n.v, 2) + '  ANI ' + pad(n.a, 2) + '  ' + Math.round(fps) + ' FPS' + (model ? '  INF ' + Math.round(infer) + 'MS' : '');
     pcount.textContent = pad(vis.length, 2);
-    var st = document.getElementById('stTr'); if (st) { st.textContent = pad(vis.length, 2); document.getElementById('stPe').textContent = pad(n.p, 2); document.getElementById('stVe').textContent = n.v; document.getElementById('stIn').textContent = model ? Math.round(infer) + ' ms' : (detFailed ? 'offline' : 'loading'); }
+    var st = document.getElementById('stTr'); if (st) { st.textContent = pad(vis.length, 2); document.getElementById('stPe').textContent = pad(n.p, 2); document.getElementById('stVe').textContent = n.v; document.getElementById('stIn').textContent = model ? Math.round(infer) + ' ms' : (detFailed ? 'offline' : (LIGHT && !modelAsked) ? 'off' : 'loading'); }
     if (barObj) { barObj.textContent = pad(vis.length, 2); barFps.textContent = Math.round(fps); }
     plist.innerHTML = vis.slice().sort(function (a, b) { return (b.b[3] - b.b[1]) - (a.b[3] - a.b[1]); }).slice(0, 10).map(function (t) {
       return '<tr' + (t === lock ? ' class="lk"' : '') + '><td>' + label(t) + '</td><td>' + t.cls.toUpperCase().slice(0, 12) + '</td><td>' + t.s.toFixed(2) + '</td><td>' +
@@ -1972,7 +1999,8 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
   resize();
   setPaused(paused);
   log('SYS', 'LDB-Track v0.5 started, ' + FEEDS.length + ' feeds configured');
-  make(0);
+  /* clips and detector wait until the feed is close to the screen */
+  if ('IntersectionObserver' in window) { var near = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { near.disconnect(); make(0); } }, { rootMargin: '400px 0px' }); near.observe(feed); } else make(0);
   requestAnimationFrame(function (t) { last = t; loop(t); });
 
 })();
