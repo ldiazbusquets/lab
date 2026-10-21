@@ -279,6 +279,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="bh"><span>Out-of-sample results</span><span>40 test years</span></div>
         <div class="stat2"><div><span>Agent Sharpe</span><b id="sA">-</b></div><div><span>Buy and hold</span><b id="sB">-</b></div><div><span>Agent yearly return</span><b id="rA">-</b></div><div><span>Worst drop (agent / hold)</span><b id="dd">-</b></div></div>
         <p class="why" id="verdict">Press Train. The agent starts knowing nothing and acts at random.</p>
+        <p class="note" style="margin-top:10px"><button type="button" class="act" id="dlRes">Download results (CSV)</button> Every test day: the market move, the agent's position and both portfolios, so the numbers above can be checked in a spreadsheet.</p>
       </div>
       <div class="box">
         <div class="bh"><span>What it has learned</span><span>allocation by situation</span></div>
@@ -386,6 +387,22 @@ function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach
     var m = mean(all), s = sd(all); return { sharpe: s ? m / s * Math.sqrt(252) : 0, ret: Math.exp(m * 252) - 1, dd: mean(dds) }; }
   function evaluate() { if (!baseCache) baseCache = { hold: stats(holdP), ma: stats(maP) }; var A = stats(agentP); curve.push([episodes, A.sharpe]); last = A; }
   var last = null;
+  /* the out-of-sample run as a spreadsheet: settings, the summary, then every day of all 40 test years */
+  function exportCSV() {
+    var A = stats(agentP), H = baseCache.hold, M = baseCache.ma, L = [];
+    L.push('LDB Lab market trader: out-of-sample results'); L.push('Training years,' + episodes); L.push('Trading cost per unit traded,' + cost); L.push('Risk setting,' + riskLvl); L.push('Shorting allowed,' + (allowShort ? 'yes' : 'no'));
+    L.push('Test set,40 simulated years from seed 777; the agent never trained on them'); L.push('');
+    L.push('Strategy,Sharpe ratio,Yearly return,Average worst drop');
+    [['Agent', A], ['Buy and hold', H], ['50-day average rule', M]].forEach(function (r) { L.push(r[0] + ',' + r[1].sharpe.toFixed(4) + ',' + r[1].ret.toFixed(6) + ',' + r[1].dd.toFixed(6)); });
+    L.push(''); L.push('Test year,Day,Market regime,Market log return,Agent position,Agent value,Buy-and-hold value');
+    TEST.forEach(function (Y, yi) { var pos = allowShort ? 1 : 0, ea = 1, eh = 1, ph = ACTS.indexOf(1);
+      for (var t = 0; t < Y.r.length - 1; t++) { var a = agentP(Y, t, pos), r = Y.r[t + 1];
+        ea *= Math.exp(ACTS[a] * r - cost * Math.abs(ACTS[a] - ACTS[pos])); eh *= Math.exp(ACTS[ph] * r - (t === 0 ? cost * Math.abs(ACTS[ph] - ACTS[allowShort ? 1 : 0]) : 0));
+        L.push((yi + 1) + ',' + (t + 1) + ',' + (['normal', 'bull', 'bear'][Y.reg[t + 1]] || Y.reg[t + 1]) + ',' + r.toFixed(6) + ',' + ACTS[a] + ',' + ea.toFixed(6) + ',' + eh.toFixed(6)); pos = a; } });
+    var b = new Blob([L.join('\n')], { type: 'text/csv' }), u = URL.createObjectURL(b), l = document.createElement('a');
+    l.href = u; l.download = 'market-trader-results-' + episodes + '-years.csv'; document.body.appendChild(l); l.click(); l.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 1000);
+  }
+  $('dlRes').addEventListener('click', exportCSV);
   function draw() {
     lineChart($('curve'), [{ data: curve.map(function (p) { return [p[0], baseCache.hold.sharpe]; }), color: '#A3ADB4', dash: '5 4', width: 1.4 }, { data: curve.map(function (p) { return [p[0], baseCache.ma.sharpe]; }), color: '#F2C14C', dash: '5 4', width: 1.4 }, { data: curve, color: '#9CC9E8', width: 2.2 }], { yfmt: function (v) { return v.toFixed(2); }, zero: true });
     legend($('curveLeg'), [['agent', '#9CC9E8'], ['buy and hold', '#A3ADB4', 1], ['50-day average rule', '#F2C14C', 1]]);

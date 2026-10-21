@@ -481,8 +481,23 @@ var LLM = { qwen: { id: 'Qwen3-0.6B-q4f16_1-MLC', name: 'Qwen3', eng: null, busy
 var SYS = 'You are a careful equity analyst teaching a finance student. Answer in exactly two short sentences: first, what the headline means in plain English; second, whether news like this is usually good, bad or neutral for the company’s stock, and why. Do not add disclaimers.';
 var wlLib = null; function wlLoad() { return wlLib || (wlLib = import(WL)); }
 var hasGPU = !!navigator.gpu;
+/* hardware check before offering a download: a WebGPU adapter with 16-bit shader support (these q4f16 builds need it) */
+function gpuCheck() {
+  if (!hasGPU) return Promise.resolve({ ok: false, why: 'This browser cannot run chat models yet. They need WebGPU: Chrome or Edge on a laptop, or Safari 26 on a Mac or iPhone. FinBERT and BERT still work here.' });
+  return navigator.gpu.requestAdapter().then(function (ad) {
+    if (!ad) return { ok: false, why: 'WebGPU is switched on, but this device did not offer a graphics adapter. FinBERT and BERT still work here.' };
+    if (!ad.features.has('shader-f16')) return { ok: false, why: 'This graphics chip lacks the 16-bit maths these model builds use, so they would fail after downloading. FinBERT and BERT still work here.' };
+    return { ok: true };
+  }).catch(function () { return { ok: false, why: 'The graphics adapter could not be checked. FinBERT and BERT still work here.' }; });
+}
+var gpuP = gpuCheck();
 ['qwen', 'llama'].forEach(function (k) {
   var b = $('ld-' + k), m = LLM[k];
+  gpuP.then(function (g) {
+    if (!g.ok) { status(k, 'err', 'Not supported'); board(k, null, 'Not supported'); $('o-' + k).innerHTML = '<p class="warn">' + g.why + '</p>'; return; }
+    var note = $('o-' + k).querySelector('.gate p');
+    if (note) note.textContent = 'Checked: your graphics chip supports WebGPU with 16-bit maths. Downloads once, then your browser keeps it.';
+  });
   if (!hasGPU) { status(k, 'err', 'Needs WebGPU'); board(k, null, 'Needs WebGPU'); $('o-' + k).innerHTML = '<p class="warn">This browser cannot run chat models yet. They need WebGPU: Chrome or Edge on a laptop, or Safari 26 on a Mac or iPhone. FinBERT and BERT still work here.</p>'; return; }
   b.addEventListener('click', function () {
     b.disabled = true; status(k, 'busy', 'Downloading'); board(k, null, 'Loading…'); $('pg-' + k).parentNode.style.opacity = 1;
