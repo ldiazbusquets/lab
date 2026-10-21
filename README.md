@@ -12,7 +12,6 @@
 | **Finance tools** (4) | Options builder (Black-Scholes and the Greeks), a market-making game with Bayesian quoting, the Kelly betting challenge, and a Model Playground where FinBERT, BERT, Qwen3 and Llama 3.2 read the same financial headline side by side. |
 | **Learning agents** (5) | A Q-learning market trader, a neural-network day trader, a sports-market rating model, a Monte Carlo planner and a genetic-algorithm board-game player. Each one trains live and is judged on data it never saw. |
 | **Vision** | Real object detection (YOLOX) on licensed stock footage, running on-device with ONNX Runtime Web: multi-object tracking, automatic face blurring, a motion detector for traffic cameras, and a thermal view. |
-| **Games** (7) | Blackjack, Texas Hold'em, chess, two UNO-chess variants, Minesweeper and Connect Four, each with the maths switched on: expected value, equity, search and exact probabilities. |
 
 ## How it works
 
