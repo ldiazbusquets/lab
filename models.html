@@ -115,42 +115,69 @@
 
 
   .lede2 { color: var(--soft); max-width: 720px; margin: 14px 0 0; font-size: 15.5px; }
-  .hl { margin-top: 26px; }
-  .hl .bh { margin-bottom: 14px; }
+  .hl { margin-top: 26px; --green: #6BD38A; }
+  .hl .bh { margin-bottom: 12px; display: flex; justify-content: space-between; gap: 12px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chips button { font: 500 12.5px var(--sans); color: var(--soft); background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 999px; padding: 7px 13px; cursor: pointer; text-align: left; transition: background .15s, color .15s; }
+  .chips button { font: 500 12.5px/1.2 var(--sans); color: var(--soft); background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px 7px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; transition: background .15s, color .15s, border-color .15s; }
+  .chips button i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.22); flex: none; }
+  .chips button em { font-style: normal; color: var(--dim); font-weight: 400; }
   .chips button:hover { color: var(--ink); background: rgba(255,255,255,.1); }
   .chips button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
-  .ask { display: flex; gap: 8px; margin-top: 14px; align-items: stretch; flex-wrap: wrap; }
-  .ask textarea { flex: 1 1 380px; min-height: 52px; resize: vertical; background: #0F1112; color: var(--ink); border: 1px solid var(--ln2); border-radius: 14px; padding: 13px 15px; font: 400 15px/1.45 var(--sans); }
-  .ask textarea:focus { outline: none; border-color: var(--mint); }
-  .ask .act { align-self: stretch; padding: 0 22px; }
-  @media (max-width: 640px) { .ask .act { flex: 1 1 100%; padding: 13px 22px; } .hl .bh span:last-child { display: none; } }
+  .chips button[aria-pressed="true"] em { color: #5A646C; } .chips button[aria-pressed="true"] i { background: #121416; }
+  .ask { display: flex; gap: 8px; margin-top: 12px; align-items: flex-end; background: #0F1112; border: 1px solid var(--ln2); border-radius: 16px; padding: 6px 6px 6px 4px; transition: border-color .15s; }
+  .ask:focus-within { border-color: var(--mint); }
+  .ask textarea { flex: 1 1 auto; min-width: 0; resize: none; overflow: hidden; background: transparent; color: var(--ink); border: 0; padding: 9px 12px; font: 400 16px/1.45 var(--sans); min-height: 42px; }
+  .ask textarea:focus { outline: none; }
+  .ask .act { flex: none; height: 42px; padding: 0 20px; border-radius: 11px; display: inline-flex; align-items: center; gap: 8px; }
+  .ask .act kbd { font: 400 11px var(--mono); opacity: .55; }
+  /* scoreboard: every model's call on one line */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; border-top: 1px solid var(--line); }
+  .board > div { padding: 12px 14px 2px; border-left: 1px solid var(--line); min-width: 0; }
+  .board > div:first-child { border-left: 0; padding-left: 2px; }
+  .board span { display: block; font: 400 11px var(--mono); color: var(--dim); }
+  .board b { display: flex; align-items: center; gap: 8px; margin-top: 5px; font: 400 17px/1.2 var(--sans); letter-spacing: -.01em; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .board b::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.18); flex: none; }
+  .board b.pos::before { background: #6BD38A; } .board b.neg::before { background: #F06262; } .board b.neu::before { background: #A3ADB4; }
+  .board b.pos, .board b.neg, .board b.neu { background: none; }
+  .board b.wait { color: var(--dim); }
+  .board .agree { grid-column: 1 / -1; border-left: 0; padding: 12px 2px 0; font: 400 12px var(--mono); color: var(--soft); }
+  @media (max-width: 640px) {
+    .hl .bh span:last-child { display: none; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * clamp(14px, 2.2vw, 22px)); padding: 0 clamp(14px, 2.2vw, 22px); -webkit-mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 24px), transparent); mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 24px), transparent); }
+    .chips::-webkit-scrollbar { display: none; }
+    .ask .act kbd { display: none; } .ask .act { padding: 0 16px; }
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .board > div:nth-child(3) { border-left: 0; padding-left: 2px; }
+    .board > div:nth-child(n+3) { border-top: 1px solid var(--line); margin-top: 10px; }
+  }
   .grid4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
   @media (max-width: 900px) { .grid4 { grid-template-columns: minmax(0, 1fr); } }
-  .mc { display: flex; flex-direction: column; min-height: 300px; }
+  .mc { display: flex; flex-direction: column; --green: #6BD38A; }
   .mc .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-  .mc h3 { font: 400 21px/1.15 var(--sans); letter-spacing: -.015em; margin: 0; color: var(--ink); }
+  .mc .kind { font: 400 11px var(--mono); color: var(--dim); margin: 0 0 8px; }
+  .mc h3 { font: 400 22px/1.15 var(--sans); letter-spacing: -.015em; margin: 0; color: var(--ink); }
   .mc .who { font: 400 11.5px var(--mono); color: var(--dim); margin-top: 6px; }
-  .mc .role { font-size: 13.5px; color: var(--soft); margin: 12px 0 0; }
-  .st { font: 400 11px var(--mono); color: var(--dim); white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; padding-top: 4px; }
+  .mc .role { font-size: 13.5px; color: var(--soft); margin: 12px 0 0; max-width: 52ch; }
+  .st { font: 400 11px var(--mono); color: var(--soft); white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.03); flex: none; }
   .st i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
-  .st.ok i { background: var(--green); } .st.busy i { background: #F2C14C; animation: pulse 1s ease-in-out infinite; } .st.err i { background: var(--lock); }
+  .st.ok i { background: var(--green); box-shadow: 0 0 0 3px rgba(107,211,138,.15); } .st.busy i { background: #F2C14C; animation: pulse 1s ease-in-out infinite; } .st.err i { background: #F06262; }
+  .st.err { color: #F5A3A3; border-color: rgba(240,98,98,.3); }
   @keyframes pulse { 50% { opacity: .3; } }
-  .prog { height: 3px; border-radius: 2px; background: rgba(255,255,255,.08); margin-top: 14px; overflow: hidden; }
+  .prog { height: 2px; border-radius: 2px; background: rgba(255,255,255,.08); margin-top: 16px; overflow: hidden; transition: opacity .4s; }
   .prog b { display: block; height: 100%; width: 0; background: #ECF0F3; transition: width .2s; }
-  .out { margin-top: 16px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
-  .empty { color: var(--dim); font-size: 13.5px; }
-  .bars .r { display: grid; grid-template-columns: 74px minmax(0, 1fr) 46px; gap: 10px; align-items: center; margin: 7px 0; font: 400 12px var(--mono); color: var(--soft); }
+  .out { margin-top: 18px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+  .empty { color: var(--dim); font-size: 13.5px; margin: 0; }
+  .bars .r { display: grid; grid-template-columns: 78px minmax(0, 1fr) 40px; gap: 12px; align-items: center; margin: 8px 0; font: 400 12px var(--mono); color: var(--soft); }
   .bars .r span:last-child { text-align: right; color: var(--ink); }
-  .bars .t { height: 8px; border-radius: 4px; background: rgba(255,255,255,.07); overflow: hidden; }
-  .bars .t i { display: block; height: 100%; border-radius: 4px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+  .bars .t { height: 6px; border-radius: 3px; background: rgba(255,255,255,.07); overflow: hidden; }
+  .bars .t i { display: block; height: 100%; border-radius: 3px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
   .pos { background: #6BD38A; } .neg { background: #F06262; } .neu { background: #A3ADB4; }
-  .verdict { font: 300 26px/1.1 var(--sans); letter-spacing: -.02em; color: var(--ink); }
-  .verdict small { font: 400 12px var(--mono); color: var(--dim); letter-spacing: 0; margin-left: 8px; }
-  .why .k2 { font: 400 11px var(--mono); color: var(--dim); margin: 0 0 8px; }
-  .words { line-height: 2.05; font-size: 15px; color: var(--ink); }
-  .words span { padding: 3px 4px; border-radius: 5px; }
+  .verdict { font: 300 28px/1.1 var(--sans); letter-spacing: -.02em; color: var(--ink); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .verdict small { font: 400 12px var(--mono); color: var(--dim); letter-spacing: 0; }
+  .why { border-top: 1px solid var(--line); padding-top: 14px; }
+  .why .k2 { font: 400 11px/1.5 var(--mono); color: var(--dim); margin: 0 0 10px; }
+  .words { line-height: 1.95; font-size: 15px; color: var(--ink); text-align: left; }
+  .words span { padding: 2px 2px; margin: 0 -1px; border-radius: 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .fill { font: 400 13px var(--mono); color: var(--soft); background: #0F1112; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; line-height: 1.55; }
   .fill b { color: var(--ink); background: rgba(143,195,186,.18); padding: 1px 6px; border-radius: 4px; font-weight: 500; }
   .guess { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -158,9 +185,12 @@
   .guess span.p { border-color: rgba(107,211,138,.45); color: #A8E6BC; } .guess span.n { border-color: rgba(240,98,98,.45); color: #F5A3A3; }
   .chat { font-size: 15px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
   .chat .cur { display: inline-block; width: 7px; height: 15px; background: var(--ink); vertical-align: -2px; margin-left: 2px; animation: pulse .8s step-end infinite; }
-  .meta2 { font: 400 11px var(--mono); color: var(--dim); }
+  .meta2 { font: 400 11px var(--mono); color: var(--dim); margin: 0; border-top: 1px solid var(--line); padding-top: 12px; }
   .mc .act { align-self: flex-start; }
-  .warn { overflow-wrap: anywhere; font-size: 13px; color: var(--soft); border: 1px dashed var(--ln2); border-radius: 12px; padding: 10px 12px; }
+  .gate { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .gate p { margin: 0; font-size: 12.5px; color: var(--dim); flex: 1 1 200px; }
+  .warn { font-size: 13px; line-height: 1.5; color: var(--soft); border: 1px solid rgba(240,98,98,.22); background: rgba(240,98,98,.06); border-radius: 12px; padding: 12px 14px; margin: 0; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .warn span { flex: 1 1 220px; } .warn .act { padding: 8px 14px; }
 
   .leg { font: 500 11px var(--mono); letter-spacing: .03em; text-transform: none; }
   .status2 { font: 500 12px var(--mono); letter-spacing: .03em; text-transform: none; }
@@ -273,33 +303,39 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   <div class="panel hl">
     <div class="bh"><span>The headline</span><span>pick one or write your own</span></div>
     <div class="chips" id="chips"></div>
-    <div class="ask"><textarea id="txt" rows="2" maxlength="400" aria-label="Headline"></textarea><button type="button" class="act primary" id="go">Analyze</button></div>
+    <div class="ask"><textarea id="txt" rows="1" maxlength="400" aria-label="Headline" placeholder="Type or paste a headline"></textarea><button type="button" class="act primary" id="go">Analyze <kbd>&#9166;</kbd></button></div>
+    <div class="board" id="board" aria-live="polite">
+      <div><span>FinBERT</span><b class="wait" id="b-fin">&mdash;</b></div>
+      <div><span>BERT</span><b class="wait" id="b-bert">&mdash;</b></div>
+      <div><span>Qwen3</span><b class="wait" id="b-qwen">Not loaded</b></div>
+      <div><span>Llama 3.2</span><b class="wait" id="b-llama">Not loaded</b></div>
+    </div>
   </div>
 
   <div class="grid4">
     <div class="panel mc" id="m-fin">
-      <div class="top"><div><h3>FinBERT</h3><div class="who">ProsusAI &middot; 110M parameters &middot; ~110 MB</div></div><span class="st" id="st-fin"><i></i>Waiting</span></div>
+      <div class="top"><div><p class="kind">Encoder &middot; fine-tuned</p><h3>FinBERT</h3><div class="who">ProsusAI &middot; 110M parameters &middot; ~110 MB</div></div><span class="st" id="st-fin"><i></i>Waiting</span></div>
       <p class="role">BERT fine-tuned on financial news. Reads the whole headline at once and labels it positive, negative or neutral.</p>
       <div class="prog"><b id="pg-fin"></b></div>
       <div class="out" id="o-fin"><p class="empty">Loads automatically. Pick a headline to see its call.</p></div>
     </div>
     <div class="panel mc" id="m-bert">
-      <div class="top"><div><h3>BERT</h3><div class="who">Google &middot; 110M parameters &middot; ~110 MB</div></div><span class="st" id="st-bert"><i></i>Waiting</span></div>
+      <div class="top"><div><p class="kind">Encoder &middot; general</p><h3>BERT</h3><div class="who">Google &middot; 110M parameters &middot; ~110 MB</div></div><span class="st" id="st-bert"><i></i>Waiting</span></div>
       <p class="role">The general-purpose original. It was only ever trained to fill in missing words, so we ask it to fill one in.</p>
       <div class="prog"><b id="pg-bert"></b></div>
       <div class="out" id="o-bert"><p class="empty">Loads automatically. Pick a headline to see its guess.</p></div>
     </div>
     <div class="panel mc" id="m-qwen">
-      <div class="top"><div><h3>Qwen3</h3><div class="who">Alibaba &middot; 0.6B parameters &middot; ~335 MB</div></div><span class="st" id="st-qwen"><i></i>Not loaded</span></div>
+      <div class="top"><div><p class="kind">Decoder &middot; chat</p><h3>Qwen3</h3><div class="who">Alibaba &middot; 0.6B parameters &middot; ~335 MB</div></div><span class="st" id="st-qwen"><i></i>Not loaded</span></div>
       <p class="role">A small chatbot. It writes its answer one token at a time, so you watch it think in real time.</p>
       <div class="prog"><b id="pg-qwen"></b></div>
-      <div class="out" id="o-qwen"><button type="button" class="act" id="ld-qwen">Load Qwen3 (335 MB)</button></div>
+      <div class="out" id="o-qwen"><div class="gate"><button type="button" class="act" id="ld-qwen">Load Qwen3 &middot; 335 MB</button><p>Runs on your graphics chip. Downloads once, then your browser keeps it.</p></div></div>
     </div>
     <div class="panel mc" id="m-llama">
-      <div class="top"><div><h3>Llama 3.2</h3><div class="who">Meta &middot; 1B parameters &middot; ~700 MB</div></div><span class="st" id="st-llama"><i></i>Not loaded</span></div>
+      <div class="top"><div><p class="kind">Decoder &middot; chat</p><h3>Llama 3.2</h3><div class="who">Meta &middot; 1B parameters &middot; ~700 MB</div></div><span class="st" id="st-llama"><i></i>Not loaded</span></div>
       <p class="role">About twice Qwen3&rsquo;s size. Compare how much a bigger model changes the answer.</p>
       <div class="prog"><b id="pg-llama"></b></div>
-      <div class="out" id="o-llama"><button type="button" class="act" id="ld-llama">Load Llama 3.2 (700 MB)</button></div>
+      <div class="out" id="o-llama"><div class="gate"><button type="button" class="act" id="ld-llama">Load Llama 3.2 &middot; 700 MB</button><p>Runs on your graphics chip. Downloads once, then your browser keeps it.</p></div></div>
     </div>
   </div>
 
@@ -321,14 +357,14 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 addEventListener("scroll", function () { document.documentElement.classList.toggle("scrolled", scrollY > 20); }, { passive: true });
 
 var HEADLINES = [
-  'Northwind Bank beats quarterly profit estimates and raises its dividend by 8%.',
-  'Halvorsen Motors cuts its full-year guidance as chip shortages delay deliveries.',
-  'Operating costs fell 12% after the restructuring, lifting margins to a record.',
-  'Credit losses at Meridian Card rose for a third straight quarter.',
-  'Brightline Foods will hold its annual shareholder meeting on May 14.',
-  'Kestrel Biotech shares jumped after its drug met the main goal of a late-stage trial.',
-  'Two rating agencies downgraded Tolland Energy’s debt to junk.',
-  'Oil prices are expected to stay volatile through the winter.'
+  ['Northwind Bank', 'beats, raises dividend', 'Northwind Bank beats quarterly profit estimates and raises its dividend by 8%.'],
+  ['Halvorsen Motors', 'cuts guidance', 'Halvorsen Motors cuts its full-year guidance as chip shortages delay deliveries.'],
+  ['Restructuring', 'costs fell 12%', 'Operating costs fell 12% after the restructuring, lifting margins to a record.'],
+  ['Meridian Card', 'credit losses rise', 'Credit losses at Meridian Card rose for a third straight quarter.'],
+  ['Brightline Foods', 'annual meeting', 'Brightline Foods will hold its annual shareholder meeting on May 14.'],
+  ['Kestrel Biotech', 'trial succeeds', 'Kestrel Biotech shares jumped after its drug met the main goal of a late-stage trial.'],
+  ['Tolland Energy', 'cut to junk', 'Two rating agencies downgraded Tolland Energy’s debt to junk.'],
+  ['Oil', 'volatile winter', 'Oil prices are expected to stay volatile through the winter.']
 ];
 var TF = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0/dist/transformers.min.js', WL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/lib/index.js';
 var $ = function (id) { return document.getElementById(id); };
@@ -336,12 +372,33 @@ var txt = $('txt'), chips = $('chips'), cur = '';
 function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function status(k, cls, msg) { var e = $('st-' + k); e.className = 'st ' + (cls || ''); e.innerHTML = '<i></i>' + msg; }
 function prog(k, p) { $('pg-' + k).style.width = Math.max(0, Math.min(100, p)).toFixed(1) + '%'; if (p >= 100) setTimeout(function () { $('pg-' + k).parentNode.style.opacity = 0; }, 400); }
-HEADLINES.forEach(function (h, i) {
-  var b = document.createElement('button'); b.type = 'button'; b.textContent = h; b.setAttribute('aria-pressed', 'false');
-  b.addEventListener('click', function () { txt.value = h; run(); }); chips.appendChild(b);
+HEADLINES.forEach(function (h) {
+  var b = document.createElement('button'); b.type = 'button'; b.title = h[2]; b.dataset.h = h[2]; b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = '<i></i>' + esc(h[0]) + ' <em>' + esc(h[1]) + '</em>';
+  b.addEventListener('click', function () { txt.value = h[2]; grow(); run(); }); chips.appendChild(b);
 });
-function markChips() { [].forEach.call(chips.children, function (b) { b.setAttribute('aria-pressed', b.textContent === txt.value.trim() ? 'true' : 'false'); }); }
-txt.value = HEADLINES[2];
+function markChips() { [].forEach.call(chips.children, function (b) { var on = b.dataset.h === txt.value.trim(); b.setAttribute('aria-pressed', on ? 'true' : 'false'); if (on && b.scrollIntoView && chips.scrollWidth > chips.clientWidth) chips.scrollTo({ left: b.offsetLeft - chips.offsetLeft - 20, behavior: 'smooth' }); }); }
+function grow() { txt.style.height = 'auto'; txt.style.height = txt.scrollHeight + 'px'; }
+txt.addEventListener('input', function () { grow(); markChips(); });
+addEventListener('resize', grow);
+/* scoreboard */
+var CALL = { positive: ['Positive', 'pos'], negative: ['Negative', 'neg'], neutral: ['Neutral', 'neu'] };
+function board(k, call, label) { var e = $('b-' + k); e.className = call && CALL[call] ? CALL[call][1] : 'wait'; e.textContent = label || (CALL[call] ? CALL[call][0] : '—'); agree(); }
+function agree() {
+  var calls = ['fin', 'bert', 'qwen', 'llama'].map(function (k) { var c = $('b-' + k).className; return /pos|neg|neu/.test(c) ? c : null; }).filter(Boolean);
+  var a = $('agree'); if (!a) { a = document.createElement('div'); a.className = 'agree'; a.id = 'agree'; $('board').appendChild(a); }
+  if (calls.length < 2) { a.textContent = ''; a.style.display = 'none'; return; }
+  a.style.display = ''; var same = calls.every(function (c) { return c === calls[0]; });
+  a.textContent = same ? 'All ' + calls.length + ' models that answered agree.' : 'The models disagree. Compare their reasoning below.';
+}
+/* reads the chatbot's second sentence for good, bad or neutral */
+function readCall(t) {
+  var parts = t.split(/(?<=[.!?])\s+/), tail = (parts.length > 1 ? parts.slice(1).join(' ') : t).toLowerCase();
+  var g = /\b(good|positive|bullish|favou?rable|boost|rise|gain)/.exec(tail), b = /\b(bad|negative|bearish|unfavou?rable|hurt|weigh|fall|drop|decline)/.exec(tail), n = /\bneutral\b/.exec(tail);
+  var hits = [[g, 'positive'], [b, 'negative'], [n, 'neutral']].filter(function (x) { return x[0]; }).sort(function (x, y) { return x[0].index - y[0].index; });
+  return hits.length ? hits[0][1] : null;
+}
+txt.value = HEADLINES[2][2];
 
 /* ---------- encoders: FinBERT and BERT through Transformers.js (WebAssembly, so they work on every device) ---------- */
 var tfLib = null, fin = null, bert = null;
@@ -354,21 +411,31 @@ function loadEnc(k, task, model) {
       if (p.status === 'progress_total') { prog(k, p.progress); status(k, 'busy', 'Downloading ' + Math.round(p.progress) + '%'); }
     } });
   }).then(function (pl) { prog(k, 100); status(k, 'ok', 'Ready'); return pl; })
-    .catch(function (e) { status(k, 'err', 'Could not load'); $('o-' + k).innerHTML = '<p class="warn">The model could not be downloaded (' + esc(e && e.message || e) + '). Check your connection and reload.</p>'; throw e; });
+    .catch(function (e) { tfLib = null; status(k, 'err', 'Could not load'); failBox(k, e); board(k, null, 'Unavailable'); throw e; });
 }
-var finP = loadEnc('fin', 'text-classification', 'Xenova/finbert').then(function (p) { fin = p; return p; });
-var bertP = loadEnc('bert', 'fill-mask', 'Xenova/bert-base-uncased').then(function (p) { bert = p; return p; });
+function failBox(k, e) {
+  var o = $('o-' + k); o.innerHTML = '<p class="warn"><span>The model could not be downloaded. Check your connection and try again.</span><button type="button" class="act">Try again</button></p>';
+  if (e) o.querySelector('.warn').title = String(e && e.message || e);
+  o.querySelector('button').addEventListener('click', function () { $('pg-' + k).style.width = 0; $('pg-' + k).parentNode.style.opacity = 1; o.innerHTML = '<p class="empty">Downloading…</p>'; board(k, null, '—'); start(k).then(function () { if (txt.value.trim()) run(); }).catch(function () {}); });
+}
+var finP, bertP;
+function start(k) {
+  if (k === 'fin') return finP = loadEnc('fin', 'text-classification', 'Xenova/finbert').then(function (p) { fin = p; return p; });
+  return bertP = loadEnc('bert', 'fill-mask', 'Xenova/bert-base-uncased').then(function (p) { bert = p; return p; });
+}
+start('fin'); start('bert');
 
-var LAB = { positive: ['Positive', 'pos'], negative: ['Negative', 'neg'], neutral: ['Neutral', 'neu'] };
+var LAB = CALL;
 function runFin(h) {
-  var o = $('o-fin'); o.innerHTML = '<p class="empty">Reading…</p>';
+  var o = $('o-fin'); if (!fin) return finP.then(function () { return runFin(h); }, function () {});
+  o.innerHTML = '<p class="empty">Reading…</p>'; board('fin', null, '…');
   return finP.then(function () { return fin(h, { top_k: 3 }); }).then(function (res) {
     var by = {}; res.forEach(function (r) { by[r.label.toLowerCase()] = r.score; });
     var top = res[0].label.toLowerCase();
     var html = '<div class="verdict">' + LAB[top][0] + '<small>' + Math.round(res[0].score * 100) + '% sure</small></div><div class="bars">';
     ['positive', 'neutral', 'negative'].forEach(function (k) { var v = by[k] || 0; html += '<div class="r"><span>' + LAB[k][0] + '</span><span class="t"><i class="' + LAB[k][1] + '" style="width:' + (v * 100).toFixed(1) + '%"></i></span><span>' + Math.round(v * 100) + '%</span></div>'; });
     html += '</div><div class="why"><p class="k2">Which words drove it: each word is removed in turn and the headline re-scored</p><div class="words" id="fin-words">' + esc(h) + '</div></div>';
-    o.innerHTML = html;
+    o.innerHTML = html; board('fin', top);
     /* occlusion: how much does the verdict weaken when each word is taken out? */
     var words = h.split(/\s+/).filter(Boolean); if (words.length < 2 || words.length > 60) return;
     var variants = words.map(function (_, i) { return words.filter(function (_, j) { return j !== i; }).join(' '); });
@@ -377,12 +444,13 @@ function runFin(h) {
       var mx = Math.max.apply(null, drops) || 1, col = top === 'positive' ? '107,211,138' : top === 'negative' ? '240,98,98' : '163,173,180';
       $('fin-words').innerHTML = words.map(function (w, i) { var a = drops[i] / mx; return '<span style="background:rgba(' + col + ',' + (a * .55).toFixed(2) + ')">' + esc(w) + '</span>'; }).join(' ');
     });
-  }).catch(function () {});
+  }).catch(function () { if (!fin) failBox('fin'); });
 }
 var POSW = ['good', 'great', 'positive', 'excellent', 'encouraging', 'promising', 'welcome', 'strong', 'exciting', 'fantastic', 'wonderful', 'favorable', 'impressive', 'healthy', 'bullish'];
 var NEGW = ['bad', 'negative', 'terrible', 'worrying', 'disappointing', 'concerning', 'troubling', 'weak', 'alarming', 'grim', 'awful', 'bleak', 'unfavorable', 'devastating', 'bearish'];
 function runBert(h) {
-  var o = $('o-bert'); o.innerHTML = '<p class="empty">Reading…</p>';
+  var o = $('o-bert'); if (!bert) return bertP.then(function () { return runBert(h); }, function () {});
+  o.innerHTML = '<p class="empty">Reading…</p>'; board('bert', null, '…');
   var prompt = h.replace(/\s+$/, '') + (/[.!?]$/.test(h.trim()) ? '' : '.') + ' Overall, this news is [MASK].';
   return bertP.then(function () { return bert(prompt, { top_k: 300 }); }).then(function (res) {
     var p = 0, n = 0; res.forEach(function (r) { var w = r.token_str.trim().toLowerCase(); if (POSW.indexOf(w) >= 0) p += r.score; if (NEGW.indexOf(w) >= 0) n += r.score; });
@@ -392,7 +460,8 @@ function runBert(h) {
       '<div class="bars"><div class="r"><span>Good words</span><span class="t"><i class="pos" style="width:' + (lean * 100).toFixed(1) + '%"></i></span><span>' + Math.round(lean * 100) + '%</span></div>' +
       '<div class="r"><span>Bad words</span><span class="t"><i class="neg" style="width:' + ((1 - lean) * 100).toFixed(1) + '%"></i></span><span>' + Math.round((1 - lean) * 100) + '%</span></div></div>' +
       '<div class="why"><p class="k2">What BERT was asked, and its top guesses for the blank</p><div class="fill">' + esc(prompt).replace('[MASK]', '<b>____</b>') + '</div><div class="guess" style="margin-top:8px">' + guesses + '</div></div>';
-  }).catch(function () {});
+    board('bert', call);
+  }).catch(function () { if (!bert) failBox('bert'); });
 }
 
 /* ---------- decoders: Qwen3 and Llama through WebLLM (needs WebGPU) ---------- */
@@ -403,14 +472,19 @@ var wlLib = null; function wlLoad() { return wlLib || (wlLib = import(WL)); }
 var hasGPU = !!navigator.gpu;
 ['qwen', 'llama'].forEach(function (k) {
   var b = $('ld-' + k), m = LLM[k];
-  if (!hasGPU) { status(k, 'err', 'Needs WebGPU'); $('o-' + k).innerHTML = '<p class="warn">This browser cannot run chat models yet. They need WebGPU: Chrome or Edge on a laptop, or Safari 26 on a Mac or iPhone. FinBERT and BERT still work here.</p>'; return; }
+  if (!hasGPU) { status(k, 'err', 'Needs WebGPU'); board(k, null, 'Needs WebGPU'); $('o-' + k).innerHTML = '<p class="warn">This browser cannot run chat models yet. They need WebGPU: Chrome or Edge on a laptop, or Safari 26 on a Mac or iPhone. FinBERT and BERT still work here.</p>'; return; }
   b.addEventListener('click', function () {
-    b.disabled = true; status(k, 'busy', 'Downloading'); $('pg-' + k).parentNode.style.opacity = 1;
+    b.disabled = true; status(k, 'busy', 'Downloading'); board(k, null, 'Loading…'); $('pg-' + k).parentNode.style.opacity = 1;
     $('o-' + k).innerHTML = '<p class="empty">Downloading once; your browser keeps it for next time.</p>';
     wlLoad().then(function (W) {
       return W.CreateMLCEngine(m.id, { initProgressCallback: function (r) { var p = (r.progress || 0) * 100; prog(k, p); status(k, 'busy', p >= 100 ? 'Starting' : 'Downloading ' + Math.round(p) + '%'); } });
-    }).then(function (eng) { m.eng = eng; prog(k, 100); status(k, 'ok', 'Ready'); $('o-' + k).innerHTML = '<p class="empty">Ready. Pick a headline.</p>'; if (txt.value.trim()) ask(k, txt.value.trim()); })
-      .catch(function (e) { status(k, 'err', 'Could not load'); b.disabled = false; $('o-' + k).innerHTML = '<p class="warn">The model could not start (' + esc(e && e.message || e) + '). If that is a download error, check your connection and try again; otherwise this device may not have enough graphics memory for it.</p>'; });
+    }).then(function (eng) { m.eng = eng; prog(k, 100); status(k, 'ok', 'Ready'); $('o-' + k).innerHTML = '<p class="empty">Ready. Pick a headline.</p>'; board(k, null, '—'); if (txt.value.trim()) ask(k, txt.value.trim()); })
+      .catch(function (e) {
+        wlLib = null; status(k, 'err', 'Could not load'); board(k, null, 'Unavailable');
+        $('o-' + k).innerHTML = '<p class="warn"><span>The model could not start. Check your connection; if it keeps failing, this device may not have enough graphics memory.</span></p>';
+        $('o-' + k).querySelector('.warn').title = String(e && e.message || e);
+        b.disabled = false; b.textContent = 'Try again'; $('o-' + k).querySelector('.warn').appendChild(b);
+      });
   });
 });
 function ask(k, h) {
@@ -418,7 +492,7 @@ function ask(k, h) {
   if (m.busy) { try { m.eng.interruptGenerate(); } catch (e) {} }
   var o = $('o-' + k), t0 = performance.now(), n = 0, text = '';
   o.innerHTML = '<div class="chat"><span class="cur"></span></div><p class="meta2"></p>';
-  var chat = o.querySelector('.chat'), meta = o.querySelector('.meta2'), token = {}; m.tok = token; m.busy = true; status(k, 'busy', 'Writing');
+  var chat = o.querySelector('.chat'), meta = o.querySelector('.meta2'), token = {}; m.tok = token; m.busy = true; status(k, 'busy', 'Writing'); board(k, null, '…');
   var req = { messages: [{ role: 'system', content: SYS }, { role: 'user', content: 'Headline: ' + h }], stream: true, temperature: .5, max_tokens: 160 };
   if (k === 'qwen') req.extra_body = { enable_thinking: false };
   return m.eng.chat.completions.create(req).then(function (stream) {
@@ -435,10 +509,11 @@ function ask(k, h) {
     return step();
   }).then(function () {
     if (m.tok !== token) return;
-    chat.innerHTML = esc(text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim() || '(no answer)');
+    var clean = text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim();
+    chat.innerHTML = esc(clean || '(no answer)'); var c = readCall(clean); board(k, c, c ? null : 'Unclear');
     var s = (performance.now() - t0) / 1000; meta.textContent = n + ' tokens in ' + s.toFixed(1) + ' s · ' + (n / s).toFixed(1) + ' tokens per second on your device';
     m.busy = false; status(k, 'ok', 'Ready');
-  }).catch(function (e) { m.busy = false; status(k, 'err', 'Error'); chat.textContent = 'Something went wrong: ' + (e && e.message || e); });
+  }).catch(function (e) { m.busy = false; status(k, 'err', 'Error'); board(k, null, 'Error'); chat.textContent = 'Something went wrong: ' + (e && e.message || e); });
 }
 
 /* ---------- run everything on the current headline ---------- */
@@ -452,7 +527,7 @@ function run() {
 }
 $('go').addEventListener('click', run);
 txt.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); run(); } });
-markChips();
+markChips(); grow();
 Promise.all([finP, bertP]).then(function () { if (!cur) run(); }).catch(function () {});
 
 </script>
