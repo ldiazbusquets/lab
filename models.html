@@ -524,7 +524,7 @@ function ask(k, h) {
 /* ---------- why the chatbot decided: ask for a one-word call, then take each word out and ask again ---------- */
 var PROBE = 'Is this headline most likely good, bad or neutral news for the company’s stock? Answer with exactly one word: good, bad or neutral.';
 function probe(k, h) {
-  var req = { messages: [{ role: 'system', content: PROBE }, { role: 'user', content: 'Headline: ' + h }], max_tokens: 1, temperature: 0, logprobs: true, top_logprobs: 5 };
+  var req = { messages: [{ role: 'system', content: PROBE }, { role: 'user', content: 'Headline: ' + h }], max_tokens: 1, temperature: 1, top_p: 1, logprobs: true, top_logprobs: 5 };   /* temperature 1 keeps the model's real odds; at 0 they collapse to 100% */
   if (k === 'qwen') req.extra_body = { enable_thinking: false };
   return LLM[k].eng.chat.completions.create(req).then(function (r) {
     var c = r && r.choices && r.choices[0], lp = c && c.logprobs && c.logprobs.content && c.logprobs.content[0], top = lp && lp.top_logprobs;
@@ -535,7 +535,7 @@ function probe(k, h) {
       if (/^(good|pos|bull|great)/.test(t)) p.positive += v; else if (/^(bad|neg|bear|poor)/.test(t)) p.negative += v; else if (/^neu/.test(t)) p.neutral += v;
     });
     var tot = p.positive + p.negative + p.neutral; if (!(tot > 0)) throw new Error('no label');
-    p.positive /= tot; p.negative /= tot; p.neutral /= tot; return p;
+    p.positive /= tot; p.negative /= tot; p.neutral /= tot; return p;   /* shares of the weight on the three answers */
   });
 }
 function explain(k, h, token, o) {
@@ -564,7 +564,7 @@ function explain(k, h, token, o) {
       if (i >= words.length) { paint(true); return; }
       paint(false);
       var v = words.filter(function (_, j) { return j !== i; }).join(' ');
-      return probe(k, v).then(function (p) { drops.push(Math.max(0, base[top] - p[top])); i++; return next(); });
+      return probe(k, v).then(function (p) { var lo = function (x) { x = Math.min(Math.max(x, 1e-6), 1 - 1e-6); return Math.log(x / (1 - x)); }; drops.push(Math.max(0, lo(base[top]) - lo(p[top]))); i++; return next(); });
     }
     return next();
   }).catch(function () { if (why.parentNode) why.parentNode.removeChild(why); });
