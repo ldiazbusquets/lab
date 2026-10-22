@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retrieval workbench | LDB Lab</title>
+<meta name="description" content="Split a document into chunks, search it by keyword, meaning or both, see which passages an answer comes from, and test retrieval accuracy and honest refusals, all in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LDB Lab">
+<meta property="og:title" content="Retrieval workbench | LDB Lab">
+<meta property="og:description" content="Split a document into chunks, search it by keyword, meaning or both, see which passages an answer comes from, and test retrieval accuracy and honest refusals, all in your browser.">
+<meta property="og:url" content="https://ldiazbusquets.github.io/lab/retrieval.html">
+<meta property="og:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ldiazbusquets.github.io/lab/og-lab.png">
+<meta name="theme-color" content="#6E808E"><script id="ldb-theme-js">(function () {   /* same rule as the main site: light from 7 am to 7 pm on the visitor's device, dark otherwise; a manual pick lasts for the visit, until the next 7 am or 7 pm switch */
+  var root = document.documentElement, q = /[?&]theme=(light|dark)/.exec(location.search);
+  function byHour() { var h = new Date().getHours(); return h >= 7 && h < 19 ? 'light' : 'dark'; }
+  function chosen() { if (q) return q[1];
+    try { var raw = (sessionStorage.getItem('theme') || '').split('|'); if (raw[0] && raw[1] === byHour()) return raw[0]; sessionStorage.removeItem('theme'); } catch (e) {}
+    return null; }
+  function apply(t) { var lt = t === 'light', changed = root.classList.contains('lt') !== lt;
+    root.classList.toggle('lt', lt); root.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = lt ? '#D5DDE3' : '#6E808E';
+    var b = document.getElementById('themeBtn'); if (b) b.setAttribute('aria-label', lt ? 'Switch to dark' : 'Switch to light');
+    if (changed) window.dispatchEvent(new Event('themechange')); }
+  apply(chosen() || byHour());
+  window.ldbToggleTheme = function () { var next = root.classList.contains('lt') ? 'dark' : 'light';
+    try { sessionStorage.setItem('theme', next + '|' + byHour()); } catch (e) {} q = null;
+    root.classList.add('theming'); apply(next); setTimeout(function () { root.classList.remove('theming'); }, 700); };
+  document.addEventListener('DOMContentLoaded', function () { var b = document.getElementById('themeBtn'); if (b) { b.addEventListener('click', window.ldbToggleTheme); apply(root.classList.contains('lt') ? 'light' : 'dark'); } });
+  setInterval(function () { if (!chosen()) apply(byHour()); }, 60000);   /* follows the clock while the page stays open */
+})();</script>
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --ln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --orange: #ECF0F3;
+    --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08);
+    --acc: #9CC9E8; --crim: #9CC9E8; --bone: #F2F4F5; --teal: #6BD38A; --mag: #C59BF5; --gold: #F2C14C; --good: #6BD38A; --lock: #F06262; --warm: #F2C14C; --mint: #8FC3BA;
+    --g: clamp(16px, 4vw, 32px); --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --disp: "Manrope", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; color: var(--ink); overflow-x: clip; font: 400 15.5px/1.55 var(--sans); -webkit-font-smoothing: antialiased; background: linear-gradient(180deg, #6E808E 0, #5B6C78 90px, #47545F 220px, #24292C 420px, #0B0C0D 640px) no-repeat, var(--bg); }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+  button, input, select { font-family: inherit; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: rgba(11,12,13,.55); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
+  nav .in { display: flex; align-items: center; justify-content: space-between; height: 70px; padding: 0 var(--g); gap: 12px; max-width: 1500px; margin: 0 auto; }
+  .mark { display: inline-flex; align-items: center; gap: 10px; font: 600 17px var(--sans); letter-spacing: -.01em; text-decoration: none; white-space: nowrap; }
+      .mark span { color: rgba(242,244,245,.7); font-weight: 300; }
+  .mark em { font: 400 13px var(--sans); letter-spacing: 0; font-style: normal; color: rgba(242,244,245,.7); padding: 0 0 0 14px; margin-left: 4px; border-left: 1px solid var(--ln2); }
+  nav .right { display: flex; gap: 8px; align-items: center; }
+  .btn { font: 500 13.5px var(--sans); text-decoration: none; white-space: nowrap; padding: 9px 18px; border: 1px solid var(--ln2); border-radius: 999px; background: rgba(255,255,255,.07); color: var(--ink); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .btn:hover { background: var(--s2); }
+  .btn.main { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
+  @media (max-width: 640px) { nav .right .btn.main { display: none; } .mark em { display: none; } }
+  .page { padding: 110px var(--g) 60px; max-width: 1500px; margin: 0 auto; }
+  .head { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin: 8px 0 18px; }
+  .eyebrow { font: 400 12px var(--mono); color: rgba(242,244,245,.8); letter-spacing: .02em; text-transform: none; margin: 0 0 14px; display: inline-flex; align-items: center; gap: 9px; }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; background: var(--ink); border-radius: 1px; }
+  h1 { font: 300 clamp(2.2rem, 4.2vw, 3.4rem)/1.04 var(--sans); letter-spacing: -.035em; margin: 0; color: var(--ink); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; gap: 2px; padding: 3px; border: 0; border-radius: 999px; background: var(--pill); flex-wrap: wrap; }
+  .seg button { background: transparent; border: 0; border-radius: 999px; color: var(--soft); font: 500 12.5px var(--sans); padding: 7px 13px; cursor: pointer; }
+  .seg button:hover { color: var(--ink); background: var(--s2); }
+  .seg button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--ln2); background: rgba(255,255,255,.06) !important; border-radius: 999px; padding: 6px 10px 6px 8px; cursor: pointer; font: 500 12px var(--mono); color: var(--soft); background: transparent; }
+  .tog i { width: 28px; height: 16px; border-radius: 9px; background: var(--ln2); position: relative; transition: background .2s; }
+  .tog i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .tog[aria-pressed="true"] { color: var(--ink); } .tog[aria-pressed="true"] i { background: var(--mint); } .tog[aria-pressed="true"] i::after { transform: translateX(12px); }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+  body.noan .layout { grid-template-columns: minmax(0, 1fr); } body.noan .an { display: none; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .an { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .box { background: var(--s1); border: 1px solid var(--line); border-radius: 20px; padding: 16px 18px; position: relative; min-width: 0; }
+  .bh { display: flex; justify-content: space-between; gap: 10px; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--soft); margin: -2px 0 12px; }
+  .bh span:last-child { color: var(--dim); text-align: right; }
+  .big { font: 300 2.3rem/1.05 var(--sans); letter-spacing: -.03em; color: var(--ink); }
+  .why { font-size: 14px; color: var(--soft); margin: 10px 0 0; }
+  .note { font-size: 12.5px; color: var(--dim); margin: 8px 0 0; }
+  .stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat2 div, .stat3 div { border: 1px solid var(--line); border-radius: 14px; background: #0F1112; padding: 10px 12px; min-width: 0; }
+  .stat2 span, .stat3 span { display: block; font: 500 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-bottom: 2px; }
+  .stat2 b, .stat3 b { font: 300 20px var(--sans); letter-spacing: -.02em; color: var(--ink); }
+  b.pos { color: var(--teal) !important; } b.neg { color: var(--lock) !important; }
+  .act { padding: 9px 17px; font: 500 13px var(--sans); color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid var(--ln2); border-radius: 999px; cursor: pointer; transition: background .15s, border-color .15s; }
+  .act:hover:not(:disabled) { background: var(--pill-on); } .act:disabled { opacity: .35; cursor: default; }
+  .act.primary { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
+  .act.primary:hover:not(:disabled) { background: #fff; }
+  .act.hint { box-shadow: 0 0 0 2px var(--acc); }
+  .act kbd { font: 500 10px var(--mono); opacity: .55; margin-left: 6px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel { background: var(--s1); border: 1px solid var(--line); border-radius: 24px; padding: clamp(14px, 2.2vw, 22px); position: relative; min-width: 0; }
+  input[type=range] { accent-color: var(--orange); }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--s2); border: 1px solid var(--ln2); border-left: 2px solid var(--warm); color: var(--ink); font: 500 13px var(--sans); padding: 10px 16px; border-radius: 10px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: min(92vw, 640px); z-index: 30; text-align: center; }
+  .toast.on { opacity: 1; }
+  .explain { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 24px; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--line); }
+  @media (max-width: 900px) { .explain { grid-template-columns: 1fr; } }
+  .explain h3 { font: 400 20px var(--sans); letter-spacing: -.015em; margin: 0 0 6px; }
+  .explain p { color: var(--soft); font-size: 14.5px; margin: 0 0 10px; }
+  .explain .k { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin: 0 0 6px; }
+  .edu { margin-top: 28px; border: 1px solid var(--ln2); background: rgba(255,255,255,.03); border-radius: 16px; padding: 12px 16px; color: var(--soft); font-size: 13.5px; }
+  .edu b { color: var(--ink); font-weight: 500; }
+  footer { border-top: 1px solid var(--line); margin-top: 60px; padding: 30px var(--g) 40px; color: var(--dim); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; max-width: 1500px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--soft); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+
+
+  .lede2 { color: var(--soft); max-width: 720px; margin: 14px 0 0; font-size: 15.5px; }
+  .hl { margin-top: 26px; --green: #6BD38A; }
+  .hl .bh { margin-bottom: 12px; display: flex; justify-content: space-between; gap: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { font: 500 12.5px/1.2 var(--sans); color: var(--soft); background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px 7px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; transition: background .15s, color .15s, border-color .15s; }
+  .chips button i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.22); flex: none; }
+  .chips button em { font-style: normal; color: var(--dim); font-weight: 400; }
+  .chips button:hover { color: var(--ink); background: rgba(255,255,255,.1); }
+  .chips button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
+  .chips button[aria-pressed="true"] em { color: #5A646C; } .chips button[aria-pressed="true"] i { background: #121416; }
+  .ask { display: flex; gap: 8px; margin-top: 12px; align-items: flex-end; background: #0F1112; border: 1px solid var(--ln2); border-radius: 16px; padding: 6px 6px 6px 4px; transition: border-color .15s; }
+  .ask:focus-within { border-color: var(--mint); }
+  .ask textarea { flex: 1 1 auto; min-width: 0; resize: none; overflow: hidden; background: transparent; color: var(--ink); border: 0; padding: 9px 12px; font: 400 16px/1.45 var(--sans); min-height: 42px; }
+  .ask textarea:focus { outline: none; }
+  .ask .act { flex: none; height: 42px; padding: 0 20px; border-radius: 11px; display: inline-flex; align-items: center; gap: 8px; }
+  .ask .act kbd { font: 400 11px var(--mono); opacity: .55; }
+  /* scoreboard: every model's call on one line */
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; border-top: 1px solid var(--line); }
+  .board > div { padding: 12px 14px 2px; border-left: 1px solid var(--line); min-width: 0; }
+  .board > div:first-child { border-left: 0; padding-left: 2px; }
+  .board span { display: block; font: 400 11px var(--mono); color: var(--dim); }
+  .board b { display: flex; align-items: center; gap: 8px; margin-top: 5px; font: 400 17px/1.2 var(--sans); letter-spacing: -.01em; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .board b::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.18); flex: none; }
+  .board b.pos::before { background: #6BD38A; } .board b.neg::before { background: #F06262; } .board b.neu::before { background: #A3ADB4; }
+  .board b.pos, .board b.neg, .board b.neu { background: none; }
+  .board b.wait { color: var(--dim); }
+  .board .agree { grid-column: 1 / -1; border-left: 0; padding: 12px 2px 0; font: 400 12px var(--mono); color: var(--soft); }
+  @media (max-width: 640px) {
+    .hl .bh span:last-child { display: none; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * clamp(14px, 2.2vw, 22px)); padding: 0 clamp(14px, 2.2vw, 22px); -webkit-mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 24px), transparent); mask: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 24px), transparent); }
+    .chips::-webkit-scrollbar { display: none; }
+    .ask .act kbd { display: none; } .ask .act { padding: 0 16px; }
+    .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .board > div:nth-child(3) { border-left: 0; padding-left: 2px; }
+    .board > div:nth-child(n+3) { border-top: 1px solid var(--line); margin-top: 10px; }
+  }
+  .grid4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+  @media (max-width: 900px) { .grid4 { grid-template-columns: minmax(0, 1fr); } }
+  .mc { display: flex; flex-direction: column; --green: #6BD38A; }
+  .mc .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .mc .kind { font: 400 11px var(--mono); color: var(--dim); margin: 0 0 8px; }
+  .mc h3 { font: 400 22px/1.15 var(--sans); letter-spacing: -.015em; margin: 0; color: var(--ink); }
+  .mc .who { font: 400 11.5px var(--mono); color: var(--dim); margin-top: 6px; }
+  .mc .role { font-size: 13.5px; color: var(--soft); margin: 12px 0 0; max-width: 52ch; }
+  .st { font: 400 11px var(--mono); color: var(--soft); white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.03); flex: none; }
+  .st i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+  .st.ok i { background: var(--green); box-shadow: 0 0 0 3px rgba(107,211,138,.15); } .st.busy i { background: #F2C14C; animation: pulse 1s ease-in-out infinite; } .st.err i { background: #F06262; }
+  .st.err { color: #F5A3A3; border-color: rgba(240,98,98,.3); }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .prog { height: 2px; border-radius: 2px; background: rgba(255,255,255,.08); margin-top: 16px; overflow: hidden; transition: opacity .4s; }
+  .prog b { display: block; height: 100%; width: 0; background: #ECF0F3; transition: width .2s; }
+  .out { margin-top: 18px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+  .empty { color: var(--dim); font-size: 13.5px; margin: 0; }
+  .bars .r { display: grid; grid-template-columns: 78px minmax(0, 1fr) 40px; gap: 12px; align-items: center; margin: 8px 0; font: 400 12px var(--mono); color: var(--soft); }
+  .bars .r span:last-child { text-align: right; color: var(--ink); }
+  .bars .t { height: 6px; border-radius: 3px; background: rgba(255,255,255,.07); overflow: hidden; }
+  .bars .t i { display: block; height: 100%; border-radius: 3px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+  .pos { background: #6BD38A; } .neg { background: #F06262; } .neu { background: #A3ADB4; }
+  .verdict { font: 300 28px/1.1 var(--sans); letter-spacing: -.02em; color: var(--ink); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .verdict small { font: 400 12px var(--mono); color: var(--dim); letter-spacing: 0; }
+  .why { border-top: 1px solid var(--line); padding-top: 14px; }
+  .why .k2 { font: 400 11px/1.5 var(--mono); color: var(--dim); margin: 0 0 10px; }
+  .words { line-height: 1.95; font-size: 15px; color: var(--ink); text-align: left; }
+  .words span { padding: 2px 2px; margin: 0 -1px; border-radius: 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .fill { font: 400 13px var(--mono); color: var(--soft); background: #0F1112; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; line-height: 1.55; }
+  .fill b { color: var(--ink); background: rgba(143,195,186,.18); padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+  .guess { display: flex; flex-wrap: wrap; gap: 6px; }
+  .guess span { font: 400 12px var(--mono); padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--soft); }
+  .guess span.p { border-color: rgba(107,211,138,.45); color: #A8E6BC; } .guess span.n { border-color: rgba(240,98,98,.45); color: #F5A3A3; }
+  .chat { font-size: 15px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
+  .chat .cur { display: inline-block; width: 7px; height: 15px; background: var(--ink); vertical-align: -2px; margin-left: 2px; animation: pulse .8s step-end infinite; }
+  .pcall { margin: 0 0 10px; font-size: 13.5px; color: var(--soft); }
+  .pcall b { font-weight: 500; background: none !important; } .pcall b.pos { color: #A8E6BC; } .pcall b.neg { color: #F5A3A3; } .pcall b.neu { color: var(--ink); }
+  .pcall span { font: 400 11px var(--mono); color: var(--dim); margin-left: 6px; }
+  .words span.now { outline: 1px dashed rgba(255,255,255,.35); }
+  .meta2 { font: 400 11px var(--mono); color: var(--dim); margin: 0; border-top: 1px solid var(--line); padding-top: 12px; }
+  .mc .act { align-self: flex-start; }
+  .gate { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .gate p { margin: 0; font-size: 12.5px; color: var(--dim); flex: 1 1 200px; }
+  .warn { font-size: 13px; line-height: 1.5; color: var(--soft); border: 1px solid rgba(240,98,98,.22); background: rgba(240,98,98,.06); border-radius: 12px; padding: 12px 14px; margin: 0; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .warn span { flex: 1 1 220px; } .warn .act { padding: 8px 14px; }
+
+  .leg { font: 500 11px var(--mono); letter-spacing: .03em; text-transform: none; }
+  .status2 { font: 500 12px var(--mono); letter-spacing: .03em; text-transform: none; }
+  .status2 b { color: var(--ink); }
+  .live.on { box-shadow: none; }
+  .h3 { font: 500 11px var(--mono); letter-spacing: .08em; color: var(--soft); }
+  .fld label { font: 500 11px var(--mono); letter-spacing: .06em; }
+  .fld label b { color: var(--ink); }
+  .lessons { color: var(--soft); font-size: 13px; }
+  .lessons b { color: var(--ink); font-weight: 500; }
+  .heat span { border-radius: 2px; }
+  .bh { font: 400 12px var(--mono); letter-spacing: .02em; text-transform: none; color: var(--soft); }
+  .stat2 span, .stat3 span { font: 400 10.5px var(--mono); letter-spacing: .02em; text-transform: none; }
+  .h3 { text-transform: none; letter-spacing: .02em; font: 400 12px var(--mono); }
+  .explain .k { text-transform: none; letter-spacing: .02em; }
+  .fld label { text-transform: none; letter-spacing: .02em; font: 400 12px var(--mono); }
+  .leg { text-transform: none; }
+  nav { background: transparent; border-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; transition: background .3s, border-color .3s; }
+  html.scrolled nav { background: rgba(11,12,13,.72); border-color: var(--line); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  .pc.up { background: #F2F4F5 !important; box-shadow: none !important; border-radius: 8px; }
+  .pc.down { background: repeating-linear-gradient(45deg, #1E2124 0 3px, #141618 3px 7px) !important; border: 1px solid rgba(255,255,255,.14) !important; border-radius: 8px; }
+  .pc.down.reveal { background: #191C1E !important; border-color: var(--acc) !important; }
+  .step button { border-radius: 8px !important; background: transparent !important; border-color: var(--ln2) !important; }
+  .step input { border-radius: 8px !important; background: var(--bg) !important; border-color: var(--ln2) !important; }
+  .tape { background: #0F1112 !important; border-radius: 8px; }
+  .over > div { background: var(--s1) !important; border: 1px solid var(--ln2) !important; border-radius: 4px; }
+  .coin { background: radial-gradient(circle at 35% 30%, #3A4049, #191C1E 70%) !important; border: 1px solid rgba(255,255,255,.2) !important; color: var(--ink) !important; font: 300 1.9rem var(--sans) !important; box-shadow: none !important; }
+</style>
+<style id="ldb-pt">@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+body { animation: ldbIn .45s ease both; }
+@keyframes ldbIn { from { opacity: 0; } }
+html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
+@media (prefers-reduced-motion: reduce) { body { animation: none; } html.ldb-out body { transition: none; } }</style>
+<script id="ldb-pt-js">(function () {
+  if ('PageRevealEvent' in window) return; /* the browser already cross-fades between pages */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]'); if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
+    var u = new URL(a.href, location.href); if (u.origin !== location.origin || (u.pathname === location.pathname && u.hash)) return;
+    e.preventDefault(); document.documentElement.classList.add('ldb-out'); setTimeout(function () { location.href = u.href; }, 200);
+  });
+  addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
+})();</script>
+<style id="ldb-theme-css">
+  .tbtn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; cursor: pointer; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: background .2s, transform .3s; flex: none; }
+  .tbtn:hover { background: rgba(255,255,255,.14); } .tbtn:active { transform: scale(.92); }
+  .tbtn svg { width: 16px; height: 16px; display: block; } .tbtn .sun { display: none; }
+  html.lt .tbtn .sun { display: block; } html.lt .tbtn .moon { display: none; }
+  html.lt .tbtn { background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.14); } html.lt .tbtn:hover { background: #fff; }
+  html.theming, html.theming * { transition: background-color .5s ease, color .5s ease, border-color .5s ease !important; }
+  /* light: brushed silver chrome; charts, boards and live panels keep their dark glass */
+  html.lt { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --gs1: #F6F7F8; --gs2: #FFFFFF; --ln2: rgba(24,34,44,.16); --gln2: rgba(24,34,44,.16); --pill: rgba(24,34,44,.06); --pill-on: rgba(24,34,44,.1);
+    --ink: #15191C; --soft: #56616A; --dim: #7D878F; --line: rgba(24,34,44,.1); --acc: #3D8A7E; --mint: #3D8A7E; }
+  html.lt body { background: linear-gradient(180deg, #D5DDE3 0, #DFE5E9 220px, #E8ECEF 520px, #ECEEF0 820px) no-repeat, #ECEEF0 !important; color: var(--ink); }
+  html.lt .panel, html.lt .box, html.lt .toast, html.lt .tape, html.lt .over, html.lt .pc { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
+  html.lt .panel, html.lt .box { box-shadow: 0 30px 60px -40px rgba(30,42,52,.45); }
+  html.lt nav { background: transparent; }
+  html.lt.scrolled nav, html.lt nav.scrolled { background: rgba(236,238,240,.95) !important; -webkit-backdrop-filter: blur(18px) saturate(1.2) !important; backdrop-filter: blur(18px) saturate(1.2) !important; border-color: rgba(24,34,44,.1) !important; }
+  html.lt .mark span, html.lt .mark em { color: rgba(21,25,28,.62); }
+  html.lt .btn { background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.14); color: var(--ink); }
+  html.lt .btn:hover { background: #fff; }
+  html.lt .btn.main { background: #15191C; color: #F2F4F5; border-color: transparent; }
+  html.lt .eyebrow { color: rgba(21,25,28,.7); }
+  html.lt h1 { color: var(--ink); }
+  html.lt h1 span, html.lt h1 em { color: rgba(21,25,28,.45); }
+  html.lt h2 span { color: #8C969D !important; }
+  html.lt .lede { color: rgba(21,25,28,.72); }
+  html.lt .specs span { color: rgba(21,25,28,.66); background: rgba(255,255,255,.55); border-color: rgba(24,34,44,.12); }
+  html.lt .ws { background: rgba(24,34,44,.06); }
+  html.lt .ws a { color: rgba(21,25,28,.6); } html.lt .ws a:hover { background: rgba(24,34,44,.06); color: var(--ink); }
+  html.lt .ws a.on { background: #15191C; color: #F2F4F5; }
+  html.lt .edu, html.lt .note-box { background: rgba(255,255,255,.55); }
+  html.lt .seg { background: rgba(24,34,44,.06); }
+  html.lt .seg button[aria-pressed="true"] { background: #15191C; color: #F2F4F5; }
+  html.lt .tog { background: rgba(255,255,255,.55) !important; }
+  html.lt .act { background: rgba(255,255,255,.55); }
+  html.lt .act.primary { background: #15191C; color: #F2F4F5; }
+  html.lt .panel .act, html.lt .box .act, html.lt .toast .act, html.lt .tape .act, html.lt .over .act, html.lt .pc .act { background: rgba(255,255,255,.07); color: #F2F4F5; border-color: rgba(255,255,255,.14); }
+  html.lt .panel .act.primary, html.lt .box .act.primary, html.lt .toast .act.primary, html.lt .tape .act.primary, html.lt .over .act.primary, html.lt .pc .act.primary { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
+  html.lt .panel .seg button[aria-pressed="true"], html.lt .box .seg button[aria-pressed="true"], html.lt .toast .seg button[aria-pressed="true"], html.lt .tape .seg button[aria-pressed="true"], html.lt .over .seg button[aria-pressed="true"], html.lt .pc .seg button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
+  html.lt input[type=range] { accent-color: #47545F; }
+  html.lt .panel input[type=range], html.lt .box input[type=range], html.lt .toast input[type=range], html.lt .tape input[type=range], html.lt .over input[type=range], html.lt .pc input[type=range] { accent-color: #ECF0F3; }
+  html.lt footer { border-color: rgba(24,34,44,.1); }
+  /* sticky question bars: frosted silver, white fields */
+  html.lt .prompt, html.lt .cfg { background: rgba(236,238,240,.95) !important; border-color: rgba(24,34,44,.1) !important; color: var(--ink); }
+  html.lt .prompt input, html.lt .cfg input, html.lt .cfg select { background: #fff; color: var(--ink); border-color: rgba(24,34,44,.16); }
+  html.lt .prompt button, html.lt .cfg button { background: rgba(255,255,255,.7); color: var(--ink); border-color: rgba(24,34,44,.14); }
+  html.lt .prompt button.primary, html.lt .cfg button.primary, html.lt .prompt .primary { background: #15191C !important; color: #F2F4F5 !important; }
+</style>
+<style>
+  .rw-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; margin-top: 22px; }
+  @media (max-width: 1100px) { .rw-grid { grid-template-columns: minmax(0, 1fr); } }
+  .docsel { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .docsel .note { margin: 0; }
+  .doctxt { width: 100%; min-height: 170px; max-height: 340px; resize: vertical; background: #0F1112; color: var(--ink); border: 1px solid var(--ln2); border-radius: 14px; padding: 12px 14px; font: 400 13.5px/1.55 var(--sans); margin-top: 12px; }
+  .doctxt:focus { outline: none; border-color: var(--mint); }
+  .upl { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .upl input { display: none; }
+  .cfg2 { display: grid; gap: 14px; }
+  .fld2 label { display: flex; justify-content: space-between; font: 400 12px var(--mono); color: var(--soft); margin-bottom: 6px; }
+  .fld2 label b { color: var(--ink); font-weight: 500; }
+  .fld2 input[type=range] { width: 100%; }
+  .map { display: flex; gap: 2px; height: 34px; margin-top: 14px; border-radius: 8px; overflow: hidden; }
+  .map span { flex: 1 1 0; min-width: 2px; background: rgba(255,255,255,.06); position: relative; cursor: pointer; transition: background .2s; }
+  .map span.top { box-shadow: inset 0 0 0 2px var(--ink); }
+  .maplab { display: flex; justify-content: space-between; font: 400 11px var(--mono); color: var(--dim); margin-top: 6px; }
+  .hits { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .hit { border: 1px solid var(--line); border-radius: 14px; background: #0F1112; padding: 12px 14px; }
+  .hit .hh { display: flex; justify-content: space-between; gap: 10px; font: 400 11.5px var(--mono); color: var(--dim); margin-bottom: 6px; flex-wrap: wrap; }
+  .hit .hh b { color: var(--ink); font-weight: 500; }
+  .hit p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--soft); }
+  .hit mark { background: rgba(143,195,186,.22); color: var(--ink); border-radius: 3px; padding: 0 2px; }
+  .hit .sc { display: flex; gap: 10px; }
+  .ans { border: 1px solid var(--ln2); border-radius: 16px; padding: 14px 16px; background: rgba(255,255,255,.03); margin-top: 16px; }
+  .ans .k { font: 400 11.5px var(--mono); color: var(--dim); margin: 0 0 6px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .ans .a { font-size: 15.5px; line-height: 1.6; color: var(--ink); white-space: pre-wrap; }
+  .ans .a.no { color: #F5C08A; }
+  .ans sup { font: 500 10px var(--mono); color: var(--mint); margin-left: 2px; }
+  .qchips { margin-top: 10px; }
+  .qchips button.na i { background: #F2C14C; }
+  .evt { width: 100%; border-collapse: collapse; font: 400 12.5px var(--mono); margin-top: 12px; }
+  .evt th, .evt td { padding: 8px 6px; border-bottom: 1px solid var(--line); text-align: right; }
+  .evt th:first-child, .evt td:first-child { text-align: left; }
+  .evt th { color: var(--dim); font-weight: 400; }
+  .evt td.best { color: var(--teal); }
+  .evt td.sz { color: var(--soft); }
+  .gen { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .gen .note { margin: 0; flex: 1 1 200px; }
+  .ld { font: 400 12px var(--mono); color: var(--dim); }
+  .ld b { color: var(--ink); font-weight: 500; }
+  .seg button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="mark" href="./"><svg class="lg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9.5V4.8A1.8 1.8 0 0 1 4.8 3h4.7M14.5 21h4.7a1.8 1.8 0 0 0 1.8-1.8v-4.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg>LDB <span>Lab</span><em>Workbench</em></a>
+  <div class="right">
+    <button class="tbtn" type="button" id="themeBtn" aria-label="Switch between light and dark"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
+    <a class="btn" href="rag.html">&larr; Module 12</a>
+    <a class="btn main" href="./">Lab &rarr;</a>
+  </div>
+</div></nav>
+
+<div class="page">
+  <div class="head">
+    <div>
+      <p class="eyebrow">Workbench 01 &middot; Retrieval, measured</p>
+      <h1>Retrieval workbench</h1>
+    </div>
+  </div>
+  <p class="lede2">Module 12 explains retrieval. Here you run it: split a document into chunks, search it three ways, see exactly which passages an answer would be built from, and test the whole setup against questions with known answers, including questions the document <b>cannot</b> answer. Everything runs on your device.</p>
+
+  <div class="panel hl">
+    <div class="bh"><span>The document</span><span id="docInfo">&nbsp;</span></div>
+    <div class="docsel"><div class="seg" id="docSeg"></div><label class="act upl">Upload .txt, .md or .pdf<input type="file" id="file" accept=".txt,.md,.markdown,.pdf,text/plain"></label></div>
+    <textarea class="doctxt" id="doc" spellcheck="false" aria-label="Document text"></textarea>
+  </div>
+
+  <div class="rw-grid">
+    <div>
+      <div class="panel">
+        <div class="bh"><span>Ask the document</span><span id="qInfo">&nbsp;</span></div>
+        <div class="ask"><textarea id="q" rows="1" maxlength="300" aria-label="Question" placeholder="Ask a question about the document"></textarea><button type="button" class="act primary" id="go">Search <kbd>&#9166;</kbd></button></div>
+        <div class="chips qchips" id="qs"></div>
+        <div class="map" id="map" aria-hidden="true"></div>
+        <div class="maplab"><span>Start of document</span><span id="mapNote"></span><span>End</span></div>
+        <div class="ans" id="ans" hidden></div>
+        <div class="hits" id="hits"></div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <div class="bh"><span>Test the setup</span><span>retrieval accuracy and honest refusals</span></div>
+        <p class="why" style="border:0;padding:0;margin:0">Each sample document comes with ten questions: eight whose answer is in the text and two whose answer is not. A configuration scores a <b>hit</b> when a retrieved passage contains the answer, and a <b>correct refusal</b> when, for an unanswerable question, nothing clears the confidence threshold.</p>
+        <div class="controls" style="margin-top:14px"><button type="button" class="act" id="evalGo">Run the test set</button><span class="ld" id="evalNote"></span></div>
+        <div id="evalOut"></div>
+      </div>
+    </div>
+    <aside class="an">
+      <div class="box">
+        <div class="bh"><span>Search method</span></div>
+        <div class="seg" id="mSeg"></div>
+        <p class="note" id="mNote"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Chunking and ranking</span></div>
+        <div class="cfg2">
+          <div class="fld2"><label for="cs">Chunk size <b id="csV"></b></label><input type="range" id="cs" min="30" max="400" step="10" value="80"></div>
+          <div class="fld2"><label for="ov">Overlap <b id="ovV"></b></label><input type="range" id="ov" min="0" max="50" step="5" value="20"></div>
+          <div class="fld2"><label for="tk">Passages retrieved <b id="tkV"></b></label><input type="range" id="tk" min="1" max="8" step="1" value="2"></div>
+          <div class="fld2"><label for="th">Confidence needed to answer <b id="thV"></b></label><input type="range" id="th" min="0" max="80" step="1" value="45"></div>
+        </div>
+        <p class="note" id="chunkNote"></p>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Meaning search model</span><span id="eSt">not loaded</span></div>
+        <p class="note" style="margin-top:0">all-MiniLM-L6-v2 turns each passage into 384 numbers. About 23 MB, downloaded once.</p>
+        <div class="prog"><b id="eProg"></b></div>
+        <div class="controls" style="margin-top:10px"><button type="button" class="act" id="eLoad">Load the embedding model</button></div>
+      </div>
+      <div class="box">
+        <div class="bh"><span>Answer writer</span><span id="gSt">extractive</span></div>
+        <p class="note" style="margin-top:0">By default the answer is the single best-matching sentence, quoted with its passage number. Optionally, Qwen3 (0.6B, about 335 MB, needs WebGPU) writes the answer from the retrieved passages only.</p>
+        <div class="prog"><b id="gProg"></b></div>
+        <div class="gen"><button type="button" class="act" id="gLoad">Load Qwen3 &middot; 335 MB</button></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="explain">
+    <div><p class="k">Why chunk at all</p><h3>Models read windows, not books</h3><p>A language model can only take in so much text at once, and the more you give it, the more it gets distracted. Retrieval hands it the few passages that matter. Slide the chunk size and watch an answer get cut in half at small sizes, or buried in a long passage at large ones.</p></div>
+    <div><p class="k">Keyword against meaning</p><h3>Two ways to be wrong</h3><p>BM25 counts shared words, so it nails names and numbers but misses &ldquo;profit&rdquo; when the text says &ldquo;net income&rdquo;. Embeddings match meaning, but a passage can sound related without holding the answer. Hybrid ranks by both, which is what most production systems do.</p></div>
+    <div><p class="k">Saying &ldquo;I don&rsquo;t know&rdquo;</p><h3>The refusal is a feature</h3><p>The two unanswerable questions in each test set are the most important ones. Set the confidence too low and the system answers everything, inventing support from the nearest passage. Too high and it refuses questions it could answer. The test table shows the trade-off.</p></div>
+  </div>
+  <div class="edu"><b>How it runs.</b> Search, chunking and the extractive answer are plain JavaScript on this page. The embedding model and Qwen3 download from Hugging Face and run on your device; your document never leaves it. The sample documents are original text written for this lab, and Northwind Bank is fictional.</div>
+</div>
+<div class="toast" id="toast"></div>
+<footer>
+  <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab</span>
+  <span>Models download from Hugging Face and run on your device.</span>
+  <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="rag.html">Module 12</a></span>
+</footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+addEventListener('scroll', function () { document.documentElement.classList.toggle('scrolled', scrollY > 20); }, { passive: true });
+</script>
+<script>
+/* Sample documents for the retrieval workbench. All three are original text written for LDB Lab;
+   Northwind Bank is fictional. Each comes with test questions: an answer phrase that must appear in a
+   retrieved passage, or null for a question the document does not answer. */
+var DOCS = {
+  northwind: {
+    name: 'Northwind Bank letter',
+    kind: 'A fictional bank’s 2026 letter to shareholders',
+    text: [
+      'Northwind Bank: 2026 Letter to Shareholders',
+      'Dear shareholders, 2026 was the strongest year in Northwind Bank’s 64-year history. Net income rose 18% to $412 million, or $5.86 per diluted share, on revenue of $1.94 billion. Return on tangible common equity reached 16.4%, above our medium-term target of 15%, and our efficiency ratio improved to 54.1% from 57.8% a year earlier.',
+      'Our loan book grew 7% to $21.3 billion. Commercial real estate lending, which many investors watch closely, was held flat on purpose at $3.9 billion, or 18% of loans; office buildings are now less than 4% of the portfolio. Growth came instead from small-business lending in our five home states and from residential mortgages, where we added 11,400 new customers.',
+      'Deposits ended the year at $26.8 billion. Noninterest-bearing deposits were 24% of the total, down from 29% two years ago as customers moved cash into higher-yielding accounts. That shift raised our cost of deposits to 2.1%, which is why net interest margin slipped 6 basis points to 3.31% even as loans grew.',
+      'Credit quality stayed sound. Net charge-offs were 0.38% of average loans, compared with 0.31% in 2025, driven mainly by credit cards, where losses rose for a third straight quarter before leveling off in the fourth. We added $46 million to our allowance for credit losses, which now covers 1.42% of loans.',
+      'Capital remains a strength. Our common equity tier 1 ratio was 11.8% at year end, well above the 7% regulatory minimum and our own internal floor of 10.5%. The board raised the quarterly dividend by 8% to $0.54 per share in October and authorized a buyback of up to $250 million over the next two years. We repurchased $60 million of stock in 2026.',
+      'Technology spending rose to $186 million. The largest project is the replacement of our core deposit system, which we expect to finish in the second quarter of 2027 at a total cost of about $140 million. Once complete, it should let us open an account in under five minutes and lower annual operating costs by roughly $25 million.',
+      'We also opened 9 branches and closed 14, ending the year with 212. More than 70% of transactions now happen on our mobile app, and branch visits fell 9%. The branches we keep are moving toward advice: about a third now have a dedicated wealth adviser.',
+      'Our wealth management business crossed $18 billion in client assets for the first time, up 15%, and fee income from it grew 12% to $164 million. We hired 23 advisers during the year and plan to add a similar number in 2027, with a focus on business owners preparing to sell their companies.',
+      'Looking ahead, our 2027 plan assumes two cuts to the federal funds rate and modest economic growth. On that basis we expect loan growth of 4% to 6%, net interest margin between 3.25% and 3.35%, and expenses up no more than 3%. We are not changing our long-term targets: a return on tangible common equity of at least 15% and an efficiency ratio below 55%.',
+      'Finally, a word on people. After 11 years as chief financial officer, Dana Okafor will retire in March 2027. Her successor, Martin Velez, joins from a larger regional bank where he led treasury. We thank Dana for steering us through two very different interest-rate cycles.',
+      'Thank you for your support. Elena Marsh, Chief Executive Officer'
+    ].join('\n\n'),
+    tests: [
+      ['How much did net income grow in 2026?', '18%'],
+      ['What is the CET1 capital ratio?', '11.8%'],
+      ['How large is the commercial real estate portfolio?', '$3.9 billion'],
+      ['When will the new core deposit system be finished?', 'second quarter of 2027'],
+      ['How much did the dividend increase?', '8%'],
+      ['Who will replace the CFO?', 'Martin Velez'],
+      ['What happened to credit card losses?', 'third straight quarter'],
+      ['How many branches does the bank have now?', '212'],
+      ['What is Northwind’s market share in Ohio?', null],
+      ['How much did the CEO earn last year?', null]
+    ]
+  },
+  bonds: {
+    name: 'Guide to bond risk',
+    kind: 'A plain-English explainer on how bonds lose and gain value',
+    text: [
+      'A Plain Guide to Bond Risk',
+      'A bond is a loan you make to a government or a company. In return the borrower pays interest, called the coupon, usually twice a year, and repays the face value on the maturity date. If you hold a high-quality bond to maturity, you get exactly those payments. The risks come from everything that can change before then.',
+      'Interest-rate risk is the biggest. When market yields rise, existing bonds with lower coupons become less attractive, so their prices fall until their yield matches the market. The longer the bond, the bigger the fall, because more of its payments are far in the future. A useful rule of thumb is duration: a bond with a duration of 7 loses about 7% of its value if yields rise by one percentage point.',
+      'Duration is only an approximation. The real relationship between price and yield is curved, a property called convexity. Convexity works in the holder’s favor: prices rise a little more than duration predicts when yields fall, and fall a little less when yields rise. The effect is small for small moves and grows with the size of the move.',
+      'The yield curve rarely moves in parallel. Short-term yields follow the central bank’s policy rate closely, while long-term yields reflect expectations for growth and inflation over many years. When short yields rise faster than long ones, the curve flattens; when long yields rise faster, it steepens. A portfolio of bonds with different maturities can gain on one part of the curve and lose on another.',
+      'Credit risk is the chance the borrower cannot pay. Investors demand extra yield for it, called the credit spread, measured over a government bond of the same maturity. Investment-grade companies usually pay a spread of around one percentage point; high-yield, or junk, borrowers pay several points more. Spreads widen sharply in recessions, so corporate bonds can fall in value even when government yields are dropping.',
+      'Inflation risk erodes what the fixed payments can buy. A bond paying 4% a year loses ground if inflation runs at 5%. Inflation-protected government bonds adjust their principal with consumer prices to remove most of this risk, in exchange for a lower stated yield.',
+      'Liquidity risk is the cost of selling before maturity. Government bonds trade constantly and cheaply. Many corporate and municipal bonds trade rarely, so selling them quickly can mean accepting a lower price, especially in a crisis when everyone wants cash at once.',
+      'Reinvestment risk affects investors who rely on the income. When a bond matures or pays a coupon, the money has to be reinvested at whatever yields are available then. If rates have fallen, the new income is lower. Investors who need steady income often build a ladder: bonds maturing every year, so only a small part is reinvested at any one time.',
+      'Call risk applies to bonds the issuer can repay early. Companies call bonds when rates fall, because they can borrow again more cheaply. The investor gets the money back exactly when reinvesting it is least attractive. Callable bonds pay a higher yield to compensate.',
+      'Matching bonds to a goal reduces many of these risks at once. If you need a known sum on a known date, a high-quality bond maturing on that date removes the uncertainty about its price on the way there. This idea, matching the duration of assets to the duration of a liability, is called immunization, and it is how pension funds and insurers manage their portfolios.'
+    ].join('\n\n'),
+    tests: [
+      ['What does a duration of 7 mean?', 'about 7%'],
+      ['Why is convexity good for the holder?', 'holder’s favor'],
+      ['What is a credit spread?', 'extra yield'],
+      ['How do investors protect against inflation?', 'Inflation-protected'],
+      ['What is a bond ladder?', 'maturing every year'],
+      ['Why do companies call their bonds?', 'borrow again more cheaply'],
+      ['What is immunization?', 'immunization'],
+      ['What happens to the curve when short yields rise faster?', 'flattens'],
+      ['What was the 10-year Treasury yield in 1981?', null],
+      ['Which bond fund has the lowest fee?', null]
+    ]
+  },
+  lab: {
+    name: 'LDB Lab handbook',
+    kind: 'How this lab is built and what runs where',
+    text: [
+      'LDB Lab Handbook',
+      'LDB Lab is an applied-AI lab built as a set of web pages. Every experiment runs in the visitor’s browser: there is no server doing the work, no account to create and nothing the visitor types is sent anywhere. The only downloads are the code libraries and the models themselves. The pages are written in plain JavaScript without frameworks so that the code stays readable.',
+      'The course has 14 modules in five tracks. ML foundations covers how models learn and the classic methods behind credit scores. Deep learning covers neural networks, image models and embeddings. Generative AI covers how a language model works, diffusion and how a predictor becomes an assistant. AI infrastructure covers GPUs, training at scale, serving, retrieval and agents. Evaluation covers how to tell whether a model is good and where it breaks.',
+      'Five learning agents train live on the page. The market trader uses Q-learning and is judged on 40 simulated years it never trained on. The day trader is a small neural network that learns from its own forecasting errors. The sports-market model rates 20 clubs and sizes positions with fractional Kelly. The Monte Carlo planner tests spending plans across thousands of simulated lifetimes. The landlord agent uses a genetic algorithm to evolve strategies for a board game.',
+      'Models that are too large to train in a browser are downloaded instead. The object detector on the home page is YOLOX-tiny, about 20 megabytes, and runs on the device with ONNX Runtime; a separate small model blurs faces before anything is drawn. The model playground compares FinBERT and BERT, about 110 megabytes each, with two small chat models, Qwen3 at about 335 megabytes and Llama 3.2 at about 700 megabytes.',
+      'Chat models need WebGPU, which lets a web page use the graphics chip. Chrome and Edge on laptops support it, as does recent Safari. On phones, or when the browser asks to save data, the larger downloads wait for a tap instead of starting on their own.',
+      'Results that are simulated are labelled as simulated. The trading agents run on generated markets with hidden regimes, so their scores show how the method behaves, not what it would earn with real money. Where a page replays recorded results instead of computing them live, it says so.',
+      'Retrieval, the technique this workbench demonstrates, has three steps. The document is split into chunks. Each chunk is turned into an embedding, a list of numbers that captures its meaning, and stored. When a question arrives, it is embedded the same way and the closest chunks are handed to a language model as context, so the answer can be grounded in the text rather than in the model’s memory.',
+      'Chunk size is a trade-off. Small chunks are precise but can cut an answer in half. Large chunks keep context together but dilute the match, so the right passage can rank below a vaguely similar one. An overlap between neighbouring chunks reduces the chance of splitting a key sentence.',
+      'Keyword search and meaning search fail differently. Keyword methods such as BM25 are excellent at exact names and numbers but miss paraphrases. Embedding search understands paraphrases but can be fooled by passages that sound related without containing the answer. Hybrid search combines both rankings, which is why most production systems use it.',
+      'A retrieval system should also know when to say no. If no passage is close enough to the question, the honest answer is that the document does not say. Testing that behaviour with questions that have no answer in the source is as important as testing the questions that do.'
+    ].join('\n\n'),
+    tests: [
+      ['How many modules does the course have?', '14 modules'],
+      ['Which model detects objects on the home page?', 'YOLOX-tiny'],
+      ['What do chat models need to run?', 'WebGPU'],
+      ['How is the market trader judged?', '40 simulated years'],
+      ['What are the three steps of retrieval?', 'three steps'],
+      ['What is the downside of large chunks?', 'dilute the match'],
+      ['Why use hybrid search?', 'combines both rankings'],
+      ['How big is Llama 3.2?', '700 megabytes'],
+      ['How much does a subscription to the lab cost?', null],
+      ['Which cloud provider hosts the models?', null]
+    ]
+  }
+};
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var TF = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0/dist/transformers.min.js', WL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.85/lib/index.js';
+  var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('on'); }, 3200); }
+
+  /* ---------- state ---------- */
+  var S = { doc: 'northwind', size: 80, ov: 20, k: 2, th: 45, method: 'hybrid' };
+  var CH = [], EMB = null, EMBKEY = '', QEMB = {}, embedder = null, embBusy = null, LLM = null;
+  var METHODS = { keyword: ['Keyword', 'BM25: ranks passages by shared words, weighting rare words more. Exact names and numbers win; paraphrases lose.'],
+                  meaning: ['Meaning', 'Cosine similarity between embeddings. Finds paraphrases, but needs the 23 MB model and can match passages that only sound related.'],
+                  hybrid: ['Hybrid', 'Reciprocal rank fusion of both rankings. Uses keyword alone until the embedding model is loaded.'] };
+
+  /* ---------- text processing ---------- */
+  var STOP = {}; ('a an and are as at be been but by can could did do does for from had has have how i if in into is it its may more most much no not of on or our so than that the their them then there these they this to too was we were what when where which who why will with would you your about after also any before being between both each few he her him his just like many me my new now only other out over own same she should some such through under up very while').split(' ').forEach(function (w) { STOP[w] = 1; });
+  function stem(w) { if (w.length > 5 && /ing$/.test(w)) return w.slice(0, -3); if (w.length > 4 && /ed$/.test(w)) return w.slice(0, -2); if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1); return w; }
+  function toks(s) { return (s.toLowerCase().replace(/[’']/g, '').match(/[a-z0-9]+(?:\.[0-9]+)?%?/g) || []).filter(function (w) { return !STOP[w] && (w.length > 1 || /\d/.test(w)); }).map(stem); }
+  function chunk(text, size, ov) {
+    var words = text.replace(/\s+/g, ' ').trim().split(' '), step = Math.max(1, Math.round(size * (1 - ov / 100))), out = [];
+    if (!words[0]) return out;
+    for (var i = 0; i < words.length; i += step) {
+      var w = words.slice(i, i + size); out.push({ i: out.length, start: i, text: w.join(' '), t: toks(w.join(' ')) });
+      if (i + size >= words.length) break;
+    }
+    return out;
+  }
+  function bm25(chs, q) {
+    var N = chs.length, avg = 0, df = {}; chs.forEach(function (c) { avg += c.t.length; var seen = {}; c.t.forEach(function (w) { if (!seen[w]) { seen[w] = 1; df[w] = (df[w] || 0) + 1; } }); }); avg /= N || 1;
+    var qt = toks(q);
+    return chs.map(function (c) {
+      var tf = {}; c.t.forEach(function (w) { tf[w] = (tf[w] || 0) + 1; });
+      var s = 0, got = 0; qt.forEach(function (w) { if (!tf[w]) return; got++; var idf = Math.log(1 + (N - df[w] + 0.5) / (df[w] + 0.5)); s += idf * tf[w] * 2.5 / (tf[w] + 1.5 * (0.25 + 0.75 * c.t.length / avg)); });
+      return { s: s, cov: qt.length ? got / qt.length : 0 };
+    });
+  }
+  function cosine(a, b) { var s = 0; for (var i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }   /* vectors are already normalised */
+  function sentences(t) { return t.split(/(?<=[.!?])\s+(?=[A-Z“"$0-9])/).map(function (x) { return x.trim(); }).filter(function (x) { return x.split(' ').length > 3; }); }   /* a full stop inside a number ($5.86) does not end a sentence */
+
+  /* ---------- the embedding model ---------- */
+  var LIGHT = (function () { var c = navigator.connection || {}; return !!c.saveData || /2g/.test(c.effectiveType || ''); })();
+  function loadEmbedder() {
+    if (embedder) return Promise.resolve(embedder);
+    if (embBusy) return embBusy;
+    $('eSt').textContent = 'downloading'; $('eLoad').disabled = true;
+    embBusy = import(TF).then(function (T) {
+      T.env.allowLocalModels = false;
+      return T.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { dtype: 'q8', device: 'wasm', progress_callback: function (p) { if (p.status === 'progress_total') { $('eProg').style.width = Math.round(p.progress) + '%'; $('eSt').textContent = 'downloading ' + Math.round(p.progress) + '%'; } } });
+    }).then(function (e) { embedder = e; $('eProg').style.width = '100%'; $('eSt').textContent = 'ready'; $('eLoad').textContent = 'Loaded'; return e; })
+      .catch(function (err) { embBusy = null; $('eSt').textContent = 'could not load'; $('eLoad').disabled = false; $('eLoad').textContent = 'Try again'; toast('The embedding model could not be downloaded. Keyword search still works.'); throw err; });
+    return embBusy;
+  }
+  function embed(texts) {
+    var out = [], i = 0;
+    function next() {
+      if (i >= texts.length) return Promise.resolve(out);
+      var b = texts.slice(i, i + 16); i += 16;
+      return embedder(b, { pooling: 'mean', normalize: true }).then(function (t) { var d = t.dims[1]; for (var k = 0; k < b.length; k++) out.push(Array.prototype.slice.call(t.data, k * d, (k + 1) * d)); return next(); });
+    }
+    return next();
+  }
+  function chunkEmb(chs, key) {
+    if (!embedder) return Promise.resolve(null);
+    if (EMBKEY === key && EMB) return Promise.resolve(EMB);
+    return embed(chs.map(function (c) { return c.text; })).then(function (v) { EMB = v; EMBKEY = key; return v; });
+  }
+  function qEmb(q) { if (!embedder) return Promise.resolve(null); if (QEMB[q]) return Promise.resolve(QEMB[q]); return embed([q]).then(function (v) { QEMB[q] = v[0]; return v[0]; }); }
+
+  /* ---------- search ---------- */
+  function rank(chs, q, embs, qe, method) {
+    var kw = bm25(chs, q), sem = embs && qe ? embs.map(function (e) { return cosine(e, qe); }) : null;
+    var m = method === 'meaning' && !sem ? 'keyword' : method === 'hybrid' && !sem ? 'keyword' : method;
+    var order = function (arr) { return arr.map(function (v, i) { return i; }).sort(function (a, b) { return arr[b] - arr[a]; }); };
+    var kwo = order(kw.map(function (x) { return x.s; })), rk = {}; kwo.forEach(function (i, r) { rk[i] = r; });
+    var so = sem ? order(sem) : null, rs = {}; if (so) so.forEach(function (i, r) { rs[i] = r; });
+    var score = chs.map(function (c, i) {
+      if (m === 'keyword') return kw[i].s;
+      if (m === 'meaning') return sem[i];
+      return 1 / (60 + rk[i]) + 1 / (60 + rs[i]);
+    });
+    var idx = order(score);
+    var conf = function (i) { return m === 'keyword' ? kw[i].cov : sem[i]; };   /* keyword: share of question words found; otherwise cosine */
+    return { m: m, idx: idx, score: score, kw: kw, sem: sem, conf: conf };
+  }
+
+  /* ---------- UI ---------- */
+  function docSeg() {
+    var keys = Object.keys(DOCS).concat(['own']);
+    $('docSeg').innerHTML = keys.map(function (k) { return '<button type="button" data-d="' + k + '" aria-pressed="' + (S.doc === k) + '">' + (k === 'own' ? 'Your own text' : esc(DOCS[k].name)) + '</button>'; }).join('');
+    Array.prototype.forEach.call($('docSeg').querySelectorAll('button'), function (b) { b.onclick = function () { setDoc(b.getAttribute('data-d')); }; });
+  }
+  function setDoc(k, text) {
+    S.doc = k; docSeg();
+    if (k !== 'own') $('doc').value = DOCS[k].text; else if (text != null) $('doc').value = text; else if (DOCS[Object.keys(DOCS)[0]].text === $('doc').value || Object.keys(DOCS).some(function (d) { return DOCS[d].text === $('doc').value; })) $('doc').value = '';
+    $('doc').readOnly = k !== 'own';
+    $('doc').placeholder = k === 'own' ? 'Paste any text here: a filing, an article, your notes. Or upload a file.' : '';
+    qChips(); rechunk(); $('evalOut').innerHTML = ''; $('evalNote').textContent = k === 'own' ? 'The test set needs one of the sample documents.' : '';
+    $('evalGo').disabled = k === 'own';
+    if (k !== 'own') { $('q').value = DOCS[k].tests[0][0]; if (window.ldbGrow) ldbGrow(); search(); } else { $('hits').innerHTML = ''; $('ans').hidden = true; }
+  }
+  function qChips() {
+    if (S.doc === 'own') { $('qs').innerHTML = ''; return; }
+    $('qs').innerHTML = DOCS[S.doc].tests.map(function (t, i) { return '<button type="button" data-i="' + i + '" class="' + (t[1] ? '' : 'na') + '"><i></i>' + esc(t[0]) + (t[1] ? '' : ' <em>not in the text</em>') + '</button>'; }).join('');
+    Array.prototype.forEach.call($('qs').querySelectorAll('button'), function (b) { b.onclick = function () { $('q').value = DOCS[S.doc].tests[+b.getAttribute('data-i')][0]; grow(); search(); }; });
+  }
+  function rechunk() {
+    var t = $('doc').value;
+    CH = chunk(t, S.size, S.ov); EMB = null; EMBKEY = '';
+    var words = t.trim() ? t.trim().split(/\s+/).length : 0;
+    $('docInfo').textContent = words ? words.toLocaleString() + ' words · ' + CH.length + ' passages' : 'no text yet';
+    $('chunkNote').textContent = CH.length ? CH.length + ' passages of up to ' + S.size + ' words, each sharing ' + Math.round(S.size * S.ov / 100) + ' words with the next.' : '';
+  }
+  function sliders() {
+    $('csV').textContent = S.size + ' words'; $('ovV').textContent = S.ov + '%'; $('tkV').textContent = S.k; $('thV').textContent = (S.th / 100).toFixed(2);
+    $('mSeg').innerHTML = Object.keys(METHODS).map(function (k) { return '<button type="button" data-m="' + k + '" aria-pressed="' + (S.method === k) + '">' + METHODS[k][0] + '</button>'; }).join('');
+    Array.prototype.forEach.call($('mSeg').querySelectorAll('button'), function (b) { b.onclick = function () { S.method = b.getAttribute('data-m'); sliders(); if (S.method !== 'keyword' && !embedder) { if (LIGHT) toast('Meaning search needs the 23 MB embedding model: tap Load in the panel.'); else loadEmbedder().then(search).catch(function () {}); } search(); }; });
+    $('mNote').textContent = METHODS[S.method][1];
+  }
+
+  var tokenS = 0;
+  function search() {
+    var q = $('q').value.trim(), me = ++tokenS;
+    if (!q || !CH.length) { $('hits').innerHTML = CH.length ? '' : '<p class="empty">Add some text to search.</p>'; $('ans').hidden = true; $('map').innerHTML = ''; return; }
+    var key = S.doc + '|' + S.size + '|' + S.ov + '|' + $('doc').value.length;
+    Promise.all([chunkEmb(CH, key), qEmb(q)]).then(function (r) {
+      if (me !== tokenS) return;
+      var R = rank(CH, q, r[0], r[1], S.method), top = R.idx.slice(0, S.k), c0 = R.conf(top[0]);
+      var used = R.m !== S.method ? ' (keyword until the model loads)' : '';
+      $('qInfo').textContent = METHODS[R.m][0] + used + ' · confidence ' + c0.toFixed(2);
+      /* document map: every passage, shaded by its score */
+      var mx = Math.max.apply(null, R.score), mn = Math.min.apply(null, R.score);
+      $('map').innerHTML = CH.map(function (c, i) { var v = mx > mn ? (R.score[i] - mn) / (mx - mn) : 0; return '<span class="' + (top.indexOf(i) >= 0 ? 'top' : '') + '" style="background:rgba(143,195,186,' + (0.06 + v * 0.8).toFixed(2) + ')" title="Passage ' + (i + 1) + '" data-i="' + i + '"></span>'; }).join('');
+      Array.prototype.forEach.call($('map').querySelectorAll('span'), function (s) { s.onclick = function () { var i = +s.getAttribute('data-i'); toast('Passage ' + (i + 1) + ': ' + CH[i].text.slice(0, 160) + '…'); }; });
+      $('mapNote').textContent = 'retrieved passages outlined';
+      var qt = {}; toks(q).forEach(function (w) { qt[w] = 1; });
+      $('hits').innerHTML = top.map(function (i, r) {
+        var c = CH[i], html = esc(c.text).replace(/[A-Za-z0-9$%.’']+/g, function (w) { var s = toks(w)[0]; return s && qt[s] ? '<mark>' + w + '</mark>' : w; });
+        return '<div class="hit"><div class="hh"><span><b>#' + (r + 1) + '</b> &middot; passage ' + (i + 1) + ' of ' + CH.length + '</span><span class="sc"><span>BM25 ' + R.kw[i].s.toFixed(2) + '</span>' + (R.sem ? '<span>cosine ' + R.sem[i].toFixed(2) + '</span>' : '') + '</span></div><p>' + html + '</p></div>';
+      }).join('');
+      answer(q, top, R, c0);
+    });
+  }
+  function answer(q, top, R, c0) {
+    var box = $('ans'); box.hidden = false;
+    var ok = c0 >= S.th / 100;
+    var head = '<p class="k"><span>' + (LLM && LLM.eng ? 'Qwen3, from the retrieved passages' : 'Extractive: the best-matching sentence') + '</span><span>confidence ' + c0.toFixed(2) + (ok ? ' &ge; ' : ' &lt; ') + (S.th / 100).toFixed(2) + '</span></p>';
+    if (!ok) { box.innerHTML = head + '<div class="a no">The document doesn&rsquo;t say. No passage is close enough to the question to answer it.</div>'; return; }
+    if (LLM && LLM.eng) return generate(q, top, head);
+    /* extractive: score sentences in the retrieved passages */
+    var cands = []; top.forEach(function (i, r) { sentences(CH[i].text).forEach(function (s) { cands.push({ s: s, r: r }); }); });
+    var qt = toks(q), pick = function (sc) { var b = 0; sc.forEach(function (v, i) { if (v > sc[b]) b = i; }); return cands[b]; };
+    var kwScore = cands.map(function (c) { var t = {}; toks(c.s).forEach(function (w) { t[w] = 1; }); var n = 0; qt.forEach(function (w) { if (t[w]) n++; }); return n / (qt.length || 1) - c.r * 0.02; });
+    var done = function (best) { box.innerHTML = head + '<div class="a">&ldquo;' + esc(best.s) + '&rdquo;<sup>[' + (best.r + 1) + ']</sup></div>'; };
+    if (embedder && cands.length) {
+      embed(cands.map(function (c) { return c.s; })).then(function (v) { var qe = QEMB[q]; done(pick(v.map(function (e, i) { return cosine(e, qe) + kwScore[i] * 0.3; }))); });
+    } else if (cands.length) done(pick(kwScore));
+    else box.innerHTML = head + '<div class="a no">The retrieved passages have no complete sentences to quote.</div>';
+  }
+
+  /* ---------- optional generator: Qwen3 through WebLLM ---------- */
+  function gpuOk() {
+    if (!navigator.gpu) return Promise.resolve('This browser has no WebGPU, so the generator cannot run here. The extractive answer still works.');
+    return navigator.gpu.requestAdapter().then(function (a) { if (!a) return 'No graphics adapter is available to WebGPU here.'; if (!a.features.has('shader-f16')) return 'This graphics chip lacks the 16-bit maths the model needs.'; return ''; }).catch(function () { return 'The graphics adapter could not be checked.'; });
+  }
+  function loadLLM() {
+    var b = $('gLoad'); b.disabled = true;
+    gpuOk().then(function (why) {
+      if (why) { $('gSt').textContent = 'not supported'; b.textContent = 'Not available'; toast(why); return; }
+      $('gSt').textContent = 'downloading';
+      return import(WL).then(function (W) { return W.CreateMLCEngine('Qwen3-0.6B-q4f16_1-MLC', { initProgressCallback: function (r) { var p = (r.progress || 0) * 100; $('gProg').style.width = p + '%'; $('gSt').textContent = p >= 100 ? 'starting' : 'downloading ' + Math.round(p) + '%'; } }); })
+        .then(function (eng) { LLM = { eng: eng }; $('gSt').textContent = 'Qwen3 ready'; b.textContent = 'Loaded'; search(); })
+        .catch(function () { $('gSt').textContent = 'could not load'; b.disabled = false; b.textContent = 'Try again'; toast('Qwen3 could not start. The extractive answer still works.'); });
+    });
+  }
+  function generate(q, top, head) {
+    var box = $('ans'), ctx = top.map(function (i, r) { return '[' + (r + 1) + '] ' + CH[i].text; }).join('\n\n');
+    box.innerHTML = head + '<div class="a" id="gOut">…</div>';
+    var sys = 'Answer the question using only the numbered passages. Cite the passage number in square brackets, like [1]. If the passages do not contain the answer, reply exactly: The document doesn’t say. Keep the answer to one or two sentences.';
+    var text = '';
+    LLM.eng.chat.completions.create({ messages: [{ role: 'system', content: sys }, { role: 'user', content: 'Passages:\n' + ctx + '\n\nQuestion: ' + q }], stream: true, temperature: 0.2, max_tokens: 140, extra_body: { enable_thinking: false } })
+      .then(function (stream) {
+        var it = stream[Symbol.asyncIterator]();
+        (function step() { it.next().then(function (r) { if (r.done) return; var d = r.value.choices && r.value.choices[0] && r.value.choices[0].delta && r.value.choices[0].delta.content || ''; text += d; var o = $('gOut'); if (o) o.innerHTML = esc(text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim()).replace(/\[(\d)\]/g, '<sup>[$1]</sup>'); step(); }); })();
+      }).catch(function () { var o = $('gOut'); if (o) o.textContent = 'The generator stopped unexpectedly.'; });
+  }
+
+  /* ---------- the test set ---------- */
+  function norm(s) { return s.toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, ' '); }
+  function runEval() {
+    if (S.doc === 'own') return;
+    var D = DOCS[S.doc], sizes = [40, 80, 160], methods = embedder ? ['keyword', 'meaning', 'hybrid'] : ['keyword'];
+    $('evalGo').disabled = true; $('evalNote').textContent = 'Running…';
+    var rows = [], text = D.text, qs = D.tests.map(function (t) { return t[0]; });
+    var chain = (embedder ? embed(qs) : Promise.resolve(null)).then(function (qv) {
+      var p = Promise.resolve();
+      sizes.forEach(function (sz) {
+        p = p.then(function () {
+          var chs = chunk(text, sz, S.ov);
+          return (embedder ? embed(chs.map(function (c) { return c.text; })) : Promise.resolve(null)).then(function (ev) {
+            methods.forEach(function (m) {
+              var hit = 0, ans = 0, ref = 0, una = 0;
+              D.tests.forEach(function (t, qi) {
+                var R = rank(chs, t[0], ev, qv ? qv[qi] : null, m), top = R.idx.slice(0, S.k), c0 = R.conf(top[0]);
+                if (t[1]) { ans++; if (top.some(function (i) { return norm(chs[i].text).indexOf(norm(t[1])) >= 0; })) hit++; }
+                else { una++; if (c0 < S.th / 100) ref++; }
+              });
+              rows.push({ sz: sz, n: chs.length, m: m, hit: hit / ans, ref: ref / una, hn: hit, an: ans, rn: ref, un: una });
+            });
+          });
+        });
+      });
+      return p;
+    });
+    chain.then(function () {
+      var best = Math.max.apply(null, rows.map(function (r) { return r.hit; }));
+      $('evalOut').innerHTML = '<div style="overflow-x:auto"><table class="evt"><thead><tr><th>Chunk size</th><th>Passages</th><th>Method</th><th>Hits in top ' + S.k + '</th><th>Correct refusals</th></tr></thead><tbody>' +
+        rows.map(function (r) { return '<tr><td class="sz">' + r.sz + ' words</td><td>' + r.n + '</td><td>' + METHODS[r.m][0] + '</td><td class="' + (r.hit === best ? 'best' : '') + '">' + r.hn + ' / ' + r.an + '</td><td>' + r.rn + ' / ' + r.un + '</td></tr>'; }).join('') + '</tbody></table></div>' +
+        '<p class="note">Overlap ' + S.ov + '% and confidence ' + (S.th / 100).toFixed(2) + ', as set on the right. ' + (embedder ? '' : 'Load the embedding model to add meaning and hybrid search to the comparison. ') + 'A hit means the exact answer phrase is inside a retrieved passage, so an answer split across two passages counts as a miss, just as it would confuse a real system.</p>';
+      $('evalGo').disabled = false; $('evalNote').textContent = 'Done. Change the sliders and run it again.';
+    }).catch(function () { $('evalGo').disabled = false; $('evalNote').textContent = 'The test stopped; try again.'; });
+  }
+
+  /* ---------- uploads ---------- */
+  function loadScript(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+  function readPdf(file) {
+    return (window.pdfjsLib ? Promise.resolve() : loadScript(PDFJS + 'pdf.min.js')).then(function () {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
+      return file.arrayBuffer();
+    }).then(function (buf) { return pdfjsLib.getDocument({ data: buf }).promise; }).then(function (pdf) {
+      var n = Math.min(pdf.numPages, 60), parts = [], p = Promise.resolve();
+      for (var i = 1; i <= n; i++) (function (i) { p = p.then(function () { return pdf.getPage(i).then(function (pg) { return pg.getTextContent(); }).then(function (tc) { parts.push(tc.items.map(function (x) { return x.str; }).join(' ')); }); }); })(i);
+      return p.then(function () { if (pdf.numPages > n) toast('Read the first 60 pages.'); return parts.join('\n\n'); });
+    });
+  }
+  $('file').onchange = function () {
+    var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+    if (f.size > 15e6) { toast('That file is larger than 15 MB.'); return; }
+    (/\.pdf$/i.test(f.name) ? readPdf(f) : f.text()).then(function (t) {
+      t = t.replace(/\r/g, ''); var w = t.split(/\s+/); if (w.length > 60000) { t = w.slice(0, 60000).join(' '); toast('Kept the first 60,000 words.'); }
+      setDoc('own', t); $('q').value = ''; $('q').focus();
+    }).catch(function () { toast('That file could not be read. Try a text file, or paste the text.'); });
+  };
+
+  /* ---------- wiring ---------- */
+  var tq; $('doc').oninput = function () { if (S.doc !== 'own') return; clearTimeout(tq); tq = setTimeout(function () { rechunk(); search(); }, 400); };
+  $('go').onclick = search;
+  function grow() { var q = $('q'); q.style.height = 'auto'; q.style.height = Math.min(140, q.scrollHeight) + 'px'; }
+  $('q').oninput = grow; window.ldbGrow = grow; addEventListener('resize', grow);
+  $('q').onkeydown = function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); search(); } };
+  [['cs', 'size'], ['ov', 'ov'], ['tk', 'k'], ['th', 'th']].forEach(function (p) {
+    var el = $(p[0]), t;
+    el.oninput = function () { S[p[1]] = +el.value; sliders(); clearTimeout(t); t = setTimeout(function () { if (p[1] === 'size' || p[1] === 'ov') rechunk(); search(); }, 180); };
+  });
+  $('eLoad').onclick = function () { loadEmbedder().then(function () { if (S.method === 'keyword') { S.method = 'hybrid'; sliders(); } search(); }).catch(function () {}); };
+  $('gLoad').onclick = loadLLM;
+  $('evalGo').onclick = runEval;
+  sliders(); setDoc('northwind');
+  /* computers fetch the small embedding model when the page is visible; phones and data saver wait for a tap */
+  var coarse = matchMedia('(pointer: coarse)').matches && innerWidth < 900;
+  if (!LIGHT && !coarse) setTimeout(function () { loadEmbedder().then(search).catch(function () {}); }, 600);
+  window.LDBRAG = { chunk: chunk, bm25: bm25, toks: toks, rank: rank };
+})();
+</script>
+</body>
+</html>
