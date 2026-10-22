@@ -256,7 +256,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div class="panel">
         <div class="trainbar">
           <button type="button" class="act primary" id="train">Train</button>
-          <button type="button" class="act" id="reset">New network</button>
+          <button type="button" class="act" id="reset">New Network</button>
           <span class="status2"><span class="live" id="live"></span>Days practised <b id="gen">0</b> &middot; forecast skill <b id="days">0%</b></span>
         </div>
         <div class="fields">
@@ -269,7 +269,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="h3"><span>One unseen day, traded by the network</span><span id="dayTag">-</span></div>
         <svg class="chart" id="day" height="240" style="height:240px" aria-hidden="true"></svg>
         <div class="leg" id="dayLeg"></div>
-        <div class="controls" style="margin-top:8px"><button type="button" class="act" id="nextDay">Show another day</button><span class="note">Teal background: long. Red: short. Dots mark trades.</span></div>
+        <div class="controls" style="margin-top:8px"><button type="button" class="act" id="nextDay">Show Another Day</button><span class="note">Teal background: long. Red: short. Dots mark trades.</span></div>
       </div>
     </div>
     <aside class="an" aria-label="Analysis">
@@ -289,9 +289,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">The market</p><h3>Two real effects, simulated</h3><p>Each day has 390 one-minute bars. Prices wobble around a fair value and drift back to it (mean reversion). News occasionally moves the fair value, and the price takes several minutes to catch up (momentum). Every change of position pays the cost you set.</p></div>
-    <div><p class="k">The network</p><h3>A tiny forecasting brain</h3><p>A small neural network (about 100 numbers) reads the last 1, 5 and 15 minutes of returns, the distance from the day's average price and the time, then forecasts the next 10 minutes. It goes long or short only when the forecast is big enough to pay the cost. Nobody tells it the rules.</p></div>
-    <div><p class="k">Learning from errors</p><h3>Gradient descent, live</h3><p>Every minute of every practice day it makes a forecast, waits ten minutes, and measures how wrong it was. Each weight moves a little in the direction that would have shrunk that error. Most minutes are noise, so it learns slowly, and forecast skill stays small, as it does in real markets.</p></div>
+    <div><p class="k">The market</p><h3>Two Real Effects, Simulated</h3><p>Each day has 390 one-minute bars. Prices wobble around a fair value and drift back to it (mean reversion). News occasionally moves the fair value, and the price takes several minutes to catch up (momentum). Every change of position pays the cost you set.</p></div>
+    <div><p class="k">The network</p><h3>A Tiny Forecasting Brain</h3><p>A small neural network (about 100 numbers) reads the last 1, 5 and 15 minutes of returns, the distance from the day's average price and the time, then forecasts the next 10 minutes. It goes long or short only when the forecast is big enough to pay the cost. Nobody tells it the rules.</p></div>
+    <div><p class="k">Learning from errors</p><h3>Gradient Descent, Live</h3><p>Every minute of every practice day it makes a forecast, waits ten minutes, and measures how wrong it was. Each weight moves a little in the direction that would have shrunk that error. Most minutes are noise, so it learns slowly, and forecast skill stays small, as it does in real markets.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>

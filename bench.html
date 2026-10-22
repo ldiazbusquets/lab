@@ -347,7 +347,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
           <div class="row"><span>Precision</span><div class="tg2" id="oP"></div></div>
         </div>
         <p class="plan2" id="plan2"></p>
-        <div class="controls" style="margin-top:14px"><button type="button" class="act primary" id="run">Run the benchmark</button><button type="button" class="act" id="stop" disabled>Stop</button><span class="ld" id="state" style="font:400 12px var(--mono);color:var(--dim)"></span></div>
+        <div class="controls" style="margin-top:14px"><button type="button" class="act primary" id="run">Run the Benchmark</button><button type="button" class="act" id="stop" disabled>Stop</button><span class="ld" id="state" style="font:400 12px var(--mono);color:var(--dim)"></span></div>
         <div class="log" id="log" hidden></div>
       </div>
       <div class="panel" style="margin-top:16px">
@@ -375,9 +375,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
 
   <div class="explain">
-    <div><p class="k">Precision</p><h3>Fewer bits, smaller and faster</h3><p>fp32 stores every weight in 32 bits, fp16 in 16, q4 in about 4. Cutting bits cuts the download and the memory the model needs by up to eight times, and usually speeds it up, because moving weights through memory is the slow part. The question is what it costs in answers: watch the Correct column.</p></div>
-    <div><p class="k">Processor against graphics chip</p><h3>Why GPUs win, and when they don&rsquo;t</h3><p>A graphics chip does thousands of multiplications at once, which is what a model mostly does. For a model this small the gap can be narrower than you expect, because there is less work to spread out and the GPU has its own start-up costs. Bigger models widen the gap.</p></div>
-    <div><p class="k">First token against speed</p><h3>Two numbers, two experiences</h3><p>The wait for the first word is what makes a chatbot feel slow; tokens a second is how fast it writes after that. Serving systems tune them separately: batching many users together helps speed but can lengthen the first-token wait.</p></div>
+    <div><p class="k">Precision</p><h3>Fewer Bits, Smaller and Faster</h3><p>fp32 stores every weight in 32 bits, fp16 in 16, q4 in about 4. Cutting bits cuts the download and the memory the model needs by up to eight times, and usually speeds it up, because moving weights through memory is the slow part. The question is what it costs in answers: watch the Correct column.</p></div>
+    <div><p class="k">Processor against graphics chip</p><h3>Why GPUs Win, and When They Don&rsquo;t</h3><p>A graphics chip does thousands of multiplications at once, which is what a model mostly does. For a model this small the gap can be narrower than you expect, because there is less work to spread out and the GPU has its own start-up costs. Bigger models widen the gap.</p></div>
+    <div><p class="k">First token against speed</p><h3>Two Numbers, Two Experiences</h3><p>The wait for the first word is what makes a chatbot feel slow; tokens a second is how fast it writes after that. Serving systems tune them separately: batching many users together helps speed but can lengthen the first-token wait.</p></div>
   </div>
   <div class="edu"><b>Live, not recorded.</b> Results depend on your device, browser, battery settings and what else is running, and will differ between runs. SmolLM2 is Hugging Face&rsquo;s small open model, downloaded from Hugging Face and run with ONNX Runtime in your browser. Some precisions are not published for every model or supported on every device; those rows say so instead of failing quietly.</div>
 </div>

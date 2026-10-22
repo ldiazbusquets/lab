@@ -248,7 +248,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <h1>Market Trader</h1>
     </div>
     <div class="tools">
-      <button type="button" class="tog" id="shortTog" aria-pressed="false"><i></i>Allow shorting</button>
+      <button type="button" class="tog" id="shortTog" aria-pressed="false"><i></i>Allow Shorting</button>
       <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
     </div>
   </div>
@@ -258,7 +258,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="trainbar">
           <button type="button" class="act primary" id="train">Train</button>
           <div class="seg" id="speed" role="group" aria-label="Speed"><button type="button" data-k="slow">Watch</button><button type="button" data-k="fast" aria-pressed="true">Fast</button></div>
-          <button type="button" class="act" id="reset">New agent</button>
+          <button type="button" class="act" id="reset">New Agent</button>
           <span class="status2"><span class="live" id="live"></span>Years trained <b id="eps">0</b> &middot; exploring <b id="epsv">100%</b></span>
         </div>
         <div class="fields">
@@ -271,7 +271,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="h3"><span>One unseen year, played by the current agent</span><span id="yrTag">-</span></div>
         <svg class="chart" id="year" height="230" style="height:230px" aria-hidden="true"></svg>
         <div class="leg" id="yearLeg"></div>
-        <div class="controls" style="margin-top:8px"><button type="button" class="act" id="nextYear">Show another year</button><span class="note">Shading shows the hidden market mood: teal for a bull run, red for a bear market. The agent never sees it.</span></div>
+        <div class="controls" style="margin-top:8px"><button type="button" class="act" id="nextYear">Show Another Year</button><span class="note">Shading shows the hidden market mood: teal for a bull run, red for a bear market. The agent never sees it.</span></div>
       </div>
     </div>
     <aside class="an" aria-label="Analysis">
@@ -279,7 +279,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="bh"><span>Out-of-sample results</span><span>40 test years</span></div>
         <div class="stat2"><div><span>Agent Sharpe</span><b id="sA">-</b></div><div><span>Buy and hold</span><b id="sB">-</b></div><div><span>Agent yearly return</span><b id="rA">-</b></div><div><span>Worst drop (agent / hold)</span><b id="dd">-</b></div></div>
         <p class="why" id="verdict">Press Train. The agent starts knowing nothing and acts at random.</p>
-        <p class="note" style="margin-top:10px"><button type="button" class="act" id="dlRes">Download results (CSV)</button> Every test day: the market move, the agent's position and both portfolios, so the numbers above can be checked in a spreadsheet.</p>
+        <p class="note" style="margin-top:10px"><button type="button" class="act" id="dlRes">Download Results (CSV)</button> Every test day: the market move, the agent's position and both portfolios, so the numbers above can be checked in a spreadsheet.</p>
       </div>
       <div class="box">
         <div class="bh"><span>What it has learned</span><span>allocation by situation</span></div>
@@ -293,9 +293,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">The market</p><h3>Simulated, with moods</h3><p>Prices come from a generator with hidden moods: calm, bull and bear. Each mood lasts weeks or months, and bear markets are more volatile with occasional crashes. That gives trends and volatility clusters a real but imperfect edge, as in real markets, without pretending to forecast any real stock.</p></div>
-    <div><p class="k">Q-learning</p><h3>Learning by trial and error</h3><p>The agent sees only the trend, recent momentum, volatility and its own position. For every situation it keeps a score for each allocation, the Q-value. After each day it compares what happened with what it expected and nudges the score toward the result. Early on it explores at random; it gradually trusts what it has learned.</p></div>
-    <div><p class="k">The honest caveat</p><h3>Why test years matter</h3><p>Results are always measured on 40 years the agent never trained on. An agent that only looks good on its training data has memorised noise. Real markets are far harder: patterns are weaker, change over time and get competed away once found.</p></div>
+    <div><p class="k">The market</p><h3>Simulated, with Moods</h3><p>Prices come from a generator with hidden moods: calm, bull and bear. Each mood lasts weeks or months, and bear markets are more volatile with occasional crashes. That gives trends and volatility clusters a real but imperfect edge, as in real markets, without pretending to forecast any real stock.</p></div>
+    <div><p class="k">Q-learning</p><h3>Learning by Trial and Error</h3><p>The agent sees only the trend, recent momentum, volatility and its own position. For every situation it keeps a score for each allocation, the Q-value. After each day it compares what happened with what it expected and nudges the score toward the result. Early on it explores at random; it gradually trusts what it has learned.</p></div>
+    <div><p class="k">The honest caveat</p><h3>Why Test Years Matter</h3><p>Results are always measured on 40 years the agent never trained on. An agent that only looks good on its training data has memorised noise. Real markets are far harder: patterns are weaker, change over time and get competed away once found.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>

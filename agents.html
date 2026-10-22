@@ -591,7 +591,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="panel corners">
           <svg id="loop" viewBox="0 0 520 330" role="img" aria-label="The agent loop: goal, think, act, observe, then answer"></svg>
           <div class="lcon"><div class="lch"><span>agent.log</span><span id="turn1">idle</span></div><ol id="lg1"></ol></div>
-          <div class="ctl" style="margin-top:10px"><button type="button" class="primary" id="go1">Play the loop</button></div>
+          <div class="ctl" style="margin-top:10px"><button type="button" class="primary" id="go1">Play the Loop</button></div>
         </div>
       </div>
       <div class="explain">
@@ -633,7 +633,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <div class="panel corners">
       <div class="ctl" id="tk3"><span class="lab">Goal</span></div>
       <div class="ctl"><span class="lab">Scenario</span><label class="chk"><input type="checkbox" id="err3"> The price tool fails once</label></div>
-      <div class="ctl"><button type="button" class="primary" id="go3">Run the agent</button></div>
+      <div class="ctl"><button type="button" class="primary" id="go3">Run the Agent</button></div>
       <ol class="trace" id="tr3"></ol>
       <p class="fine">The agent's reasoning text is scripted for this demo, since no language model runs on this page. Every tool call is executed live and every number in the final answer is computed from the tool results.</p>
     </div>
@@ -690,7 +690,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
             <label class="chk"><input type="checkbox" id="g3" checked> Treat document text as data, not instructions</label>
             <label class="chk"><input type="checkbox" id="g4" checked> Step limit and full activity log</label>
           </div>
-          <div class="ctl" style="margin-top:8px"><button type="button" class="primary" id="go5">Run the scenario</button></div>
+          <div class="ctl" style="margin-top:8px"><button type="button" class="primary" id="go5">Run the Scenario</button></div>
           <div class="verdict5" id="v5"></div>
         </div>
       </div>
@@ -803,7 +803,7 @@ document.getElementById('yr').textContent = new Date().getFullYear();
       await wait(s1[0] === 'act' ? 650 : 520);
     }
     document.querySelectorAll('#loop .lk').forEach(function (x) { x.classList.remove('hot'); }); $('pulse').setAttribute('opacity', 0);
-    playing = false; $('go1').disabled = false; $('go1').textContent = 'Play again';
+    playing = false; $('go1').disabled = false; $('go1').textContent = 'Play Again';
   }
   $('go1').addEventListener('click', play);
   if ('IntersectionObserver' in window && !reduce) { var io1 = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { io1.disconnect(); setTimeout(play, 500); } }, { threshold: .6 }); io1.observe($('loop')); }

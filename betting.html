@@ -248,7 +248,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <h1>Sports-Market Model</h1>
     </div>
     <div class="tools">
-      <div class="seg" id="book" role="group" aria-label="Bookmaker"><button type="button" data-k="0">Soft bookmaker</button><button type="button" data-k="1" aria-pressed="true">Average</button><button type="button" data-k="2">Sharp</button></div>
+      <div class="seg" id="book" role="group" aria-label="Bookmaker"><button type="button" data-k="0">Soft Bookmaker</button><button type="button" data-k="1" aria-pressed="true">Average</button><button type="button" data-k="2">Sharp</button></div>
       <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
     </div>
   </div>
@@ -256,9 +256,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <div>
       <div class="panel">
         <div class="trainbar">
-          <button type="button" class="act primary" id="train">Play seasons</button>
-          <div class="seg" id="speed" role="group" aria-label="Speed"><button type="button" data-k="slow">Round by round</button><button type="button" data-k="fast" aria-pressed="true">Fast</button></div>
-          <button type="button" class="act" id="reset">New bettor</button>
+          <button type="button" class="act primary" id="train">Play Seasons</button>
+          <div class="seg" id="speed" role="group" aria-label="Speed"><button type="button" data-k="slow">Round by Round</button><button type="button" data-k="fast" aria-pressed="true">Fast</button></div>
+          <button type="button" class="act" id="reset">New Bettor</button>
           <span class="status2"><span class="live" id="live"></span>Season <b id="season">1</b> &middot; round <b id="round">0</b> / 38</span>
         </div>
         <div class="fields">
@@ -294,9 +294,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">The league</p><h3>Hidden strengths</h3><p>Twenty made-up clubs each have a hidden strength that drifts during the season and partly resets between seasons. Results are random around those strengths, with a home advantage and plenty of draws. The bookmaker estimates them too, with a lag, and adds a 5% margin to its prices.</p></div>
-    <div><p class="k">How it learns</p><h3>Every result is a correction</h3><p>Before each match the bettor forecasts home win, draw and away win from its ratings. After the match it nudges both clubs' ratings, the home advantage and the draw rate in the direction that would have made the real result more likely. Big upsets cause big corrections.</p></div>
-    <div><p class="k">Why most bettors lose</p><h3>Beating the margin</h3><p>A bet only pays over time when your probability beats the bookmaker's price by more than its margin. Against a sharp bookmaker that edge rarely exists, and the honest answer is to bet almost nothing. Fractional Kelly sizing keeps the bettor alive while its ratings are still wrong.</p></div>
+    <div><p class="k">The league</p><h3>Hidden Strengths</h3><p>Twenty made-up clubs each have a hidden strength that drifts during the season and partly resets between seasons. Results are random around those strengths, with a home advantage and plenty of draws. The bookmaker estimates them too, with a lag, and adds a 5% margin to its prices.</p></div>
+    <div><p class="k">How it learns</p><h3>Every Result Is a Correction</h3><p>Before each match the bettor forecasts home win, draw and away win from its ratings. After the match it nudges both clubs' ratings, the home advantage and the draw rate in the direction that would have made the real result more likely. Big upsets cause big corrections.</p></div>
+    <div><p class="k">Why most bettors lose</p><h3>Beating the Margin</h3><p>A bet only pays over time when your probability beats the bookmaker's price by more than its margin. Against a sharp bookmaker that edge rarely exists, and the honest answer is to bet almost nothing. Fractional Kelly sizing keeps the bettor alive while its ratings are still wrong.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>
@@ -410,7 +410,7 @@ function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach
       return '<div class="good" style="border-color:rgba(156,201,232,.5)"><b>' + NAMES[m[0]] + '</b> v <b>' + NAMES[m[1]] + '</b><br>bettor ' + pa.map(function (p) { return Math.round(p * 100); }).join(' / ') + ' &middot; bookmaker ' + (book === 2 ? 'sharp' : pb.map(function (p) { return Math.round(p * 100); }).join(' / ')) + '</div>'; }).join('') + '<p class="note">Home win / draw / away win, in percent.</p>';
   }
   var loop = Loop(function () { playRound(); if (bank < 1) return false; }, draw), running = false, slowT = null;
-  function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : 'Play seasons'; $('live').classList.toggle('on', on); loop.stop(); clearInterval(slowT); if (!on) return; if (speed === 'slow') slowT = setInterval(function () { playRound(); draw(); }, 400); else { loop.setBudget(6); loop.start(); } }
+  function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : 'Play Seasons'; $('live').classList.toggle('on', on); loop.stop(); clearInterval(slowT); if (!on) return; if (speed === 'slow') slowT = setInterval(function () { playRound(); draw(); }, 400); else { loop.setBudget(6); loop.start(); } }
   $('train').addEventListener('click', function () { setRun(!running); });
   seg('speed', function (k) { speed = k; if (running) setRun(true); });
   seg('book', function (k) { book = +k; reset(); });

@@ -260,7 +260,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <h1>Market Maker</h1>
     </div>
     <div class="tools">
-      <div class="seg" id="lvl" role="group" aria-label="Order flow"><button type="button" data-k="0">Retail flow</button><button type="button" data-k="1">Mixed</button><button type="button" data-k="2">Toxic</button></div>
+      <div class="seg" id="lvl" role="group" aria-label="Order flow"><button type="button" data-k="0">Retail Flow</button><button type="button" data-k="1">Mixed</button><button type="button" data-k="2">Toxic</button></div>
       <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
       <button type="button" class="tog" id="trTog" aria-pressed="true"><i></i>Coach</button>
     </div>
@@ -276,7 +276,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
           <div class="qbox bid"><label for="bid">Your bid (you buy)</label><div class="step"><button type="button" data-t="bid" data-d="-1" aria-label="Lower bid">&minus;</button><input id="bid" type="number" step="0.5" inputmode="decimal"><button type="button" data-t="bid" data-d="1" aria-label="Raise bid">+</button></div><small id="bidNote">-</small></div>
           <div class="qbox ask"><label for="ask">Your ask (you sell)</label><div class="step"><button type="button" data-t="ask" data-d="-1" aria-label="Lower ask">&minus;</button><input id="ask" type="number" step="0.5" inputmode="decimal"><button type="button" data-t="ask" data-d="1" aria-label="Raise ask">+</button></div><small id="askNote">-</small></div>
         </div>
-        <div class="controls"><button type="button" class="act primary" id="go">Send quotes<kbd>Enter</kbd></button><button type="button" class="act" id="useFair">Use suggested quotes</button><button type="button" class="act" id="newg">New game</button><span class="note" id="lim">Position limit &plusmn;12. Four traders arrive each round.</span></div>
+        <div class="controls"><button type="button" class="act primary" id="go">Send quotes<kbd>Enter</kbd></button><button type="button" class="act" id="useFair">Use Suggested Quotes</button><button type="button" class="act" id="newg">New Game</button><span class="note" id="lim">Position limit &plusmn;12. Four traders arrive each round.</span></div>
         <div class="tape" id="tape" aria-live="polite"></div>
       </div>
     </div>
@@ -305,13 +305,13 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
 
   <div class="explain">
-    <div><p class="k">Why spreads exist</p><h3>Some traders know more</h3><p>Most traders here are noise: they buy or sell for their own reasons. Some are informed: they know the final value and only trade when your quote is wrong. Every trade with them loses money, so the spread you charge everyone else has to pay for it. More informed flow means wider spreads.</p></div>
-    <div><p class="k">Bayesian updating</p><h3>Trades are information</h3><p>When someone buys at your ask, it is a little more likely the value is above it. The chart combines the revealed cards with every buy, sell and pass so far, using Bayes' rule, to show what the asset is probably worth.</p></div>
-    <div><p class="k">The two quotes</p><h3>Break-even versus greedy</h3><p>The break-even quote is where a buy at your ask is, on average, worth exactly your ask: in a competitive market you cannot charge more. The profit-maximising quote is wider. It trades less but earns more per trade, and it leans away from the position you already hold.</p></div>
+    <div><p class="k">Why spreads exist</p><h3>Some Traders Know More</h3><p>Most traders here are noise: they buy or sell for their own reasons. Some are informed: they know the final value and only trade when your quote is wrong. Every trade with them loses money, so the spread you charge everyone else has to pay for it. More informed flow means wider spreads.</p></div>
+    <div><p class="k">Bayesian updating</p><h3>Trades Are Information</h3><p>When someone buys at your ask, it is a little more likely the value is above it. The chart combines the revealed cards with every buy, sell and pass so far, using Bayes' rule, to show what the asset is probably worth.</p></div>
+    <div><p class="k">The two quotes</p><h3>Break-Even Versus Greedy</h3><p>The break-even quote is where a buy at your ask is, on average, worth exactly your ask: in a competitive market you cannot charge more. The profit-maximising quote is wider. It trades less but earns more per trade, and it leans away from the position you already hold.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>
-<div class="over" id="over" hidden><div><h3 id="oT">Settlement</h3><p id="oS"></p><div class="stat2" id="oStats"></div><div class="controls" style="margin-top:14px"><button type="button" class="act primary" id="again">Play again</button><button type="button" class="act" id="closeO">Review the tape</button></div></div></div>
+<div class="over" id="over" hidden><div><h3 id="oT">Settlement</h3><p id="oS"></p><div class="stat2" id="oStats"></div><div class="controls" style="margin-top:14px"><button type="button" class="act primary" id="again">Play Again</button><button type="button" class="act" id="closeO">Review the Tape</button></div></div></div>
 <div class="toast" id="toast"></div>
 <footer>
   <span>&copy; <span id="yr"></span> Luis Diaz Busquets &middot; LDB Lab</span>

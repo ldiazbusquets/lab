@@ -371,7 +371,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
           <canvas id="c1" class="plot" aria-label="Scatter plot of home size against price with an adjustable line"></canvas>
           <div class="slider"><span>Slope</span><input id="w1" type="range" min="-1" max="3" step="0.01" value="0.4" aria-label="Slope"><b id="w1v"></b></div>
           <div class="slider"><span>Start</span><input id="b1" type="range" min="-1" max="1.5" step="0.01" value="0.6" aria-label="Starting value"><b id="b1v"></b></div>
-          <div class="ctl" style="margin-top:10px"><button type="button" id="best1">Show the best line</button><button type="button" id="new1">New data</button></div>
+          <div class="ctl" style="margin-top:10px"><button type="button" id="best1">Show the Best Line</button><button type="button" id="new1">New Data</button></div>
         </div>
       </div>
       <div class="explain">
@@ -413,8 +413,8 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="panel corners">
           <div class="ctl">
             <button type="button" class="primary" id="run3">Train</button>
-            <button type="button" id="step3">One step</button>
-            <button type="button" id="reset3">Start over</button>
+            <button type="button" id="step3">One Step</button>
+            <button type="button" id="reset3">Start Over</button>
           </div>
           <div class="duo"><canvas id="c3a" class="plot sq" aria-label="Loss landscape with the training path"></canvas><canvas id="c3b" class="plot sq" aria-label="The line being trained"></canvas></div>
           <div class="slider"><span>Learning rate</span><input id="lr" type="range" min="0" max="1" step="0.01" value="0.6" aria-label="Learning rate"><b id="lrv"></b></div>
@@ -441,7 +441,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
           <div class="ph"><span>Curve fit to 12 training points</span><span id="err4"></span></div>
           <canvas id="c4" class="plot" aria-label="Curve fitted to training points, with test points"></canvas>
           <div class="slider"><span>Flexibility</span><input id="deg" type="range" min="1" max="11" step="1" value="1" aria-label="Model flexibility (polynomial degree)"><b id="degv"></b></div>
-          <div class="ctl" style="margin-top:6px"><button type="button" id="test4" aria-pressed="false">Show test data</button><button type="button" id="new4">New data</button></div>
+          <div class="ctl" style="margin-top:6px"><button type="button" id="test4" aria-pressed="false">Show Test Data</button><button type="button" id="new4">New Data</button></div>
           <canvas id="c4b" class="plot short" aria-label="Training and test error by flexibility"></canvas>
         </div>
       </div>

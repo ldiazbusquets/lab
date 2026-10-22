@@ -270,7 +270,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <h1>Landlord</h1>
     </div>
     <div class="tools">
-      <button type="button" class="tog" id="heatTog" aria-pressed="true"><i></i>Landing heat map</button>
+      <button type="button" class="tog" id="heatTog" aria-pressed="true"><i></i>Landing Heat Map</button>
       <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
     </div>
   </div>
@@ -279,8 +279,8 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div class="panel">
         <div class="trainbar">
           <button type="button" class="act primary" id="train">Evolve</button>
-          <button type="button" class="act" id="watch">Watch the champion play</button>
-          <button type="button" class="act" id="reset">New population</button>
+          <button type="button" class="act" id="watch">Watch the Champion Play</button>
+          <button type="button" class="act" id="reset">New Population</button>
           <span class="status2"><span class="live" id="live"></span>Generation <b id="gen">0</b> &middot; <b id="games">0</b> games played</span>
         </div>
         <div class="boardg" id="board"></div>
@@ -311,9 +311,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">The game</p><h3>Buy, build, collect</h3><p>A 40-square property-trading board game with its own streets: buy what you land on, complete a colour group, build houses, and collect rent until rivals go bankrupt. Cards, taxes, jail and simple trades are included. It is inspired by The Landlord's Game of 1904, the ancestor of the genre.</p></div>
-    <div><p class="k">Genetic algorithm</p><h3>Survival of the richest</h3><p>Each strategy is 16 numbers: how much cash to keep, how badly it wants each colour, when to build, how many houses, when to pay out of jail, and how much to offer or demand in trades. Every generation the 24 strategies play 48 games; the best six survive unchanged and the rest are bred from winners with small random mutations.</p></div>
-    <div><p class="k">The heat map</p><h3>Not every square is equal</h3><p>Jail is the most visited square, because so many cards and rolls send you there. That makes the squares six to nine steps after it, like the orange Market group here, land more often than the rest, which is the kind of edge the strategies discover on their own.</p></div>
+    <div><p class="k">The game</p><h3>Buy, Build, Collect</h3><p>A 40-square property-trading board game with its own streets: buy what you land on, complete a colour group, build houses, and collect rent until rivals go bankrupt. Cards, taxes, jail and simple trades are included. It is inspired by The Landlord's Game of 1904, the ancestor of the genre.</p></div>
+    <div><p class="k">Genetic algorithm</p><h3>Survival of the Richest</h3><p>Each strategy is 16 numbers: how much cash to keep, how badly it wants each colour, when to build, how many houses, when to pay out of jail, and how much to offer or demand in trades. Every generation the 24 strategies play 48 games; the best six survive unchanged and the rest are bred from winners with small random mutations.</p></div>
+    <div><p class="k">The heat map</p><h3>Not Every Square Is Equal</h3><p>Jail is the most visited square, because so many cards and rolls send you there. That makes the squares six to nine steps after it, like the orange Market group here, land more often than the rest, which is the kind of edge the strategies discover on their own.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>
@@ -486,12 +486,12 @@ function Game(genomes, R, opts) {
     rows += '<tr><td>Stations</td><td>' + (tot > 1 ? ([5, 15, 25, 35].reduce(function (a, i) { return a + land[i]; }, 0) / 4 / tot * 100).toFixed(2) + '%' : '-') + '</td><td>' + (rt > 1 ? Math.round(rent[8] / rt * 100) + '%' : '-') + '</td><td>$800</td></tr>'; $('grp').innerHTML = rows;
     $('lessons').innerHTML = lessons.length ? lessons.map(function (l) { return '<div class="' + (l.good ? 'good' : '') + '">' + l.t + '</div>'; }).join('') : '<div class="good">No lessons yet.</div>'; }
   /* watching one game */
-  function stopWatch() { clearInterval(watchT); watchT = null; watchG = null; $('watch').textContent = 'Watch the champion play'; var m = $('cMsg'); if (m) m.textContent = '24 strategies, evolving'; }
-  function watch() { if (watchT) { stopWatch(); paintBoard(); return; } setRun(false); var names = PN; watchG = Game([champ, BASELINE, BASELINE, BASELINE], rng(Date.now() & 0xffff), { log: true, names: names }); var shown = 0; $('glog').innerHTML = ''; $('watch').textContent = 'Stop watching';
+  function stopWatch() { clearInterval(watchT); watchT = null; watchG = null; $('watch').textContent = 'Watch the Champion Play'; var m = $('cMsg'); if (m) m.textContent = '24 strategies, evolving'; }
+  function watch() { if (watchT) { stopWatch(); paintBoard(); return; } setRun(false); var names = PN; watchG = Game([champ, BASELINE, BASELINE, BASELINE], rng(Date.now() & 0xffff), { log: true, names: names }); var shown = 0; $('glog').innerHTML = ''; $('watch').textContent = 'Stop Watching';
     watchT = setInterval(function () { for (var k = 0; k < 2; k++) if (watchG.alive().length > 1 && watchG.turn() < 600) watchG.step();
       while (shown < watchG.log.length) { var d = document.createElement('div'); d.textContent = 'Turn ' + watchG.turn() + ': ' + watchG.log[shown++]; $('glog').appendChild(d); $('glog').scrollTop = 1e6; }
       $('cMsg').textContent = 'Turn ' + watchG.turn() + ' · ' + PN[watchG.cur()] + ' to move'; paintBoard();
-      if (watchG.alive().length <= 1 || watchG.turn() >= 600) { var w = watchG.P.slice().sort(function (a, b) { return (b.out ? -1 : watchG.worth(b)) - (a.out ? -1 : watchG.worth(a)); })[0]; $('cMsg').textContent = PN[w.id] + ' wins' + (watchG.alive().length > 1 ? ' on net worth' : ''); clearInterval(watchT); watchT = null; $('watch').textContent = 'Watch again'; } }, 90); }
+      if (watchG.alive().length <= 1 || watchG.turn() >= 600) { var w = watchG.P.slice().sort(function (a, b) { return (b.out ? -1 : watchG.worth(b)) - (a.out ? -1 : watchG.worth(a)); })[0]; $('cMsg').textContent = PN[w.id] + ' wins' + (watchG.alive().length > 1 ? ' on net worth' : ''); clearInterval(watchT); watchT = null; $('watch').textContent = 'Watch Again'; } }, 90); }
   var loop = Loop(function () { generation(); if (gen >= 400) return false; }, draw), running = false;
   function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : 'Evolve'; $('live').classList.toggle('on', on); if (on) { if (watchT) stopWatch(); loop.setBudget(12); loop.start(); } else loop.stop(); }
   $('train').addEventListener('click', function () { setRun(!running); });

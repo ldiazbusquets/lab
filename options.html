@@ -267,7 +267,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         </div>
         <div class="presets" id="presets"></div>
         <div class="tblw"><table class="legs"><thead><tr><th>Side</th><th>Type</th><th>Qty</th><th>Strike</th><th>Price</th><th>Delta</th><th></th></tr></thead><tbody id="legs"></tbody></table></div>
-        <div class="controls" style="margin-top:10px"><button type="button" class="act" id="addC">+ Call</button><button type="button" class="act" id="addP">+ Put</button><button type="button" class="act" id="addS">+ 100 shares</button><span class="note">One contract = 100 shares. Prices from Black-Scholes.</span></div>
+        <div class="controls" style="margin-top:10px"><button type="button" class="act" id="addC">+ Call</button><button type="button" class="act" id="addP">+ Put</button><button type="button" class="act" id="addS">+ 100 Shares</button><span class="note">One contract = 100 shares. Prices from Black-Scholes.</span></div>
         <svg class="pay" id="pay" aria-label="Profit and loss chart"></svg>
         <div class="leg2"><span><i style="background:#F2F4F5"></i>at expiry</span><span><i style="background:#6BD38A"></i>today</span><span><i style="background:#F2C14C"></i>halfway to expiry</span><span><i style="background:#F06262"></i>stock price now</span><span>drag across the chart to read values</span></div>
         <div class="fld" style="margin-top:16px"><label for="view">Your view: expected yearly return of the stock <b id="viewv">same as the market (4%)</b></label><input type="range" id="view" min="-60" max="60" step="1" value="4"></div>
@@ -292,9 +292,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">Black-Scholes</p><h3>What an option is worth</h3><p>Each price comes from the Black-Scholes formula: the stock price, strike, time left, interest rate and volatility. Volatility matters most. Raise it and every option gets more expensive, because big moves become more likely and an option's loss is capped while its gain is not.</p></div>
-    <div><p class="k">The Greeks</p><h3>How the price moves</h3><p>Delta is the dollar change for a $1 move in the stock. Gamma is how fast delta changes. Theta is the value lost each day to time decay. Vega is the change for one point of volatility. Rho is the change for one point of interest rates.</p></div>
-    <div><p class="k">Expiry vs today</p><h3>Why the lines differ</h3><p>The white line is the payoff on the last day, when only the stock price matters. The teal line is what the position is worth right now, still carrying time value. As expiry approaches, the curve bends toward the white line: that drift is theta.</p></div>
+    <div><p class="k">Black-Scholes</p><h3>What an Option Is Worth</h3><p>Each price comes from the Black-Scholes formula: the stock price, strike, time left, interest rate and volatility. Volatility matters most. Raise it and every option gets more expensive, because big moves become more likely and an option's loss is capped while its gain is not.</p></div>
+    <div><p class="k">The Greeks</p><h3>How the Price Moves</h3><p>Delta is the dollar change for a $1 move in the stock. Gamma is how fast delta changes. Theta is the value lost each day to time decay. Vega is the change for one point of volatility. Rho is the change for one point of interest rates.</p></div>
+    <div><p class="k">Expiry vs today</p><h3>Why the Lines Differ</h3><p>The white line is the payoff on the last day, when only the stock price matters. The teal line is what the position is worth right now, still carrying time value. As expiry approaches, the curve bends toward the white line: that drift is theta.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>

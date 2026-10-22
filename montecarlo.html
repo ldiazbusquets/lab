@@ -263,11 +263,11 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         </div>
         <p class="note" style="margin-top:-4px">All amounts in today's dollars. Plans run to age 95.</p>
         <div class="trainbar" style="margin-top:14px">
-          <button type="button" class="act primary" id="train">Train the planner</button>
-          <button type="button" class="act" id="reset">Start over</button>
+          <button type="button" class="act primary" id="train">Train the Planner</button>
+          <button type="button" class="act" id="reset">Start Over</button>
           <span class="status2"><span class="live" id="live"></span>Round <b id="it">0</b> &middot; <b id="paths">0</b> lifetimes simulated</span>
         </div>
-        <div class="h3"><span>Wealth by age, 2,000 possible futures</span><span><span class="seg" id="pol" role="group" aria-label="Plan shown" style="display:inline-flex"><button type="button" data-k="learned" aria-pressed="true">Learned</button><button type="button" data-k="6040">60/40</button><button type="button" data-k="glide">Age-based</button></span></span></div>
+        <div class="h3"><span>Wealth by age, 2,000 possible futures</span><span><span class="seg" id="pol" role="group" aria-label="Plan shown" style="display:inline-flex"><button type="button" data-k="learned" aria-pressed="true">Learned</button><button type="button" data-k="6040">60/40</button><button type="button" data-k="glide">Age-Based</button></span></span></div>
         <canvas id="fan" style="width:100%;height:300px;display:block" aria-label="Simulated wealth paths"></canvas>
         <div class="leg" id="fanLeg"></div>
         <div class="grid2" style="margin-top:6px">
@@ -294,9 +294,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">Monte Carlo</p><h3>Thousands of possible futures</h3><p>Instead of assuming a steady 7% a year, each future draws a random return for every year: mostly ordinary years, occasional crashes, bonds that wobble less. Running 2,000 lifetimes shows the whole range, from lucky to unlucky, and how often the money runs out.</p></div>
-    <div><p class="k">Self-training</p><h3>Cross-entropy method</h3><p>The planner's strategy is four numbers: how its stock share depends on age, how it depends on being ahead or behind, and how much it trims spending in bad times. Each round it tries 40 versions on the same 400 futures, keeps the best eight, and samples the next round around them.</p></div>
-    <div><p class="k">Fair comparison</p><h3>Judged on new futures</h3><p>Every score shown comes from 2,000 futures the planner never trained on, so it cannot win by memorising lucky paths. It is a simplified model: no taxes, fees, pensions or health costs. Use it to build intuition, not as financial advice.</p></div>
+    <div><p class="k">Monte Carlo</p><h3>Thousands of Possible Futures</h3><p>Instead of assuming a steady 7% a year, each future draws a random return for every year: mostly ordinary years, occasional crashes, bonds that wobble less. Running 2,000 lifetimes shows the whole range, from lucky to unlucky, and how often the money runs out.</p></div>
+    <div><p class="k">Self-training</p><h3>Cross-Entropy Method</h3><p>The planner's strategy is four numbers: how its stock share depends on age, how it depends on being ahead or behind, and how much it trims spending in bad times. Each round it tries 40 versions on the same 400 futures, keeps the best eight, and samples the next round around them.</p></div>
+    <div><p class="k">Fair comparison</p><h3>Judged on New Futures</h3><p>Every score shown comes from 2,000 futures the planner never trained on, so it cannot win by memorising lucky paths. It is a simplified model: no taxes, fees, pensions or health costs. Use it to build intuition, not as financial advice.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>
@@ -429,7 +429,7 @@ function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach
     $('lessons').innerHTML = lessons.length ? lessons.map(function (l) { return '<div class="' + (l.good ? 'good' : '') + '">' + l.t + '</div>'; }).join('') : '<div class="good">No lessons yet.</div>';
   }
   var loop = Loop(function () { round_(); if (it >= 60) return false; }, draw), running = false;
-  function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : (it >= 60 ? 'Train more' : 'Train the planner'); $('live').classList.toggle('on', on); if (on) { if (it >= 60) it = 0; loop.setBudget(10); loop.start(); } else loop.stop(); }
+  function setRun(on) { running = on; $('train').textContent = on ? 'Pause' : (it >= 60 ? 'Train More' : 'Train the Planner'); $('live').classList.toggle('on', on); if (on) { if (it >= 60) it = 0; loop.setBudget(10); loop.start(); } else loop.stop(); }
   $('train').addEventListener('click', function () { setRun(!running); });
   var _draw = draw; draw = function () { _draw(); if (running && !loop.running()) setRun(false); };
   $('reset').addEventListener('click', function () { setRun(false); reset(); });

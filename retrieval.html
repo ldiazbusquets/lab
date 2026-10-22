@@ -367,7 +367,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div class="panel" style="margin-top:16px">
         <div class="bh"><span>Test the setup</span><span>retrieval accuracy and honest refusals</span></div>
         <p class="why" style="border:0;padding:0;margin:0">Each sample document comes with ten questions: eight whose answer is in the text and two whose answer is not. A configuration scores a <b>hit</b> when a retrieved passage contains the answer, and a <b>correct refusal</b> when, for an unanswerable question, nothing clears the confidence threshold.</p>
-        <div class="controls" style="margin-top:14px"><button type="button" class="act" id="evalGo">Run the test set</button><span class="ld" id="evalNote"></span></div>
+        <div class="controls" style="margin-top:14px"><button type="button" class="act" id="evalGo">Run the Test Set</button><span class="ld" id="evalNote"></span></div>
         <div id="evalOut"></div>
       </div>
     </div>
@@ -391,7 +391,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <div class="bh"><span>Meaning search model</span><span id="eSt">not loaded</span></div>
         <p class="note" style="margin-top:0">all-MiniLM-L6-v2 turns each passage into 384 numbers. About 23 MB, downloaded once.</p>
         <div class="prog"><b id="eProg"></b></div>
-        <div class="controls" style="margin-top:10px"><button type="button" class="act" id="eLoad">Load the embedding model</button></div>
+        <div class="controls" style="margin-top:10px"><button type="button" class="act" id="eLoad">Load the Embedding Model</button></div>
       </div>
       <div class="box">
         <div class="bh"><span>Answer writer</span><span id="gSt">extractive</span></div>
@@ -403,9 +403,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
 
   <div class="explain">
-    <div><p class="k">Why chunk at all</p><h3>Models read windows, not books</h3><p>A language model can only take in so much text at once, and the more you give it, the more it gets distracted. Retrieval hands it the few passages that matter. Slide the chunk size and watch an answer get cut in half at small sizes, or buried in a long passage at large ones.</p></div>
-    <div><p class="k">Keyword against meaning</p><h3>Two ways to be wrong</h3><p>BM25 counts shared words, so it nails names and numbers but misses &ldquo;profit&rdquo; when the text says &ldquo;net income&rdquo;. Embeddings match meaning, but a passage can sound related without holding the answer. Hybrid ranks by both, which is what most production systems do.</p></div>
-    <div><p class="k">Saying &ldquo;I don&rsquo;t know&rdquo;</p><h3>The refusal is a feature</h3><p>The two unanswerable questions in each test set are the most important ones. Set the confidence too low and the system answers everything, inventing support from the nearest passage. Too high and it refuses questions it could answer. The test table shows the trade-off.</p></div>
+    <div><p class="k">Why chunk at all</p><h3>Models Read Windows, Not Books</h3><p>A language model can only take in so much text at once, and the more you give it, the more it gets distracted. Retrieval hands it the few passages that matter. Slide the chunk size and watch an answer get cut in half at small sizes, or buried in a long passage at large ones.</p></div>
+    <div><p class="k">Keyword against meaning</p><h3>Two Ways to Be Wrong</h3><p>BM25 counts shared words, so it nails names and numbers but misses &ldquo;profit&rdquo; when the text says &ldquo;net income&rdquo;. Embeddings match meaning, but a passage can sound related without holding the answer. Hybrid ranks by both, which is what most production systems do.</p></div>
+    <div><p class="k">Saying &ldquo;I don&rsquo;t know&rdquo;</p><h3>The Refusal Is a Feature</h3><p>The two unanswerable questions in each test set are the most important ones. Set the confidence too low and the system answers everything, inventing support from the nearest passage. Too high and it refuses questions it could answer. The test table shows the trade-off.</p></div>
   </div>
   <div class="edu"><b>How it runs.</b> Search, chunking and the extractive answer are plain JavaScript on this page. The embedding model and Qwen3 download from Hugging Face and run on your device; your document never leaves it. The sample documents are original text written for this lab, and Northwind Bank is fictional.</div>
 </div>
@@ -566,7 +566,7 @@ var DOCS = {
       T.env.allowLocalModels = false;
       return T.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { dtype: 'q8', device: 'wasm', progress_callback: function (p) { if (p.status === 'progress_total') { $('eProg').style.width = Math.round(p.progress) + '%'; $('eSt').textContent = 'downloading ' + Math.round(p.progress) + '%'; } } });
     }).then(function (e) { embedder = e; $('eProg').style.width = '100%'; $('eSt').textContent = 'ready'; $('eLoad').textContent = 'Loaded'; return e; })
-      .catch(function (err) { embBusy = null; $('eSt').textContent = 'could not load'; $('eLoad').disabled = false; $('eLoad').textContent = 'Try again'; toast('The embedding model could not be downloaded. Keyword search still works.'); throw err; });
+      .catch(function (err) { embBusy = null; $('eSt').textContent = 'could not load'; $('eLoad').disabled = false; $('eLoad').textContent = 'Try Again'; toast('The embedding model could not be downloaded. Keyword search still works.'); throw err; });
     return embBusy;
   }
   function embed(texts) {

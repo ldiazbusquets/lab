@@ -254,8 +254,8 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <h1>Kelly Challenge</h1>
     </div>
     <div class="tools">
-      <div class="seg" id="mode" role="group" aria-label="Coin"><button type="button" data-k="known">Known 60% coin</button><button type="button" data-k="hidden">Hidden bias</button></div>
-      <button type="button" class="tog" id="capTog" aria-pressed="true"><i></i>$250 cap</button>
+      <div class="seg" id="mode" role="group" aria-label="Coin"><button type="button" data-k="known">Known 60% Coin</button><button type="button" data-k="hidden">Hidden Bias</button></div>
+      <button type="button" class="tog" id="capTog" aria-pressed="true"><i></i>$250 Cap</button>
       <button type="button" class="tog" id="anTog" aria-pressed="true"><i></i>Analysis</button>
     </div>
   </div>
@@ -267,12 +267,12 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
           <div><div class="bank" id="bank">$25.00</div><div class="sub" id="sub">Flip 0 of 300 &middot; coin lands heads 60% of the time</div></div>
         </div>
         <div class="betrow"><input type="range" id="frac" min="0" max="100" step="1" value="10" aria-label="Bet as percent of bankroll"><div class="betv" id="betv">10% = $2.50</div></div>
-        <div class="quick"><button type="button" data-f="kelly">Kelly</button><button type="button" data-f="half">Half Kelly</button><button type="button" data-f="5">5%</button><button type="button" data-f="50">50%</button><button type="button" data-f="100">All in</button></div>
+        <div class="quick"><button type="button" data-f="kelly">Kelly</button><button type="button" data-f="half">Half Kelly</button><button type="button" data-f="5">5%</button><button type="button" data-f="50">50%</button><button type="button" data-f="100">All In</button></div>
         <div class="controls" style="margin-top:14px">
           <div class="sides" role="group" aria-label="Side"><button type="button" data-s="H" aria-pressed="true">Heads</button><button type="button" data-s="T" aria-pressed="false">Tails</button></div>
           <button type="button" class="act primary" id="flip">Flip<kbd>Space</kbd></button>
           <button type="button" class="act" id="auto10">Auto &times;10</button>
-          <button type="button" class="act" id="auto100">Auto to the end</button>
+          <button type="button" class="act" id="auto100">Auto to the End</button>
           <button type="button" class="act" id="reset">Restart</button>
         </div>
         <svg class="chart" id="chart" viewBox="0 0 720 240" preserveAspectRatio="none" aria-hidden="true"></svg>
@@ -303,9 +303,9 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     </aside>
   </div>
   <div class="explain">
-    <div><p class="k">The experiment</p><h3>Most people go broke</h3><p>In a 2016 study, 61 finance students and professionals got $25 and a coin they were told lands heads 60% of the time, with winnings capped at $250. Only 21% reached the cap and 28% finished with under $2, despite having an edge on every flip. Over-betting and chasing losses did the damage.</p></div>
-    <div><p class="k">The Kelly rule</p><h3>Bet your edge</h3><p>For an even-money bet, the Kelly fraction is your edge: win chance minus lose chance. At 60/40 that is 20% of your current bankroll. It maximises how fast money compounds over many bets, and because you bet a fraction, you can never hit exactly zero.</p></div>
-    <div><p class="k">Average vs typical</p><h3>Expected value lies</h3><p>Betting everything each time has the highest average outcome, yet nearly every player busts: a handful of lucky survivors pull the average up. Real investors care about the typical path, which is what Kelly maximises. Half Kelly gives up a little growth for much smaller swings.</p></div>
+    <div><p class="k">The experiment</p><h3>Most People Go Broke</h3><p>In a 2016 study, 61 finance students and professionals got $25 and a coin they were told lands heads 60% of the time, with winnings capped at $250. Only 21% reached the cap and 28% finished with under $2, despite having an edge on every flip. Over-betting and chasing losses did the damage.</p></div>
+    <div><p class="k">The Kelly rule</p><h3>Bet Your Edge</h3><p>For an even-money bet, the Kelly fraction is your edge: win chance minus lose chance. At 60/40 that is 20% of your current bankroll. It maximises how fast money compounds over many bets, and because you bet a fraction, you can never hit exactly zero.</p></div>
+    <div><p class="k">Average vs typical</p><h3>Expected Value Lies</h3><p>Betting everything each time has the highest average outcome, yet nearly every player busts: a handful of lucky survivors pull the average up. Real investors care about the typical path, which is what Kelly maximises. Half Kelly gives up a little growth for much smaller swings.</p></div>
   </div>
 <div class="edu"><b>Educational only.</b> Every result on this page comes from simulated data. Nothing here is investment, trading or betting advice.</div>
 </div>
