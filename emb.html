@@ -477,7 +477,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
             <label>Word A<input id="wa" type="text" value="king" autocomplete="off" spellcheck="false"></label>
             <label>Word B<input id="wb" type="text" value="queen" autocomplete="off" spellcheck="false"></label>
           </div>
-          <div class="ex" id="pairs"><button type="button" data-p="king queen">King / Queen</button><button type="button" data-p="stock bond">Stock / Bond</button><button type="button" data-p="coffee tea">Coffee / Tea</button><button type="button" data-p="paris tokyo">Paris / Tokyo</button><button type="button" data-p="happy sad">Happy / Sad</button><button type="button" data-p="dog computer">Dog / Computer</button></div>
+          <div class="ex" id="pairs"><button type="button" data-p="king queen">king / queen</button><button type="button" data-p="stock bond">stock / bond</button><button type="button" data-p="coffee tea">coffee / tea</button><button type="button" data-p="paris tokyo">paris / tokyo</button><button type="button" data-p="happy sad">happy / sad</button><button type="button" data-p="dog computer">dog / computer</button></div>
           <div class="strip"><span id="la">king</span><canvas id="sa" aria-label="The 50 numbers for word A"></canvas></div>
           <div class="strip"><span id="lb">queen</span><canvas id="sb" aria-label="The 50 numbers for word B"></canvas></div>
           <div class="sim"><span>Similarity</span><div class="meter"><i id="simbar"></i></div><b id="simv"></b></div>
@@ -509,7 +509,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
         <p>No one told the model which words are countries, animals or colours. Yet when the words are placed according to their embeddings, they gather into neighbourhoods on their own. Cities sit near their countries, sports near each other, numbers in a tight cluster.</p>
         <div class="find">
           <label>Find any word<input id="q2" type="text" value="dividend" autocomplete="off" spellcheck="false"></label>
-          <div class="ex"><button type="button" data-w="dividend">Dividend</button><button type="button" data-w="inflation">Inflation</button><button type="button" data-w="poker">Poker</button><button type="button" data-w="espresso">Espresso</button><button type="button" data-w="nvidia">Nvidia</button></div>
+          <div class="ex"><button type="button" data-w="dividend">dividend</button><button type="button" data-w="inflation">inflation</button><button type="button" data-w="poker">poker</button><button type="button" data-w="espresso">espresso</button><button type="button" data-w="nvidia">nvidia</button></div>
           <div class="bars" id="nn2"></div>
         </div>
         <p class="fine">The real embeddings have 50 dimensions; this map squashes them into 2, so distances on it are only approximate. A searched word is drawn at the middle of its closest neighbours on the map.</p>
@@ -530,12 +530,12 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
             <span>+</span><input id="c3" type="text" value="woman" aria-label="Add" autocomplete="off" spellcheck="false">
           </div>
           <div class="ex" id="ar3">
-            <button type="button" data-q="king man woman">King &minus; Man + Woman</button>
-            <button type="button" data-q="paris france italy">Paris &minus; France + Italy</button>
-            <button type="button" data-q="tokyo japan germany">Tokyo &minus; Japan + Germany</button>
-            <button type="button" data-q="dollar america japan">Dollar &minus; America + Japan</button>
-            <button type="button" data-q="slower slow fast">Slower &minus; Slow + Fast</button>
-            <button type="button" data-q="doctor man woman">Doctor &minus; Man + Woman</button>
+            <button type="button" data-q="king man woman">king &minus; man + woman</button>
+            <button type="button" data-q="paris france italy">paris &minus; france + italy</button>
+            <button type="button" data-q="tokyo japan germany">tokyo &minus; japan + germany</button>
+            <button type="button" data-q="dollar america japan">dollar &minus; america + japan</button>
+            <button type="button" data-q="slower slow fast">slower &minus; slow + fast</button>
+            <button type="button" data-q="doctor man woman">doctor &minus; man + woman</button>
           </div>
           <div class="bars" id="res3"></div>
           <div class="status" id="st3"></div>
@@ -557,8 +557,8 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
     <div class="panel corners">
       <div class="qrow"><label for="q4">Ask the help centre</label><input id="q4" type="text" value="moving my pension after I quit my job" autocomplete="off" spellcheck="false"></div>
       <div class="ex" id="ex4">
-        <button type="button">moving my pension after I quit my job</button><button type="button">Send Money to My Family Abroad</button><button type="button">Someone in My Family Died</button>
-        <button type="button">Paying for My Kids University</button><button type="button">The Fed Keeps Raising Rates</button><button type="button">What Does Managing My Portfolio Cost</button>
+        <button type="button">moving my pension after I quit my job</button><button type="button">send money to my family abroad</button><button type="button">someone in my family died</button>
+        <button type="button">paying for my kids university</button><button type="button">the fed keeps raising rates</button><button type="button">what does managing my portfolio cost</button>
       </div>
       <div class="vs">
         <div><div class="ph"><span>Keyword search</span><span>shared words</span></div><ol class="docs" id="kw4"></ol></div>
