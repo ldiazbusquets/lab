@@ -10,7 +10,7 @@
 |---|---|
 | **Course** (14 modules) | From fitting a line and gradient descent to neural networks, transformers, diffusion, GPUs, serving, retrieval, agents and evaluation. Every module is interactive. |
 | **Finance tools** (4) | Options builder (Black-Scholes and the Greeks), a market-making game with Bayesian quoting, the Kelly betting challenge, and a Model Playground where FinBERT, BERT, Qwen3 and Llama 3.2 read the same financial headline side by side. |
-| **AI workbenches** (1) | Retrieval workbench: chunk any document, search it by keyword (BM25), meaning (MiniLM embeddings) or both, and test retrieval accuracy and honest refusals against questions with known answers. |
+| **AI workbenches** (3) | Inference benchmark: SmolLM2 timed on the processor and the graphics chip at q4, fp16 and fp32. Evaluation arena: small open models on 22 auto-graded questions. Retrieval workbench: chunk any document, search it by keyword (BM25), meaning (MiniLM embeddings) or both, and test retrieval accuracy and honest refusals against questions with known answers. |
 | **Learning agents** (5) | A Q-learning market trader, a neural-network day trader, a sports-market rating model, a Monte Carlo planner and a genetic-algorithm board-game player. Each one trains live and is judged on data it never saw. |
 | **Vision** | Real object detection (YOLOX) on licensed stock footage, running on-device with ONNX Runtime Web: multi-object tracking, automatic face blurring, a motion detector for traffic cameras, and a thermal view. |
 
