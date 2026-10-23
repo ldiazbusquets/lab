@@ -10,7 +10,7 @@
   var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
   // pages that run their own models: never start the tutor automatically there, so two models never compete for memory
   var HEAVY = { models: 1, retrieval: 1, arena: 1, bench: 1 };
-  var GAMES = { 'market-maker': 1, kelly: 1, daytrader: 1, landlord: 1, trader: 1, betting: 1, montecarlo: 1, options: 1 };
+  var GAMES = { daytrader: 1, landlord: 1, trader: 1, betting: 1, montecarlo: 1 };
   var S = { eng: null, model: null, loading: null, busy: null, msgs: [] };
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
   function sget() { try { return JSON.parse(sessionStorage.getItem(SS) || '[]'); } catch (e) { return []; } }
