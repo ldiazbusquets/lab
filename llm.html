@@ -546,7 +546,6 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   <span><a href="./">Lab</a> &nbsp;&middot;&nbsp; <a href="/">Main site</a></span>
 </div></footer>
 
-<script src="llm/tiktoken-o200k.js" defer></script>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 
@@ -577,6 +576,9 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     $('tblParams').textContent = 'about ' + (CFG.params / 1e6).toFixed(1) + ' million';
     status.textContent = 'Model loaded: ' + CFG.params.toLocaleString() + ' parameters, running in your browser.';
     buildMap(); update();
+    // the 2.3 MB GPT-4o tokenizer is only for the comparison panel: fetch it after the page and its own model are ready
+    var go = function () { var sc = document.createElement('script'); sc.src = 'llm/tiktoken-o200k.js'; sc.onload = function () { if (M) renderTokens(); }; document.body.appendChild(sc); };
+    if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 300);
   }).catch(function () { status.textContent = 'The model files could not be loaded. Check that the llm folder is uploaded next to this page.'; status.classList.add('err'); });
 
   /* ---------- the mini tokenizer: same rules it was trained with ---------- */
@@ -695,7 +697,6 @@ document.getElementById('yr').textContent = new Date().getFullYear();
     $('miniCount').textContent = ids.length + ' tokens';
     $('miniChips').querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { sel = +c.dataset.i; renderTokens(); renderEmb(); drawMap(); }); });
   }
-  window.addEventListener('load', function () { if (M) renderTokens(); });
 
   /* ---------- step 2 ---------- */
   function vecOf(id) { return W.wte.subarray(id * CFG.dim, (id + 1) * CFG.dim); }
