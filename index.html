@@ -40,7 +40,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --s3: #23272A; --ln: rgba(255,255,255,.08); --ln2: rgba(255,255,255,.14);
-    --ink: #F2F4F5; --t2: #A3ADB4; --t3: #6A747B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; --orange: #F29A4A;
+    --ink: #F2F4F5; --t2: #A3ADB4; --t3: #8A949B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; --orange: #F29A4A;
     --steel: linear-gradient(180deg, #6E808E 0%, #5B6C78 20%, #47545F 44%, #303B43 70%, #24292C 88%, #0B0C0D 100%);
     --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
     --max: 1240px; --g: clamp(18px, 4vw, 44px); }
@@ -409,7 +409,7 @@
     /* screens keep their dark glass: the camera, the simulator, the agent orb, the console, image captions */
     html.lt .vision, html.lt .dash, html.lt .term, html.lt .spot .orb, html.lt .fc .gl, html.lt .show .im, html.lt .cta2 {
       --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --s3: #23272A; --ln: rgba(255,255,255,.08); --ln2: rgba(255,255,255,.14);
-      --ink: #F2F4F5; --t2: #A3ADB4; --t3: #6A747B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; color: var(--ink); }
+      --ink: #F2F4F5; --t2: #A3ADB4; --t3: #8A949B; --mint: #8FC3BA; --green: #6BD38A; --red: #F06262; color: var(--ink); }
     html.lt .cta2 .bg { -webkit-mask: none; mask: none; }
     html.lt .dash { box-shadow: 0 50px 100px -50px rgba(30,42,52,.55), 0 0 0 1px rgba(24,34,44,.12); }
     html.lt .term { box-shadow: 0 40px 80px -48px rgba(30,42,52,.5); }
@@ -865,10 +865,10 @@ var lightQ = { get matches() { return document.documentElement.classList.contain
     var X = function (i) { return L + i / steps * (W - L - Rr); }, Y = function (v) { return T + (1 - v / top) * (H - T - B); };
     var st = Math.pow(10, Math.floor(Math.log10(top / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return top / s <= 6; })[0] || st * 10;
     x.font = '10.5px "Geist Mono", ui-monospace, monospace'; x.textAlign = 'right';
-    for (var t = 0; t <= top; t += st) { var y = Math.round(Y(t)) + .5; x.strokeStyle = 'rgba(255,255,255,.06)'; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(L, y); x.lineTo(W - Rr, y); x.stroke(); x.setLineDash([]); x.fillStyle = '#6A747B'; x.fillText('$' + Math.round(t), L - 8, y + 3); }
+    for (var t = 0; t <= top; t += st) { var y = Math.round(Y(t)) + .5; x.strokeStyle = 'rgba(255,255,255,.06)'; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(L, y); x.lineTo(W - Rr, y); x.stroke(); x.setLineDash([]); x.fillStyle = '#8A949B'; x.fillText('$' + Math.round(t), L - 8, y + 3); }
     x.textAlign = 'center'; var lab = years === 1 ? [0, 63, 126, 189, 252] : null;
     for (var yr = 0; yr <= years; yr++) { var ii = yr * 252, xx = Math.round(X(ii)) + .5; if (ii > steps) break; x.strokeStyle = 'rgba(255,255,255,.05)'; x.setLineDash([2, 5]); x.beginPath(); x.moveTo(xx, T); x.lineTo(xx, H - B); x.stroke(); x.setLineDash([]); }
-    (lab || Array.from({ length: years + 1 }, function (_, k) { return k * 252; })).forEach(function (ii) { x.fillStyle = '#6A747B'; x.fillText(years === 1 ? (ii === 0 ? 'today' : 'day ' + ii) : (ii === 0 ? 'today' : 'year ' + ii / 252), X(ii), H - 10); });
+    (lab || Array.from({ length: years + 1 }, function (_, k) { return k * 252; })).forEach(function (ii) { x.fillStyle = '#8A949B'; x.fillText(years === 1 ? (ii === 0 ? 'today' : 'day ' + ii) : (ii === 0 ? 'today' : 'year ' + ii / 252), X(ii), H - 10); });
     var upto = Math.max(1, Math.round(steps * prog));
     x.save(); x.beginPath(); x.rect(L, T, W - L - Rr, H - T - B); x.clip();
     x.lineWidth = 1; x.lineJoin = 'round'; x.globalAlpha = .55;

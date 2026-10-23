@@ -41,7 +41,7 @@
 <style>
   :root {
     --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --ln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --orange: #ECF0F3;
-    --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08);
+    --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08);
     --acc: #9CC9E8; --crim: #9CC9E8; --bone: #F2F4F5; --teal: #6BD38A; --mag: #C59BF5; --gold: #F2C14C; --good: #6BD38A; --lock: #F06262; --warm: #F2C14C; --mint: #8FC3BA;
     --g: clamp(16px, 4vw, 32px); --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --disp: "Manrope", system-ui, sans-serif;
   }
@@ -123,7 +123,7 @@
   .chips button em { font-style: normal; color: var(--dim); font-weight: 400; }
   .chips button:hover { color: var(--ink); background: rgba(255,255,255,.1); }
   .chips button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
-  .chips button[aria-pressed="true"] em { color: #5A646C; } .chips button[aria-pressed="true"] i { background: #121416; }
+  .chips button[aria-pressed="true"] em { color: #4A535A; } .chips button[aria-pressed="true"] i { background: #121416; }
   .ask { display: flex; gap: 8px; margin-top: 12px; align-items: flex-end; background: #0F1112; border: 1px solid var(--ln2); border-radius: 16px; padding: 6px 6px 6px 4px; transition: border-color .15s; }
   .ask:focus-within { border-color: var(--mint); }
   .ask textarea { flex: 1 1 auto; min-width: 0; resize: none; overflow: hidden; background: transparent; color: var(--ink); border: 0; padding: 9px 12px; font: 400 16px/1.45 var(--sans); min-height: 42px; }
@@ -249,7 +249,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   html.lt { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --gs1: #F6F7F8; --gs2: #FFFFFF; --ln2: rgba(24,34,44,.16); --gln2: rgba(24,34,44,.16); --pill: rgba(24,34,44,.06); --pill-on: rgba(24,34,44,.1);
     --ink: #15191C; --soft: #56616A; --dim: #7D878F; --line: rgba(24,34,44,.1); --acc: #3D8A7E; --mint: #3D8A7E; }
   html.lt body { background: linear-gradient(180deg, #D5DDE3 0, #DFE5E9 220px, #E8ECEF 520px, #ECEEF0 820px) no-repeat, #ECEEF0 !important; color: var(--ink); }
-  html.lt .panel, html.lt .box, html.lt .toast, html.lt .tape, html.lt .over, html.lt .pc { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
+  html.lt .panel, html.lt .box, html.lt .toast, html.lt .tape, html.lt .over, html.lt .pc { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
   html.lt .panel, html.lt .box { box-shadow: 0 30px 60px -40px rgba(30,42,52,.45); }
   html.lt nav { background: transparent; }
   html.lt.scrolled nav, html.lt nav.scrolled { background: rgba(236,238,240,.95) !important; -webkit-backdrop-filter: blur(18px) saturate(1.2) !important; backdrop-filter: blur(18px) saturate(1.2) !important; border-color: rgba(24,34,44,.1) !important; }
@@ -291,7 +291,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   .tg2 button { font: 500 12.5px var(--sans); color: var(--soft); background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; cursor: pointer; }
   .tg2 button em { font-style: normal; color: var(--dim); font-weight: 400; margin-left: 4px; }
   .tg2 button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; border-color: transparent; }
-  .tg2 button[aria-pressed="true"] em { color: #5A646C; }
+  .tg2 button[aria-pressed="true"] em { color: #4A535A; }
   .tg2 button:disabled { opacity: .35; cursor: default; }
   .opt { display: grid; gap: 14px; }
   .opt .row { display: grid; grid-template-columns: 90px 1fr; gap: 10px; align-items: center; }

@@ -355,7 +355,7 @@
   .answer p { margin: 0; font-size: 1.05rem; color: #fff; border-left: 3px solid var(--acc); padding: 8px 12px; background: rgba(156,201,232,.07); }
   .answer .cite { color: var(--acc); font: 700 .8rem var(--mono); }
   .gauge { position: relative; height: 30px; background: rgba(255,255,255,.05); border: 1px solid var(--line); margin: 10px 0 14px; }
-  .gauge i { position: absolute; inset: 0 auto 0 0; background: rgba(156,201,232,.55); transition: width .3s; }
+  .gauge i { position: absolute; inset: 0 auto 0 0; background: rgba(156,201,232,.32); transition: width .3s; }
   .gauge b { position: absolute; left: 10px; top: 6px; font: 700 .78rem var(--mono); }
   .verdict5 { padding: 12px 14px; border: 1px solid; font-size: .98rem; color: #C9CDD3; }
   .verdict5.yes { border-color: rgba(155,224,155,.55); background: rgba(155,224,155,.06); } .verdict5.no { border-color: rgba(255,90,78,.55); background: rgba(255,90,78,.06); }
@@ -363,7 +363,7 @@
 </style>
 <style id="graphite">
 /* steel theme: shared by every Lab course module */
-:root { --bg: #0B0C0D; --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --acc-hi: #BFE3DC;
+:root { --bg: #0B0C0D; --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --acc-hi: #BFE3DC;
   --warm: #F2C14C; --lock: #F06262; --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; --gs1: #121415; --gs2: #191C1E; --gln2: rgba(255,255,255,.14); }
 body { background: linear-gradient(180deg, #6E808E 0, #5B6C78 120px, #47545F 300px, #24292C 560px, #0B0C0D 820px) no-repeat, #0B0C0D; font-family: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16.5px; line-height: 1.62; }
 body::before { display: none !important; }
@@ -460,7 +460,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   html.lt { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --gs1: #F6F7F8; --gs2: #FFFFFF; --ln2: rgba(24,34,44,.16); --gln2: rgba(24,34,44,.16); --pill: rgba(24,34,44,.06); --pill-on: rgba(24,34,44,.1);
     --ink: #15191C; --soft: #56616A; --dim: #7D878F; --line: rgba(24,34,44,.1); --acc: #3D8A7E; --mint: #3D8A7E; }
   html.lt body { background: linear-gradient(180deg, #D5DDE3 0, #DFE5E9 220px, #E8ECEF 520px, #ECEEF0 820px) no-repeat, #ECEEF0 !important; color: var(--ink); }
-  html.lt .panel, html.lt canvas.plot, html.lt #mapc, html.lt #attc, html.lt .toast { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
+  html.lt .panel, html.lt canvas.plot, html.lt #mapc, html.lt #attc, html.lt .toast { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
   html.lt .panel, html.lt .box { box-shadow: 0 30px 60px -40px rgba(30,42,52,.45); }
   html.lt nav { background: transparent; }
   html.lt.scrolled nav, html.lt nav.scrolled { background: rgba(236,238,240,.95) !important; -webkit-backdrop-filter: blur(18px) saturate(1.2) !important; backdrop-filter: blur(18px) saturate(1.2) !important; border-color: rgba(24,34,44,.1) !important; }
@@ -541,7 +541,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div>
         <div class="panel corners">
           <div class="ph"><span>Example Advisors &middot; client handbook</span><span id="wc1"></span></div>
-          <div class="doc" id="doc1"></div>
+          <div class="doc" id="doc1" tabindex="0" role="region" aria-label="Source document"></div>
         </div>
       </div>
       <div class="explain">
@@ -563,7 +563,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
           <div class="slider"><span>Chunk size</span><input id="cs" type="range" min="15" max="200" step="5" value="60" aria-label="Words per chunk"><b id="csv"></b></div>
           <div class="slider"><span>Overlap</span><input id="ov" type="range" min="0" max="40" step="5" value="15" aria-label="Words shared between neighbouring chunks"><b id="ovv"></b></div>
           <div class="ph"><span id="nc2"></span><span>each colour is one chunk</span></div>
-          <div class="doc chunks" id="doc2"></div>
+          <div class="doc chunks" id="doc2" tabindex="0" role="region" aria-label="Document split into chunks"></div>
         </div>
       </div>
       <div class="explain">
@@ -603,7 +603,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div>
         <div class="panel corners">
           <div class="ph"><span>The prompt sent to the model</span><span id="tk4"></span></div>
-          <pre class="raw" id="raw4"></pre>
+          <pre class="raw" id="raw4" tabindex="0" aria-label="The prompt sent to the model"></pre>
           <div class="ph" style="margin-top:14px"><span>Best supporting sentence</span><span id="src4"></span></div>
           <div class="answer" id="ans4"></div>
         </div>

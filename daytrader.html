@@ -41,7 +41,7 @@
 <style>
   :root {
     --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --ln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --orange: #ECF0F3;
-    --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08);
+    --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08);
     --acc: #9CC9E8; --crim: #9CC9E8; --bone: #F2F4F5; --teal: #6BD38A; --mag: #C59BF5; --gold: #F2C14C; --good: #6BD38A; --lock: #F06262; --warm: #F2C14C; --mint: #8FC3BA;
     --g: clamp(16px, 4vw, 32px); --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace; --sans: "Manrope", system-ui, -apple-system, "Segoe UI", Arial, sans-serif; --disp: "Manrope", system-ui, sans-serif;
   }
@@ -190,7 +190,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   html.lt { color-scheme: light; --bg: #ECEEF0; --s1: #F6F7F8; --s2: #FFFFFF; --gs1: #F6F7F8; --gs2: #FFFFFF; --ln2: rgba(24,34,44,.16); --gln2: rgba(24,34,44,.16); --pill: rgba(24,34,44,.06); --pill-on: rgba(24,34,44,.1);
     --ink: #15191C; --soft: #56616A; --dim: #7D878F; --line: rgba(24,34,44,.1); --acc: #3D8A7E; --mint: #3D8A7E; }
   html.lt body { background: linear-gradient(180deg, #D5DDE3 0, #DFE5E9 220px, #E8ECEF 520px, #ECEEF0 820px) no-repeat, #ECEEF0 !important; color: var(--ink); }
-  html.lt .panel, html.lt .box, html.lt .toast, html.lt .tape, html.lt .over, html.lt .pc { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #6A747B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
+  html.lt .panel, html.lt .box, html.lt .toast, html.lt .tape, html.lt .over, html.lt .pc { --bg: #0B0C0D; --s1: #121415; --s2: #191C1E; --gs1: #121415; --gs2: #191C1E; --ln2: rgba(255,255,255,.14); --gln2: rgba(255,255,255,.14); --pill: rgba(255,255,255,.07); --pill-on: rgba(255,255,255,.16); --ink: #F2F4F5; --soft: #A3ADB4; --dim: #8A949B; --line: rgba(255,255,255,.08); --acc: #8FC3BA; --mint: #8FC3BA; color: var(--ink); }
   html.lt .panel, html.lt .box { box-shadow: 0 30px 60px -40px rgba(30,42,52,.45); }
   html.lt nav { background: transparent; }
   html.lt.scrolled nav, html.lt nav.scrolled { background: rgba(236,238,240,.95) !important; -webkit-backdrop-filter: blur(18px) saturate(1.2) !important; backdrop-filter: blur(18px) saturate(1.2) !important; border-color: rgba(24,34,44,.1) !important; }
@@ -328,8 +328,8 @@ function lineChart(svg, series, opts) {
   var ticks = []; if (opts.log) { [1e-3, .01, .1, .25, .5, 1, 2, 4, 10, 100, 1e3, 1e4, 1e5, 1e6, 1e7].forEach(function (t) { var l = Math.log(t); if (l >= y0 && l <= y1) ticks.push(t); }); }
   else { var span = y1 - y0, st = Math.pow(10, Math.floor(Math.log10(span / 4))); st = [1, 2, 5, 10].map(function (m) { return m * st; }).filter(function (s) { return span / s <= 6; })[0] || st * 10; for (var t = Math.ceil(y0 / st) * st; t <= y1; t += st) ticks.push(+t.toFixed(10)); }
   var yf = opts.yfmt || function (v) { return Math.abs(v) >= 1000 ? Math.round(v).toLocaleString() : +v.toFixed(3); };
-  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#6A747B" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
-  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#6A747B" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
+  ticks.forEach(function (t) { var y = Y(t); h += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + (t === 0 && !opts.log ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.06)') + '"/><text x="' + (L - 6) + '" y="' + (y + 3) + '" fill="#8A949B" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">' + yf(t) + '</text>'; });
+  if (opts.xlabels) opts.xlabels.forEach(function (xl) { h += '<text x="' + X(xl[0]) + '" y="' + (H - 6) + '" fill="#8A949B" font-size="10" text-anchor="middle" font-family="JetBrains Mono, monospace">' + xl[1] + '</text>'; });
   series.forEach(function (s, k) { var p = pts[k].filter(function (q) { return isFinite(q[1]); }); if (!p.length) return;
     if (s.dots) { p.forEach(function (q) { h += '<circle cx="' + X(q[0]).toFixed(1) + '" cy="' + Y(q[1]).toFixed(1) + '" r="' + (s.r || 2.5) + '" fill="' + s.color + '"/>'; }); return; }
     var d = p.map(function (q, i) { return (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ' ' + Y(q[1]).toFixed(1); }).join('');
