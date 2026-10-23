@@ -355,6 +355,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       <div class="panel" style="margin-top:16px">
         <div class="bh"><span>Leaderboard</span><span>graded by code, live on this device</span></div>
         <div style="overflow-x:auto"><table class="lb" id="lb"><tbody><tr><td style="color:var(--dim);text-align:left">Run the arena to fill this table.</td></tr></tbody></table></div>
+        <div class="controls" style="margin-top:12px"><button type="button" class="act" id="xJson" disabled>Download the run (JSON)</button><button type="button" class="act" id="xCsv" disabled>Download the scores (CSV)</button></div>
       </div>
       <div class="panel" style="margin-top:16px">
         <div class="bh"><span>Every question</span><span>click a result to see the answer</span></div>
@@ -374,7 +375,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
       </div>
       <div class="box">
         <div class="bh"><span>How it runs</span></div>
-        <p class="note" style="margin-top:0">Each model downloads once, answers all 22 questions with sampling turned off (so the same model gives the same answer every time), then is unloaded before the next. Sizes are approximate. Results are live on your device; nothing is recorded or replayed.</p>
+        <p class="note" style="margin-top:0">Each model downloads once, answers all 22 questions with sampling turned off (so the same model gives the same answer every time), then is unloaded before the next. Sizes are approximate. Results are live on your device; nothing is recorded or replayed. Download a run to keep it or compare it with another device.</p>
       </div>
     </aside>
   </div>
@@ -502,6 +503,7 @@ addEventListener('scroll', function () { document.documentElement.classList.togg
       return '<tr><td>' + esc(r.name) + '</td><td class="' + (o && o.f === best[null] ? 'top' : '') + '"><b>' + (o ? Math.round(o.f * 100) + '%' : '–') + '</b></td>' + CATS.map(function (c) { var s = score(r, c); return '<td class="' + (s && s.f === best[c] && rs.length > 1 && s.f >= 0.5 ? 'top' : s && s.f < 0.5 ? 'lo' : '') + '">' + (s ? s.ok + '/' + s.n : '–') + '</td>'; }).join('') +
         '<td class="' + (hal ? 'lo' : '') + '">' + (hn ? hal + '/' + hn : '–') + '</td><td>' + (med != null ? (med / 1000).toFixed(1) + ' s' : '–') + '</td></tr>';
     }).join('') + '</tbody>';
+    $('xJson').disabled = $('xCsv').disabled = !rs.some(function (r) { return r.ok.length; });
     $('items').innerHTML = '<thead><tr><th>Test</th><th>Question</th>' + rs.map(function (r) { return '<th>' + esc(r.name.replace('SmolLM2 ', 'Smol ')) + '</th>'; }).join('') + '</tr></thead><tbody>' + TESTS.map(function (t, i) {
       var q = t[1].indexOf('Question: ') > 0 ? t[1].slice(t[1].lastIndexOf('Question: ') + 10) : t[1];
       return '<tr><td class="cat">' + t[0] + '</td><td class="q">' + esc(q.length > 110 ? q.slice(0, 107) + '…' : q) + '</td>' + rs.map(function (r) { var v = r.ok[i]; return '<td class="c"><button type="button" data-k="' + r.k + '" data-i="' + i + '" class="' + (v == null ? '' : v ? 'p' : 'f') + (PICK && PICK[0] === r.k && PICK[1] === i ? ' on' : '') + '"' + (v == null ? ' disabled' : '') + '>' + (v == null ? '·' : v ? '✓' : '✗') + '</button></td>'; }).join('') + '</tr>';
@@ -512,6 +514,23 @@ addEventListener('scroll', function () { document.documentElement.classList.togg
       $('det').innerHTML = '<div class="det"><b>' + esc(r.name) + '</b> &middot; ' + t[0] + ' &middot; ' + (g[0] ? '<span style="color:#A8E6BC">passed</span>' : '<span style="color:#F5A3A3">failed</span>') + ' in ' + (r.ms[PICK[1]] / 1000).toFixed(1) + ' s<pre>' + esc(t[1]) + '</pre>Answer:<pre>' + esc(r.out[PICK[1]] || '(empty)') + '</pre>' + esc(g[1]) + '</div>';
     }
   }
+  /* ---------- export: every answer and grade, to keep or compare later ---------- */
+  function save(name, text, type) {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function stamp() { return new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-'); }
+  $('xJson').onclick = function () {
+    var out = { page: 'LDB Lab Evaluation Arena', run_at: new Date().toISOString(), device: DEVICE, settings: { max_new_tokens: 60, do_sample: false, dtype: 'q4' },
+      models: ORDER.map(function (k) { var r = RES[k], o = score(r); return { name: r.name, id: MODELS[k].id, error: r.err || null, overall: o ? o.f : null,
+        answers: TESTS.map(function (t, i) { return { category: t[0], question: t[1], answer: r.out[i] == null ? null : r.out[i], passed: r.ok[i] == null ? null : r.ok[i], ms: r.ms[i] == null ? null : Math.round(r.ms[i]) }; }) }; }) };
+    save('arena-' + stamp() + '.json', JSON.stringify(out, null, 1), 'application/json');
+  };
+  $('xCsv').onclick = function () {
+    var rows = [['model', 'category', 'question', 'passed', 'answer', 'seconds']];
+    ORDER.forEach(function (k) { var r = RES[k]; TESTS.forEach(function (t, i) { if (r.ok[i] == null) return; rows.push([r.name, t[0], t[1], r.ok[i] ? 1 : 0, r.out[i], (r.ms[i] / 1000).toFixed(1)]); }); });
+    save('arena-' + stamp() + '.csv', rows.map(function (r) { return r.map(function (v) { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\n'), 'text/csv');
+  };
   $('run').onclick = run;
   $('stop').onclick = function () { stopFlag = true; $('state').textContent = 'Stopping after this question…'; };
   /* the empty grid shows the questions before anything runs */
