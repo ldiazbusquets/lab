@@ -3,8 +3,11 @@ Model files used by the Lab's live feeds
 yolox_tiny.onnx  - YOLOX-tiny object detector by Megvii (https://github.com/Megvii-BaseDetection/YOLOX), Apache License 2.0
 face.onnx        - Ultra-Light-Fast-Generic-Face-Detector-1MB, version-RFB-320, by Linzaer (https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB), MIT License
                    (unused graph inputs removed; weights unchanged)
+seg.onnx         - LR-ASPP MobileNetV3-Large semantic segmentation from torchvision (https://github.com/pytorch/vision),
+                   BSD 3-Clause License, pretrained weights (Pascal VOC classes). Exported by tools/export_seg.py with a
+                   wrapper that normalises the input and returns person, vehicle and animal probability maps.
 
-Both license texts follow.
+The license texts follow (torchvision: BSD 3-Clause, https://github.com/pytorch/vision/blob/main/LICENSE).
 
 ==================== YOLOX: Apache License 2.0 ====================
                                  Apache License

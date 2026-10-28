@@ -1780,24 +1780,82 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     });
   }
 
+  /* ---------- thermal: per-pixel heat from a segmentation model ----------
+     A game knows which pixels are people because it drew them. Here a small segmentation model (LR-ASPP MobileNetV3,
+     models/seg.onnx) traces every person, vehicle and animal outline a few times a second; those outlines become the
+     heat map, so warm bodies glow in their real shape and nothing else changes. Until it loads (or if it can't),
+     the plain infrared filter is used. */
+  var SEG = { st: 'idle', sess: null, busy: false, at: 0, w: 0, h: 0, mask: null, mx: null, src: null, sx: null };
+  function segLoad() {
+    if (SEG.st !== 'idle') return; SEG.st = 'loading';
+    (window.ort ? Promise.resolve() : loadScript(new URL(ORT, location.href).href + 'ort.min.js'))
+      .then(function () { return fetch('models/seg.onnx'); })
+      .then(function (r) { if (!r.ok) throw new Error('no model'); return r.arrayBuffer(); })
+      .then(function (b) { ort.env.wasm.wasmPaths = new URL(ORT, location.href).href; return ort.InferenceSession.create(b, { executionProviders: ['wasm'] }); })
+      .then(function (sess) { SEG.sess = sess; SEG.st = 'ready';
+        SEG.src = document.createElement('canvas'); SEG.sx = SEG.src.getContext('2d', { willReadFrequently: true });
+        SEG.mask = document.createElement('canvas'); SEG.mx = SEG.mask.getContext('2d'); })
+      .catch(function () { SEG.st = 'off'; });
+  }
+  function segRun() {
+    if (SEG.st !== 'ready' || SEG.busy || !video || performance.now() - SEG.at < 90) return;
+    SEG.busy = true; SEG.at = performance.now();
+    var w = 640, h = Math.max(96, Math.round(w * crop.h / crop.w / 8) * 8);   /* finer input, sharper outlines */
+    SEG.src.width = w; SEG.src.height = h; SEG.sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, w, h);
+    var px = SEG.sx.getImageData(0, 0, w, h).data, n = w * h, x = new Float32Array(3 * n);
+    for (var i = 0; i < n; i++) { x[i] = px[i * 4] / 255; x[n + i] = px[i * 4 + 1] / 255; x[2 * n + i] = px[i * 4 + 2] / 255; }
+    SEG.sess.run({ image: new ort.Tensor('float32', x, [1, 3, h, w]) }).then(function (o) {
+      var hm = o.heat.data, img = SEG.mx.createImageData(w, h), d = img.data;
+      SEG.mask.width = w; SEG.mask.height = h;
+      for (var i = 0; i < n; i++) {
+        var v = Math.min(1, hm[i] * 1.15 + hm[n + i] * .8 + hm[2 * n + i] * .95);        /* people hottest, then animals, then vehicles */
+        v = v < .5 ? 0 : Math.min(1, (v - .5) / .3);                                    /* clean edges: only confident pixels are warm */
+        d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = 255; d[i * 4 + 3] = Math.round(v * 255);
+      }
+      SEG.mx.putImageData(img, 0, 0); SEG.w = w; SEG.h = h; SEG.busy = false; SEG.fresh = true;
+    }).catch(function () { SEG.busy = false; SEG.st = 'off'; });
+  }
+  var hot = document.createElement('canvas'), hotx = hot.getContext('2d'), gate = document.createElement('canvas'), gatex = gate.getContext('2d');
+
   /* ---------- frame ---------- */
   var mouse = { x: -1, y: -1, in: false, down: false }, lock = null, lockSince = 0, manual = false;
   function drawVideo() {
     var cw = sc.width, ch = sc.height;
     sx.setTransform(1, 0, 0, 1, 0, 0);
     if (mode === 'thermal') {
-      /* black-and-white infrared, done purely as a filter on the whole frame (no shapes drawn over people or vehicles):
-         a channel mix that turns skin and foliage bright and blue sky and water dark, an S-curve for deep blacks and
-         clean whites, then the ethereal infrared glow (a soft, bright diffusion layered over the sharp image) and a
-         lens vignette. Grain is added below. */
+      segLoad(); segRun();
+      if (SEG.w) {
+        /* white-hot, the way a game's thermal sight does it: a cold, dark scene (the infrared mix, pushed down) ... */
+        sx.filter = 'url(#ldbIR) brightness(.5) contrast(1.05)';
+        sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
+        /* ... and every warm body redrawn from its own pixels, bright, cut out by its traced outline */
+        if (hot.width !== cw || hot.height !== ch) { hot.width = cw; hot.height = ch; }
+        hotx.globalCompositeOperation = 'source-over'; hotx.clearRect(0, 0, cw, ch);
+        hotx.filter = 'grayscale(1) brightness(1.65) contrast(1.05)'; hotx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); hotx.filter = 'none';
+        hotx.globalCompositeOperation = 'screen'; hotx.fillStyle = 'rgba(255,255,255,.2)'; hotx.fillRect(0, 0, cw, ch);   /* warm reads light whatever the clothes */
+        hotx.globalCompositeOperation = 'destination-in'; hotx.imageSmoothingEnabled = true; hotx.filter = 'blur(' + Math.max(.6, cw / 1400).toFixed(1) + 'px)';
+        hotx.drawImage(SEG.mask, 0, 0, cw, ch); hotx.filter = 'none';
+        /* only where the detector also sees a person, animal or vehicle: stops the outline model from warming a lit road */
+        if (gate.width !== cw || gate.height !== ch) { gate.width = cw; gate.height = ch; }
+        gatex.clearRect(0, 0, cw, ch); gatex.fillStyle = '#fff'; var any = false;
+        tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return; any = true;
+          var x0 = t.b[0] * S, y0 = t.b[1] * S, w = (t.b[2] - t.b[0]) * S, h = (t.b[3] - t.b[1]) * S;
+          gatex.fillRect(x0 - w * .08, y0 - h * .06, w * 1.16, h * 1.12); });
+        if (any) { hotx.globalCompositeOperation = 'destination-in'; hotx.filter = 'blur(' + Math.max(3, cw / 300).toFixed(1) + 'px)'; hotx.drawImage(gate, 0, 0); hotx.filter = 'none'; }
+        else hotx.clearRect(0, 0, cw, ch);
+        hotx.globalCompositeOperation = 'source-over';
+        sx.drawImage(hot, 0, 0);
+        sx.save(); sx.globalCompositeOperation = 'screen'; sx.globalAlpha = .3; sx.filter = 'blur(' + Math.max(4, cw / 180).toFixed(1) + 'px)'; sx.drawImage(hot, 0, 0); sx.restore(); sx.filter = 'none';   /* heat bloom */
+        sx.save(); sx.globalAlpha = .1; sx.filter = 'blur(' + Math.max(1, cw / 900).toFixed(1) + 'px)'; sx.drawImage(sc, 0, 0); sx.restore(); sx.filter = 'none';   /* thermal sensors are a little soft */
+      } else {
+      /* until the outline model is ready: black-and-white infrared as a filter on the whole frame */
       sx.filter = 'url(#ldbIR) brightness(.9)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
       sx.save(); sx.globalCompositeOperation = 'screen';
       sx.globalAlpha = .16; sx.filter = 'url(#ldbIR) brightness(.6) contrast(1.6) blur(' + Math.max(4, cw / 150).toFixed(1) + 'px)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
-      sx.globalAlpha = .07; sx.filter = 'url(#ldbIR) brightness(.55) contrast(1.8) blur(' + Math.max(12, cw / 50).toFixed(1) + 'px)';
-      sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
       sx.restore(); sx.filter = 'none';
+      }
       var vg = sx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * .38, cw / 2, ch / 2, Math.hypot(cw, ch) * .62);
       vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)'); sx.fillStyle = vg; sx.fillRect(0, 0, cw, ch);
     } else {
