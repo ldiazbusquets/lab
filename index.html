@@ -1234,7 +1234,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     nx.putImageData(nd, 0, 0); noise.push(nc);
   }
   var tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true }), LUT = null;
-  var thS = document.createElement('canvas'), thx = thS.getContext('2d', { willReadFrequently: true }), thH = document.createElement('canvas'), thhx = thH.getContext('2d'), bgM = null, bgFeed = -1, bgN = 0, bgMask = null;
+  var thS = document.createElement('canvas'), thx = thS.getContext('2d'), thH = document.createElement('canvas'), thhx = thH.getContext('2d'), thM = document.createElement('canvas'), thmx = thM.getContext('2d');   /* thermal: warm bodies, one body at a time, and its mask */
   function thermalLUT() {
     /* white-hot greyscale: every pixel mapped through a contrast curve, warm (bright) is white, cold is black */
     var L = []; for (var i = 0; i < 256; i++) { var t = i / 255, u = t * t * (3 - 2 * t), v = Math.round(8 + 244 * (u * .7 + Math.pow(t, 1.4) * .3)); L.push([v, v, v]); } return L;
@@ -1775,54 +1775,49 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var cw = sc.width, ch = sc.height;
     sx.setTransform(1, 0, 0, 1, 0, 0);
     if (mode === 'thermal') {
-      /* white-hot thermal: a cold, soft base image, with heat taken from what is actually warm in the scene.
-         Moving bodies are found by comparing each frame with a learned picture of the empty scene (background
-         subtraction), so people and cars glow in their real outlines, not as boxes or blobs. */
-      var bw = Math.max(8, Math.round(cw / 4)), bh = Math.max(8, Math.round(ch / 4));
-      if (thS.width !== bw || thS.height !== bh) { thS.width = bw; thS.height = bh; thH.width = bw; thH.height = bh; bgM = null; }
-      thx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, bw, bh);
-      var src = thx.getImageData(0, 0, bw, bh).data, n = bw * bh;
-      if (!bgM || bgFeed !== cur) { bgM = new Float32Array(n); for (var q = 0; q < n; q++) bgM[q] = src[q * 4] * .3 + src[q * 4 + 1] * .59 + src[q * 4 + 2] * .11; bgFeed = cur; bgN = 0; bgMask = new Float32Array(n); }
-      bgN++;
-      /* where tracked people, animals and vehicles are, at this resolution */
-      bgMask.fill(0); var kx = bw / cw * S, ky = bh / ch * S;
-      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return;
-        var x0 = Math.max(0, Math.floor(t.b[0] * kx) - 1), y0 = Math.max(0, Math.floor(t.b[1] * ky) - 1), x1 = Math.min(bw - 1, Math.ceil(t.b[2] * kx) + 1), y1 = Math.min(bh - 1, Math.ceil(t.b[3] * ky) + 1);
-        for (var yy = y0; yy <= y1; yy++) for (var xx = x0; xx <= x1; xx++) bgMask[yy * bw + xx] = 1; });
-      var diffs = new Float32Array(n), moving = 0, rate = bgN < 25 ? .25 : paused ? 0 : .012;
-      for (var i = 0; i < n; i++) { var l = src[i * 4] * .3 + src[i * 4 + 1] * .59 + src[i * 4 + 2] * .11, dd = Math.abs(l - bgM[i]);
-        if (!bgMask[i] || bgN < 25) bgM[i] += (l - bgM[i]) * rate;          /* the background only learns where nobody is standing */
-        diffs[i] = dd; if (dd > 22) moving++; }
-      var camMoving = moving > n * .3;                                        /* a moving camera: trust the detector boxes instead */
-      /* heat: motion outside, and inside each tracked body the pixels that differ from what surrounds it, shaped like a body */
-      var heat = new Float32Array(n);
-      if (!camMoving) for (var j = 0; j < n; j++) heat[j] = Math.min(1, Math.max(0, (diffs[j] - 14) / 34)) * (bgMask[j] ? 1 : .35);
-      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return;
-        var x0 = Math.max(1, Math.floor(t.b[0] * kx)), y0 = Math.max(1, Math.floor(t.b[1] * ky)), x1 = Math.min(bw - 2, Math.ceil(t.b[2] * kx)), y1 = Math.min(bh - 2, Math.ceil(t.b[3] * ky));
-        var w = x1 - x0, h = y1 - y0; if (w < 2 || h < 3) return;
-        var sum = 0, cnt = 0, xx, yy;                                             /* the colour of what is around the body */
-        for (xx = x0 - 1; xx <= x1 + 1; xx++) { [y0 - 1, y1 + 1].forEach(function (y) { if (y >= 0 && y < bh && xx >= 0 && xx < bw) { var p = (y * bw + xx) * 4; sum += src[p] * .3 + src[p + 1] * .59 + src[p + 2] * .11; cnt++; } }); }
-        for (yy = y0; yy <= y1; yy++) { [x0 - 1, x1 + 1].forEach(function (x) { if (x >= 0 && x < bw) { var p = (yy * bw + x) * 4; sum += src[p] * .3 + src[p + 1] * .59 + src[p + 2] * .11; cnt++; } }); }
-        var ring = cnt ? sum / cnt : 0, person = t.g === 'p' || t.g === 'a';
-        for (yy = y0; yy <= y1; yy++) for (xx = x0; xx <= x1; xx++) {
-          var u = (xx - x0) / w - .5, v = (yy - y0) / h, prior;
-          if (person) { var hd = 1 - Math.hypot(u / .16, (v - .11) / .1), body = 1 - Math.abs(u) / (v < .62 ? .24 : .17) - Math.max(0, .2 - v) * 6; prior = Math.max(hd, body); }
-          else prior = 1 - Math.max(Math.abs(u) / .48, Math.abs(v - .5) / .46);
-          prior = Math.min(1, Math.max(0, prior * 4));
-          if (prior <= 0) continue;
-          var p = (yy * bw + xx) * 4, l = src[p] * .3 + src[p + 1] * .59 + src[p + 2] * .11, seg = Math.min(1, Math.max(0, (Math.abs(l - ring) - 6) / 30));
-          var k2 = yy * bw + xx, hv = prior * (.45 + .55 * Math.max(seg, heat[k2]));
-          if (person && v < .22) hv = Math.max(hv, prior * .9);                     /* faces and necks run hottest */
-          if (hv > heat[k2]) heat[k2] = hv; } });
-      var out = thhx.createImageData(bw, bh), o = out.data;
-      for (var q2 = 0; q2 < n; q2++) { var vv = Math.round(255 * Math.min(1, heat[q2])); o[q2 * 4] = o[q2 * 4 + 1] = o[q2 * 4 + 2] = vv; o[q2 * 4 + 3] = 255; }
-      thhx.putImageData(out, 0, 0);
-      sx.filter = 'grayscale(1) contrast(.72) brightness(.3) blur(' + Math.max(.6, cw / 900).toFixed(1) + 'px)';
+      /* white-hot thermal, done as an image filter: the whole frame becomes a cold, high-contrast greyscale
+         (detail kept sharp, the way a thermal sensor still shows edges and texture), then every tracked person,
+         animal and vehicle is redrawn from the same pixels, much brighter, through a soft body-shaped mask, so it
+         glows with its own folds and outlines instead of turning into a blob. A faint bloom and a vignette finish it. */
+      sx.filter = 'grayscale(1) contrast(1.3) brightness(.56)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
-      sx.save(); sx.globalCompositeOperation = 'screen';
-      sx.filter = 'blur(' + Math.max(1.5, cw / 260).toFixed(1) + 'px)'; sx.drawImage(thH, 0, 0, cw, ch);
-      sx.filter = 'blur(' + Math.max(5, cw / 70).toFixed(1) + 'px)'; sx.globalAlpha = .5; sx.drawImage(thH, 0, 0, cw, ch);
-      sx.restore(); sx.filter = 'none';
+      if (thS.width !== cw || thS.height !== ch) { thS.width = cw; thS.height = ch; thH.width = cw; thH.height = ch; }
+      thx.clearRect(0, 0, cw, ch);
+      var warm = 0;
+      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return;
+        var x0 = t.b[0] * S, y0 = t.b[1] * S, w = (t.b[2] - t.b[0]) * S, h = (t.b[3] - t.b[1]) * S; if (w < 4 || h < 4) return;
+        var person = t.g === 'p' || t.g === 'a', pad = .18;
+        var X0 = Math.max(0, x0 - w * pad), Y0 = Math.max(0, y0 - h * pad), X1 = Math.min(cw, x0 + w * (1 + pad)), Y1 = Math.min(ch, y0 + h * (1 + pad));
+        /* the body's own pixels, a little beyond its box, much brighter: warm things read white */
+        thhx.clearRect(0, 0, cw, ch);
+        var big = w * h > cw * ch * .12;   /* a ship filling the frame glows less than a person, or it washes the picture out */
+        thhx.filter = 'grayscale(1) brightness(' + (person ? 2.5 : big ? 1.3 : 1.6) + ') contrast(1.3)';
+        thhx.drawImage(video, crop.x + X0 / cw * crop.w, crop.y + Y0 / ch * crop.h, (X1 - X0) / cw * crop.w, (Y1 - Y0) / ch * crop.h, X0, Y0, X1 - X0, Y1 - Y0); thhx.filter = 'none';
+        /* lift the darks too: a warm body is bright whatever colour its clothes are */
+        thhx.globalCompositeOperation = 'screen'; thhx.fillStyle = 'rgba(255,255,255,' + (person ? .22 : big ? .12 : .25) + ')'; thhx.fillRect(X0, Y0, X1 - X0, Y1 - Y0); thhx.globalCompositeOperation = 'source-over';
+        /* soft mask that fades out inside the box, so there is never a hard rectangle: a head and a torso for
+           people and animals (a box around a person is mostly background), a rounded shape for vehicles */
+        thhx.globalCompositeOperation = 'destination-in';
+        var blobs = person ? [[.5, .13, .17, .11], [.5, .56, .27, .46]] : [[.5, .5, .5 + pad, .5 + pad]];
+        thM.width = cw; thM.height = ch; thmx.clearRect(0, 0, cw, ch);
+        blobs.forEach(function (e) {
+          thmx.save(); thmx.translate(x0 + w * e[0], y0 + h * e[1]); thmx.scale(w * e[2], h * e[3]);
+          var m = thmx.createRadialGradient(0, 0, 0, 0, 0, 1);
+          m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(.6, 'rgba(0,0,0,.92)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+          thmx.fillStyle = m; thmx.fillRect(-1, -1, 2, 2); thmx.restore();
+        });
+        thhx.drawImage(thM, 0, 0);
+        thhx.globalCompositeOperation = 'source-over';
+        thx.drawImage(thH, 0, 0); warm++;
+      });
+      if (warm) {
+        sx.save(); sx.globalCompositeOperation = 'lighten'; sx.drawImage(thS, 0, 0);                  /* the warm bodies */
+        sx.globalCompositeOperation = 'screen'; sx.globalAlpha = .25; sx.filter = 'blur(' + Math.max(4, cw / 160).toFixed(1) + 'px)'; sx.drawImage(thS, 0, 0);   /* heat bloom */
+        sx.restore(); sx.filter = 'none';
+      }
+      /* lens vignette: thermal optics fall off toward the edges */
+      var vg = sx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * .35, cw / 2, ch / 2, Math.hypot(cw, ch) * .6);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); sx.fillStyle = vg; sx.fillRect(0, 0, cw, ch);
     } else {
       sx.filter = 'grayscale(1) contrast(1.15) brightness(.92)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
