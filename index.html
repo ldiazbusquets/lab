@@ -1239,8 +1239,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     nx.putImageData(nd, 0, 0); noise.push(nc);
   }
   var tmp = document.createElement('canvas'), tx = tmp.getContext('2d', { willReadFrequently: true }), LUT = null;
-  var thS = document.createElement('canvas'), thx = thS.getContext('2d'), thH = document.createElement('canvas'), thhx = thH.getContext('2d'), thM = document.createElement('canvas'), thmx = thM.getContext('2d');   /* thermal: warm bodies, one body at a time, and its mask */
-  function thermalLUT() {
+    function thermalLUT() {
     /* white-hot greyscale: every pixel mapped through a contrast curve, warm (bright) is white, cold is black */
     var L = []; for (var i = 0; i < 256; i++) { var t = i / 255, u = t * t * (3 - 2 * t), v = Math.round(8 + 244 * (u * .7 + Math.pow(t, 1.4) * .3)); L.push([v, v, v]); } return L;
   }
@@ -1780,58 +1779,26 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
     var cw = sc.width, ch = sc.height;
     sx.setTransform(1, 0, 0, 1, 0, 0);
     if (mode === 'thermal') {
-      /* white-hot thermal, done as an image filter: the whole frame becomes a cold, high-contrast greyscale
-         (detail kept sharp, the way a thermal sensor still shows edges and texture), then every tracked person,
-         animal and vehicle is redrawn from the same pixels, much brighter, through a soft body-shaped mask, so it
-         glows with its own folds and outlines instead of turning into a blob. A faint bloom and a vignette finish it. */
-      sx.filter = 'url(#ldbIR) brightness(.74)';
+      /* black-and-white infrared, done purely as a filter on the whole frame (no shapes drawn over people or vehicles):
+         a channel mix that turns skin and foliage bright and blue sky and water dark, an S-curve for deep blacks and
+         clean whites, then the ethereal infrared glow (a soft, bright diffusion layered over the sharp image) and a
+         lens vignette. Grain is added below. */
+      sx.filter = 'url(#ldbIR) brightness(.78)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
-      /* halation: the brightest parts bleed a soft glow, as on an infrared or thermal sensor */
-      sx.save(); sx.globalCompositeOperation = 'screen'; sx.globalAlpha = .17; sx.filter = 'url(#ldbIR) brightness(.7) contrast(1.6) blur(' + Math.max(3, cw / 220).toFixed(1) + 'px)';
-      sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.restore(); sx.filter = 'none';
-      if (thS.width !== cw || thS.height !== ch) { thS.width = cw; thS.height = ch; thH.width = cw; thH.height = ch; }
-      thx.clearRect(0, 0, cw, ch);
-      var warm = 0;
-      tracks.forEach(function (t) { if (t.hits < 2 || !t.b || t.g === 'o') return;
-        var x0 = t.b[0] * S, y0 = t.b[1] * S, w = (t.b[2] - t.b[0]) * S, h = (t.b[3] - t.b[1]) * S; if (w < 4 || h < 4) return;
-        var person = t.g === 'p' || t.g === 'a', pad = .18;
-        var X0 = Math.max(0, x0 - w * pad), Y0 = Math.max(0, y0 - h * pad), X1 = Math.min(cw, x0 + w * (1 + pad)), Y1 = Math.min(ch, y0 + h * (1 + pad));
-        /* the body's own pixels, a little beyond its box, much brighter: warm things read white */
-        thhx.clearRect(0, 0, cw, ch);
-        var big = w * h > cw * ch * .12;   /* a ship filling the frame glows less than a person, or it washes the picture out */
-        thhx.filter = 'grayscale(1) brightness(' + (person ? 2.5 : big ? 1.3 : 1.6) + ') contrast(1.3)';
-        thhx.drawImage(video, crop.x + X0 / cw * crop.w, crop.y + Y0 / ch * crop.h, (X1 - X0) / cw * crop.w, (Y1 - Y0) / ch * crop.h, X0, Y0, X1 - X0, Y1 - Y0); thhx.filter = 'none';
-        /* lift the darks too: a warm body is bright whatever colour its clothes are */
-        thhx.globalCompositeOperation = 'screen'; thhx.fillStyle = 'rgba(255,255,255,' + (person ? .22 : big ? .12 : .25) + ')'; thhx.fillRect(X0, Y0, X1 - X0, Y1 - Y0); thhx.globalCompositeOperation = 'source-over';
-        /* soft mask that fades out inside the box, so there is never a hard rectangle: a head and a torso for
-           people and animals (a box around a person is mostly background), a rounded shape for vehicles */
-        thhx.globalCompositeOperation = 'destination-in';
-        var blobs = person ? [[.5, .13, .17, .11], [.5, .56, .27, .46]] : [[.5, .5, .5 + pad, .5 + pad]];
-        thM.width = cw; thM.height = ch; thmx.clearRect(0, 0, cw, ch);
-        blobs.forEach(function (e) {
-          thmx.save(); thmx.translate(x0 + w * e[0], y0 + h * e[1]); thmx.scale(w * e[2], h * e[3]);
-          var m = thmx.createRadialGradient(0, 0, 0, 0, 0, 1);
-          m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(.6, 'rgba(0,0,0,.92)'); m.addColorStop(1, 'rgba(0,0,0,0)');
-          thmx.fillStyle = m; thmx.fillRect(-1, -1, 2, 2); thmx.restore();
-        });
-        thhx.drawImage(thM, 0, 0);
-        thhx.globalCompositeOperation = 'source-over';
-        thx.drawImage(thH, 0, 0); warm++;
-      });
-      if (warm) {
-        sx.save(); sx.globalCompositeOperation = 'lighten'; sx.drawImage(thS, 0, 0);                  /* the warm bodies */
-        sx.globalCompositeOperation = 'screen'; sx.globalAlpha = .25; sx.filter = 'blur(' + Math.max(4, cw / 160).toFixed(1) + 'px)'; sx.drawImage(thS, 0, 0);   /* heat bloom */
-        sx.restore(); sx.filter = 'none';
-      }
-      /* lens vignette: thermal optics fall off toward the edges */
-      var vg = sx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * .35, cw / 2, ch / 2, Math.hypot(cw, ch) * .6);
-      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); sx.fillStyle = vg; sx.fillRect(0, 0, cw, ch);
+      sx.save(); sx.globalCompositeOperation = 'screen';
+      sx.globalAlpha = .3; sx.filter = 'url(#ldbIR) brightness(.62) contrast(1.5) blur(' + Math.max(4, cw / 150).toFixed(1) + 'px)';
+      sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
+      sx.globalAlpha = .14; sx.filter = 'url(#ldbIR) brightness(.55) contrast(1.8) blur(' + Math.max(12, cw / 50).toFixed(1) + 'px)';
+      sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
+      sx.restore(); sx.filter = 'none';
+      var vg = sx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * .38, cw / 2, ch / 2, Math.hypot(cw, ch) * .62);
+      vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)'); sx.fillStyle = vg; sx.fillRect(0, 0, cw, ch);
     } else {
       sx.filter = 'grayscale(1) contrast(1.15) brightness(.92)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
       sx.filter = 'none';
     }
-    grain(mode === 'thermal' ? .05 : .08);
+    grain(mode === 'thermal' ? .09 : .08);   /* infrared film is grainy */
   }
   function drawNoSignal() {
     var cw = sc.width, ch = sc.height, dead = FEEDS.every(function (f, i) { return bad[i]; });
