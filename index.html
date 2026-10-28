@@ -616,8 +616,15 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <!-- black-and-white infrared / white-hot look for the thermal view: a channel mix that makes skin and foliage bright and blue sky dark, then an S-curve for deep blacks and clean whites -->
-  <filter id="ldbIR" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.6 0.75 -0.32 0 0.01  0.6 0.75 -0.32 0 0.01  0.6 0.75 -0.32 0 0.01  0 0 0 1 0"/>
-    <feComponentTransfer><feFuncR type="table" tableValues="0 0.03 0.1 0.26 0.5 0.74 0.9 0.97 1"/><feFuncG type="table" tableValues="0 0.03 0.1 0.26 0.5 0.74 0.9 0.97 1"/><feFuncB type="table" tableValues="0 0.03 0.1 0.26 0.5 0.74 0.9 0.97 1"/></feComponentTransfer></filter>
+  <filter id="ldbIR" color-interpolation-filters="sRGB">
+    <!-- red-heavy mono, the way an infrared-converted camera sees: skin and warm light bright, blue sky and cool shade near black -->
+    <feColorMatrix in="SourceGraphic" type="matrix" values="1.3 0.18 -0.56 0 0  1.3 0.18 -0.56 0 0  1.3 0.18 -0.56 0 0  0 0 0 1 0" result="m"/>
+    <feComponentTransfer in="m" result="base"><feFuncR type="table" tableValues="0 0.01 0.04 0.13 0.34 0.6 0.82 0.95 1"/><feFuncG type="table" tableValues="0 0.01 0.04 0.13 0.34 0.6 0.82 0.95 1"/><feFuncB type="table" tableValues="0 0.01 0.04 0.13 0.34 0.6 0.82 0.95 1"/></feComponentTransfer>
+    <!-- skin glow: infrared passes into skin and scatters back, so faces and hands turn pale and luminous. Skin is where red far exceeds blue -->
+    <feColorMatrix in="SourceGraphic" type="matrix" values="2.6 0 -2.6 0 -0.12  2.6 0 -2.6 0 -0.12  2.6 0 -2.6 0 -0.12  0 0 0 1 0" result="sk"/>
+    <feComponentTransfer in="sk" result="sk2"><feFuncR type="table" tableValues="0 0.55 0.9 1"/><feFuncG type="table" tableValues="0 0.55 0.9 1"/><feFuncB type="table" tableValues="0 0.55 0.9 1"/></feComponentTransfer>
+    <feGaussianBlur in="sk2" stdDeviation="0.7" result="skb"/>
+    <feBlend in="base" in2="skb" mode="screen"/></filter>
 </defs></svg>
 <section class="vision" id="vision" aria-label="Live object detection">
   <div class="feed" id="feed">
@@ -1783,12 +1790,12 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
          a channel mix that turns skin and foliage bright and blue sky and water dark, an S-curve for deep blacks and
          clean whites, then the ethereal infrared glow (a soft, bright diffusion layered over the sharp image) and a
          lens vignette. Grain is added below. */
-      sx.filter = 'url(#ldbIR) brightness(.78)';
+      sx.filter = 'url(#ldbIR) brightness(.9)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
       sx.save(); sx.globalCompositeOperation = 'screen';
-      sx.globalAlpha = .3; sx.filter = 'url(#ldbIR) brightness(.62) contrast(1.5) blur(' + Math.max(4, cw / 150).toFixed(1) + 'px)';
+      sx.globalAlpha = .16; sx.filter = 'url(#ldbIR) brightness(.6) contrast(1.6) blur(' + Math.max(4, cw / 150).toFixed(1) + 'px)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
-      sx.globalAlpha = .14; sx.filter = 'url(#ldbIR) brightness(.55) contrast(1.8) blur(' + Math.max(12, cw / 50).toFixed(1) + 'px)';
+      sx.globalAlpha = .07; sx.filter = 'url(#ldbIR) brightness(.55) contrast(1.8) blur(' + Math.max(12, cw / 50).toFixed(1) + 'px)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch);
       sx.restore(); sx.filter = 'none';
       var vg = sx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * .38, cw / 2, ch / 2, Math.hypot(cw, ch) * .62);
