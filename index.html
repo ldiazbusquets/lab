@@ -614,6 +614,11 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   </div>
 </div></section>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <!-- black-and-white infrared / white-hot look for the thermal view: a channel mix that makes skin and foliage bright and blue sky dark, then an S-curve for deep blacks and clean whites -->
+  <filter id="ldbIR" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.6 0.75 -0.32 0 0.01  0.6 0.75 -0.32 0 0.01  0.6 0.75 -0.32 0 0.01  0 0 0 1 0"/>
+    <feComponentTransfer><feFuncR type="table" tableValues="0 0.03 0.1 0.26 0.5 0.74 0.9 0.97 1"/><feFuncG type="table" tableValues="0 0.03 0.1 0.26 0.5 0.74 0.9 0.97 1"/><feFuncB type="table" tableValues="0 0.03 0.1 0.26 0.5 0.74 0.9 0.97 1"/></feComponentTransfer></filter>
+</defs></svg>
 <section class="vision" id="vision" aria-label="Live object detection">
   <div class="feed" id="feed">
     <canvas id="scene" aria-hidden="true"></canvas>
@@ -1779,8 +1784,11 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
          (detail kept sharp, the way a thermal sensor still shows edges and texture), then every tracked person,
          animal and vehicle is redrawn from the same pixels, much brighter, through a soft body-shaped mask, so it
          glows with its own folds and outlines instead of turning into a blob. A faint bloom and a vignette finish it. */
-      sx.filter = 'grayscale(1) contrast(1.3) brightness(.56)';
+      sx.filter = 'url(#ldbIR) brightness(.74)';
       sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.filter = 'none';
+      /* halation: the brightest parts bleed a soft glow, as on an infrared or thermal sensor */
+      sx.save(); sx.globalCompositeOperation = 'screen'; sx.globalAlpha = .17; sx.filter = 'url(#ldbIR) brightness(.7) contrast(1.6) blur(' + Math.max(3, cw / 220).toFixed(1) + 'px)';
+      sx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, cw, ch); sx.restore(); sx.filter = 'none';
       if (thS.width !== cw || thS.height !== ch) { thS.width = cw; thS.height = ch; thH.width = cw; thH.height = ch; }
       thx.clearRect(0, 0, cw, ch);
       var warm = 0;
