@@ -34,8 +34,10 @@
   document.addEventListener('DOMContentLoaded', function () { var b = document.getElementById('themeBtn'); if (b) { b.addEventListener('click', window.ldbToggleTheme); apply(root.classList.contains('lt') ? 'light' : 'dark'); } });
   setInterval(function () { if (!chosen()) apply(byHour()); }, 60000);   /* follows the clock while the page stays open */
 })();</script>
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=3">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="icon" href="/lab/favicon.svg?v=1" type="image/svg+xml">
+<link rel="icon" href="/lab/favicon-32.png?v=1" type="image/png" sizes="32x32">
+<link rel="icon" href="/lab/favicon-192.png?v=1" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/lab/apple-touch-icon.png?v=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
