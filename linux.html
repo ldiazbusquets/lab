@@ -145,6 +145,7 @@ footer { margin: 70px 0 40px; display: flex; justify-content: space-between; fle
     ready = false; $('boot').hidden = false; $('dot').classList.remove('on'); $('ttl').textContent = 'linux · starting…';
     var cfg = { wasm_path: '/linux/v86/v86.wasm', memory_size: 64 * 1024 * 1024, vga_memory_size: 2 * 1024 * 1024, screen_container: $('screen'), bios: { url: '/linux/v86/seabios.bin' }, vga_bios: { url: '/linux/v86/vgabios.bin' }, cdrom: { url: '/linux/v86/linux.iso' }, autostart: true, disable_speaker: true };
     if (state) cfg.initial_state = { buffer: state };
+    if (typeof V86 === 'undefined') { $('boot').querySelector('div').innerHTML = '<b>Linux couldn&rsquo;t load</b>the emulator didn&rsquo;t download. Check your connection and reload the page.'; $('ttl').textContent = 'linux · offline'; return; }
     emu = new V86(cfg);
     emu.add_listener('download-progress', function (e) { if (e.lengthComputable) $('bootbar').style.width = Math.round(100 * e.loaded / e.total) + '%'; });
     emu.add_listener('screen-set-mode', function (gfx) { $('screen').classList.toggle('gfx', !!gfx); });
