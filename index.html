@@ -494,6 +494,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   });
   addEventListener('pageshow', function () { document.documentElement.classList.remove('ldb-out'); });
 })();</script>
+<link rel="stylesheet" href="ldb-glass.css">
 </head>
 <body>
 <header class="top"><div class="w">
@@ -2204,5 +2205,7 @@ var CLIP_SECONDS = 14;   /* how long each feed stays on screen (a feed can set i
 })();
 </script>
 <script src="/lab/ai.js?v=1" defer></script>
+<script src="ldb-glass.js"></script>
+<script>LDBGlass.glassifyAll(".pill.gl, .sites, .tbtn, .fchip, .modes, .scard, .fc .gl");</script>
 </body>
 </html>
