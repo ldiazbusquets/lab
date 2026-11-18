@@ -329,6 +329,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   .ld b { color: var(--ink); font-weight: 500; }
   .seg button[aria-pressed="true"] { background: rgba(236,240,243,.92); color: #121416; }
 </style>
+<link rel="stylesheet" href="ldb-glass.css">
 </head>
 <body>
 <nav><div class="in">
@@ -783,5 +784,7 @@ var DOCS = {
 })();
 </script>
 <script src="/lab/ai.js?v=1" defer></script>
+<script src="ldb-glass.js?v=2"></script>
+<script>LDBGlass.glassifyAll(".panel, .card, .tbtn, .pill.gl, .sites, .gl", { refract: false });   /* lit glass rims, as on the Lab home page */</script>
 </body>
 </html>

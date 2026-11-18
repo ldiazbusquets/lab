@@ -227,6 +227,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   html.lt .prompt button, html.lt .cfg button { background: rgba(255,255,255,.7); color: var(--ink); border-color: rgba(24,34,44,.14); }
   html.lt .prompt button.primary, html.lt .cfg button.primary, html.lt .prompt .primary { background: #15191C !important; color: #F2F4F5 !important; }
 </style>
+<link rel="stylesheet" href="ldb-glass.css">
 </head>
 <body>
 <nav><div class="in">
@@ -446,5 +447,7 @@ function setSeg(id, k) { document.querySelectorAll('#' + id + ' button').forEach
 
 </script>
 <script src="/lab/ai.js?v=1" defer></script>
+<script src="ldb-glass.js?v=2"></script>
+<script>LDBGlass.glassifyAll(".panel, .card, .tbtn, .pill.gl, .sites, .gl", { refract: false });   /* lit glass rims, as on the Lab home page */</script>
 </body>
 </html>

@@ -323,6 +323,7 @@ html.ldb-out body { opacity: 0; transition: opacity .22s ease; }
   .cats p { margin: 0 0 10px; font-size: 13px; color: var(--soft); }
   .cats b { color: var(--ink); font-weight: 500; }
 </style>
+<link rel="stylesheet" href="ldb-glass.css">
 </head>
 <body>
 <nav><div class="in">
@@ -542,5 +543,7 @@ addEventListener('scroll', function () { document.documentElement.classList.togg
 })();
 </script>
 <script src="/lab/ai.js?v=1" defer></script>
+<script src="ldb-glass.js?v=2"></script>
+<script>LDBGlass.glassifyAll(".panel, .card, .tbtn, .pill.gl, .sites, .gl", { refract: false });   /* lit glass rims, as on the Lab home page */</script>
 </body>
 </html>
